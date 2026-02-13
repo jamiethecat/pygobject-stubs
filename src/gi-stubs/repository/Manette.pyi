@@ -1,18 +1,20 @@
 import typing
 
+from gi.repository import Gio
 from gi.repository import GObject
 from typing_extensions import Self
 
 T = typing.TypeVar("T")
 
-MAJOR_VERSION: int = 1
-MICRO_VERSION: int = 0
-MINOR_VERSION: int = 0
-VERSION_S: str = "1.0.alpha"
+MAJOR_VERSION: int = 0
+MICRO_VERSION: int = 14
+MINOR_VERSION: int = 2
+VERSION_S: str = "0.2.14"
 
 def get_major_version() -> int: ...
 def get_micro_version() -> int: ...
 def get_minor_version() -> int: ...
+def get_resource() -> Gio.Resource: ...
 
 class Device(GObject.Object):
     """
@@ -25,31 +27,26 @@ class Device(GObject.Object):
     Object ManetteDevice
 
     Signals from ManetteDevice:
+      event (ManetteEvent)
+      button-press-event (ManetteEvent)
+      button-release-event (ManetteEvent)
+      absolute-axis-event (ManetteEvent)
+      hat-axis-event (ManetteEvent)
       disconnected ()
-      button-pressed (ManetteButton)
-      button-released (ManetteButton)
-      absolute-axis-changed (ManetteAxis, gdouble)
-      unmapped-button-pressed (guint)
-      unmapped-button-released (guint)
-      unmapped-absolute-axis-changed (guint, gdouble)
-      unmapped-hat-axis-changed (guint, gchar)
 
     Signals from GObject:
       notify (GParam)
     """
-    def get_current_event_time(self) -> int: ...
     def get_device_type(self) -> DeviceType: ...
     def get_guid(self) -> str: ...
     def get_mapping(self) -> typing.Optional[str]: ...
     def get_name(self) -> str: ...
-    def has_axis(self, axis: Axis) -> bool: ...
-    def has_button(self, button: Button) -> bool: ...
     def has_input(self, type: int, code: int) -> bool: ...
     def has_rumble(self) -> bool: ...
     def has_user_mapping(self) -> bool: ...
     def remove_user_mapping(self) -> None: ...
     def rumble(
-        self, strong_magnitude: float, weak_magnitude: float, milliseconds: int
+        self, strong_magnitude: int, weak_magnitude: int, milliseconds: int
     ) -> bool: ...
     def save_user_mapping(self, mapping_string: str) -> None: ...
     def supports_mapping(self) -> bool: ...
@@ -64,6 +61,18 @@ class DeviceClass(GObject.GPointer):
     """
 
     parent_class: GObject.ObjectClass = ...
+
+class Event(GObject.GBoxed):
+    def get_absolute(self) -> typing.Tuple[bool, int, float]: ...
+    def get_button(self) -> typing.Tuple[bool, int]: ...
+    def get_device(self) -> Device: ...
+    def get_event_type(self) -> EventType: ...
+    def get_hardware_code(self) -> int: ...
+    def get_hardware_index(self) -> int: ...
+    def get_hardware_type(self) -> int: ...
+    def get_hardware_value(self) -> int: ...
+    def get_hat(self) -> typing.Tuple[bool, int, int]: ...
+    def get_time(self) -> int: ...
 
 class Monitor(GObject.Object):
     """
@@ -83,7 +92,7 @@ class Monitor(GObject.Object):
     Signals from GObject:
       notify (GParam)
     """
-    def list_devices(self) -> list[Device]: ...
+    def iterate(self) -> MonitorIter: ...
     @classmethod
     def new(cls) -> Monitor: ...
 
@@ -98,42 +107,16 @@ class MonitorClass(GObject.GPointer):
 
     parent_class: GObject.ObjectClass = ...
 
-class Axis(GObject.GEnum):
-    LEFT_TRIGGER = 4
-    LEFT_X = 0
-    LEFT_Y = 1
-    RIGHT_TRIGGER = 5
-    RIGHT_X = 2
-    RIGHT_Y = 3
-
-class Button(GObject.GEnum):
-    DPAD_DOWN = 1
-    DPAD_LEFT = 2
-    DPAD_RIGHT = 3
-    DPAD_UP = 0
-    EAST = 7
-    LEFT_PADDLE1 = 15
-    LEFT_PADDLE2 = 16
-    LEFT_SHOULDER = 11
-    LEFT_STICK = 13
-    MISC1 = 19
-    MISC2 = 20
-    MISC3 = 21
-    MISC4 = 22
-    MISC5 = 23
-    MISC6 = 24
-    MODE = 10
-    NORTH = 4
-    RIGHT_PADDLE1 = 17
-    RIGHT_PADDLE2 = 18
-    RIGHT_SHOULDER = 12
-    RIGHT_STICK = 14
-    SELECT = 8
-    SOUTH = 5
-    START = 9
-    TOUCHPAD = 25
-    WEST = 6
+class MonitorIter(GObject.GBoxed):
+    def next(self) -> typing.Tuple[bool, Device]: ...
 
 class DeviceType(GObject.GEnum):
     GENERIC = 0
     STEAM_DECK = 1
+
+class EventType(GObject.GEnum):
+    EVENT_ABSOLUTE = 2
+    EVENT_BUTTON_PRESS = 0
+    EVENT_BUTTON_RELEASE = 1
+    EVENT_HAT = 3
+    EVENT_NOTHING = -1
