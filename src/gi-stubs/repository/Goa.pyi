@@ -1,23 +1,16 @@
-from typing import Any
-from typing import Callable
-from typing import Literal
-from typing import Optional
-from typing import Sequence
-from typing import Tuple
-from typing import Type
-from typing import TypeVar
+import typing
 
 from gi.repository import Gio
 from gi.repository import GLib
 from gi.repository import GObject
+from typing_extensions import Self
+
+T = typing.TypeVar("T")
 
 ERROR_NUM_ENTRIES: int = 6
 MAJOR_VERSION: int = 3
-MICRO_VERSION: int = 0
-MINOR_VERSION: int = 48
-_lock = ...  # FIXME Constant
-_namespace: str = "Goa"
-_version: str = "1.0"
+MICRO_VERSION: int = 1
+MINOR_VERSION: int = 57
 
 def account_interface_info() -> Gio.DBusInterfaceInfo: ...
 def account_override_properties(
@@ -111,28 +104,27 @@ class Account(GObject.GInterface):
     Signals from GObject:
       notify (GParam)
     """
-
     def call_ensure_credentials(
         self,
-        cancellable: Optional[Gio.Cancellable] = None,
-        callback: Optional[Callable[..., None]] = None,
-        *user_data: Any,
+        cancellable: typing.Optional[Gio.Cancellable] = None,
+        callback: typing.Optional[typing.Callable[..., None]] = None,
+        *user_data: typing.Any,
     ) -> None: ...
     def call_ensure_credentials_finish(
         self, res: Gio.AsyncResult
-    ) -> Tuple[bool, int]: ...
+    ) -> typing.Tuple[bool, int]: ...
     def call_ensure_credentials_sync(
-        self, cancellable: Optional[Gio.Cancellable] = None
-    ) -> Tuple[bool, int]: ...
+        self, cancellable: typing.Optional[Gio.Cancellable] = None
+    ) -> typing.Tuple[bool, int]: ...
     def call_remove(
         self,
-        cancellable: Optional[Gio.Cancellable] = None,
-        callback: Optional[Callable[..., None]] = None,
-        *user_data: Any,
+        cancellable: typing.Optional[Gio.Cancellable] = None,
+        callback: typing.Optional[typing.Callable[..., None]] = None,
+        *user_data: typing.Any,
     ) -> None: ...
     def call_remove_finish(self, res: Gio.AsyncResult) -> bool: ...
     def call_remove_sync(
-        self, cancellable: Optional[Gio.Cancellable] = None
+        self, cancellable: typing.Optional[Gio.Cancellable] = None
     ) -> bool: ...
     def complete_ensure_credentials(
         self, invocation: Gio.DBusMethodInvocation, expires_in: int
@@ -155,30 +147,32 @@ class AccountIface(GObject.GPointer):
     """
 
     parent_iface: GObject.TypeInterface = ...
-    handle_ensure_credentials: Callable[[Account, Gio.DBusMethodInvocation], bool] = ...
-    handle_remove: Callable[[Account, Gio.DBusMethodInvocation], bool] = ...
-    get_attention_needed: Callable[[Account], bool] = ...
-    get_calendar_disabled: Callable[[Account], bool] = ...
-    get_chat_disabled: Callable[[Account], bool] = ...
-    get_contacts_disabled: Callable[[Account], bool] = ...
-    get_documents_disabled: Callable[[Account], bool] = ...
-    get_id: Callable[[Account], Optional[str]] = ...
-    get_identity: Callable[[Account], Optional[str]] = ...
-    get_is_temporary: Callable[[Account], bool] = ...
-    get_mail_disabled: Callable[[Account], bool] = ...
-    get_presentation_identity: Callable[[Account], Optional[str]] = ...
-    get_provider_icon: Callable[[Account], Optional[str]] = ...
-    get_provider_name: Callable[[Account], Optional[str]] = ...
-    get_provider_type: Callable[[Account], Optional[str]] = ...
-    get_ticketing_disabled: Callable[[Account], bool] = ...
-    get_files_disabled: Callable[[Account], bool] = ...
-    get_photos_disabled: Callable[[Account], bool] = ...
-    get_printers_disabled: Callable[[Account], bool] = ...
-    get_read_later_disabled: Callable[[Account], bool] = ...
-    get_maps_disabled: Callable[[Account], bool] = ...
-    get_is_locked: Callable[[Account], bool] = ...
-    get_music_disabled: Callable[[Account], bool] = ...
-    get_todo_disabled: Callable[[Account], bool] = ...
+    handle_ensure_credentials: typing.Callable[
+        [Account, Gio.DBusMethodInvocation], bool
+    ] = ...
+    handle_remove: typing.Callable[[Account, Gio.DBusMethodInvocation], bool] = ...
+    get_attention_needed: typing.Callable[[Account], bool] = ...
+    get_calendar_disabled: typing.Callable[[Account], bool] = ...
+    get_chat_disabled: typing.Callable[[Account], bool] = ...
+    get_contacts_disabled: typing.Callable[[Account], bool] = ...
+    get_documents_disabled: typing.Callable[[Account], bool] = ...
+    get_files_disabled: typing.Callable[[Account], bool] = ...
+    get_id: typing.Callable[[Account], typing.Optional[str]] = ...
+    get_identity: typing.Callable[[Account], typing.Optional[str]] = ...
+    get_is_locked: typing.Callable[[Account], bool] = ...
+    get_is_temporary: typing.Callable[[Account], bool] = ...
+    get_mail_disabled: typing.Callable[[Account], bool] = ...
+    get_maps_disabled: typing.Callable[[Account], bool] = ...
+    get_music_disabled: typing.Callable[[Account], bool] = ...
+    get_photos_disabled: typing.Callable[[Account], bool] = ...
+    get_presentation_identity: typing.Callable[[Account], typing.Optional[str]] = ...
+    get_printers_disabled: typing.Callable[[Account], bool] = ...
+    get_provider_icon: typing.Callable[[Account], typing.Optional[str]] = ...
+    get_provider_name: typing.Callable[[Account], typing.Optional[str]] = ...
+    get_provider_type: typing.Callable[[Account], typing.Optional[str]] = ...
+    get_read_later_disabled: typing.Callable[[Account], bool] = ...
+    get_ticketing_disabled: typing.Callable[[Account], bool] = ...
+    get_todo_disabled: typing.Callable[[Account], bool] = ...
 
 class AccountProxy(
     Gio.DBusProxy, Gio.AsyncInitable, Gio.DBusInterface, Gio.Initable, Account
@@ -206,29 +200,19 @@ class AccountProxy(
 
     Properties from GDBusProxy:
       g-connection -> GDBusConnection: g-connection
-        The connection the proxy is for
-      g-bus-type -> GBusType: Bus Type
-        The bus to connect to, if any
+      g-bus-type -> GBusType: g-bus-type
       g-name -> gchararray: g-name
-        The well-known or unique name that the proxy is for
       g-name-owner -> gchararray: g-name-owner
-        The unique name for the owner
       g-flags -> GDBusProxyFlags: g-flags
-        Flags for the proxy
       g-object-path -> gchararray: g-object-path
-        The object path the proxy is for
       g-interface-name -> gchararray: g-interface-name
-        The D-Bus interface name the proxy is for
-      g-default-timeout -> gint: Default Timeout
-        Timeout for remote method invocation
-      g-interface-info -> GDBusInterfaceInfo: Interface Information
-        Interface Information
+      g-default-timeout -> gint: g-default-timeout
+      g-interface-info -> GDBusInterfaceInfo: g-interface-info
 
     Signals from GObject:
       notify (GParam)
     """
-
-    class Props:
+    class Props(Gio.DBusProxy.Props):
         g_connection: Gio.DBusConnection
         g_default_timeout: int
         g_flags: Gio.DBusProxyFlags
@@ -296,16 +280,16 @@ class AccountProxy(
         read_later_disabled: bool = ...,
         ticketing_disabled: bool = ...,
         todo_disabled: bool = ...,
-    ): ...
+    ) -> None: ...
     @staticmethod
     def new(
         connection: Gio.DBusConnection,
         flags: Gio.DBusProxyFlags,
-        name: Optional[str],
+        name: typing.Optional[str],
         object_path: str,
-        cancellable: Optional[Gio.Cancellable] = None,
-        callback: Optional[Callable[..., None]] = None,
-        *user_data: Any,
+        cancellable: typing.Optional[Gio.Cancellable] = None,
+        callback: typing.Optional[typing.Callable[..., None]] = None,
+        *user_data: typing.Any,
     ) -> None: ...
     @classmethod
     def new_finish(cls, res: Gio.AsyncResult) -> AccountProxy: ...
@@ -315,9 +299,9 @@ class AccountProxy(
         flags: Gio.DBusProxyFlags,
         name: str,
         object_path: str,
-        cancellable: Optional[Gio.Cancellable] = None,
-        callback: Optional[Callable[..., None]] = None,
-        *user_data: Any,
+        cancellable: typing.Optional[Gio.Cancellable] = None,
+        callback: typing.Optional[typing.Callable[..., None]] = None,
+        *user_data: typing.Any,
     ) -> None: ...
     @classmethod
     def new_for_bus_finish(cls, res: Gio.AsyncResult) -> AccountProxy: ...
@@ -328,16 +312,16 @@ class AccountProxy(
         flags: Gio.DBusProxyFlags,
         name: str,
         object_path: str,
-        cancellable: Optional[Gio.Cancellable] = None,
+        cancellable: typing.Optional[Gio.Cancellable] = None,
     ) -> AccountProxy: ...
     @classmethod
     def new_sync(
         cls,
         connection: Gio.DBusConnection,
         flags: Gio.DBusProxyFlags,
-        name: Optional[str],
+        name: typing.Optional[str],
         object_path: str,
-        cancellable: Optional[Gio.Cancellable] = None,
+        cancellable: typing.Optional[Gio.Cancellable] = None,
     ) -> AccountProxy: ...
 
 class AccountProxyClass(GObject.GPointer):
@@ -373,13 +357,11 @@ class AccountSkeleton(Gio.DBusInterfaceSkeleton, Gio.DBusInterface, Account):
 
     Properties from GDBusInterfaceSkeleton:
       g-flags -> GDBusInterfaceSkeletonFlags: g-flags
-        Flags for the interface skeleton
 
     Signals from GObject:
       notify (GParam)
     """
-
-    class Props:
+    class Props(Gio.DBusInterfaceSkeleton.Props):
         g_flags: Gio.DBusInterfaceSkeletonFlags
         attention_needed: bool
         calendar_disabled: bool
@@ -432,7 +414,7 @@ class AccountSkeleton(Gio.DBusInterfaceSkeleton, Gio.DBusInterface, Account):
         read_later_disabled: bool = ...,
         ticketing_disabled: bool = ...,
         todo_disabled: bool = ...,
-    ): ...
+    ) -> None: ...
     @classmethod
     def new(cls) -> AccountSkeleton: ...
 
@@ -456,7 +438,6 @@ class Calendar(GObject.GInterface):
     Signals from GObject:
       notify (GParam)
     """
-
     @staticmethod
     def interface_info() -> Gio.DBusInterfaceInfo: ...
     @staticmethod
@@ -474,8 +455,8 @@ class CalendarIface(GObject.GPointer):
     """
 
     parent_iface: GObject.TypeInterface = ...
-    get_accept_ssl_errors: Callable[[Calendar], bool] = ...
-    get_uri: Callable[[Calendar], Optional[str]] = ...
+    get_accept_ssl_errors: typing.Callable[[Calendar], bool] = ...
+    get_uri: typing.Callable[[Calendar], typing.Optional[str]] = ...
 
 class CalendarProxy(
     Gio.DBusProxy, Gio.AsyncInitable, Gio.DBusInterface, Gio.Initable, Calendar
@@ -499,29 +480,19 @@ class CalendarProxy(
 
     Properties from GDBusProxy:
       g-connection -> GDBusConnection: g-connection
-        The connection the proxy is for
-      g-bus-type -> GBusType: Bus Type
-        The bus to connect to, if any
+      g-bus-type -> GBusType: g-bus-type
       g-name -> gchararray: g-name
-        The well-known or unique name that the proxy is for
       g-name-owner -> gchararray: g-name-owner
-        The unique name for the owner
       g-flags -> GDBusProxyFlags: g-flags
-        Flags for the proxy
       g-object-path -> gchararray: g-object-path
-        The object path the proxy is for
       g-interface-name -> gchararray: g-interface-name
-        The D-Bus interface name the proxy is for
-      g-default-timeout -> gint: Default Timeout
-        Timeout for remote method invocation
-      g-interface-info -> GDBusInterfaceInfo: Interface Information
-        Interface Information
+      g-default-timeout -> gint: g-default-timeout
+      g-interface-info -> GDBusInterfaceInfo: g-interface-info
 
     Signals from GObject:
       notify (GParam)
     """
-
-    class Props:
+    class Props(Gio.DBusProxy.Props):
         g_connection: Gio.DBusConnection
         g_default_timeout: int
         g_flags: Gio.DBusProxyFlags
@@ -549,16 +520,16 @@ class CalendarProxy(
         g_object_path: str = ...,
         accept_ssl_errors: bool = ...,
         uri: str = ...,
-    ): ...
+    ) -> None: ...
     @staticmethod
     def new(
         connection: Gio.DBusConnection,
         flags: Gio.DBusProxyFlags,
-        name: Optional[str],
+        name: typing.Optional[str],
         object_path: str,
-        cancellable: Optional[Gio.Cancellable] = None,
-        callback: Optional[Callable[..., None]] = None,
-        *user_data: Any,
+        cancellable: typing.Optional[Gio.Cancellable] = None,
+        callback: typing.Optional[typing.Callable[..., None]] = None,
+        *user_data: typing.Any,
     ) -> None: ...
     @classmethod
     def new_finish(cls, res: Gio.AsyncResult) -> CalendarProxy: ...
@@ -568,9 +539,9 @@ class CalendarProxy(
         flags: Gio.DBusProxyFlags,
         name: str,
         object_path: str,
-        cancellable: Optional[Gio.Cancellable] = None,
-        callback: Optional[Callable[..., None]] = None,
-        *user_data: Any,
+        cancellable: typing.Optional[Gio.Cancellable] = None,
+        callback: typing.Optional[typing.Callable[..., None]] = None,
+        *user_data: typing.Any,
     ) -> None: ...
     @classmethod
     def new_for_bus_finish(cls, res: Gio.AsyncResult) -> CalendarProxy: ...
@@ -581,16 +552,16 @@ class CalendarProxy(
         flags: Gio.DBusProxyFlags,
         name: str,
         object_path: str,
-        cancellable: Optional[Gio.Cancellable] = None,
+        cancellable: typing.Optional[Gio.Cancellable] = None,
     ) -> CalendarProxy: ...
     @classmethod
     def new_sync(
         cls,
         connection: Gio.DBusConnection,
         flags: Gio.DBusProxyFlags,
-        name: Optional[str],
+        name: typing.Optional[str],
         object_path: str,
-        cancellable: Optional[Gio.Cancellable] = None,
+        cancellable: typing.Optional[Gio.Cancellable] = None,
     ) -> CalendarProxy: ...
 
 class CalendarProxyClass(GObject.GPointer):
@@ -622,13 +593,11 @@ class CalendarSkeleton(Gio.DBusInterfaceSkeleton, Gio.DBusInterface, Calendar):
 
     Properties from GDBusInterfaceSkeleton:
       g-flags -> GDBusInterfaceSkeletonFlags: g-flags
-        Flags for the interface skeleton
 
     Signals from GObject:
       notify (GParam)
     """
-
-    class Props:
+    class Props(Gio.DBusInterfaceSkeleton.Props):
         g_flags: Gio.DBusInterfaceSkeletonFlags
         accept_ssl_errors: bool
         uri: str
@@ -641,7 +610,7 @@ class CalendarSkeleton(Gio.DBusInterfaceSkeleton, Gio.DBusInterface, Calendar):
         g_flags: Gio.DBusInterfaceSkeletonFlags = ...,
         accept_ssl_errors: bool = ...,
         uri: str = ...,
-    ): ...
+    ) -> None: ...
     @classmethod
     def new(cls) -> CalendarSkeleton: ...
 
@@ -665,7 +634,6 @@ class Chat(GObject.GInterface):
     Signals from GObject:
       notify (GParam)
     """
-
     @staticmethod
     def interface_info() -> Gio.DBusInterfaceInfo: ...
     @staticmethod
@@ -706,29 +674,19 @@ class ChatProxy(
 
     Properties from GDBusProxy:
       g-connection -> GDBusConnection: g-connection
-        The connection the proxy is for
-      g-bus-type -> GBusType: Bus Type
-        The bus to connect to, if any
+      g-bus-type -> GBusType: g-bus-type
       g-name -> gchararray: g-name
-        The well-known or unique name that the proxy is for
       g-name-owner -> gchararray: g-name-owner
-        The unique name for the owner
       g-flags -> GDBusProxyFlags: g-flags
-        Flags for the proxy
       g-object-path -> gchararray: g-object-path
-        The object path the proxy is for
       g-interface-name -> gchararray: g-interface-name
-        The D-Bus interface name the proxy is for
-      g-default-timeout -> gint: Default Timeout
-        Timeout for remote method invocation
-      g-interface-info -> GDBusInterfaceInfo: Interface Information
-        Interface Information
+      g-default-timeout -> gint: g-default-timeout
+      g-interface-info -> GDBusInterfaceInfo: g-interface-info
 
     Signals from GObject:
       notify (GParam)
     """
-
-    class Props:
+    class Props(Gio.DBusProxy.Props):
         g_connection: Gio.DBusConnection
         g_default_timeout: int
         g_flags: Gio.DBusProxyFlags
@@ -752,16 +710,16 @@ class ChatProxy(
         g_interface_name: str = ...,
         g_name: str = ...,
         g_object_path: str = ...,
-    ): ...
+    ) -> None: ...
     @staticmethod
     def new(
         connection: Gio.DBusConnection,
         flags: Gio.DBusProxyFlags,
-        name: Optional[str],
+        name: typing.Optional[str],
         object_path: str,
-        cancellable: Optional[Gio.Cancellable] = None,
-        callback: Optional[Callable[..., None]] = None,
-        *user_data: Any,
+        cancellable: typing.Optional[Gio.Cancellable] = None,
+        callback: typing.Optional[typing.Callable[..., None]] = None,
+        *user_data: typing.Any,
     ) -> None: ...
     @classmethod
     def new_finish(cls, res: Gio.AsyncResult) -> ChatProxy: ...
@@ -771,9 +729,9 @@ class ChatProxy(
         flags: Gio.DBusProxyFlags,
         name: str,
         object_path: str,
-        cancellable: Optional[Gio.Cancellable] = None,
-        callback: Optional[Callable[..., None]] = None,
-        *user_data: Any,
+        cancellable: typing.Optional[Gio.Cancellable] = None,
+        callback: typing.Optional[typing.Callable[..., None]] = None,
+        *user_data: typing.Any,
     ) -> None: ...
     @classmethod
     def new_for_bus_finish(cls, res: Gio.AsyncResult) -> ChatProxy: ...
@@ -784,16 +742,16 @@ class ChatProxy(
         flags: Gio.DBusProxyFlags,
         name: str,
         object_path: str,
-        cancellable: Optional[Gio.Cancellable] = None,
+        cancellable: typing.Optional[Gio.Cancellable] = None,
     ) -> ChatProxy: ...
     @classmethod
     def new_sync(
         cls,
         connection: Gio.DBusConnection,
         flags: Gio.DBusProxyFlags,
-        name: Optional[str],
+        name: typing.Optional[str],
         object_path: str,
-        cancellable: Optional[Gio.Cancellable] = None,
+        cancellable: typing.Optional[Gio.Cancellable] = None,
     ) -> ChatProxy: ...
 
 class ChatProxyClass(GObject.GPointer):
@@ -825,19 +783,17 @@ class ChatSkeleton(Gio.DBusInterfaceSkeleton, Gio.DBusInterface, Chat):
 
     Properties from GDBusInterfaceSkeleton:
       g-flags -> GDBusInterfaceSkeletonFlags: g-flags
-        Flags for the interface skeleton
 
     Signals from GObject:
       notify (GParam)
     """
-
-    class Props:
+    class Props(Gio.DBusInterfaceSkeleton.Props):
         g_flags: Gio.DBusInterfaceSkeletonFlags
 
     props: Props = ...
     parent_instance: Gio.DBusInterfaceSkeleton = ...
     priv: ChatSkeletonPrivate = ...
-    def __init__(self, g_flags: Gio.DBusInterfaceSkeletonFlags = ...): ...
+    def __init__(self, g_flags: Gio.DBusInterfaceSkeletonFlags = ...) -> None: ...
     @classmethod
     def new(cls) -> ChatSkeleton: ...
 
@@ -878,25 +834,26 @@ class Client(GObject.Object, Gio.AsyncInitable, Gio.Initable):
     Signals from GObject:
       notify (GParam)
     """
-
-    class Props:
+    class Props(GObject.Object.Props):
         object_manager: Gio.DBusObjectManager
 
     props: Props = ...
     def get_accounts(self) -> list[Object]: ...
-    def get_manager(self) -> Optional[Manager]: ...
+    def get_manager(self) -> typing.Optional[Manager]: ...
     def get_object_manager(self) -> Gio.DBusObjectManager: ...
     def lookup_by_id(self, id: str) -> Object: ...
     @staticmethod
     def new(
-        cancellable: Optional[Gio.Cancellable] = None,
-        callback: Optional[Callable[..., None]] = None,
-        *user_data: Any,
+        cancellable: typing.Optional[Gio.Cancellable] = None,
+        callback: typing.Optional[typing.Callable[..., None]] = None,
+        *user_data: typing.Any,
     ) -> None: ...
     @classmethod
     def new_finish(cls, res: Gio.AsyncResult) -> Client: ...
     @classmethod
-    def new_sync(cls, cancellable: Optional[Gio.Cancellable] = None) -> Client: ...
+    def new_sync(
+        cls, cancellable: typing.Optional[Gio.Cancellable] = None
+    ) -> Client: ...
 
 class ClientClass(GObject.GPointer):
     """
@@ -916,7 +873,6 @@ class Contacts(GObject.GInterface):
     Signals from GObject:
       notify (GParam)
     """
-
     @staticmethod
     def interface_info() -> Gio.DBusInterfaceInfo: ...
     @staticmethod
@@ -934,8 +890,8 @@ class ContactsIface(GObject.GPointer):
     """
 
     parent_iface: GObject.TypeInterface = ...
-    get_accept_ssl_errors: Callable[[Contacts], bool] = ...
-    get_uri: Callable[[Contacts], Optional[str]] = ...
+    get_accept_ssl_errors: typing.Callable[[Contacts], bool] = ...
+    get_uri: typing.Callable[[Contacts], typing.Optional[str]] = ...
 
 class ContactsProxy(
     Gio.DBusProxy, Gio.AsyncInitable, Gio.DBusInterface, Gio.Initable, Contacts
@@ -959,29 +915,19 @@ class ContactsProxy(
 
     Properties from GDBusProxy:
       g-connection -> GDBusConnection: g-connection
-        The connection the proxy is for
-      g-bus-type -> GBusType: Bus Type
-        The bus to connect to, if any
+      g-bus-type -> GBusType: g-bus-type
       g-name -> gchararray: g-name
-        The well-known or unique name that the proxy is for
       g-name-owner -> gchararray: g-name-owner
-        The unique name for the owner
       g-flags -> GDBusProxyFlags: g-flags
-        Flags for the proxy
       g-object-path -> gchararray: g-object-path
-        The object path the proxy is for
       g-interface-name -> gchararray: g-interface-name
-        The D-Bus interface name the proxy is for
-      g-default-timeout -> gint: Default Timeout
-        Timeout for remote method invocation
-      g-interface-info -> GDBusInterfaceInfo: Interface Information
-        Interface Information
+      g-default-timeout -> gint: g-default-timeout
+      g-interface-info -> GDBusInterfaceInfo: g-interface-info
 
     Signals from GObject:
       notify (GParam)
     """
-
-    class Props:
+    class Props(Gio.DBusProxy.Props):
         g_connection: Gio.DBusConnection
         g_default_timeout: int
         g_flags: Gio.DBusProxyFlags
@@ -1009,16 +955,16 @@ class ContactsProxy(
         g_object_path: str = ...,
         accept_ssl_errors: bool = ...,
         uri: str = ...,
-    ): ...
+    ) -> None: ...
     @staticmethod
     def new(
         connection: Gio.DBusConnection,
         flags: Gio.DBusProxyFlags,
-        name: Optional[str],
+        name: typing.Optional[str],
         object_path: str,
-        cancellable: Optional[Gio.Cancellable] = None,
-        callback: Optional[Callable[..., None]] = None,
-        *user_data: Any,
+        cancellable: typing.Optional[Gio.Cancellable] = None,
+        callback: typing.Optional[typing.Callable[..., None]] = None,
+        *user_data: typing.Any,
     ) -> None: ...
     @classmethod
     def new_finish(cls, res: Gio.AsyncResult) -> ContactsProxy: ...
@@ -1028,9 +974,9 @@ class ContactsProxy(
         flags: Gio.DBusProxyFlags,
         name: str,
         object_path: str,
-        cancellable: Optional[Gio.Cancellable] = None,
-        callback: Optional[Callable[..., None]] = None,
-        *user_data: Any,
+        cancellable: typing.Optional[Gio.Cancellable] = None,
+        callback: typing.Optional[typing.Callable[..., None]] = None,
+        *user_data: typing.Any,
     ) -> None: ...
     @classmethod
     def new_for_bus_finish(cls, res: Gio.AsyncResult) -> ContactsProxy: ...
@@ -1041,16 +987,16 @@ class ContactsProxy(
         flags: Gio.DBusProxyFlags,
         name: str,
         object_path: str,
-        cancellable: Optional[Gio.Cancellable] = None,
+        cancellable: typing.Optional[Gio.Cancellable] = None,
     ) -> ContactsProxy: ...
     @classmethod
     def new_sync(
         cls,
         connection: Gio.DBusConnection,
         flags: Gio.DBusProxyFlags,
-        name: Optional[str],
+        name: typing.Optional[str],
         object_path: str,
-        cancellable: Optional[Gio.Cancellable] = None,
+        cancellable: typing.Optional[Gio.Cancellable] = None,
     ) -> ContactsProxy: ...
 
 class ContactsProxyClass(GObject.GPointer):
@@ -1082,13 +1028,11 @@ class ContactsSkeleton(Gio.DBusInterfaceSkeleton, Gio.DBusInterface, Contacts):
 
     Properties from GDBusInterfaceSkeleton:
       g-flags -> GDBusInterfaceSkeletonFlags: g-flags
-        Flags for the interface skeleton
 
     Signals from GObject:
       notify (GParam)
     """
-
-    class Props:
+    class Props(Gio.DBusInterfaceSkeleton.Props):
         g_flags: Gio.DBusInterfaceSkeletonFlags
         accept_ssl_errors: bool
         uri: str
@@ -1101,7 +1045,7 @@ class ContactsSkeleton(Gio.DBusInterfaceSkeleton, Gio.DBusInterface, Contacts):
         g_flags: Gio.DBusInterfaceSkeletonFlags = ...,
         accept_ssl_errors: bool = ...,
         uri: str = ...,
-    ): ...
+    ) -> None: ...
     @classmethod
     def new(cls) -> ContactsSkeleton: ...
 
@@ -1125,7 +1069,6 @@ class Documents(GObject.GInterface):
     Signals from GObject:
       notify (GParam)
     """
-
     @staticmethod
     def interface_info() -> Gio.DBusInterfaceInfo: ...
     @staticmethod
@@ -1166,29 +1109,19 @@ class DocumentsProxy(
 
     Properties from GDBusProxy:
       g-connection -> GDBusConnection: g-connection
-        The connection the proxy is for
-      g-bus-type -> GBusType: Bus Type
-        The bus to connect to, if any
+      g-bus-type -> GBusType: g-bus-type
       g-name -> gchararray: g-name
-        The well-known or unique name that the proxy is for
       g-name-owner -> gchararray: g-name-owner
-        The unique name for the owner
       g-flags -> GDBusProxyFlags: g-flags
-        Flags for the proxy
       g-object-path -> gchararray: g-object-path
-        The object path the proxy is for
       g-interface-name -> gchararray: g-interface-name
-        The D-Bus interface name the proxy is for
-      g-default-timeout -> gint: Default Timeout
-        Timeout for remote method invocation
-      g-interface-info -> GDBusInterfaceInfo: Interface Information
-        Interface Information
+      g-default-timeout -> gint: g-default-timeout
+      g-interface-info -> GDBusInterfaceInfo: g-interface-info
 
     Signals from GObject:
       notify (GParam)
     """
-
-    class Props:
+    class Props(Gio.DBusProxy.Props):
         g_connection: Gio.DBusConnection
         g_default_timeout: int
         g_flags: Gio.DBusProxyFlags
@@ -1212,16 +1145,16 @@ class DocumentsProxy(
         g_interface_name: str = ...,
         g_name: str = ...,
         g_object_path: str = ...,
-    ): ...
+    ) -> None: ...
     @staticmethod
     def new(
         connection: Gio.DBusConnection,
         flags: Gio.DBusProxyFlags,
-        name: Optional[str],
+        name: typing.Optional[str],
         object_path: str,
-        cancellable: Optional[Gio.Cancellable] = None,
-        callback: Optional[Callable[..., None]] = None,
-        *user_data: Any,
+        cancellable: typing.Optional[Gio.Cancellable] = None,
+        callback: typing.Optional[typing.Callable[..., None]] = None,
+        *user_data: typing.Any,
     ) -> None: ...
     @classmethod
     def new_finish(cls, res: Gio.AsyncResult) -> DocumentsProxy: ...
@@ -1231,9 +1164,9 @@ class DocumentsProxy(
         flags: Gio.DBusProxyFlags,
         name: str,
         object_path: str,
-        cancellable: Optional[Gio.Cancellable] = None,
-        callback: Optional[Callable[..., None]] = None,
-        *user_data: Any,
+        cancellable: typing.Optional[Gio.Cancellable] = None,
+        callback: typing.Optional[typing.Callable[..., None]] = None,
+        *user_data: typing.Any,
     ) -> None: ...
     @classmethod
     def new_for_bus_finish(cls, res: Gio.AsyncResult) -> DocumentsProxy: ...
@@ -1244,16 +1177,16 @@ class DocumentsProxy(
         flags: Gio.DBusProxyFlags,
         name: str,
         object_path: str,
-        cancellable: Optional[Gio.Cancellable] = None,
+        cancellable: typing.Optional[Gio.Cancellable] = None,
     ) -> DocumentsProxy: ...
     @classmethod
     def new_sync(
         cls,
         connection: Gio.DBusConnection,
         flags: Gio.DBusProxyFlags,
-        name: Optional[str],
+        name: typing.Optional[str],
         object_path: str,
-        cancellable: Optional[Gio.Cancellable] = None,
+        cancellable: typing.Optional[Gio.Cancellable] = None,
     ) -> DocumentsProxy: ...
 
 class DocumentsProxyClass(GObject.GPointer):
@@ -1285,19 +1218,17 @@ class DocumentsSkeleton(Gio.DBusInterfaceSkeleton, Gio.DBusInterface, Documents)
 
     Properties from GDBusInterfaceSkeleton:
       g-flags -> GDBusInterfaceSkeletonFlags: g-flags
-        Flags for the interface skeleton
 
     Signals from GObject:
       notify (GParam)
     """
-
-    class Props:
+    class Props(Gio.DBusInterfaceSkeleton.Props):
         g_flags: Gio.DBusInterfaceSkeletonFlags
 
     props: Props = ...
     parent_instance: Gio.DBusInterfaceSkeleton = ...
     priv: DocumentsSkeletonPrivate = ...
-    def __init__(self, g_flags: Gio.DBusInterfaceSkeletonFlags = ...): ...
+    def __init__(self, g_flags: Gio.DBusInterfaceSkeletonFlags = ...) -> None: ...
     @classmethod
     def new(cls) -> DocumentsSkeleton: ...
 
@@ -1321,7 +1252,6 @@ class Exchange(GObject.GInterface):
     Signals from GObject:
       notify (GParam)
     """
-
     @staticmethod
     def interface_info() -> Gio.DBusInterfaceInfo: ...
     @staticmethod
@@ -1339,8 +1269,8 @@ class ExchangeIface(GObject.GPointer):
     """
 
     parent_iface: GObject.TypeInterface = ...
-    get_host: Callable[[Exchange], Optional[str]] = ...
-    get_accept_ssl_errors: Callable[[Exchange], bool] = ...
+    get_accept_ssl_errors: typing.Callable[[Exchange], bool] = ...
+    get_host: typing.Callable[[Exchange], typing.Optional[str]] = ...
 
 class ExchangeProxy(
     Gio.DBusProxy, Gio.AsyncInitable, Gio.DBusInterface, Gio.Initable, Exchange
@@ -1364,29 +1294,19 @@ class ExchangeProxy(
 
     Properties from GDBusProxy:
       g-connection -> GDBusConnection: g-connection
-        The connection the proxy is for
-      g-bus-type -> GBusType: Bus Type
-        The bus to connect to, if any
+      g-bus-type -> GBusType: g-bus-type
       g-name -> gchararray: g-name
-        The well-known or unique name that the proxy is for
       g-name-owner -> gchararray: g-name-owner
-        The unique name for the owner
       g-flags -> GDBusProxyFlags: g-flags
-        Flags for the proxy
       g-object-path -> gchararray: g-object-path
-        The object path the proxy is for
       g-interface-name -> gchararray: g-interface-name
-        The D-Bus interface name the proxy is for
-      g-default-timeout -> gint: Default Timeout
-        Timeout for remote method invocation
-      g-interface-info -> GDBusInterfaceInfo: Interface Information
-        Interface Information
+      g-default-timeout -> gint: g-default-timeout
+      g-interface-info -> GDBusInterfaceInfo: g-interface-info
 
     Signals from GObject:
       notify (GParam)
     """
-
-    class Props:
+    class Props(Gio.DBusProxy.Props):
         g_connection: Gio.DBusConnection
         g_default_timeout: int
         g_flags: Gio.DBusProxyFlags
@@ -1414,16 +1334,16 @@ class ExchangeProxy(
         g_object_path: str = ...,
         accept_ssl_errors: bool = ...,
         host: str = ...,
-    ): ...
+    ) -> None: ...
     @staticmethod
     def new(
         connection: Gio.DBusConnection,
         flags: Gio.DBusProxyFlags,
-        name: Optional[str],
+        name: typing.Optional[str],
         object_path: str,
-        cancellable: Optional[Gio.Cancellable] = None,
-        callback: Optional[Callable[..., None]] = None,
-        *user_data: Any,
+        cancellable: typing.Optional[Gio.Cancellable] = None,
+        callback: typing.Optional[typing.Callable[..., None]] = None,
+        *user_data: typing.Any,
     ) -> None: ...
     @classmethod
     def new_finish(cls, res: Gio.AsyncResult) -> ExchangeProxy: ...
@@ -1433,9 +1353,9 @@ class ExchangeProxy(
         flags: Gio.DBusProxyFlags,
         name: str,
         object_path: str,
-        cancellable: Optional[Gio.Cancellable] = None,
-        callback: Optional[Callable[..., None]] = None,
-        *user_data: Any,
+        cancellable: typing.Optional[Gio.Cancellable] = None,
+        callback: typing.Optional[typing.Callable[..., None]] = None,
+        *user_data: typing.Any,
     ) -> None: ...
     @classmethod
     def new_for_bus_finish(cls, res: Gio.AsyncResult) -> ExchangeProxy: ...
@@ -1446,16 +1366,16 @@ class ExchangeProxy(
         flags: Gio.DBusProxyFlags,
         name: str,
         object_path: str,
-        cancellable: Optional[Gio.Cancellable] = None,
+        cancellable: typing.Optional[Gio.Cancellable] = None,
     ) -> ExchangeProxy: ...
     @classmethod
     def new_sync(
         cls,
         connection: Gio.DBusConnection,
         flags: Gio.DBusProxyFlags,
-        name: Optional[str],
+        name: typing.Optional[str],
         object_path: str,
-        cancellable: Optional[Gio.Cancellable] = None,
+        cancellable: typing.Optional[Gio.Cancellable] = None,
     ) -> ExchangeProxy: ...
 
 class ExchangeProxyClass(GObject.GPointer):
@@ -1487,13 +1407,11 @@ class ExchangeSkeleton(Gio.DBusInterfaceSkeleton, Gio.DBusInterface, Exchange):
 
     Properties from GDBusInterfaceSkeleton:
       g-flags -> GDBusInterfaceSkeletonFlags: g-flags
-        Flags for the interface skeleton
 
     Signals from GObject:
       notify (GParam)
     """
-
-    class Props:
+    class Props(Gio.DBusInterfaceSkeleton.Props):
         g_flags: Gio.DBusInterfaceSkeletonFlags
         accept_ssl_errors: bool
         host: str
@@ -1506,7 +1424,7 @@ class ExchangeSkeleton(Gio.DBusInterfaceSkeleton, Gio.DBusInterface, Exchange):
         g_flags: Gio.DBusInterfaceSkeletonFlags = ...,
         accept_ssl_errors: bool = ...,
         host: str = ...,
-    ): ...
+    ) -> None: ...
     @classmethod
     def new(cls) -> ExchangeSkeleton: ...
 
@@ -1530,7 +1448,6 @@ class Files(GObject.GInterface):
     Signals from GObject:
       notify (GParam)
     """
-
     @staticmethod
     def interface_info() -> Gio.DBusInterfaceInfo: ...
     @staticmethod
@@ -1548,8 +1465,8 @@ class FilesIface(GObject.GPointer):
     """
 
     parent_iface: GObject.TypeInterface = ...
-    get_accept_ssl_errors: Callable[[Files], bool] = ...
-    get_uri: Callable[[Files], Optional[str]] = ...
+    get_accept_ssl_errors: typing.Callable[[Files], bool] = ...
+    get_uri: typing.Callable[[Files], typing.Optional[str]] = ...
 
 class FilesProxy(
     Gio.DBusProxy, Gio.AsyncInitable, Gio.DBusInterface, Gio.Initable, Files
@@ -1573,29 +1490,19 @@ class FilesProxy(
 
     Properties from GDBusProxy:
       g-connection -> GDBusConnection: g-connection
-        The connection the proxy is for
-      g-bus-type -> GBusType: Bus Type
-        The bus to connect to, if any
+      g-bus-type -> GBusType: g-bus-type
       g-name -> gchararray: g-name
-        The well-known or unique name that the proxy is for
       g-name-owner -> gchararray: g-name-owner
-        The unique name for the owner
       g-flags -> GDBusProxyFlags: g-flags
-        Flags for the proxy
       g-object-path -> gchararray: g-object-path
-        The object path the proxy is for
       g-interface-name -> gchararray: g-interface-name
-        The D-Bus interface name the proxy is for
-      g-default-timeout -> gint: Default Timeout
-        Timeout for remote method invocation
-      g-interface-info -> GDBusInterfaceInfo: Interface Information
-        Interface Information
+      g-default-timeout -> gint: g-default-timeout
+      g-interface-info -> GDBusInterfaceInfo: g-interface-info
 
     Signals from GObject:
       notify (GParam)
     """
-
-    class Props:
+    class Props(Gio.DBusProxy.Props):
         g_connection: Gio.DBusConnection
         g_default_timeout: int
         g_flags: Gio.DBusProxyFlags
@@ -1623,16 +1530,16 @@ class FilesProxy(
         g_object_path: str = ...,
         accept_ssl_errors: bool = ...,
         uri: str = ...,
-    ): ...
+    ) -> None: ...
     @staticmethod
     def new(
         connection: Gio.DBusConnection,
         flags: Gio.DBusProxyFlags,
-        name: Optional[str],
+        name: typing.Optional[str],
         object_path: str,
-        cancellable: Optional[Gio.Cancellable] = None,
-        callback: Optional[Callable[..., None]] = None,
-        *user_data: Any,
+        cancellable: typing.Optional[Gio.Cancellable] = None,
+        callback: typing.Optional[typing.Callable[..., None]] = None,
+        *user_data: typing.Any,
     ) -> None: ...
     @classmethod
     def new_finish(cls, res: Gio.AsyncResult) -> FilesProxy: ...
@@ -1642,9 +1549,9 @@ class FilesProxy(
         flags: Gio.DBusProxyFlags,
         name: str,
         object_path: str,
-        cancellable: Optional[Gio.Cancellable] = None,
-        callback: Optional[Callable[..., None]] = None,
-        *user_data: Any,
+        cancellable: typing.Optional[Gio.Cancellable] = None,
+        callback: typing.Optional[typing.Callable[..., None]] = None,
+        *user_data: typing.Any,
     ) -> None: ...
     @classmethod
     def new_for_bus_finish(cls, res: Gio.AsyncResult) -> FilesProxy: ...
@@ -1655,16 +1562,16 @@ class FilesProxy(
         flags: Gio.DBusProxyFlags,
         name: str,
         object_path: str,
-        cancellable: Optional[Gio.Cancellable] = None,
+        cancellable: typing.Optional[Gio.Cancellable] = None,
     ) -> FilesProxy: ...
     @classmethod
     def new_sync(
         cls,
         connection: Gio.DBusConnection,
         flags: Gio.DBusProxyFlags,
-        name: Optional[str],
+        name: typing.Optional[str],
         object_path: str,
-        cancellable: Optional[Gio.Cancellable] = None,
+        cancellable: typing.Optional[Gio.Cancellable] = None,
     ) -> FilesProxy: ...
 
 class FilesProxyClass(GObject.GPointer):
@@ -1696,13 +1603,11 @@ class FilesSkeleton(Gio.DBusInterfaceSkeleton, Gio.DBusInterface, Files):
 
     Properties from GDBusInterfaceSkeleton:
       g-flags -> GDBusInterfaceSkeletonFlags: g-flags
-        Flags for the interface skeleton
 
     Signals from GObject:
       notify (GParam)
     """
-
-    class Props:
+    class Props(Gio.DBusInterfaceSkeleton.Props):
         g_flags: Gio.DBusInterfaceSkeletonFlags
         accept_ssl_errors: bool
         uri: str
@@ -1715,7 +1620,7 @@ class FilesSkeleton(Gio.DBusInterfaceSkeleton, Gio.DBusInterface, Files):
         g_flags: Gio.DBusInterfaceSkeletonFlags = ...,
         accept_ssl_errors: bool = ...,
         uri: str = ...,
-    ): ...
+    ) -> None: ...
     @classmethod
     def new(cls) -> FilesSkeleton: ...
 
@@ -1739,7 +1644,6 @@ class Mail(GObject.GInterface):
     Signals from GObject:
       notify (GParam)
     """
-
     @staticmethod
     def interface_info() -> Gio.DBusInterfaceInfo: ...
     @staticmethod
@@ -1757,24 +1661,24 @@ class MailIface(GObject.GPointer):
     """
 
     parent_iface: GObject.TypeInterface = ...
-    get_email_address: Callable[[Mail], Optional[str]] = ...
-    get_imap_host: Callable[[Mail], Optional[str]] = ...
-    get_imap_supported: Callable[[Mail], bool] = ...
-    get_imap_use_tls: Callable[[Mail], bool] = ...
-    get_imap_user_name: Callable[[Mail], Optional[str]] = ...
-    get_smtp_host: Callable[[Mail], Optional[str]] = ...
-    get_smtp_supported: Callable[[Mail], bool] = ...
-    get_smtp_use_tls: Callable[[Mail], bool] = ...
-    get_smtp_user_name: Callable[[Mail], Optional[str]] = ...
-    get_imap_accept_ssl_errors: Callable[[Mail], bool] = ...
-    get_imap_use_ssl: Callable[[Mail], bool] = ...
-    get_name: Callable[[Mail], Optional[str]] = ...
-    get_smtp_accept_ssl_errors: Callable[[Mail], bool] = ...
-    get_smtp_use_auth: Callable[[Mail], bool] = ...
-    get_smtp_use_ssl: Callable[[Mail], bool] = ...
-    get_smtp_auth_login: Callable[[Mail], bool] = ...
-    get_smtp_auth_plain: Callable[[Mail], bool] = ...
-    get_smtp_auth_xoauth2: Callable[[Mail], bool] = ...
+    get_email_address: typing.Callable[[Mail], typing.Optional[str]] = ...
+    get_imap_accept_ssl_errors: typing.Callable[[Mail], bool] = ...
+    get_imap_host: typing.Callable[[Mail], typing.Optional[str]] = ...
+    get_imap_supported: typing.Callable[[Mail], bool] = ...
+    get_imap_use_ssl: typing.Callable[[Mail], bool] = ...
+    get_imap_use_tls: typing.Callable[[Mail], bool] = ...
+    get_imap_user_name: typing.Callable[[Mail], typing.Optional[str]] = ...
+    get_name: typing.Callable[[Mail], typing.Optional[str]] = ...
+    get_smtp_accept_ssl_errors: typing.Callable[[Mail], bool] = ...
+    get_smtp_auth_login: typing.Callable[[Mail], bool] = ...
+    get_smtp_auth_plain: typing.Callable[[Mail], bool] = ...
+    get_smtp_auth_xoauth2: typing.Callable[[Mail], bool] = ...
+    get_smtp_host: typing.Callable[[Mail], typing.Optional[str]] = ...
+    get_smtp_supported: typing.Callable[[Mail], bool] = ...
+    get_smtp_use_auth: typing.Callable[[Mail], bool] = ...
+    get_smtp_use_ssl: typing.Callable[[Mail], bool] = ...
+    get_smtp_use_tls: typing.Callable[[Mail], bool] = ...
+    get_smtp_user_name: typing.Callable[[Mail], typing.Optional[str]] = ...
 
 class MailProxy(
     Gio.DBusProxy, Gio.AsyncInitable, Gio.DBusInterface, Gio.Initable, Mail
@@ -1798,29 +1702,19 @@ class MailProxy(
 
     Properties from GDBusProxy:
       g-connection -> GDBusConnection: g-connection
-        The connection the proxy is for
-      g-bus-type -> GBusType: Bus Type
-        The bus to connect to, if any
+      g-bus-type -> GBusType: g-bus-type
       g-name -> gchararray: g-name
-        The well-known or unique name that the proxy is for
       g-name-owner -> gchararray: g-name-owner
-        The unique name for the owner
       g-flags -> GDBusProxyFlags: g-flags
-        Flags for the proxy
       g-object-path -> gchararray: g-object-path
-        The object path the proxy is for
       g-interface-name -> gchararray: g-interface-name
-        The D-Bus interface name the proxy is for
-      g-default-timeout -> gint: Default Timeout
-        Timeout for remote method invocation
-      g-interface-info -> GDBusInterfaceInfo: Interface Information
-        Interface Information
+      g-default-timeout -> gint: g-default-timeout
+      g-interface-info -> GDBusInterfaceInfo: g-interface-info
 
     Signals from GObject:
       notify (GParam)
     """
-
-    class Props:
+    class Props(Gio.DBusProxy.Props):
         g_connection: Gio.DBusConnection
         g_default_timeout: int
         g_flags: Gio.DBusProxyFlags
@@ -1880,16 +1774,16 @@ class MailProxy(
         smtp_use_ssl: bool = ...,
         smtp_use_tls: bool = ...,
         smtp_user_name: str = ...,
-    ): ...
+    ) -> None: ...
     @staticmethod
     def new(
         connection: Gio.DBusConnection,
         flags: Gio.DBusProxyFlags,
-        name: Optional[str],
+        name: typing.Optional[str],
         object_path: str,
-        cancellable: Optional[Gio.Cancellable] = None,
-        callback: Optional[Callable[..., None]] = None,
-        *user_data: Any,
+        cancellable: typing.Optional[Gio.Cancellable] = None,
+        callback: typing.Optional[typing.Callable[..., None]] = None,
+        *user_data: typing.Any,
     ) -> None: ...
     @classmethod
     def new_finish(cls, res: Gio.AsyncResult) -> MailProxy: ...
@@ -1899,9 +1793,9 @@ class MailProxy(
         flags: Gio.DBusProxyFlags,
         name: str,
         object_path: str,
-        cancellable: Optional[Gio.Cancellable] = None,
-        callback: Optional[Callable[..., None]] = None,
-        *user_data: Any,
+        cancellable: typing.Optional[Gio.Cancellable] = None,
+        callback: typing.Optional[typing.Callable[..., None]] = None,
+        *user_data: typing.Any,
     ) -> None: ...
     @classmethod
     def new_for_bus_finish(cls, res: Gio.AsyncResult) -> MailProxy: ...
@@ -1912,16 +1806,16 @@ class MailProxy(
         flags: Gio.DBusProxyFlags,
         name: str,
         object_path: str,
-        cancellable: Optional[Gio.Cancellable] = None,
+        cancellable: typing.Optional[Gio.Cancellable] = None,
     ) -> MailProxy: ...
     @classmethod
     def new_sync(
         cls,
         connection: Gio.DBusConnection,
         flags: Gio.DBusProxyFlags,
-        name: Optional[str],
+        name: typing.Optional[str],
         object_path: str,
-        cancellable: Optional[Gio.Cancellable] = None,
+        cancellable: typing.Optional[Gio.Cancellable] = None,
     ) -> MailProxy: ...
 
 class MailProxyClass(GObject.GPointer):
@@ -1953,13 +1847,11 @@ class MailSkeleton(Gio.DBusInterfaceSkeleton, Gio.DBusInterface, Mail):
 
     Properties from GDBusInterfaceSkeleton:
       g-flags -> GDBusInterfaceSkeletonFlags: g-flags
-        Flags for the interface skeleton
 
     Signals from GObject:
       notify (GParam)
     """
-
-    class Props:
+    class Props(Gio.DBusInterfaceSkeleton.Props):
         g_flags: Gio.DBusInterfaceSkeletonFlags
         email_address: str
         imap_accept_ssl_errors: bool
@@ -2004,7 +1896,7 @@ class MailSkeleton(Gio.DBusInterfaceSkeleton, Gio.DBusInterface, Mail):
         smtp_use_ssl: bool = ...,
         smtp_use_tls: bool = ...,
         smtp_user_name: str = ...,
-    ): ...
+    ) -> None: ...
     @classmethod
     def new(cls) -> MailSkeleton: ...
 
@@ -2028,7 +1920,6 @@ class Manager(GObject.GInterface):
     Signals from GObject:
       notify (GParam)
     """
-
     def call_add_account(
         self,
         arg_provider: str,
@@ -2036,11 +1927,13 @@ class Manager(GObject.GInterface):
         arg_presentation_identity: str,
         arg_credentials: GLib.Variant,
         arg_details: GLib.Variant,
-        cancellable: Optional[Gio.Cancellable] = None,
-        callback: Optional[Callable[..., None]] = None,
-        *user_data: Any,
+        cancellable: typing.Optional[Gio.Cancellable] = None,
+        callback: typing.Optional[typing.Callable[..., None]] = None,
+        *user_data: typing.Any,
     ) -> None: ...
-    def call_add_account_finish(self, res: Gio.AsyncResult) -> Tuple[bool, str]: ...
+    def call_add_account_finish(
+        self, res: Gio.AsyncResult
+    ) -> typing.Tuple[bool, str]: ...
     def call_add_account_sync(
         self,
         arg_provider: str,
@@ -2048,21 +1941,23 @@ class Manager(GObject.GInterface):
         arg_presentation_identity: str,
         arg_credentials: GLib.Variant,
         arg_details: GLib.Variant,
-        cancellable: Optional[Gio.Cancellable] = None,
-    ) -> Tuple[bool, str]: ...
+        cancellable: typing.Optional[Gio.Cancellable] = None,
+    ) -> typing.Tuple[bool, str]: ...
     def call_is_supported_provider(
         self,
         arg_provider_type: str,
-        cancellable: Optional[Gio.Cancellable] = None,
-        callback: Optional[Callable[..., None]] = None,
-        *user_data: Any,
+        cancellable: typing.Optional[Gio.Cancellable] = None,
+        callback: typing.Optional[typing.Callable[..., None]] = None,
+        *user_data: typing.Any,
     ) -> None: ...
     def call_is_supported_provider_finish(
         self, res: Gio.AsyncResult
-    ) -> Tuple[bool, bool]: ...
+    ) -> typing.Tuple[bool, bool]: ...
     def call_is_supported_provider_sync(
-        self, arg_provider_type: str, cancellable: Optional[Gio.Cancellable] = None
-    ) -> Tuple[bool, bool]: ...
+        self,
+        arg_provider_type: str,
+        cancellable: typing.Optional[Gio.Cancellable] = None,
+    ) -> typing.Tuple[bool, bool]: ...
     def complete_add_account(
         self, invocation: Gio.DBusMethodInvocation, account_object_path: str
     ) -> None: ...
@@ -2086,11 +1981,11 @@ class ManagerIface(GObject.GPointer):
     """
 
     parent_iface: GObject.TypeInterface = ...
-    handle_add_account: Callable[
+    handle_add_account: typing.Callable[
         [Manager, Gio.DBusMethodInvocation, str, str, str, GLib.Variant, GLib.Variant],
         bool,
     ] = ...
-    handle_is_supported_provider: Callable[
+    handle_is_supported_provider: typing.Callable[
         [Manager, Gio.DBusMethodInvocation, str], bool
     ] = ...
 
@@ -2120,29 +2015,19 @@ class ManagerProxy(
 
     Properties from GDBusProxy:
       g-connection -> GDBusConnection: g-connection
-        The connection the proxy is for
-      g-bus-type -> GBusType: Bus Type
-        The bus to connect to, if any
+      g-bus-type -> GBusType: g-bus-type
       g-name -> gchararray: g-name
-        The well-known or unique name that the proxy is for
       g-name-owner -> gchararray: g-name-owner
-        The unique name for the owner
       g-flags -> GDBusProxyFlags: g-flags
-        Flags for the proxy
       g-object-path -> gchararray: g-object-path
-        The object path the proxy is for
       g-interface-name -> gchararray: g-interface-name
-        The D-Bus interface name the proxy is for
-      g-default-timeout -> gint: Default Timeout
-        Timeout for remote method invocation
-      g-interface-info -> GDBusInterfaceInfo: Interface Information
-        Interface Information
+      g-default-timeout -> gint: g-default-timeout
+      g-interface-info -> GDBusInterfaceInfo: g-interface-info
 
     Signals from GObject:
       notify (GParam)
     """
-
-    class Props:
+    class Props(Gio.DBusProxy.Props):
         g_connection: Gio.DBusConnection
         g_default_timeout: int
         g_flags: Gio.DBusProxyFlags
@@ -2166,16 +2051,16 @@ class ManagerProxy(
         g_interface_name: str = ...,
         g_name: str = ...,
         g_object_path: str = ...,
-    ): ...
+    ) -> None: ...
     @staticmethod
     def new(
         connection: Gio.DBusConnection,
         flags: Gio.DBusProxyFlags,
-        name: Optional[str],
+        name: typing.Optional[str],
         object_path: str,
-        cancellable: Optional[Gio.Cancellable] = None,
-        callback: Optional[Callable[..., None]] = None,
-        *user_data: Any,
+        cancellable: typing.Optional[Gio.Cancellable] = None,
+        callback: typing.Optional[typing.Callable[..., None]] = None,
+        *user_data: typing.Any,
     ) -> None: ...
     @classmethod
     def new_finish(cls, res: Gio.AsyncResult) -> ManagerProxy: ...
@@ -2185,9 +2070,9 @@ class ManagerProxy(
         flags: Gio.DBusProxyFlags,
         name: str,
         object_path: str,
-        cancellable: Optional[Gio.Cancellable] = None,
-        callback: Optional[Callable[..., None]] = None,
-        *user_data: Any,
+        cancellable: typing.Optional[Gio.Cancellable] = None,
+        callback: typing.Optional[typing.Callable[..., None]] = None,
+        *user_data: typing.Any,
     ) -> None: ...
     @classmethod
     def new_for_bus_finish(cls, res: Gio.AsyncResult) -> ManagerProxy: ...
@@ -2198,16 +2083,16 @@ class ManagerProxy(
         flags: Gio.DBusProxyFlags,
         name: str,
         object_path: str,
-        cancellable: Optional[Gio.Cancellable] = None,
+        cancellable: typing.Optional[Gio.Cancellable] = None,
     ) -> ManagerProxy: ...
     @classmethod
     def new_sync(
         cls,
         connection: Gio.DBusConnection,
         flags: Gio.DBusProxyFlags,
-        name: Optional[str],
+        name: typing.Optional[str],
         object_path: str,
-        cancellable: Optional[Gio.Cancellable] = None,
+        cancellable: typing.Optional[Gio.Cancellable] = None,
     ) -> ManagerProxy: ...
 
 class ManagerProxyClass(GObject.GPointer):
@@ -2243,19 +2128,17 @@ class ManagerSkeleton(Gio.DBusInterfaceSkeleton, Gio.DBusInterface, Manager):
 
     Properties from GDBusInterfaceSkeleton:
       g-flags -> GDBusInterfaceSkeletonFlags: g-flags
-        Flags for the interface skeleton
 
     Signals from GObject:
       notify (GParam)
     """
-
-    class Props:
+    class Props(Gio.DBusInterfaceSkeleton.Props):
         g_flags: Gio.DBusInterfaceSkeletonFlags
 
     props: Props = ...
     parent_instance: Gio.DBusInterfaceSkeleton = ...
     priv: ManagerSkeletonPrivate = ...
-    def __init__(self, g_flags: Gio.DBusInterfaceSkeletonFlags = ...): ...
+    def __init__(self, g_flags: Gio.DBusInterfaceSkeletonFlags = ...) -> None: ...
     @classmethod
     def new(cls) -> ManagerSkeleton: ...
 
@@ -2279,7 +2162,6 @@ class Maps(GObject.GInterface):
     Signals from GObject:
       notify (GParam)
     """
-
     @staticmethod
     def interface_info() -> Gio.DBusInterfaceInfo: ...
     @staticmethod
@@ -2320,29 +2202,19 @@ class MapsProxy(
 
     Properties from GDBusProxy:
       g-connection -> GDBusConnection: g-connection
-        The connection the proxy is for
-      g-bus-type -> GBusType: Bus Type
-        The bus to connect to, if any
+      g-bus-type -> GBusType: g-bus-type
       g-name -> gchararray: g-name
-        The well-known or unique name that the proxy is for
       g-name-owner -> gchararray: g-name-owner
-        The unique name for the owner
       g-flags -> GDBusProxyFlags: g-flags
-        Flags for the proxy
       g-object-path -> gchararray: g-object-path
-        The object path the proxy is for
       g-interface-name -> gchararray: g-interface-name
-        The D-Bus interface name the proxy is for
-      g-default-timeout -> gint: Default Timeout
-        Timeout for remote method invocation
-      g-interface-info -> GDBusInterfaceInfo: Interface Information
-        Interface Information
+      g-default-timeout -> gint: g-default-timeout
+      g-interface-info -> GDBusInterfaceInfo: g-interface-info
 
     Signals from GObject:
       notify (GParam)
     """
-
-    class Props:
+    class Props(Gio.DBusProxy.Props):
         g_connection: Gio.DBusConnection
         g_default_timeout: int
         g_flags: Gio.DBusProxyFlags
@@ -2366,16 +2238,16 @@ class MapsProxy(
         g_interface_name: str = ...,
         g_name: str = ...,
         g_object_path: str = ...,
-    ): ...
+    ) -> None: ...
     @staticmethod
     def new(
         connection: Gio.DBusConnection,
         flags: Gio.DBusProxyFlags,
-        name: Optional[str],
+        name: typing.Optional[str],
         object_path: str,
-        cancellable: Optional[Gio.Cancellable] = None,
-        callback: Optional[Callable[..., None]] = None,
-        *user_data: Any,
+        cancellable: typing.Optional[Gio.Cancellable] = None,
+        callback: typing.Optional[typing.Callable[..., None]] = None,
+        *user_data: typing.Any,
     ) -> None: ...
     @classmethod
     def new_finish(cls, res: Gio.AsyncResult) -> MapsProxy: ...
@@ -2385,9 +2257,9 @@ class MapsProxy(
         flags: Gio.DBusProxyFlags,
         name: str,
         object_path: str,
-        cancellable: Optional[Gio.Cancellable] = None,
-        callback: Optional[Callable[..., None]] = None,
-        *user_data: Any,
+        cancellable: typing.Optional[Gio.Cancellable] = None,
+        callback: typing.Optional[typing.Callable[..., None]] = None,
+        *user_data: typing.Any,
     ) -> None: ...
     @classmethod
     def new_for_bus_finish(cls, res: Gio.AsyncResult) -> MapsProxy: ...
@@ -2398,16 +2270,16 @@ class MapsProxy(
         flags: Gio.DBusProxyFlags,
         name: str,
         object_path: str,
-        cancellable: Optional[Gio.Cancellable] = None,
+        cancellable: typing.Optional[Gio.Cancellable] = None,
     ) -> MapsProxy: ...
     @classmethod
     def new_sync(
         cls,
         connection: Gio.DBusConnection,
         flags: Gio.DBusProxyFlags,
-        name: Optional[str],
+        name: typing.Optional[str],
         object_path: str,
-        cancellable: Optional[Gio.Cancellable] = None,
+        cancellable: typing.Optional[Gio.Cancellable] = None,
     ) -> MapsProxy: ...
 
 class MapsProxyClass(GObject.GPointer):
@@ -2439,19 +2311,17 @@ class MapsSkeleton(Gio.DBusInterfaceSkeleton, Gio.DBusInterface, Maps):
 
     Properties from GDBusInterfaceSkeleton:
       g-flags -> GDBusInterfaceSkeletonFlags: g-flags
-        Flags for the interface skeleton
 
     Signals from GObject:
       notify (GParam)
     """
-
-    class Props:
+    class Props(Gio.DBusInterfaceSkeleton.Props):
         g_flags: Gio.DBusInterfaceSkeletonFlags
 
     props: Props = ...
     parent_instance: Gio.DBusInterfaceSkeleton = ...
     priv: MapsSkeletonPrivate = ...
-    def __init__(self, g_flags: Gio.DBusInterfaceSkeletonFlags = ...): ...
+    def __init__(self, g_flags: Gio.DBusInterfaceSkeletonFlags = ...) -> None: ...
     @classmethod
     def new(cls) -> MapsSkeleton: ...
 
@@ -2475,7 +2345,6 @@ class MediaServer(GObject.GInterface):
     Signals from GObject:
       notify (GParam)
     """
-
     @staticmethod
     def interface_info() -> Gio.DBusInterfaceInfo: ...
     @staticmethod
@@ -2493,8 +2362,8 @@ class MediaServerIface(GObject.GPointer):
     """
 
     parent_iface: GObject.TypeInterface = ...
-    get_dlna_supported: Callable[[MediaServer], bool] = ...
-    get_udn: Callable[[MediaServer], Optional[str]] = ...
+    get_dlna_supported: typing.Callable[[MediaServer], bool] = ...
+    get_udn: typing.Callable[[MediaServer], typing.Optional[str]] = ...
 
 class MediaServerProxy(
     Gio.DBusProxy, Gio.AsyncInitable, Gio.DBusInterface, Gio.Initable, MediaServer
@@ -2518,29 +2387,19 @@ class MediaServerProxy(
 
     Properties from GDBusProxy:
       g-connection -> GDBusConnection: g-connection
-        The connection the proxy is for
-      g-bus-type -> GBusType: Bus Type
-        The bus to connect to, if any
+      g-bus-type -> GBusType: g-bus-type
       g-name -> gchararray: g-name
-        The well-known or unique name that the proxy is for
       g-name-owner -> gchararray: g-name-owner
-        The unique name for the owner
       g-flags -> GDBusProxyFlags: g-flags
-        Flags for the proxy
       g-object-path -> gchararray: g-object-path
-        The object path the proxy is for
       g-interface-name -> gchararray: g-interface-name
-        The D-Bus interface name the proxy is for
-      g-default-timeout -> gint: Default Timeout
-        Timeout for remote method invocation
-      g-interface-info -> GDBusInterfaceInfo: Interface Information
-        Interface Information
+      g-default-timeout -> gint: g-default-timeout
+      g-interface-info -> GDBusInterfaceInfo: g-interface-info
 
     Signals from GObject:
       notify (GParam)
     """
-
-    class Props:
+    class Props(Gio.DBusProxy.Props):
         g_connection: Gio.DBusConnection
         g_default_timeout: int
         g_flags: Gio.DBusProxyFlags
@@ -2568,16 +2427,16 @@ class MediaServerProxy(
         g_object_path: str = ...,
         dlna_supported: bool = ...,
         udn: str = ...,
-    ): ...
+    ) -> None: ...
     @staticmethod
     def new(
         connection: Gio.DBusConnection,
         flags: Gio.DBusProxyFlags,
-        name: Optional[str],
+        name: typing.Optional[str],
         object_path: str,
-        cancellable: Optional[Gio.Cancellable] = None,
-        callback: Optional[Callable[..., None]] = None,
-        *user_data: Any,
+        cancellable: typing.Optional[Gio.Cancellable] = None,
+        callback: typing.Optional[typing.Callable[..., None]] = None,
+        *user_data: typing.Any,
     ) -> None: ...
     @classmethod
     def new_finish(cls, res: Gio.AsyncResult) -> MediaServerProxy: ...
@@ -2587,9 +2446,9 @@ class MediaServerProxy(
         flags: Gio.DBusProxyFlags,
         name: str,
         object_path: str,
-        cancellable: Optional[Gio.Cancellable] = None,
-        callback: Optional[Callable[..., None]] = None,
-        *user_data: Any,
+        cancellable: typing.Optional[Gio.Cancellable] = None,
+        callback: typing.Optional[typing.Callable[..., None]] = None,
+        *user_data: typing.Any,
     ) -> None: ...
     @classmethod
     def new_for_bus_finish(cls, res: Gio.AsyncResult) -> MediaServerProxy: ...
@@ -2600,16 +2459,16 @@ class MediaServerProxy(
         flags: Gio.DBusProxyFlags,
         name: str,
         object_path: str,
-        cancellable: Optional[Gio.Cancellable] = None,
+        cancellable: typing.Optional[Gio.Cancellable] = None,
     ) -> MediaServerProxy: ...
     @classmethod
     def new_sync(
         cls,
         connection: Gio.DBusConnection,
         flags: Gio.DBusProxyFlags,
-        name: Optional[str],
+        name: typing.Optional[str],
         object_path: str,
-        cancellable: Optional[Gio.Cancellable] = None,
+        cancellable: typing.Optional[Gio.Cancellable] = None,
     ) -> MediaServerProxy: ...
 
 class MediaServerProxyClass(GObject.GPointer):
@@ -2641,13 +2500,11 @@ class MediaServerSkeleton(Gio.DBusInterfaceSkeleton, Gio.DBusInterface, MediaSer
 
     Properties from GDBusInterfaceSkeleton:
       g-flags -> GDBusInterfaceSkeletonFlags: g-flags
-        Flags for the interface skeleton
 
     Signals from GObject:
       notify (GParam)
     """
-
-    class Props:
+    class Props(Gio.DBusInterfaceSkeleton.Props):
         g_flags: Gio.DBusInterfaceSkeletonFlags
         dlna_supported: bool
         udn: str
@@ -2660,7 +2517,7 @@ class MediaServerSkeleton(Gio.DBusInterfaceSkeleton, Gio.DBusInterface, MediaSer
         g_flags: Gio.DBusInterfaceSkeletonFlags = ...,
         dlna_supported: bool = ...,
         udn: str = ...,
-    ): ...
+    ) -> None: ...
     @classmethod
     def new(cls) -> MediaServerSkeleton: ...
 
@@ -2684,7 +2541,6 @@ class Music(GObject.GInterface):
     Signals from GObject:
       notify (GParam)
     """
-
     @staticmethod
     def interface_info() -> Gio.DBusInterfaceInfo: ...
     @staticmethod
@@ -2725,29 +2581,19 @@ class MusicProxy(
 
     Properties from GDBusProxy:
       g-connection -> GDBusConnection: g-connection
-        The connection the proxy is for
-      g-bus-type -> GBusType: Bus Type
-        The bus to connect to, if any
+      g-bus-type -> GBusType: g-bus-type
       g-name -> gchararray: g-name
-        The well-known or unique name that the proxy is for
       g-name-owner -> gchararray: g-name-owner
-        The unique name for the owner
       g-flags -> GDBusProxyFlags: g-flags
-        Flags for the proxy
       g-object-path -> gchararray: g-object-path
-        The object path the proxy is for
       g-interface-name -> gchararray: g-interface-name
-        The D-Bus interface name the proxy is for
-      g-default-timeout -> gint: Default Timeout
-        Timeout for remote method invocation
-      g-interface-info -> GDBusInterfaceInfo: Interface Information
-        Interface Information
+      g-default-timeout -> gint: g-default-timeout
+      g-interface-info -> GDBusInterfaceInfo: g-interface-info
 
     Signals from GObject:
       notify (GParam)
     """
-
-    class Props:
+    class Props(Gio.DBusProxy.Props):
         g_connection: Gio.DBusConnection
         g_default_timeout: int
         g_flags: Gio.DBusProxyFlags
@@ -2771,16 +2617,16 @@ class MusicProxy(
         g_interface_name: str = ...,
         g_name: str = ...,
         g_object_path: str = ...,
-    ): ...
+    ) -> None: ...
     @staticmethod
     def new(
         connection: Gio.DBusConnection,
         flags: Gio.DBusProxyFlags,
-        name: Optional[str],
+        name: typing.Optional[str],
         object_path: str,
-        cancellable: Optional[Gio.Cancellable] = None,
-        callback: Optional[Callable[..., None]] = None,
-        *user_data: Any,
+        cancellable: typing.Optional[Gio.Cancellable] = None,
+        callback: typing.Optional[typing.Callable[..., None]] = None,
+        *user_data: typing.Any,
     ) -> None: ...
     @classmethod
     def new_finish(cls, res: Gio.AsyncResult) -> MusicProxy: ...
@@ -2790,9 +2636,9 @@ class MusicProxy(
         flags: Gio.DBusProxyFlags,
         name: str,
         object_path: str,
-        cancellable: Optional[Gio.Cancellable] = None,
-        callback: Optional[Callable[..., None]] = None,
-        *user_data: Any,
+        cancellable: typing.Optional[Gio.Cancellable] = None,
+        callback: typing.Optional[typing.Callable[..., None]] = None,
+        *user_data: typing.Any,
     ) -> None: ...
     @classmethod
     def new_for_bus_finish(cls, res: Gio.AsyncResult) -> MusicProxy: ...
@@ -2803,16 +2649,16 @@ class MusicProxy(
         flags: Gio.DBusProxyFlags,
         name: str,
         object_path: str,
-        cancellable: Optional[Gio.Cancellable] = None,
+        cancellable: typing.Optional[Gio.Cancellable] = None,
     ) -> MusicProxy: ...
     @classmethod
     def new_sync(
         cls,
         connection: Gio.DBusConnection,
         flags: Gio.DBusProxyFlags,
-        name: Optional[str],
+        name: typing.Optional[str],
         object_path: str,
-        cancellable: Optional[Gio.Cancellable] = None,
+        cancellable: typing.Optional[Gio.Cancellable] = None,
     ) -> MusicProxy: ...
 
 class MusicProxyClass(GObject.GPointer):
@@ -2844,19 +2690,17 @@ class MusicSkeleton(Gio.DBusInterfaceSkeleton, Gio.DBusInterface, Music):
 
     Properties from GDBusInterfaceSkeleton:
       g-flags -> GDBusInterfaceSkeletonFlags: g-flags
-        Flags for the interface skeleton
 
     Signals from GObject:
       notify (GParam)
     """
-
-    class Props:
+    class Props(Gio.DBusInterfaceSkeleton.Props):
         g_flags: Gio.DBusInterfaceSkeletonFlags
 
     props: Props = ...
     parent_instance: Gio.DBusInterfaceSkeleton = ...
     priv: MusicSkeletonPrivate = ...
-    def __init__(self, g_flags: Gio.DBusInterfaceSkeletonFlags = ...): ...
+    def __init__(self, g_flags: Gio.DBusInterfaceSkeletonFlags = ...) -> None: ...
     @classmethod
     def new(cls) -> MusicSkeleton: ...
 
@@ -2880,19 +2724,18 @@ class OAuth2Based(GObject.GInterface):
     Signals from GObject:
       notify (GParam)
     """
-
     def call_get_access_token(
         self,
-        cancellable: Optional[Gio.Cancellable] = None,
-        callback: Optional[Callable[..., None]] = None,
-        *user_data: Any,
+        cancellable: typing.Optional[Gio.Cancellable] = None,
+        callback: typing.Optional[typing.Callable[..., None]] = None,
+        *user_data: typing.Any,
     ) -> None: ...
     def call_get_access_token_finish(
         self, res: Gio.AsyncResult
-    ) -> Tuple[bool, str, int]: ...
+    ) -> typing.Tuple[bool, str, int]: ...
     def call_get_access_token_sync(
-        self, cancellable: Optional[Gio.Cancellable] = None
-    ) -> Tuple[bool, str, int]: ...
+        self, cancellable: typing.Optional[Gio.Cancellable] = None
+    ) -> typing.Tuple[bool, str, int]: ...
     def complete_get_access_token(
         self, invocation: Gio.DBusMethodInvocation, access_token: str, expires_in: int
     ) -> None: ...
@@ -2913,11 +2756,11 @@ class OAuth2BasedIface(GObject.GPointer):
     """
 
     parent_iface: GObject.TypeInterface = ...
-    handle_get_access_token: Callable[
+    handle_get_access_token: typing.Callable[
         [OAuth2Based, Gio.DBusMethodInvocation], bool
     ] = ...
-    get_client_id: Callable[[OAuth2Based], Optional[str]] = ...
-    get_client_secret: Callable[[OAuth2Based], Optional[str]] = ...
+    get_client_id: typing.Callable[[OAuth2Based], typing.Optional[str]] = ...
+    get_client_secret: typing.Callable[[OAuth2Based], typing.Optional[str]] = ...
 
 class OAuth2BasedProxy(
     Gio.DBusProxy, Gio.AsyncInitable, Gio.DBusInterface, Gio.Initable, OAuth2Based
@@ -2944,29 +2787,19 @@ class OAuth2BasedProxy(
 
     Properties from GDBusProxy:
       g-connection -> GDBusConnection: g-connection
-        The connection the proxy is for
-      g-bus-type -> GBusType: Bus Type
-        The bus to connect to, if any
+      g-bus-type -> GBusType: g-bus-type
       g-name -> gchararray: g-name
-        The well-known or unique name that the proxy is for
       g-name-owner -> gchararray: g-name-owner
-        The unique name for the owner
       g-flags -> GDBusProxyFlags: g-flags
-        Flags for the proxy
       g-object-path -> gchararray: g-object-path
-        The object path the proxy is for
       g-interface-name -> gchararray: g-interface-name
-        The D-Bus interface name the proxy is for
-      g-default-timeout -> gint: Default Timeout
-        Timeout for remote method invocation
-      g-interface-info -> GDBusInterfaceInfo: Interface Information
-        Interface Information
+      g-default-timeout -> gint: g-default-timeout
+      g-interface-info -> GDBusInterfaceInfo: g-interface-info
 
     Signals from GObject:
       notify (GParam)
     """
-
-    class Props:
+    class Props(Gio.DBusProxy.Props):
         g_connection: Gio.DBusConnection
         g_default_timeout: int
         g_flags: Gio.DBusProxyFlags
@@ -2994,16 +2827,16 @@ class OAuth2BasedProxy(
         g_object_path: str = ...,
         client_id: str = ...,
         client_secret: str = ...,
-    ): ...
+    ) -> None: ...
     @staticmethod
     def new(
         connection: Gio.DBusConnection,
         flags: Gio.DBusProxyFlags,
-        name: Optional[str],
+        name: typing.Optional[str],
         object_path: str,
-        cancellable: Optional[Gio.Cancellable] = None,
-        callback: Optional[Callable[..., None]] = None,
-        *user_data: Any,
+        cancellable: typing.Optional[Gio.Cancellable] = None,
+        callback: typing.Optional[typing.Callable[..., None]] = None,
+        *user_data: typing.Any,
     ) -> None: ...
     @classmethod
     def new_finish(cls, res: Gio.AsyncResult) -> OAuth2BasedProxy: ...
@@ -3013,9 +2846,9 @@ class OAuth2BasedProxy(
         flags: Gio.DBusProxyFlags,
         name: str,
         object_path: str,
-        cancellable: Optional[Gio.Cancellable] = None,
-        callback: Optional[Callable[..., None]] = None,
-        *user_data: Any,
+        cancellable: typing.Optional[Gio.Cancellable] = None,
+        callback: typing.Optional[typing.Callable[..., None]] = None,
+        *user_data: typing.Any,
     ) -> None: ...
     @classmethod
     def new_for_bus_finish(cls, res: Gio.AsyncResult) -> OAuth2BasedProxy: ...
@@ -3026,16 +2859,16 @@ class OAuth2BasedProxy(
         flags: Gio.DBusProxyFlags,
         name: str,
         object_path: str,
-        cancellable: Optional[Gio.Cancellable] = None,
+        cancellable: typing.Optional[Gio.Cancellable] = None,
     ) -> OAuth2BasedProxy: ...
     @classmethod
     def new_sync(
         cls,
         connection: Gio.DBusConnection,
         flags: Gio.DBusProxyFlags,
-        name: Optional[str],
+        name: typing.Optional[str],
         object_path: str,
-        cancellable: Optional[Gio.Cancellable] = None,
+        cancellable: typing.Optional[Gio.Cancellable] = None,
     ) -> OAuth2BasedProxy: ...
 
 class OAuth2BasedProxyClass(GObject.GPointer):
@@ -3070,13 +2903,11 @@ class OAuth2BasedSkeleton(Gio.DBusInterfaceSkeleton, Gio.DBusInterface, OAuth2Ba
 
     Properties from GDBusInterfaceSkeleton:
       g-flags -> GDBusInterfaceSkeletonFlags: g-flags
-        Flags for the interface skeleton
 
     Signals from GObject:
       notify (GParam)
     """
-
-    class Props:
+    class Props(Gio.DBusInterfaceSkeleton.Props):
         g_flags: Gio.DBusInterfaceSkeletonFlags
         client_id: str
         client_secret: str
@@ -3089,7 +2920,7 @@ class OAuth2BasedSkeleton(Gio.DBusInterfaceSkeleton, Gio.DBusInterface, OAuth2Ba
         g_flags: Gio.DBusInterfaceSkeletonFlags = ...,
         client_id: str = ...,
         client_secret: str = ...,
-    ): ...
+    ) -> None: ...
     @classmethod
     def new(cls) -> OAuth2BasedSkeleton: ...
 
@@ -3113,19 +2944,18 @@ class OAuthBased(GObject.GInterface):
     Signals from GObject:
       notify (GParam)
     """
-
     def call_get_access_token(
         self,
-        cancellable: Optional[Gio.Cancellable] = None,
-        callback: Optional[Callable[..., None]] = None,
-        *user_data: Any,
+        cancellable: typing.Optional[Gio.Cancellable] = None,
+        callback: typing.Optional[typing.Callable[..., None]] = None,
+        *user_data: typing.Any,
     ) -> None: ...
     def call_get_access_token_finish(
         self, res: Gio.AsyncResult
-    ) -> Tuple[bool, str, str, int]: ...
+    ) -> typing.Tuple[bool, str, str, int]: ...
     def call_get_access_token_sync(
-        self, cancellable: Optional[Gio.Cancellable] = None
-    ) -> Tuple[bool, str, str, int]: ...
+        self, cancellable: typing.Optional[Gio.Cancellable] = None
+    ) -> typing.Tuple[bool, str, str, int]: ...
     def complete_get_access_token(
         self,
         invocation: Gio.DBusMethodInvocation,
@@ -3150,11 +2980,11 @@ class OAuthBasedIface(GObject.GPointer):
     """
 
     parent_iface: GObject.TypeInterface = ...
-    handle_get_access_token: Callable[
+    handle_get_access_token: typing.Callable[
         [OAuthBased, Gio.DBusMethodInvocation], bool
     ] = ...
-    get_consumer_key: Callable[[OAuthBased], Optional[str]] = ...
-    get_consumer_secret: Callable[[OAuthBased], Optional[str]] = ...
+    get_consumer_key: typing.Callable[[OAuthBased], typing.Optional[str]] = ...
+    get_consumer_secret: typing.Callable[[OAuthBased], typing.Optional[str]] = ...
 
 class OAuthBasedProxy(
     Gio.DBusProxy, Gio.AsyncInitable, Gio.DBusInterface, Gio.Initable, OAuthBased
@@ -3181,29 +3011,19 @@ class OAuthBasedProxy(
 
     Properties from GDBusProxy:
       g-connection -> GDBusConnection: g-connection
-        The connection the proxy is for
-      g-bus-type -> GBusType: Bus Type
-        The bus to connect to, if any
+      g-bus-type -> GBusType: g-bus-type
       g-name -> gchararray: g-name
-        The well-known or unique name that the proxy is for
       g-name-owner -> gchararray: g-name-owner
-        The unique name for the owner
       g-flags -> GDBusProxyFlags: g-flags
-        Flags for the proxy
       g-object-path -> gchararray: g-object-path
-        The object path the proxy is for
       g-interface-name -> gchararray: g-interface-name
-        The D-Bus interface name the proxy is for
-      g-default-timeout -> gint: Default Timeout
-        Timeout for remote method invocation
-      g-interface-info -> GDBusInterfaceInfo: Interface Information
-        Interface Information
+      g-default-timeout -> gint: g-default-timeout
+      g-interface-info -> GDBusInterfaceInfo: g-interface-info
 
     Signals from GObject:
       notify (GParam)
     """
-
-    class Props:
+    class Props(Gio.DBusProxy.Props):
         g_connection: Gio.DBusConnection
         g_default_timeout: int
         g_flags: Gio.DBusProxyFlags
@@ -3231,16 +3051,16 @@ class OAuthBasedProxy(
         g_object_path: str = ...,
         consumer_key: str = ...,
         consumer_secret: str = ...,
-    ): ...
+    ) -> None: ...
     @staticmethod
     def new(
         connection: Gio.DBusConnection,
         flags: Gio.DBusProxyFlags,
-        name: Optional[str],
+        name: typing.Optional[str],
         object_path: str,
-        cancellable: Optional[Gio.Cancellable] = None,
-        callback: Optional[Callable[..., None]] = None,
-        *user_data: Any,
+        cancellable: typing.Optional[Gio.Cancellable] = None,
+        callback: typing.Optional[typing.Callable[..., None]] = None,
+        *user_data: typing.Any,
     ) -> None: ...
     @classmethod
     def new_finish(cls, res: Gio.AsyncResult) -> OAuthBasedProxy: ...
@@ -3250,9 +3070,9 @@ class OAuthBasedProxy(
         flags: Gio.DBusProxyFlags,
         name: str,
         object_path: str,
-        cancellable: Optional[Gio.Cancellable] = None,
-        callback: Optional[Callable[..., None]] = None,
-        *user_data: Any,
+        cancellable: typing.Optional[Gio.Cancellable] = None,
+        callback: typing.Optional[typing.Callable[..., None]] = None,
+        *user_data: typing.Any,
     ) -> None: ...
     @classmethod
     def new_for_bus_finish(cls, res: Gio.AsyncResult) -> OAuthBasedProxy: ...
@@ -3263,16 +3083,16 @@ class OAuthBasedProxy(
         flags: Gio.DBusProxyFlags,
         name: str,
         object_path: str,
-        cancellable: Optional[Gio.Cancellable] = None,
+        cancellable: typing.Optional[Gio.Cancellable] = None,
     ) -> OAuthBasedProxy: ...
     @classmethod
     def new_sync(
         cls,
         connection: Gio.DBusConnection,
         flags: Gio.DBusProxyFlags,
-        name: Optional[str],
+        name: typing.Optional[str],
         object_path: str,
-        cancellable: Optional[Gio.Cancellable] = None,
+        cancellable: typing.Optional[Gio.Cancellable] = None,
     ) -> OAuthBasedProxy: ...
 
 class OAuthBasedProxyClass(GObject.GPointer):
@@ -3307,13 +3127,11 @@ class OAuthBasedSkeleton(Gio.DBusInterfaceSkeleton, Gio.DBusInterface, OAuthBase
 
     Properties from GDBusInterfaceSkeleton:
       g-flags -> GDBusInterfaceSkeletonFlags: g-flags
-        Flags for the interface skeleton
 
     Signals from GObject:
       notify (GParam)
     """
-
-    class Props:
+    class Props(Gio.DBusInterfaceSkeleton.Props):
         g_flags: Gio.DBusInterfaceSkeletonFlags
         consumer_key: str
         consumer_secret: str
@@ -3326,7 +3144,7 @@ class OAuthBasedSkeleton(Gio.DBusInterfaceSkeleton, Gio.DBusInterface, OAuthBase
         g_flags: Gio.DBusInterfaceSkeletonFlags = ...,
         consumer_key: str = ...,
         consumer_secret: str = ...,
-    ): ...
+    ) -> None: ...
     @classmethod
     def new(cls) -> OAuthBasedSkeleton: ...
 
@@ -3350,27 +3168,26 @@ class Object(GObject.GInterface):
     Signals from GObject:
       notify (GParam)
     """
-
-    def get_account(self) -> Optional[Account]: ...
-    def get_calendar(self) -> Optional[Calendar]: ...
-    def get_chat(self) -> Optional[Chat]: ...
-    def get_contacts(self) -> Optional[Contacts]: ...
-    def get_documents(self) -> Optional[Documents]: ...
-    def get_exchange(self) -> Optional[Exchange]: ...
-    def get_files(self) -> Optional[Files]: ...
-    def get_mail(self) -> Optional[Mail]: ...
-    def get_manager(self) -> Optional[Manager]: ...
-    def get_maps(self) -> Optional[Maps]: ...
-    def get_media_server(self) -> Optional[MediaServer]: ...
-    def get_music(self) -> Optional[Music]: ...
-    def get_oauth2_based(self) -> Optional[OAuth2Based]: ...
-    def get_oauth_based(self) -> Optional[OAuthBased]: ...
-    def get_password_based(self) -> Optional[PasswordBased]: ...
-    def get_photos(self) -> Optional[Photos]: ...
-    def get_printers(self) -> Optional[Printers]: ...
-    def get_read_later(self) -> Optional[ReadLater]: ...
-    def get_ticketing(self) -> Optional[Ticketing]: ...
-    def get_todo(self) -> Optional[Todo]: ...
+    def get_account(self) -> typing.Optional[Account]: ...
+    def get_calendar(self) -> typing.Optional[Calendar]: ...
+    def get_chat(self) -> typing.Optional[Chat]: ...
+    def get_contacts(self) -> typing.Optional[Contacts]: ...
+    def get_documents(self) -> typing.Optional[Documents]: ...
+    def get_exchange(self) -> typing.Optional[Exchange]: ...
+    def get_files(self) -> typing.Optional[Files]: ...
+    def get_mail(self) -> typing.Optional[Mail]: ...
+    def get_manager(self) -> typing.Optional[Manager]: ...
+    def get_maps(self) -> typing.Optional[Maps]: ...
+    def get_media_server(self) -> typing.Optional[MediaServer]: ...
+    def get_music(self) -> typing.Optional[Music]: ...
+    def get_oauth2_based(self) -> typing.Optional[OAuth2Based]: ...
+    def get_oauth_based(self) -> typing.Optional[OAuthBased]: ...
+    def get_password_based(self) -> typing.Optional[PasswordBased]: ...
+    def get_photos(self) -> typing.Optional[Photos]: ...
+    def get_printers(self) -> typing.Optional[Printers]: ...
+    def get_read_later(self) -> typing.Optional[ReadLater]: ...
+    def get_ticketing(self) -> typing.Optional[Ticketing]: ...
+    def get_todo(self) -> typing.Optional[Todo]: ...
 
 class ObjectIface(GObject.GPointer):
     """
@@ -3410,24 +3227,15 @@ class ObjectManagerClient(
       interface-proxy-properties-changed (GDBusObjectProxy, GDBusProxy, GVariant, GStrv)
 
     Properties from GDBusObjectManagerClient:
-      bus-type -> GBusType: Bus Type
-        The bus to connect to, if any
-      connection -> GDBusConnection: Connection
-        The connection to use
-      flags -> GDBusObjectManagerClientFlags: Flags
-        Flags for the proxy manager
-      object-path -> gchararray: Object Path
-        The object path of the control object
-      name -> gchararray: Name
-        Name that the manager is for
-      name-owner -> gchararray: Name Owner
-        The owner of the name we are watching
-      get-proxy-type-func -> gpointer: GDBusProxyTypeFunc Function Pointer
-        The GDBusProxyTypeFunc pointer to use
-      get-proxy-type-user-data -> gpointer: GDBusProxyTypeFunc User Data
-        The GDBusProxyTypeFunc user_data
-      get-proxy-type-destroy-notify -> gpointer: GDBusProxyTypeFunc user data free function
-        The GDBusProxyTypeFunc user data free function
+      bus-type -> GBusType: bus-type
+      connection -> GDBusConnection: connection
+      flags -> GDBusObjectManagerClientFlags: flags
+      object-path -> gchararray: object-path
+      name -> gchararray: name
+      name-owner -> gchararray: name-owner
+      get-proxy-type-func -> gpointer: get-proxy-type-func
+      get-proxy-type-user-data -> gpointer: get-proxy-type-user-data
+      get-proxy-type-destroy-notify -> gpointer: get-proxy-type-destroy-notify
 
     Signals from GDBusObjectManager:
       object-added (GDBusObject)
@@ -3438,15 +3246,14 @@ class ObjectManagerClient(
     Signals from GObject:
       notify (GParam)
     """
-
-    class Props:
+    class Props(Gio.DBusObjectManagerClient.Props):
         connection: Gio.DBusConnection
         flags: Gio.DBusObjectManagerClientFlags
         get_proxy_type_destroy_notify: None
         get_proxy_type_func: None
         get_proxy_type_user_data: None
         name: str
-        name_owner: Optional[str]
+        name_owner: typing.Optional[str]
         object_path: str
         bus_type: Gio.BusType
 
@@ -3463,23 +3270,23 @@ class ObjectManagerClient(
         get_proxy_type_user_data: None = ...,
         name: str = ...,
         object_path: str = ...,
-    ): ...
+    ) -> None: ...
     @staticmethod
     def get_proxy_type(
         manager: Gio.DBusObjectManagerClient,
         object_path: str,
-        interface_name: Optional[str],
+        interface_name: typing.Optional[str],
         user_data: None,
-    ) -> Type: ...
+    ) -> typing.Type[typing.Any]: ...
     @staticmethod
     def new(
         connection: Gio.DBusConnection,
         flags: Gio.DBusObjectManagerClientFlags,
-        name: Optional[str],
+        name: typing.Optional[str],
         object_path: str,
-        cancellable: Optional[Gio.Cancellable] = None,
-        callback: Optional[Callable[..., None]] = None,
-        *user_data: Any,
+        cancellable: typing.Optional[Gio.Cancellable] = None,
+        callback: typing.Optional[typing.Callable[..., None]] = None,
+        *user_data: typing.Any,
     ) -> None: ...
     @classmethod
     def new_finish(cls, res: Gio.AsyncResult) -> ObjectManagerClient: ...
@@ -3489,9 +3296,9 @@ class ObjectManagerClient(
         flags: Gio.DBusObjectManagerClientFlags,
         name: str,
         object_path: str,
-        cancellable: Optional[Gio.Cancellable] = None,
-        callback: Optional[Callable[..., None]] = None,
-        *user_data: Any,
+        cancellable: typing.Optional[Gio.Cancellable] = None,
+        callback: typing.Optional[typing.Callable[..., None]] = None,
+        *user_data: typing.Any,
     ) -> None: ...
     @classmethod
     def new_for_bus_finish(cls, res: Gio.AsyncResult) -> ObjectManagerClient: ...
@@ -3502,16 +3309,16 @@ class ObjectManagerClient(
         flags: Gio.DBusObjectManagerClientFlags,
         name: str,
         object_path: str,
-        cancellable: Optional[Gio.Cancellable] = None,
+        cancellable: typing.Optional[Gio.Cancellable] = None,
     ) -> ObjectManagerClient: ...
     @classmethod
     def new_sync(
         cls,
         connection: Gio.DBusConnection,
         flags: Gio.DBusObjectManagerClientFlags,
-        name: Optional[str],
+        name: typing.Optional[str],
         object_path: str,
-        cancellable: Optional[Gio.Cancellable] = None,
+        cancellable: typing.Optional[Gio.Cancellable] = None,
     ) -> ObjectManagerClient: ...
 
 class ObjectManagerClientClass(GObject.GPointer):
@@ -3543,10 +3350,8 @@ class ObjectProxy(Gio.DBusObjectProxy, Gio.DBusObject, Object):
       interface-removed (GDBusInterface)
 
     Properties from GDBusObjectProxy:
-      g-object-path -> gchararray: Object Path
-        The object path of the proxy
-      g-connection -> GDBusConnection: Connection
-        The connection of the proxy
+      g-object-path -> gchararray: g-object-path
+      g-connection -> GDBusConnection: g-connection
 
     Signals from GDBusObject:
       interface-added (GDBusInterface)
@@ -3555,30 +3360,29 @@ class ObjectProxy(Gio.DBusObjectProxy, Gio.DBusObject, Object):
     Signals from GObject:
       notify (GParam)
     """
-
-    class Props:
+    class Props(Gio.DBusObjectProxy.Props):
         g_connection: Gio.DBusConnection
         g_object_path: str
-        account: Optional[Account]
-        calendar: Optional[Calendar]
-        chat: Optional[Chat]
-        contacts: Optional[Contacts]
-        documents: Optional[Documents]
-        exchange: Optional[Exchange]
-        files: Optional[Files]
-        mail: Optional[Mail]
-        manager: Optional[Manager]
-        maps: Optional[Maps]
-        media_server: Optional[MediaServer]
-        music: Optional[Music]
-        oauth_based: Optional[OAuthBased]
-        oauth2_based: Optional[OAuth2Based]
-        password_based: Optional[PasswordBased]
-        photos: Optional[Photos]
-        printers: Optional[Printers]
-        read_later: Optional[ReadLater]
-        ticketing: Optional[Ticketing]
-        todo: Optional[Todo]
+        account: typing.Optional[Account]
+        calendar: typing.Optional[Calendar]
+        chat: typing.Optional[Chat]
+        contacts: typing.Optional[Contacts]
+        documents: typing.Optional[Documents]
+        exchange: typing.Optional[Exchange]
+        files: typing.Optional[Files]
+        mail: typing.Optional[Mail]
+        manager: typing.Optional[Manager]
+        maps: typing.Optional[Maps]
+        media_server: typing.Optional[MediaServer]
+        music: typing.Optional[Music]
+        oauth_based: typing.Optional[OAuthBased]
+        oauth2_based: typing.Optional[OAuth2Based]
+        password_based: typing.Optional[PasswordBased]
+        photos: typing.Optional[Photos]
+        printers: typing.Optional[Printers]
+        read_later: typing.Optional[ReadLater]
+        ticketing: typing.Optional[Ticketing]
+        todo: typing.Optional[Todo]
 
     props: Props = ...
     parent_instance: Gio.DBusObjectProxy = ...
@@ -3607,7 +3411,7 @@ class ObjectProxy(Gio.DBusObjectProxy, Gio.DBusObject, Object):
         read_later: ReadLater = ...,
         ticketing: Ticketing = ...,
         todo: Todo = ...,
-    ): ...
+    ) -> None: ...
     @classmethod
     def new(cls, connection: Gio.DBusConnection, object_path: str) -> ObjectProxy: ...
 
@@ -3643,8 +3447,7 @@ class ObjectSkeleton(Gio.DBusObjectSkeleton, Gio.DBusObject, Object):
       authorize-method (GDBusInterfaceSkeleton, GDBusMethodInvocation) -> gboolean
 
     Properties from GDBusObjectSkeleton:
-      g-object-path -> gchararray: Object Path
-        The object path where the object is exported
+      g-object-path -> gchararray: g-object-path
 
     Signals from GDBusObject:
       interface-added (GDBusInterface)
@@ -3653,29 +3456,28 @@ class ObjectSkeleton(Gio.DBusObjectSkeleton, Gio.DBusObject, Object):
     Signals from GObject:
       notify (GParam)
     """
-
-    class Props:
+    class Props(Gio.DBusObjectSkeleton.Props):
         g_object_path: str
-        account: Optional[Account]
-        calendar: Optional[Calendar]
-        chat: Optional[Chat]
-        contacts: Optional[Contacts]
-        documents: Optional[Documents]
-        exchange: Optional[Exchange]
-        files: Optional[Files]
-        mail: Optional[Mail]
-        manager: Optional[Manager]
-        maps: Optional[Maps]
-        media_server: Optional[MediaServer]
-        music: Optional[Music]
-        oauth_based: Optional[OAuthBased]
-        oauth2_based: Optional[OAuth2Based]
-        password_based: Optional[PasswordBased]
-        photos: Optional[Photos]
-        printers: Optional[Printers]
-        read_later: Optional[ReadLater]
-        ticketing: Optional[Ticketing]
-        todo: Optional[Todo]
+        account: typing.Optional[Account]
+        calendar: typing.Optional[Calendar]
+        chat: typing.Optional[Chat]
+        contacts: typing.Optional[Contacts]
+        documents: typing.Optional[Documents]
+        exchange: typing.Optional[Exchange]
+        files: typing.Optional[Files]
+        mail: typing.Optional[Mail]
+        manager: typing.Optional[Manager]
+        maps: typing.Optional[Maps]
+        media_server: typing.Optional[MediaServer]
+        music: typing.Optional[Music]
+        oauth_based: typing.Optional[OAuthBased]
+        oauth2_based: typing.Optional[OAuth2Based]
+        password_based: typing.Optional[PasswordBased]
+        photos: typing.Optional[Photos]
+        printers: typing.Optional[Printers]
+        read_later: typing.Optional[ReadLater]
+        ticketing: typing.Optional[Ticketing]
+        todo: typing.Optional[Todo]
 
     props: Props = ...
     parent_instance: Gio.DBusObjectSkeleton = ...
@@ -3703,31 +3505,37 @@ class ObjectSkeleton(Gio.DBusObjectSkeleton, Gio.DBusObject, Object):
         read_later: ReadLater = ...,
         ticketing: Ticketing = ...,
         todo: Todo = ...,
-    ): ...
+    ) -> None: ...
     @classmethod
     def new(cls, object_path: str) -> ObjectSkeleton: ...
-    def set_account(self, interface_: Optional[Account] = None) -> None: ...
-    def set_calendar(self, interface_: Optional[Calendar] = None) -> None: ...
-    def set_chat(self, interface_: Optional[Chat] = None) -> None: ...
-    def set_contacts(self, interface_: Optional[Contacts] = None) -> None: ...
-    def set_documents(self, interface_: Optional[Documents] = None) -> None: ...
-    def set_exchange(self, interface_: Optional[Exchange] = None) -> None: ...
-    def set_files(self, interface_: Optional[Files] = None) -> None: ...
-    def set_mail(self, interface_: Optional[Mail] = None) -> None: ...
-    def set_manager(self, interface_: Optional[Manager] = None) -> None: ...
-    def set_maps(self, interface_: Optional[Maps] = None) -> None: ...
-    def set_media_server(self, interface_: Optional[MediaServer] = None) -> None: ...
-    def set_music(self, interface_: Optional[Music] = None) -> None: ...
-    def set_oauth2_based(self, interface_: Optional[OAuth2Based] = None) -> None: ...
-    def set_oauth_based(self, interface_: Optional[OAuthBased] = None) -> None: ...
-    def set_password_based(
-        self, interface_: Optional[PasswordBased] = None
+    def set_account(self, interface_: typing.Optional[Account] = None) -> None: ...
+    def set_calendar(self, interface_: typing.Optional[Calendar] = None) -> None: ...
+    def set_chat(self, interface_: typing.Optional[Chat] = None) -> None: ...
+    def set_contacts(self, interface_: typing.Optional[Contacts] = None) -> None: ...
+    def set_documents(self, interface_: typing.Optional[Documents] = None) -> None: ...
+    def set_exchange(self, interface_: typing.Optional[Exchange] = None) -> None: ...
+    def set_files(self, interface_: typing.Optional[Files] = None) -> None: ...
+    def set_mail(self, interface_: typing.Optional[Mail] = None) -> None: ...
+    def set_manager(self, interface_: typing.Optional[Manager] = None) -> None: ...
+    def set_maps(self, interface_: typing.Optional[Maps] = None) -> None: ...
+    def set_media_server(
+        self, interface_: typing.Optional[MediaServer] = None
     ) -> None: ...
-    def set_photos(self, interface_: Optional[Photos] = None) -> None: ...
-    def set_printers(self, interface_: Optional[Printers] = None) -> None: ...
-    def set_read_later(self, interface_: Optional[ReadLater] = None) -> None: ...
-    def set_ticketing(self, interface_: Optional[Ticketing] = None) -> None: ...
-    def set_todo(self, interface_: Optional[Todo] = None) -> None: ...
+    def set_music(self, interface_: typing.Optional[Music] = None) -> None: ...
+    def set_oauth2_based(
+        self, interface_: typing.Optional[OAuth2Based] = None
+    ) -> None: ...
+    def set_oauth_based(
+        self, interface_: typing.Optional[OAuthBased] = None
+    ) -> None: ...
+    def set_password_based(
+        self, interface_: typing.Optional[PasswordBased] = None
+    ) -> None: ...
+    def set_photos(self, interface_: typing.Optional[Photos] = None) -> None: ...
+    def set_printers(self, interface_: typing.Optional[Printers] = None) -> None: ...
+    def set_read_later(self, interface_: typing.Optional[ReadLater] = None) -> None: ...
+    def set_ticketing(self, interface_: typing.Optional[Ticketing] = None) -> None: ...
+    def set_todo(self, interface_: typing.Optional[Todo] = None) -> None: ...
 
 class ObjectSkeletonClass(GObject.GPointer):
     """
@@ -3749,18 +3557,19 @@ class PasswordBased(GObject.GInterface):
     Signals from GObject:
       notify (GParam)
     """
-
     def call_get_password(
         self,
         arg_id: str,
-        cancellable: Optional[Gio.Cancellable] = None,
-        callback: Optional[Callable[..., None]] = None,
-        *user_data: Any,
+        cancellable: typing.Optional[Gio.Cancellable] = None,
+        callback: typing.Optional[typing.Callable[..., None]] = None,
+        *user_data: typing.Any,
     ) -> None: ...
-    def call_get_password_finish(self, res: Gio.AsyncResult) -> Tuple[bool, str]: ...
+    def call_get_password_finish(
+        self, res: Gio.AsyncResult
+    ) -> typing.Tuple[bool, str]: ...
     def call_get_password_sync(
-        self, arg_id: str, cancellable: Optional[Gio.Cancellable] = None
-    ) -> Tuple[bool, str]: ...
+        self, arg_id: str, cancellable: typing.Optional[Gio.Cancellable] = None
+    ) -> typing.Tuple[bool, str]: ...
     def complete_get_password(
         self, invocation: Gio.DBusMethodInvocation, password: str
     ) -> None: ...
@@ -3781,7 +3590,7 @@ class PasswordBasedIface(GObject.GPointer):
     """
 
     parent_iface: GObject.TypeInterface = ...
-    handle_get_password: Callable[
+    handle_get_password: typing.Callable[
         [PasswordBased, Gio.DBusMethodInvocation, str], bool
     ] = ...
 
@@ -3810,29 +3619,19 @@ class PasswordBasedProxy(
 
     Properties from GDBusProxy:
       g-connection -> GDBusConnection: g-connection
-        The connection the proxy is for
-      g-bus-type -> GBusType: Bus Type
-        The bus to connect to, if any
+      g-bus-type -> GBusType: g-bus-type
       g-name -> gchararray: g-name
-        The well-known or unique name that the proxy is for
       g-name-owner -> gchararray: g-name-owner
-        The unique name for the owner
       g-flags -> GDBusProxyFlags: g-flags
-        Flags for the proxy
       g-object-path -> gchararray: g-object-path
-        The object path the proxy is for
       g-interface-name -> gchararray: g-interface-name
-        The D-Bus interface name the proxy is for
-      g-default-timeout -> gint: Default Timeout
-        Timeout for remote method invocation
-      g-interface-info -> GDBusInterfaceInfo: Interface Information
-        Interface Information
+      g-default-timeout -> gint: g-default-timeout
+      g-interface-info -> GDBusInterfaceInfo: g-interface-info
 
     Signals from GObject:
       notify (GParam)
     """
-
-    class Props:
+    class Props(Gio.DBusProxy.Props):
         g_connection: Gio.DBusConnection
         g_default_timeout: int
         g_flags: Gio.DBusProxyFlags
@@ -3856,16 +3655,16 @@ class PasswordBasedProxy(
         g_interface_name: str = ...,
         g_name: str = ...,
         g_object_path: str = ...,
-    ): ...
+    ) -> None: ...
     @staticmethod
     def new(
         connection: Gio.DBusConnection,
         flags: Gio.DBusProxyFlags,
-        name: Optional[str],
+        name: typing.Optional[str],
         object_path: str,
-        cancellable: Optional[Gio.Cancellable] = None,
-        callback: Optional[Callable[..., None]] = None,
-        *user_data: Any,
+        cancellable: typing.Optional[Gio.Cancellable] = None,
+        callback: typing.Optional[typing.Callable[..., None]] = None,
+        *user_data: typing.Any,
     ) -> None: ...
     @classmethod
     def new_finish(cls, res: Gio.AsyncResult) -> PasswordBasedProxy: ...
@@ -3875,9 +3674,9 @@ class PasswordBasedProxy(
         flags: Gio.DBusProxyFlags,
         name: str,
         object_path: str,
-        cancellable: Optional[Gio.Cancellable] = None,
-        callback: Optional[Callable[..., None]] = None,
-        *user_data: Any,
+        cancellable: typing.Optional[Gio.Cancellable] = None,
+        callback: typing.Optional[typing.Callable[..., None]] = None,
+        *user_data: typing.Any,
     ) -> None: ...
     @classmethod
     def new_for_bus_finish(cls, res: Gio.AsyncResult) -> PasswordBasedProxy: ...
@@ -3888,16 +3687,16 @@ class PasswordBasedProxy(
         flags: Gio.DBusProxyFlags,
         name: str,
         object_path: str,
-        cancellable: Optional[Gio.Cancellable] = None,
+        cancellable: typing.Optional[Gio.Cancellable] = None,
     ) -> PasswordBasedProxy: ...
     @classmethod
     def new_sync(
         cls,
         connection: Gio.DBusConnection,
         flags: Gio.DBusProxyFlags,
-        name: Optional[str],
+        name: typing.Optional[str],
         object_path: str,
-        cancellable: Optional[Gio.Cancellable] = None,
+        cancellable: typing.Optional[Gio.Cancellable] = None,
     ) -> PasswordBasedProxy: ...
 
 class PasswordBasedProxyClass(GObject.GPointer):
@@ -3934,19 +3733,17 @@ class PasswordBasedSkeleton(
 
     Properties from GDBusInterfaceSkeleton:
       g-flags -> GDBusInterfaceSkeletonFlags: g-flags
-        Flags for the interface skeleton
 
     Signals from GObject:
       notify (GParam)
     """
-
-    class Props:
+    class Props(Gio.DBusInterfaceSkeleton.Props):
         g_flags: Gio.DBusInterfaceSkeletonFlags
 
     props: Props = ...
     parent_instance: Gio.DBusInterfaceSkeleton = ...
     priv: PasswordBasedSkeletonPrivate = ...
-    def __init__(self, g_flags: Gio.DBusInterfaceSkeletonFlags = ...): ...
+    def __init__(self, g_flags: Gio.DBusInterfaceSkeletonFlags = ...) -> None: ...
     @classmethod
     def new(cls) -> PasswordBasedSkeleton: ...
 
@@ -3970,7 +3767,6 @@ class Photos(GObject.GInterface):
     Signals from GObject:
       notify (GParam)
     """
-
     @staticmethod
     def interface_info() -> Gio.DBusInterfaceInfo: ...
     @staticmethod
@@ -4011,29 +3807,19 @@ class PhotosProxy(
 
     Properties from GDBusProxy:
       g-connection -> GDBusConnection: g-connection
-        The connection the proxy is for
-      g-bus-type -> GBusType: Bus Type
-        The bus to connect to, if any
+      g-bus-type -> GBusType: g-bus-type
       g-name -> gchararray: g-name
-        The well-known or unique name that the proxy is for
       g-name-owner -> gchararray: g-name-owner
-        The unique name for the owner
       g-flags -> GDBusProxyFlags: g-flags
-        Flags for the proxy
       g-object-path -> gchararray: g-object-path
-        The object path the proxy is for
       g-interface-name -> gchararray: g-interface-name
-        The D-Bus interface name the proxy is for
-      g-default-timeout -> gint: Default Timeout
-        Timeout for remote method invocation
-      g-interface-info -> GDBusInterfaceInfo: Interface Information
-        Interface Information
+      g-default-timeout -> gint: g-default-timeout
+      g-interface-info -> GDBusInterfaceInfo: g-interface-info
 
     Signals from GObject:
       notify (GParam)
     """
-
-    class Props:
+    class Props(Gio.DBusProxy.Props):
         g_connection: Gio.DBusConnection
         g_default_timeout: int
         g_flags: Gio.DBusProxyFlags
@@ -4057,16 +3843,16 @@ class PhotosProxy(
         g_interface_name: str = ...,
         g_name: str = ...,
         g_object_path: str = ...,
-    ): ...
+    ) -> None: ...
     @staticmethod
     def new(
         connection: Gio.DBusConnection,
         flags: Gio.DBusProxyFlags,
-        name: Optional[str],
+        name: typing.Optional[str],
         object_path: str,
-        cancellable: Optional[Gio.Cancellable] = None,
-        callback: Optional[Callable[..., None]] = None,
-        *user_data: Any,
+        cancellable: typing.Optional[Gio.Cancellable] = None,
+        callback: typing.Optional[typing.Callable[..., None]] = None,
+        *user_data: typing.Any,
     ) -> None: ...
     @classmethod
     def new_finish(cls, res: Gio.AsyncResult) -> PhotosProxy: ...
@@ -4076,9 +3862,9 @@ class PhotosProxy(
         flags: Gio.DBusProxyFlags,
         name: str,
         object_path: str,
-        cancellable: Optional[Gio.Cancellable] = None,
-        callback: Optional[Callable[..., None]] = None,
-        *user_data: Any,
+        cancellable: typing.Optional[Gio.Cancellable] = None,
+        callback: typing.Optional[typing.Callable[..., None]] = None,
+        *user_data: typing.Any,
     ) -> None: ...
     @classmethod
     def new_for_bus_finish(cls, res: Gio.AsyncResult) -> PhotosProxy: ...
@@ -4089,16 +3875,16 @@ class PhotosProxy(
         flags: Gio.DBusProxyFlags,
         name: str,
         object_path: str,
-        cancellable: Optional[Gio.Cancellable] = None,
+        cancellable: typing.Optional[Gio.Cancellable] = None,
     ) -> PhotosProxy: ...
     @classmethod
     def new_sync(
         cls,
         connection: Gio.DBusConnection,
         flags: Gio.DBusProxyFlags,
-        name: Optional[str],
+        name: typing.Optional[str],
         object_path: str,
-        cancellable: Optional[Gio.Cancellable] = None,
+        cancellable: typing.Optional[Gio.Cancellable] = None,
     ) -> PhotosProxy: ...
 
 class PhotosProxyClass(GObject.GPointer):
@@ -4130,19 +3916,17 @@ class PhotosSkeleton(Gio.DBusInterfaceSkeleton, Gio.DBusInterface, Photos):
 
     Properties from GDBusInterfaceSkeleton:
       g-flags -> GDBusInterfaceSkeletonFlags: g-flags
-        Flags for the interface skeleton
 
     Signals from GObject:
       notify (GParam)
     """
-
-    class Props:
+    class Props(Gio.DBusInterfaceSkeleton.Props):
         g_flags: Gio.DBusInterfaceSkeletonFlags
 
     props: Props = ...
     parent_instance: Gio.DBusInterfaceSkeleton = ...
     priv: PhotosSkeletonPrivate = ...
-    def __init__(self, g_flags: Gio.DBusInterfaceSkeletonFlags = ...): ...
+    def __init__(self, g_flags: Gio.DBusInterfaceSkeletonFlags = ...) -> None: ...
     @classmethod
     def new(cls) -> PhotosSkeleton: ...
 
@@ -4166,7 +3950,6 @@ class Printers(GObject.GInterface):
     Signals from GObject:
       notify (GParam)
     """
-
     @staticmethod
     def interface_info() -> Gio.DBusInterfaceInfo: ...
     @staticmethod
@@ -4207,29 +3990,19 @@ class PrintersProxy(
 
     Properties from GDBusProxy:
       g-connection -> GDBusConnection: g-connection
-        The connection the proxy is for
-      g-bus-type -> GBusType: Bus Type
-        The bus to connect to, if any
+      g-bus-type -> GBusType: g-bus-type
       g-name -> gchararray: g-name
-        The well-known or unique name that the proxy is for
       g-name-owner -> gchararray: g-name-owner
-        The unique name for the owner
       g-flags -> GDBusProxyFlags: g-flags
-        Flags for the proxy
       g-object-path -> gchararray: g-object-path
-        The object path the proxy is for
       g-interface-name -> gchararray: g-interface-name
-        The D-Bus interface name the proxy is for
-      g-default-timeout -> gint: Default Timeout
-        Timeout for remote method invocation
-      g-interface-info -> GDBusInterfaceInfo: Interface Information
-        Interface Information
+      g-default-timeout -> gint: g-default-timeout
+      g-interface-info -> GDBusInterfaceInfo: g-interface-info
 
     Signals from GObject:
       notify (GParam)
     """
-
-    class Props:
+    class Props(Gio.DBusProxy.Props):
         g_connection: Gio.DBusConnection
         g_default_timeout: int
         g_flags: Gio.DBusProxyFlags
@@ -4253,16 +4026,16 @@ class PrintersProxy(
         g_interface_name: str = ...,
         g_name: str = ...,
         g_object_path: str = ...,
-    ): ...
+    ) -> None: ...
     @staticmethod
     def new(
         connection: Gio.DBusConnection,
         flags: Gio.DBusProxyFlags,
-        name: Optional[str],
+        name: typing.Optional[str],
         object_path: str,
-        cancellable: Optional[Gio.Cancellable] = None,
-        callback: Optional[Callable[..., None]] = None,
-        *user_data: Any,
+        cancellable: typing.Optional[Gio.Cancellable] = None,
+        callback: typing.Optional[typing.Callable[..., None]] = None,
+        *user_data: typing.Any,
     ) -> None: ...
     @classmethod
     def new_finish(cls, res: Gio.AsyncResult) -> PrintersProxy: ...
@@ -4272,9 +4045,9 @@ class PrintersProxy(
         flags: Gio.DBusProxyFlags,
         name: str,
         object_path: str,
-        cancellable: Optional[Gio.Cancellable] = None,
-        callback: Optional[Callable[..., None]] = None,
-        *user_data: Any,
+        cancellable: typing.Optional[Gio.Cancellable] = None,
+        callback: typing.Optional[typing.Callable[..., None]] = None,
+        *user_data: typing.Any,
     ) -> None: ...
     @classmethod
     def new_for_bus_finish(cls, res: Gio.AsyncResult) -> PrintersProxy: ...
@@ -4285,16 +4058,16 @@ class PrintersProxy(
         flags: Gio.DBusProxyFlags,
         name: str,
         object_path: str,
-        cancellable: Optional[Gio.Cancellable] = None,
+        cancellable: typing.Optional[Gio.Cancellable] = None,
     ) -> PrintersProxy: ...
     @classmethod
     def new_sync(
         cls,
         connection: Gio.DBusConnection,
         flags: Gio.DBusProxyFlags,
-        name: Optional[str],
+        name: typing.Optional[str],
         object_path: str,
-        cancellable: Optional[Gio.Cancellable] = None,
+        cancellable: typing.Optional[Gio.Cancellable] = None,
     ) -> PrintersProxy: ...
 
 class PrintersProxyClass(GObject.GPointer):
@@ -4326,19 +4099,17 @@ class PrintersSkeleton(Gio.DBusInterfaceSkeleton, Gio.DBusInterface, Printers):
 
     Properties from GDBusInterfaceSkeleton:
       g-flags -> GDBusInterfaceSkeletonFlags: g-flags
-        Flags for the interface skeleton
 
     Signals from GObject:
       notify (GParam)
     """
-
-    class Props:
+    class Props(Gio.DBusInterfaceSkeleton.Props):
         g_flags: Gio.DBusInterfaceSkeletonFlags
 
     props: Props = ...
     parent_instance: Gio.DBusInterfaceSkeleton = ...
     priv: PrintersSkeletonPrivate = ...
-    def __init__(self, g_flags: Gio.DBusInterfaceSkeletonFlags = ...): ...
+    def __init__(self, g_flags: Gio.DBusInterfaceSkeletonFlags = ...) -> None: ...
     @classmethod
     def new(cls) -> PrintersSkeleton: ...
 
@@ -4362,7 +4133,6 @@ class ReadLater(GObject.GInterface):
     Signals from GObject:
       notify (GParam)
     """
-
     @staticmethod
     def interface_info() -> Gio.DBusInterfaceInfo: ...
     @staticmethod
@@ -4403,29 +4173,19 @@ class ReadLaterProxy(
 
     Properties from GDBusProxy:
       g-connection -> GDBusConnection: g-connection
-        The connection the proxy is for
-      g-bus-type -> GBusType: Bus Type
-        The bus to connect to, if any
+      g-bus-type -> GBusType: g-bus-type
       g-name -> gchararray: g-name
-        The well-known or unique name that the proxy is for
       g-name-owner -> gchararray: g-name-owner
-        The unique name for the owner
       g-flags -> GDBusProxyFlags: g-flags
-        Flags for the proxy
       g-object-path -> gchararray: g-object-path
-        The object path the proxy is for
       g-interface-name -> gchararray: g-interface-name
-        The D-Bus interface name the proxy is for
-      g-default-timeout -> gint: Default Timeout
-        Timeout for remote method invocation
-      g-interface-info -> GDBusInterfaceInfo: Interface Information
-        Interface Information
+      g-default-timeout -> gint: g-default-timeout
+      g-interface-info -> GDBusInterfaceInfo: g-interface-info
 
     Signals from GObject:
       notify (GParam)
     """
-
-    class Props:
+    class Props(Gio.DBusProxy.Props):
         g_connection: Gio.DBusConnection
         g_default_timeout: int
         g_flags: Gio.DBusProxyFlags
@@ -4449,16 +4209,16 @@ class ReadLaterProxy(
         g_interface_name: str = ...,
         g_name: str = ...,
         g_object_path: str = ...,
-    ): ...
+    ) -> None: ...
     @staticmethod
     def new(
         connection: Gio.DBusConnection,
         flags: Gio.DBusProxyFlags,
-        name: Optional[str],
+        name: typing.Optional[str],
         object_path: str,
-        cancellable: Optional[Gio.Cancellable] = None,
-        callback: Optional[Callable[..., None]] = None,
-        *user_data: Any,
+        cancellable: typing.Optional[Gio.Cancellable] = None,
+        callback: typing.Optional[typing.Callable[..., None]] = None,
+        *user_data: typing.Any,
     ) -> None: ...
     @classmethod
     def new_finish(cls, res: Gio.AsyncResult) -> ReadLaterProxy: ...
@@ -4468,9 +4228,9 @@ class ReadLaterProxy(
         flags: Gio.DBusProxyFlags,
         name: str,
         object_path: str,
-        cancellable: Optional[Gio.Cancellable] = None,
-        callback: Optional[Callable[..., None]] = None,
-        *user_data: Any,
+        cancellable: typing.Optional[Gio.Cancellable] = None,
+        callback: typing.Optional[typing.Callable[..., None]] = None,
+        *user_data: typing.Any,
     ) -> None: ...
     @classmethod
     def new_for_bus_finish(cls, res: Gio.AsyncResult) -> ReadLaterProxy: ...
@@ -4481,16 +4241,16 @@ class ReadLaterProxy(
         flags: Gio.DBusProxyFlags,
         name: str,
         object_path: str,
-        cancellable: Optional[Gio.Cancellable] = None,
+        cancellable: typing.Optional[Gio.Cancellable] = None,
     ) -> ReadLaterProxy: ...
     @classmethod
     def new_sync(
         cls,
         connection: Gio.DBusConnection,
         flags: Gio.DBusProxyFlags,
-        name: Optional[str],
+        name: typing.Optional[str],
         object_path: str,
-        cancellable: Optional[Gio.Cancellable] = None,
+        cancellable: typing.Optional[Gio.Cancellable] = None,
     ) -> ReadLaterProxy: ...
 
 class ReadLaterProxyClass(GObject.GPointer):
@@ -4522,19 +4282,17 @@ class ReadLaterSkeleton(Gio.DBusInterfaceSkeleton, Gio.DBusInterface, ReadLater)
 
     Properties from GDBusInterfaceSkeleton:
       g-flags -> GDBusInterfaceSkeletonFlags: g-flags
-        Flags for the interface skeleton
 
     Signals from GObject:
       notify (GParam)
     """
-
-    class Props:
+    class Props(Gio.DBusInterfaceSkeleton.Props):
         g_flags: Gio.DBusInterfaceSkeletonFlags
 
     props: Props = ...
     parent_instance: Gio.DBusInterfaceSkeleton = ...
     priv: ReadLaterSkeletonPrivate = ...
-    def __init__(self, g_flags: Gio.DBusInterfaceSkeletonFlags = ...): ...
+    def __init__(self, g_flags: Gio.DBusInterfaceSkeletonFlags = ...) -> None: ...
     @classmethod
     def new(cls) -> ReadLaterSkeleton: ...
 
@@ -4558,16 +4316,15 @@ class Ticketing(GObject.GInterface):
     Signals from GObject:
       notify (GParam)
     """
-
     def call_get_ticket(
         self,
-        cancellable: Optional[Gio.Cancellable] = None,
-        callback: Optional[Callable[..., None]] = None,
-        *user_data: Any,
+        cancellable: typing.Optional[Gio.Cancellable] = None,
+        callback: typing.Optional[typing.Callable[..., None]] = None,
+        *user_data: typing.Any,
     ) -> None: ...
     def call_get_ticket_finish(self, res: Gio.AsyncResult) -> bool: ...
     def call_get_ticket_sync(
-        self, cancellable: Optional[Gio.Cancellable] = None
+        self, cancellable: typing.Optional[Gio.Cancellable] = None
     ) -> bool: ...
     def complete_get_ticket(self, invocation: Gio.DBusMethodInvocation) -> None: ...
     @staticmethod
@@ -4587,8 +4344,10 @@ class TicketingIface(GObject.GPointer):
     """
 
     parent_iface: GObject.TypeInterface = ...
-    handle_get_ticket: Callable[[Ticketing, Gio.DBusMethodInvocation], bool] = ...
-    get_details: Callable[[Ticketing], Optional[GLib.Variant]] = ...
+    handle_get_ticket: typing.Callable[
+        [Ticketing, Gio.DBusMethodInvocation], bool
+    ] = ...
+    get_details: typing.Callable[[Ticketing], typing.Optional[GLib.Variant]] = ...
 
 class TicketingProxy(
     Gio.DBusProxy, Gio.AsyncInitable, Gio.DBusInterface, Gio.Initable, Ticketing
@@ -4615,29 +4374,19 @@ class TicketingProxy(
 
     Properties from GDBusProxy:
       g-connection -> GDBusConnection: g-connection
-        The connection the proxy is for
-      g-bus-type -> GBusType: Bus Type
-        The bus to connect to, if any
+      g-bus-type -> GBusType: g-bus-type
       g-name -> gchararray: g-name
-        The well-known or unique name that the proxy is for
       g-name-owner -> gchararray: g-name-owner
-        The unique name for the owner
       g-flags -> GDBusProxyFlags: g-flags
-        Flags for the proxy
       g-object-path -> gchararray: g-object-path
-        The object path the proxy is for
       g-interface-name -> gchararray: g-interface-name
-        The D-Bus interface name the proxy is for
-      g-default-timeout -> gint: Default Timeout
-        Timeout for remote method invocation
-      g-interface-info -> GDBusInterfaceInfo: Interface Information
-        Interface Information
+      g-default-timeout -> gint: g-default-timeout
+      g-interface-info -> GDBusInterfaceInfo: g-interface-info
 
     Signals from GObject:
       notify (GParam)
     """
-
-    class Props:
+    class Props(Gio.DBusProxy.Props):
         g_connection: Gio.DBusConnection
         g_default_timeout: int
         g_flags: Gio.DBusProxyFlags
@@ -4663,16 +4412,16 @@ class TicketingProxy(
         g_name: str = ...,
         g_object_path: str = ...,
         details: GLib.Variant = ...,
-    ): ...
+    ) -> None: ...
     @staticmethod
     def new(
         connection: Gio.DBusConnection,
         flags: Gio.DBusProxyFlags,
-        name: Optional[str],
+        name: typing.Optional[str],
         object_path: str,
-        cancellable: Optional[Gio.Cancellable] = None,
-        callback: Optional[Callable[..., None]] = None,
-        *user_data: Any,
+        cancellable: typing.Optional[Gio.Cancellable] = None,
+        callback: typing.Optional[typing.Callable[..., None]] = None,
+        *user_data: typing.Any,
     ) -> None: ...
     @classmethod
     def new_finish(cls, res: Gio.AsyncResult) -> TicketingProxy: ...
@@ -4682,9 +4431,9 @@ class TicketingProxy(
         flags: Gio.DBusProxyFlags,
         name: str,
         object_path: str,
-        cancellable: Optional[Gio.Cancellable] = None,
-        callback: Optional[Callable[..., None]] = None,
-        *user_data: Any,
+        cancellable: typing.Optional[Gio.Cancellable] = None,
+        callback: typing.Optional[typing.Callable[..., None]] = None,
+        *user_data: typing.Any,
     ) -> None: ...
     @classmethod
     def new_for_bus_finish(cls, res: Gio.AsyncResult) -> TicketingProxy: ...
@@ -4695,16 +4444,16 @@ class TicketingProxy(
         flags: Gio.DBusProxyFlags,
         name: str,
         object_path: str,
-        cancellable: Optional[Gio.Cancellable] = None,
+        cancellable: typing.Optional[Gio.Cancellable] = None,
     ) -> TicketingProxy: ...
     @classmethod
     def new_sync(
         cls,
         connection: Gio.DBusConnection,
         flags: Gio.DBusProxyFlags,
-        name: Optional[str],
+        name: typing.Optional[str],
         object_path: str,
-        cancellable: Optional[Gio.Cancellable] = None,
+        cancellable: typing.Optional[Gio.Cancellable] = None,
     ) -> TicketingProxy: ...
 
 class TicketingProxyClass(GObject.GPointer):
@@ -4739,13 +4488,11 @@ class TicketingSkeleton(Gio.DBusInterfaceSkeleton, Gio.DBusInterface, Ticketing)
 
     Properties from GDBusInterfaceSkeleton:
       g-flags -> GDBusInterfaceSkeletonFlags: g-flags
-        Flags for the interface skeleton
 
     Signals from GObject:
       notify (GParam)
     """
-
-    class Props:
+    class Props(Gio.DBusInterfaceSkeleton.Props):
         g_flags: Gio.DBusInterfaceSkeletonFlags
         details: GLib.Variant
 
@@ -4754,7 +4501,7 @@ class TicketingSkeleton(Gio.DBusInterfaceSkeleton, Gio.DBusInterface, Ticketing)
     priv: TicketingSkeletonPrivate = ...
     def __init__(
         self, g_flags: Gio.DBusInterfaceSkeletonFlags = ..., details: GLib.Variant = ...
-    ): ...
+    ) -> None: ...
     @classmethod
     def new(cls) -> TicketingSkeleton: ...
 
@@ -4778,7 +4525,6 @@ class Todo(GObject.GInterface):
     Signals from GObject:
       notify (GParam)
     """
-
     @staticmethod
     def interface_info() -> Gio.DBusInterfaceInfo: ...
     @staticmethod
@@ -4819,29 +4565,19 @@ class TodoProxy(
 
     Properties from GDBusProxy:
       g-connection -> GDBusConnection: g-connection
-        The connection the proxy is for
-      g-bus-type -> GBusType: Bus Type
-        The bus to connect to, if any
+      g-bus-type -> GBusType: g-bus-type
       g-name -> gchararray: g-name
-        The well-known or unique name that the proxy is for
       g-name-owner -> gchararray: g-name-owner
-        The unique name for the owner
       g-flags -> GDBusProxyFlags: g-flags
-        Flags for the proxy
       g-object-path -> gchararray: g-object-path
-        The object path the proxy is for
       g-interface-name -> gchararray: g-interface-name
-        The D-Bus interface name the proxy is for
-      g-default-timeout -> gint: Default Timeout
-        Timeout for remote method invocation
-      g-interface-info -> GDBusInterfaceInfo: Interface Information
-        Interface Information
+      g-default-timeout -> gint: g-default-timeout
+      g-interface-info -> GDBusInterfaceInfo: g-interface-info
 
     Signals from GObject:
       notify (GParam)
     """
-
-    class Props:
+    class Props(Gio.DBusProxy.Props):
         g_connection: Gio.DBusConnection
         g_default_timeout: int
         g_flags: Gio.DBusProxyFlags
@@ -4865,16 +4601,16 @@ class TodoProxy(
         g_interface_name: str = ...,
         g_name: str = ...,
         g_object_path: str = ...,
-    ): ...
+    ) -> None: ...
     @staticmethod
     def new(
         connection: Gio.DBusConnection,
         flags: Gio.DBusProxyFlags,
-        name: Optional[str],
+        name: typing.Optional[str],
         object_path: str,
-        cancellable: Optional[Gio.Cancellable] = None,
-        callback: Optional[Callable[..., None]] = None,
-        *user_data: Any,
+        cancellable: typing.Optional[Gio.Cancellable] = None,
+        callback: typing.Optional[typing.Callable[..., None]] = None,
+        *user_data: typing.Any,
     ) -> None: ...
     @classmethod
     def new_finish(cls, res: Gio.AsyncResult) -> TodoProxy: ...
@@ -4884,9 +4620,9 @@ class TodoProxy(
         flags: Gio.DBusProxyFlags,
         name: str,
         object_path: str,
-        cancellable: Optional[Gio.Cancellable] = None,
-        callback: Optional[Callable[..., None]] = None,
-        *user_data: Any,
+        cancellable: typing.Optional[Gio.Cancellable] = None,
+        callback: typing.Optional[typing.Callable[..., None]] = None,
+        *user_data: typing.Any,
     ) -> None: ...
     @classmethod
     def new_for_bus_finish(cls, res: Gio.AsyncResult) -> TodoProxy: ...
@@ -4897,16 +4633,16 @@ class TodoProxy(
         flags: Gio.DBusProxyFlags,
         name: str,
         object_path: str,
-        cancellable: Optional[Gio.Cancellable] = None,
+        cancellable: typing.Optional[Gio.Cancellable] = None,
     ) -> TodoProxy: ...
     @classmethod
     def new_sync(
         cls,
         connection: Gio.DBusConnection,
         flags: Gio.DBusProxyFlags,
-        name: Optional[str],
+        name: typing.Optional[str],
         object_path: str,
-        cancellable: Optional[Gio.Cancellable] = None,
+        cancellable: typing.Optional[Gio.Cancellable] = None,
     ) -> TodoProxy: ...
 
 class TodoProxyClass(GObject.GPointer):
@@ -4938,19 +4674,17 @@ class TodoSkeleton(Gio.DBusInterfaceSkeleton, Gio.DBusInterface, Todo):
 
     Properties from GDBusInterfaceSkeleton:
       g-flags -> GDBusInterfaceSkeletonFlags: g-flags
-        Flags for the interface skeleton
 
     Signals from GObject:
       notify (GParam)
     """
-
-    class Props:
+    class Props(Gio.DBusInterfaceSkeleton.Props):
         g_flags: Gio.DBusInterfaceSkeletonFlags
 
     props: Props = ...
     parent_instance: Gio.DBusInterfaceSkeleton = ...
     priv: TodoSkeletonPrivate = ...
-    def __init__(self, g_flags: Gio.DBusInterfaceSkeletonFlags = ...): ...
+    def __init__(self, g_flags: Gio.DBusInterfaceSkeletonFlags = ...) -> None: ...
     @classmethod
     def new(cls) -> TodoSkeleton: ...
 

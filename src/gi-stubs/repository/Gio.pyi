@@ -3,6 +3,7 @@ import typing
 from gi.repository import GioUnix
 from gi.repository import GLib
 from gi.repository import GObject
+from gi.repository import typing
 from typing_extensions import Self
 
 T = typing.TypeVar("T")
@@ -286,10 +287,8 @@ def dbus_error_register_error(
     error_domain: int, error_code: int, dbus_error_name: str
 ) -> bool: ...
 def dbus_error_register_error_domain(
-    error_domain_quark_name: str,
-    quark_volatile: int,
-    entries: typing.Sequence[DBusErrorEntry],
-) -> None: ...
+    error_domain_quark_name: str, entries: typing.Sequence[DBusErrorEntry]
+) -> int: ...
 def dbus_error_strip_remote_error(error: GLib.Error) -> bool: ...
 def dbus_error_unregister_error(
     error_domain: int, error_code: int, dbus_error_name: str
@@ -753,7 +752,7 @@ class AppInfo(GObject.GInterface):
     def get_name(self) -> str: ...
     @staticmethod
     def get_recommended_for_type(content_type: str) -> list[AppInfo]: ...
-    def get_supported_types(self) -> list[str]: ...
+    def get_supported_types(self) -> typing.Optional[list[str]]: ...
     def launch(
         self,
         files: typing.Optional[list[File]] = None,
@@ -833,7 +832,7 @@ class AppInfoIface(GObject.GPointer):
     get_commandline: typing.Callable[[AppInfo], typing.Optional[str]] = ...
     get_display_name: typing.Callable[[AppInfo], str] = ...
     set_as_last_used_for_type: typing.Callable[[AppInfo, str], bool] = ...
-    get_supported_types: typing.Callable[[AppInfo], list[str]] = ...
+    get_supported_types: typing.Callable[[AppInfo], typing.Optional[list[str]]] = ...
     launch_uris_async: typing.Callable[..., None] = ...
     launch_uris_finish: typing.Callable[[AppInfo, AsyncResult], bool] = ...
 
@@ -1169,7 +1168,7 @@ class ApplicationCommandLine(GObject.Object):
     def done(self) -> None: ...
     def get_arguments(self) -> list[str]: ...
     def get_cwd(self) -> typing.Optional[str]: ...
-    def get_environ(self) -> list[str]: ...
+    def get_environ(self) -> typing.Optional[list[str]]: ...
     def get_exit_status(self) -> int: ...
     def get_is_remote(self) -> bool: ...
     def get_options_dict(self) -> GLib.VariantDict: ...
@@ -2085,7 +2084,7 @@ class DBusInterface(GObject.GInterface):
     Signals from GObject:
       notify (GParam)
     """
-    def get_info(self) -> DBusInterfaceInfo: ...
+    def get_info(self) -> typing.Optional[DBusInterfaceInfo]: ...
     def get_object(self) -> typing.Optional[DBusObject]: ...
     def set_object(self, object: typing.Optional[DBusObject] = None) -> None: ...
 
@@ -2099,7 +2098,7 @@ class DBusInterfaceIface(GObject.GPointer):
     """
 
     parent_iface: GObject.TypeInterface = ...
-    get_info: typing.Callable[[DBusInterface], DBusInterfaceInfo] = ...
+    get_info: typing.Callable[[DBusInterface], typing.Optional[DBusInterfaceInfo]] = ...
     get_object: typing.Callable[[DBusInterface], typing.Optional[DBusObject]] = ...
     set_object: typing.Callable[
         [DBusInterface, typing.Optional[DBusObject]], None
@@ -2189,6 +2188,7 @@ class DBusInterfaceSkeletonClass(GObject.GPointer):
     get_vtable: typing.Callable[[DBusInterfaceSkeleton], DBusInterfaceVTable] = ...
     get_properties: typing.Callable[[DBusInterfaceSkeleton], GLib.Variant] = ...
     flush: typing.Callable[[DBusInterfaceSkeleton], None] = ...
+    method_dispatch: None = ...
     vfunc_padding: list[None] = ...
     g_authorize_method: typing.Callable[
         [DBusInterfaceSkeleton, DBusMethodInvocation], bool
@@ -3546,13 +3546,13 @@ class DesktopAppInfo(GObject.Object, AppInfo):
     @staticmethod
     def get_implementations(interface: str) -> list[GioUnix.DesktopAppInfo]: ...
     def get_is_hidden(self) -> bool: ...
-    def get_keywords(self) -> list[str]: ...
+    def get_keywords(self) -> typing.Optional[list[str]]: ...
     def get_locale_string(self, key: str) -> typing.Optional[str]: ...
     def get_nodisplay(self) -> bool: ...
     def get_show_in(self, desktop_env: typing.Optional[str] = None) -> bool: ...
     def get_startup_wm_class(self) -> typing.Optional[str]: ...
     def get_string(self, key: str) -> typing.Optional[str]: ...
-    def get_string_list(self, key: str) -> list[str]: ...
+    def get_string_list(self, key: str) -> typing.Optional[list[str]]: ...
     def has_key(self, key: str) -> bool: ...
     def launch_action(
         self, action_name: str, launch_context: typing.Optional[AppLaunchContext] = None
@@ -3590,17 +3590,6 @@ class DesktopAppInfo(GObject.Object, AppInfo):
     @staticmethod
     def set_desktop_env(desktop_env: str) -> None: ...
 
-class DesktopAppInfoClass(GObject.GPointer):
-    """
-    :Constructors:
-
-    ::
-
-        DesktopAppInfoClass()
-    """
-
-    parent_class: GObject.ObjectClass = ...
-
 class DesktopAppInfoLookup(GObject.GInterface):
     """
     Interface GDesktopAppInfoLookup
@@ -3611,20 +3600,6 @@ class DesktopAppInfoLookup(GObject.GInterface):
     def get_default_for_uri_scheme(
         self, uri_scheme: str
     ) -> typing.Optional[AppInfo]: ...
-
-class DesktopAppInfoLookupIface(GObject.GPointer):
-    """
-    :Constructors:
-
-    ::
-
-        DesktopAppInfoLookupIface()
-    """
-
-    g_iface: GObject.TypeInterface = ...
-    get_default_for_uri_scheme: typing.Callable[
-        [GioUnix.DesktopAppInfoLookup, str], typing.Optional[AppInfo]
-    ] = ...
 
 class Drive(GObject.GInterface):
     """
@@ -3973,19 +3948,6 @@ class EmblemedIconClass(GObject.GPointer):
     parent_class: GObject.ObjectClass = ...
 
 class EmblemedIconPrivate(GObject.GPointer): ...
-
-class FDMessageClass(GObject.GPointer):
-    """
-    :Constructors:
-
-    ::
-
-        FDMessageClass()
-    """
-
-    parent_class: SocketControlMessageClass = ...
-
-class FDMessagePrivate(GObject.GPointer): ...
 
 class File(GObject.GInterface):
     """
@@ -4609,18 +4571,6 @@ class FileDescriptorBased(GObject.GInterface):
       notify (GParam)
     """
     def get_fd(self) -> int: ...
-
-class FileDescriptorBasedIface(GObject.GPointer):
-    """
-    :Constructors:
-
-    ::
-
-        FileDescriptorBasedIface()
-    """
-
-    g_iface: GObject.TypeInterface = ...
-    get_fd: typing.Callable[[GioUnix.FileDescriptorBased], int] = ...
 
 class FileEnumerator(GObject.Object):
     """
@@ -5599,6 +5549,66 @@ class IOStreamClass(GObject.GPointer):
 
 class IOStreamPrivate(GObject.GPointer): ...
 
+class IPTosMessage(SocketControlMessage):
+    """
+    :Constructors:
+
+    ::
+
+        IPTosMessage(**properties)
+        new(dscp:int, ecn:Gio.EcnCodePoint) -> Gio.SocketControlMessage
+
+    Object GIPTosMessage
+
+    Signals from GObject:
+      notify (GParam)
+    """
+    def get_dscp(self) -> int: ...
+    def get_ecn(self) -> EcnCodePoint: ...
+    @classmethod
+    def new(cls, dscp: int, ecn: EcnCodePoint) -> IPTosMessage: ...
+
+class IPTosMessageClass(GObject.GPointer):
+    """
+    :Constructors:
+
+    ::
+
+        IPTosMessageClass()
+    """
+
+    parent_class: SocketControlMessageClass = ...
+
+class IPv6TclassMessage(SocketControlMessage):
+    """
+    :Constructors:
+
+    ::
+
+        IPv6TclassMessage(**properties)
+        new(dscp:int, ecn:Gio.EcnCodePoint) -> Gio.SocketControlMessage
+
+    Object GIPv6TclassMessage
+
+    Signals from GObject:
+      notify (GParam)
+    """
+    def get_dscp(self) -> int: ...
+    def get_ecn(self) -> EcnCodePoint: ...
+    @classmethod
+    def new(cls, dscp: int, ecn: EcnCodePoint) -> IPv6TclassMessage: ...
+
+class IPv6TclassMessageClass(GObject.GPointer):
+    """
+    :Constructors:
+
+    ::
+
+        IPv6TclassMessageClass()
+    """
+
+    parent_class: SocketControlMessageClass = ...
+
 class Icon(GObject.GInterface):
     """
     Interface GIcon
@@ -6070,7 +6080,7 @@ class ListModelInterface(GObject.GPointer):
     get_n_items: typing.Callable[[ListModel], int] = ...
     get_item: typing.Callable[[ListModel, int], typing.Optional[GObject.Object]] = ...
 
-class ListStore(GObject.Object, ListModel):
+class ListStore(GObject.Object, ListModel, typing.Generic):
     """
     :Constructors:
 
@@ -6690,8 +6700,6 @@ class MountIface(GObject.GPointer):
     get_default_location: typing.Callable[[Mount], File] = ...
     get_sort_key: typing.Callable[[Mount], typing.Optional[str]] = ...
     get_symbolic_icon: typing.Callable[[Mount], Icon] = ...
-
-class MountMonitorClass(GObject.GPointer): ...
 
 class MountOperation(GObject.Object):
     """
@@ -10973,6 +10981,31 @@ class UnixCredentialsMessageClass(GObject.GPointer):
 
 class UnixCredentialsMessagePrivate(GObject.GPointer): ...
 
+class UnixDesktopAppInfoClass(GObject.GPointer):
+    """
+    :Constructors:
+
+    ::
+
+        DesktopAppInfoClass()
+    """
+
+    parent_class: GObject.ObjectClass = ...
+
+class UnixDesktopAppInfoLookupIface(GObject.GPointer):
+    """
+    :Constructors:
+
+    ::
+
+        DesktopAppInfoLookupIface()
+    """
+
+    g_iface: GObject.TypeInterface = ...
+    get_default_for_uri_scheme: typing.Callable[
+        [GioUnix.DesktopAppInfoLookup, str], typing.Optional[AppInfo]
+    ] = ...
+
 class UnixFDList(GObject.Object):
     """
     :Constructors:
@@ -11046,6 +11079,31 @@ class UnixFDMessage(SocketControlMessage):
     @classmethod
     def new_with_fd_list(cls, fd_list: UnixFDList) -> FDMessage: ...
     def steal_fds(self) -> list[int]: ...
+
+class UnixFDMessageClass(GObject.GPointer):
+    """
+    :Constructors:
+
+    ::
+
+        FDMessageClass()
+    """
+
+    parent_class: SocketControlMessageClass = ...
+
+class UnixFDMessagePrivate(GObject.GPointer): ...
+
+class UnixFileDescriptorBasedIface(GObject.GPointer):
+    """
+    :Constructors:
+
+    ::
+
+        FileDescriptorBasedIface()
+    """
+
+    g_iface: GObject.TypeInterface = ...
+    get_fd: typing.Callable[[GioUnix.FileDescriptorBased], int] = ...
 
 class UnixInputStream(InputStream, PollableInputStream, GioUnix.FileDescriptorBased):
     """
@@ -11140,6 +11198,8 @@ class UnixMountMonitor(GObject.Object):
     @classmethod
     def new(cls) -> MountMonitor: ...
     def set_rate_limit(self, limit_msec: int) -> None: ...
+
+class UnixMountMonitorClass(GObject.GPointer): ...
 
 class UnixMountPoint(GObject.GBoxed):
     @staticmethod
@@ -11782,6 +11842,10 @@ class FileQueryInfoFlags(GObject.GFlags):
     NOFOLLOW_SYMLINKS = 1
     NONE = 0
 
+class IOModuleScopeFlags(GObject.GFlags):
+    BLOCK_DUPLICATES = 1
+    NONE = 0
+
 class IOStreamSpliceFlags(GObject.GFlags):
     CLOSE_STREAM1 = 1
     CLOSE_STREAM2 = 2
@@ -11851,6 +11915,13 @@ class TlsCertificateFlags(GObject.GFlags):
     REVOKED = 16
     UNKNOWN_CA = 1
     VALIDATE_ALL = 127
+
+class TlsCertificateRequestFlags(GObject.GFlags):
+    NONE = 0
+
+class TlsDatabaseLookupFlags(GObject.GFlags):
+    KEYPAIR = 1
+    NONE = 0
 
 class TlsDatabaseVerifyFlags(GObject.GFlags):
     NONE = 0
@@ -11950,10 +12021,8 @@ class DBusError(GObject.GEnum):
     ) -> bool: ...
     @staticmethod
     def register_error_domain(
-        error_domain_quark_name: str,
-        quark_volatile: int,
-        entries: typing.Sequence[DBusErrorEntry],
-    ) -> None: ...
+        error_domain_quark_name: str, entries: typing.Sequence[DBusErrorEntry]
+    ) -> int: ...
     @staticmethod
     def strip_remote_error(error: GLib.Error) -> bool: ...
     @staticmethod
@@ -12001,6 +12070,12 @@ class DriveStartStopType(GObject.GEnum):
     PASSWORD = 4
     SHUTDOWN = 1
     UNKNOWN = 0
+
+class EcnCodePoint(GObject.GEnum):
+    ECT_0 = 2
+    ECT_1 = 1
+    ECT_CE = 3
+    NO_ECN = 0
 
 class EmblemOrigin(GObject.GEnum):
     DEVICE = 1
@@ -12104,10 +12179,6 @@ class IOErrorEnum(GObject.GEnum):
     WOULD_RECURSE = 25
     WRONG_ETAG = 23
 
-class IOModuleScopeFlags(GObject.GEnum):
-    BLOCK_DUPLICATES = 1
-    NONE = 0
-
 class MemoryMonitorWarningLevel(GObject.GEnum):
     CRITICAL = 255
     LOW = 50
@@ -12201,9 +12272,6 @@ class TlsAuthenticationMode(GObject.GEnum):
     REQUESTED = 1
     REQUIRED = 2
 
-class TlsCertificateRequestFlags(GObject.GEnum):
-    NONE = 0
-
 class TlsChannelBindingError(GObject.GEnum):
     GENERAL_ERROR = 4
     INVALID_STATE = 1
@@ -12217,10 +12285,6 @@ class TlsChannelBindingType(GObject.GEnum):
     EXPORTER = 2
     SERVER_END_POINT = 1
     UNIQUE = 0
-
-class TlsDatabaseLookupFlags(GObject.GEnum):
-    KEYPAIR = 1
-    NONE = 0
 
 class TlsError(GObject.GEnum):
     BAD_CERTIFICATE = 2

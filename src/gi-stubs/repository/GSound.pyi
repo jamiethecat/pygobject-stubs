@@ -52,9 +52,6 @@ ATTR_WINDOW_X11_MONITOR: str = "window.x11.monitor"
 ATTR_WINDOW_X11_SCREEN: str = "window.x11.screen"
 ATTR_WINDOW_X11_XID: str = "window.x11.xid"
 ATTR_WINDOW_Y: str = "window.y"
-_lock = ...  # FIXME Constant
-_namespace: str = "GSound"
-_version: str = "1.0"
 
 def error_quark() -> int: ...
 

@@ -13,7 +13,7 @@ T = typing.TypeVar("T")
 
 MAJOR_VERSION: int = 5
 MICRO_VERSION: int = 0
-MINOR_VERSION: int = 18
+MINOR_VERSION: int = 19
 
 def check_version(major: int, minor: int, micro: int) -> bool: ...
 def encoding_get_all() -> list[Encoding]: ...
@@ -912,7 +912,7 @@ class File(GObject.Object):
     class Props(GObject.Object.Props):
         compression_type: CompressionType
         encoding: Encoding
-        location: Gio.File
+        location: typing.Optional[Gio.File]
         newline_type: NewlineType
         read_only: bool
 
@@ -922,7 +922,7 @@ class File(GObject.Object):
     def check_file_on_disk(self) -> None: ...
     def get_compression_type(self) -> CompressionType: ...
     def get_encoding(self) -> Encoding: ...
-    def get_location(self) -> Gio.File: ...
+    def get_location(self) -> typing.Optional[Gio.File]: ...
     def get_newline_type(self) -> NewlineType: ...
     def is_deleted(self) -> bool: ...
     def is_externally_modified(self) -> bool: ...
@@ -2558,7 +2558,7 @@ class Map(
         buffer: Gtk.TextBuffer
         cursor_visible: bool
         editable: bool
-        extra_menu: Gio.MenuModel
+        extra_menu: typing.Optional[Gio.MenuModel]
         im_module: str
         indent: int
         input_hints: Gtk.InputHints
@@ -3064,7 +3064,7 @@ class SearchContext(GObject.Object):
     class Props(GObject.Object.Props):
         buffer: Buffer
         highlight: bool
-        match_style: Style
+        match_style: typing.Optional[Style]
         occurrences_count: int
         regex_error: typing.Optional[GLib.Error]
         settings: SearchSettings
@@ -3105,7 +3105,7 @@ class SearchContext(GObject.Object):
     ) -> typing.Tuple[bool, Gtk.TextIter, Gtk.TextIter, bool]: ...
     def get_buffer(self) -> Buffer: ...
     def get_highlight(self) -> bool: ...
-    def get_match_style(self) -> Style: ...
+    def get_match_style(self) -> typing.Optional[Style]: ...
     def get_occurrence_position(
         self, match_start: Gtk.TextIter, match_end: Gtk.TextIter
     ) -> int: ...
@@ -4756,6 +4756,7 @@ class View(
     Signals from GObject:
       notify (GParam)
     """
+
     class Props(Gtk.TextView.Props):
         annotations: Annotations
         auto_indent: bool
@@ -4839,6 +4840,7 @@ class View(
 
     props: Props = ...
     parent_instance: Gtk.TextView = ...
+
     def __init__(
         self,
         auto_indent: bool = ...,
@@ -5025,6 +5027,7 @@ class VimIMContext(Gtk.IMContext):
       commit (gchararray)
       retrieve-surrounding () -> gboolean
       delete-surrounding (gint, gint) -> gboolean
+      invalid-composition (gchararray) -> gboolean
 
     Properties from GtkIMContext:
       input-purpose -> GtkInputPurpose: input-purpose

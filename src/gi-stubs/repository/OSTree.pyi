@@ -1,15 +1,11 @@
-from typing import Any
-from typing import Callable
-from typing import Literal
-from typing import Optional
-from typing import Sequence
-from typing import Tuple
-from typing import Type
-from typing import TypeVar
+import typing
 
 from gi.repository import Gio
 from gi.repository import GLib
 from gi.repository import GObject
+from typing_extensions import Self
+
+T = typing.TypeVar("T")
 
 COMMIT_GVARIANT_STRING: str = "(a{sv}aya(say)sstayay)"
 COMMIT_META_KEY_ARCHITECTURE: str = "ostree.architecture"
@@ -29,47 +25,47 @@ METADATA_KEY_LINUX: str = "ostree.linux"
 META_KEY_DEPLOY_COLLECTION_ID: str = "ostree.deploy-collection-id"
 ORIGIN_TRANSIENT_GROUP: str = "libostree-transient"
 PATH_BOOTED: str = "/run/ostree-booted"
-RELEASE_VERSION: int = 4
+RELEASE_VERSION: int = 7
 REPO_METADATA_REF: str = "ostree-metadata"
 SHA256_DIGEST_LEN: int = 32
 SHA256_STRING_LEN: int = 64
 SIGN_NAME_ED25519: str = "ed25519"
+SIGN_NAME_SPKI: str = "spki"
 SUMMARY_GVARIANT_STRING: str = "(a(s(taya{sv}))a{sv})"
 SUMMARY_SIG_GVARIANT_STRING: str = "a{sv}"
 TIMESTAMP: int = 0
 TREE_GVARIANT_STRING: str = "(a(say)a(sayay))"
-VERSION: float = 2023.4
-VERSION_S: str = "2023.4"
-YEAR_VERSION: int = 2023
-_lock = ...  # FIXME Constant
-_namespace: str = "OSTree"
-_version: str = "1.0"
+VERSION: float = 2025.7
+VERSION_S: str = "2025.7"
+YEAR_VERSION: int = 2025
 
 def break_hardlink(
     dfd: int,
     path: str,
     skip_xattrs: bool,
-    cancellable: Optional[Gio.Cancellable] = None,
+    cancellable: typing.Optional[Gio.Cancellable] = None,
 ) -> bool: ...
 def check_version(required_year: int, required_release: int) -> bool: ...
-def checksum_b64_from_bytes(csum: Sequence[int]) -> str: ...
+def checksum_b64_from_bytes(csum: typing.Sequence[int]) -> str: ...
 def checksum_b64_to_bytes(checksum: str) -> bytes: ...
 def checksum_bytes_peek(bytes: GLib.Variant) -> bytes: ...
 def checksum_bytes_peek_validate(bytes: GLib.Variant) -> bytes: ...
 def checksum_file(
-    f: Gio.File, objtype: ObjectType, cancellable: Optional[Gio.Cancellable] = None
-) -> Tuple[bool, bytes]: ...
+    f: Gio.File,
+    objtype: ObjectType,
+    cancellable: typing.Optional[Gio.Cancellable] = None,
+) -> typing.Tuple[bool, bytes]: ...
 def checksum_file_async(
     f: Gio.File,
     objtype: ObjectType,
     io_priority: int,
-    cancellable: Optional[Gio.Cancellable] = None,
-    callback: Optional[Callable[..., None]] = None,
-    *user_data: Any,
+    cancellable: typing.Optional[Gio.Cancellable] = None,
+    callback: typing.Optional[typing.Callable[..., None]] = None,
+    *user_data: typing.Any,
 ) -> None: ...
 def checksum_file_async_finish(
     f: Gio.File, result: Gio.AsyncResult
-) -> Tuple[bool, bytes]: ...
+) -> typing.Tuple[bool, bytes]: ...
 def checksum_file_at(
     dfd: int,
     path: str,
@@ -77,136 +73,140 @@ def checksum_file_at(
     objtype: ObjectType,
     flags: ChecksumFlags,
     out_checksum: str,
-    cancellable: Optional[Gio.Cancellable] = None,
+    cancellable: typing.Optional[Gio.Cancellable] = None,
 ) -> bool: ...
 def checksum_file_from_input(
     file_info: Gio.FileInfo,
-    xattrs: Optional[GLib.Variant],
-    in_: Optional[Gio.InputStream],
+    xattrs: typing.Optional[GLib.Variant],
+    in_: typing.Optional[Gio.InputStream],
     objtype: ObjectType,
-    cancellable: Optional[Gio.Cancellable] = None,
-) -> Tuple[bool, bytes]: ...
-def checksum_from_bytes(csum: Sequence[int]) -> str: ...
+    cancellable: typing.Optional[Gio.Cancellable] = None,
+) -> typing.Tuple[bool, bytes]: ...
+def checksum_from_bytes(csum: typing.Sequence[int]) -> str: ...
 def checksum_from_bytes_v(csum_v: GLib.Variant) -> str: ...
 def checksum_inplace_to_bytes(checksum: str, buf: int) -> None: ...
 def checksum_to_bytes(checksum: str) -> bytes: ...
 def checksum_to_bytes_v(checksum: str) -> GLib.Variant: ...
 def cmp_checksum_bytes(a: int, b: int) -> int: ...
-def collection_ref_dupv(refs: Sequence[CollectionRef]) -> list[CollectionRef]: ...
-def collection_ref_freev(refs: Sequence[CollectionRef]) -> None: ...
-def commit_get_content_checksum(commit_variant: GLib.Variant) -> Optional[str]: ...
+def collection_ref_dupv(
+    refs: typing.Sequence[CollectionRef],
+) -> list[CollectionRef]: ...
+def collection_ref_freev(refs: typing.Sequence[CollectionRef]) -> None: ...
+def commit_get_content_checksum(
+    commit_variant: GLib.Variant,
+) -> typing.Optional[str]: ...
 def commit_get_object_sizes(
     commit_variant: GLib.Variant,
-) -> Tuple[bool, list[CommitSizesEntry]]: ...
-def commit_get_parent(commit_variant: GLib.Variant) -> Optional[str]: ...
+) -> typing.Tuple[bool, list[CommitSizesEntry]]: ...
+def commit_get_parent(commit_variant: GLib.Variant) -> typing.Optional[str]: ...
 def commit_get_timestamp(commit_variant: GLib.Variant) -> int: ...
 def commit_metadata_for_bootable(
     root: Gio.File,
     dict: GLib.VariantDict,
-    cancellable: Optional[Gio.Cancellable] = None,
+    cancellable: typing.Optional[Gio.Cancellable] = None,
 ) -> bool: ...
 def content_file_parse(
     compressed: bool,
     content_path: Gio.File,
     trusted: bool,
-    cancellable: Optional[Gio.Cancellable] = None,
-) -> Tuple[bool, Gio.InputStream, Gio.FileInfo, GLib.Variant]: ...
+    cancellable: typing.Optional[Gio.Cancellable] = None,
+) -> typing.Tuple[bool, Gio.InputStream, Gio.FileInfo, GLib.Variant]: ...
 def content_file_parse_at(
     compressed: bool,
     parent_dfd: int,
     path: str,
     trusted: bool,
-    cancellable: Optional[Gio.Cancellable] = None,
-) -> Tuple[bool, Gio.InputStream, Gio.FileInfo, GLib.Variant]: ...
+    cancellable: typing.Optional[Gio.Cancellable] = None,
+) -> typing.Tuple[bool, Gio.InputStream, Gio.FileInfo, GLib.Variant]: ...
 def content_stream_parse(
     compressed: bool,
     input: Gio.InputStream,
     input_length: int,
     trusted: bool,
-    cancellable: Optional[Gio.Cancellable] = None,
-) -> Tuple[bool, Gio.InputStream, Gio.FileInfo, GLib.Variant]: ...
+    cancellable: typing.Optional[Gio.Cancellable] = None,
+) -> typing.Tuple[bool, Gio.InputStream, Gio.FileInfo, GLib.Variant]: ...
 def create_directory_metadata(
-    dir_info: Gio.FileInfo, xattrs: Optional[GLib.Variant] = None
+    dir_info: Gio.FileInfo, xattrs: typing.Optional[GLib.Variant] = None
 ) -> GLib.Variant: ...
 def diff_dirs(
     flags: DiffFlags,
     a: Gio.File,
     b: Gio.File,
-    modified: Sequence[DiffItem],
-    removed: Sequence[Gio.File],
-    added: Sequence[Gio.File],
-    cancellable: Optional[Gio.Cancellable] = None,
+    modified: typing.Sequence[DiffItem],
+    removed: typing.Sequence[Gio.File],
+    added: typing.Sequence[Gio.File],
+    cancellable: typing.Optional[Gio.Cancellable] = None,
 ) -> bool: ...
 def diff_dirs_with_options(
     flags: DiffFlags,
     a: Gio.File,
     b: Gio.File,
-    modified: Sequence[DiffItem],
-    removed: Sequence[Gio.File],
-    added: Sequence[Gio.File],
-    options: Optional[DiffDirsOptions] = None,
-    cancellable: Optional[Gio.Cancellable] = None,
+    modified: typing.Sequence[DiffItem],
+    removed: typing.Sequence[Gio.File],
+    added: typing.Sequence[Gio.File],
+    options: typing.Optional[DiffDirsOptions] = None,
+    cancellable: typing.Optional[Gio.Cancellable] = None,
 ) -> bool: ...
 def diff_print(
     a: Gio.File,
     b: Gio.File,
-    modified: Sequence[DiffItem],
-    removed: Sequence[Gio.File],
-    added: Sequence[Gio.File],
+    modified: typing.Sequence[DiffItem],
+    removed: typing.Sequence[Gio.File],
+    added: typing.Sequence[Gio.File],
 ) -> None: ...
 def fs_get_all_xattrs(
-    fd: int, cancellable: Optional[Gio.Cancellable] = None
+    fd: int, cancellable: typing.Optional[Gio.Cancellable] = None
 ) -> GLib.Variant: ...
 def fs_get_all_xattrs_at(
-    dfd: int, path: str, cancellable: Optional[Gio.Cancellable] = None
+    dfd: int, path: str, cancellable: typing.Optional[Gio.Cancellable] = None
 ) -> GLib.Variant: ...
 def gpg_error_quark() -> int: ...
 def hash_object_name(a: None) -> int: ...
 def kernel_args_cleanup(loc: None) -> None: ...
 def metadata_variant_type(objtype: ObjectType) -> GLib.VariantType: ...
-def object_from_string(str: str) -> Tuple[str, ObjectType]: ...
-def object_name_deserialize(variant: GLib.Variant) -> Tuple[str, ObjectType]: ...
+def object_from_string(str: str) -> typing.Tuple[str, ObjectType]: ...
+def object_name_deserialize(variant: GLib.Variant) -> typing.Tuple[str, ObjectType]: ...
 def object_name_serialize(checksum: str, objtype: ObjectType) -> GLib.Variant: ...
 def object_to_string(checksum: str, objtype: ObjectType) -> str: ...
 def object_type_from_string(str: str) -> ObjectType: ...
 def object_type_to_string(objtype: ObjectType) -> str: ...
-def parse_refspec(refspec: str) -> Tuple[bool, str, str]: ...
+def parse_refspec(refspec: str) -> typing.Tuple[bool, str, str]: ...
 def raw_file_to_archive_z2_stream(
     input: Gio.InputStream,
     file_info: Gio.FileInfo,
-    xattrs: Optional[GLib.Variant] = None,
-    cancellable: Optional[Gio.Cancellable] = None,
-) -> Tuple[bool, Gio.InputStream]: ...
+    xattrs: typing.Optional[GLib.Variant] = None,
+    cancellable: typing.Optional[Gio.Cancellable] = None,
+) -> typing.Tuple[bool, Gio.InputStream]: ...
 def raw_file_to_archive_z2_stream_with_options(
     input: Gio.InputStream,
     file_info: Gio.FileInfo,
-    xattrs: Optional[GLib.Variant] = None,
-    options: Optional[GLib.Variant] = None,
-    cancellable: Optional[Gio.Cancellable] = None,
-) -> Tuple[bool, Gio.InputStream]: ...
+    xattrs: typing.Optional[GLib.Variant] = None,
+    options: typing.Optional[GLib.Variant] = None,
+    cancellable: typing.Optional[Gio.Cancellable] = None,
+) -> typing.Tuple[bool, Gio.InputStream]: ...
 def raw_file_to_content_stream(
     input: Gio.InputStream,
     file_info: Gio.FileInfo,
-    xattrs: Optional[GLib.Variant] = None,
-    cancellable: Optional[Gio.Cancellable] = None,
-) -> Tuple[bool, Gio.InputStream, int]: ...
+    xattrs: typing.Optional[GLib.Variant] = None,
+    cancellable: typing.Optional[Gio.Cancellable] = None,
+) -> typing.Tuple[bool, Gio.InputStream, int]: ...
 def repo_commit_traverse_iter_cleanup(p: None) -> None: ...
 def repo_finder_resolve_all_async(
-    finders: Sequence[RepoFinder],
-    refs: Sequence[CollectionRef],
+    finders: typing.Sequence[RepoFinder],
+    refs: typing.Sequence[CollectionRef],
     parent_repo: Repo,
-    cancellable: Optional[Gio.Cancellable] = None,
-    callback: Optional[Callable[..., None]] = None,
-    *user_data: Any,
+    cancellable: typing.Optional[Gio.Cancellable] = None,
+    callback: typing.Optional[typing.Callable[..., None]] = None,
+    *user_data: typing.Any,
 ) -> None: ...
 def repo_finder_resolve_all_finish(
     result: Gio.AsyncResult,
 ) -> list[RepoFinderResult]: ...
-def repo_finder_result_freev(results: Sequence[RepoFinderResult]) -> None: ...
+def repo_finder_result_freev(results: typing.Sequence[RepoFinderResult]) -> None: ...
 def sign_get_all() -> list[Sign]: ...
 def sign_get_by_name(name: str) -> Sign: ...
 def validate_checksum_string(sha256: str) -> bool: ...
-def validate_collection_id(collection_id: Optional[str] = None) -> bool: ...
+def validate_collection_id(collection_id: typing.Optional[str] = None) -> bool: ...
 def validate_remote_name(remote_name: str) -> bool: ...
 def validate_rev(rev: str) -> bool: ...
 def validate_structureof_checksum_string(checksum: str) -> bool: ...
@@ -234,17 +234,16 @@ class AsyncProgress(GObject.Object):
     Signals from GObject:
       notify (GParam)
     """
-
     def copy_state(self, dest: AsyncProgress) -> None: ...
-    def do_changed(self, *user_data: Any) -> None: ...
+    def do_changed(self, *user_data: typing.Any) -> None: ...
     def finish(self) -> None: ...
-    def get_status(self) -> Optional[str]: ...
+    def get_status(self) -> typing.Optional[str]: ...
     def get_uint(self, key: str) -> int: ...
     def get_uint64(self, key: str) -> int: ...
-    def get_variant(self, key: str) -> Optional[GLib.Variant]: ...
+    def get_variant(self, key: str) -> typing.Optional[GLib.Variant]: ...
     @classmethod
     def new(cls) -> AsyncProgress: ...
-    def set_status(self, status: Optional[str] = None) -> None: ...
+    def set_status(self, status: typing.Optional[str] = None) -> None: ...
     def set_uint(self, key: str, value: int) -> None: ...
     def set_uint64(self, key: str, value: int) -> None: ...
     def set_variant(self, key: str, value: GLib.Variant) -> None: ...
@@ -259,7 +258,32 @@ class AsyncProgressClass(GObject.GPointer):
     """
 
     parent_class: GObject.ObjectClass = ...
-    changed: Callable[..., None] = ...
+    changed: typing.Callable[..., None] = ...
+
+class BlobReader(GObject.GInterface):
+    """
+    Interface OstreeBlobReader
+
+    Signals from GObject:
+      notify (GParam)
+    """
+    def read_blob(
+        self, cancellable: typing.Optional[Gio.Cancellable] = None
+    ) -> typing.Optional[GLib.Bytes]: ...
+
+class BlobReaderInterface(GObject.GPointer):
+    """
+    :Constructors:
+
+    ::
+
+        BlobReaderInterface()
+    """
+
+    g_iface: GObject.TypeInterface = ...
+    read_blob: typing.Callable[
+        [BlobReader, typing.Optional[Gio.Cancellable]], typing.Optional[GLib.Bytes]
+    ] = ...
 
 class BootconfigParser(GObject.Object):
     """
@@ -275,25 +299,28 @@ class BootconfigParser(GObject.Object):
     Signals from GObject:
       notify (GParam)
     """
-
     def clone(self) -> BootconfigParser: ...
-    def get(self, key: str) -> Optional[str]: ...
-    def get_overlay_initrds(self) -> Optional[list[str]]: ...
+    def get(self, key: str) -> typing.Optional[str]: ...
+    def get_overlay_initrds(self) -> typing.Optional[list[str]]: ...
+    def get_tries_done(self) -> int: ...
+    def get_tries_left(self) -> int: ...
     @classmethod
     def new(cls) -> BootconfigParser: ...
     def parse(
-        self, path: Gio.File, cancellable: Optional[Gio.Cancellable] = None
+        self, path: Gio.File, cancellable: typing.Optional[Gio.Cancellable] = None
     ) -> bool: ...
     def parse_at(
-        self, dfd: int, path: str, cancellable: Optional[Gio.Cancellable] = None
+        self, dfd: int, path: str, cancellable: typing.Optional[Gio.Cancellable] = None
     ) -> bool: ...
     def set(self, key: str, value: str) -> None: ...
-    def set_overlay_initrds(self, initrds: Optional[Sequence[str]] = None) -> None: ...
+    def set_overlay_initrds(
+        self, initrds: typing.Optional[typing.Sequence[str]] = None
+    ) -> None: ...
     def write(
-        self, output: Gio.File, cancellable: Optional[Gio.Cancellable] = None
+        self, output: Gio.File, cancellable: typing.Optional[Gio.Cancellable] = None
     ) -> bool: ...
     def write_at(
-        self, dfd: int, path: str, cancellable: Optional[Gio.Cancellable] = None
+        self, dfd: int, path: str, cancellable: typing.Optional[Gio.Cancellable] = None
     ) -> bool: ...
 
 class CollectionRef(GObject.GBoxed):
@@ -310,14 +337,16 @@ class CollectionRef(GObject.GBoxed):
     ref_name: str = ...
     def dup(self) -> CollectionRef: ...
     @staticmethod
-    def dupv(refs: Sequence[CollectionRef]) -> list[CollectionRef]: ...
+    def dupv(refs: typing.Sequence[CollectionRef]) -> list[CollectionRef]: ...
     def equal(self, ref2: CollectionRef) -> bool: ...
     def free(self) -> None: ...
     @staticmethod
-    def freev(refs: Sequence[CollectionRef]) -> None: ...
+    def freev(refs: typing.Sequence[CollectionRef]) -> None: ...
     def hash(self) -> int: ...
     @classmethod
-    def new(cls, collection_id: Optional[str], ref_name: str) -> CollectionRef: ...
+    def new(
+        cls, collection_id: typing.Optional[str], ref_name: str
+    ) -> CollectionRef: ...
 
 class CommitSizesEntry(GObject.GBoxed):
     """
@@ -333,12 +362,12 @@ class CommitSizesEntry(GObject.GBoxed):
     objtype: ObjectType = ...
     unpacked: int = ...
     archived: int = ...
-    def copy(self) -> Optional[CommitSizesEntry]: ...
+    def copy(self) -> typing.Optional[CommitSizesEntry]: ...
     def free(self) -> None: ...
     @classmethod
     def new(
         cls, checksum: str, objtype: ObjectType, unpacked: int, archived: int
-    ) -> Optional[CommitSizesEntry]: ...
+    ) -> typing.Optional[CommitSizesEntry]: ...
 
 class ContentWriter(Gio.OutputStream):
     """
@@ -353,8 +382,7 @@ class ContentWriter(Gio.OutputStream):
     Signals from GObject:
       notify (GParam)
     """
-
-    def finish(self, cancellable: Optional[Gio.Cancellable] = None) -> str: ...
+    def finish(self, cancellable: typing.Optional[Gio.Cancellable] = None) -> str: ...
 
 class ContentWriterClass(GObject.GPointer):
     """
@@ -381,21 +409,22 @@ class Deployment(GObject.Object):
     Signals from GObject:
       notify (GParam)
     """
-
     def clone(self) -> Deployment: ...
     def equal(self, bp: Deployment) -> bool: ...
-    def get_bootconfig(self) -> Optional[BootconfigParser]: ...
+    def get_bootconfig(self) -> typing.Optional[BootconfigParser]: ...
     def get_bootcsum(self) -> str: ...
     def get_bootserial(self) -> int: ...
     def get_csum(self) -> str: ...
     def get_deployserial(self) -> int: ...
     def get_index(self) -> int: ...
-    def get_origin(self) -> Optional[GLib.KeyFile]: ...
+    def get_origin(self) -> typing.Optional[GLib.KeyFile]: ...
     def get_origin_relpath(self) -> str: ...
     def get_osname(self) -> str: ...
     def get_unlocked(self) -> DeploymentUnlockedState: ...
     def hash(self) -> int: ...
+    def is_finalization_locked(self) -> bool: ...
     def is_pinned(self) -> bool: ...
+    def is_soft_reboot_target(self) -> bool: ...
     def is_staged(self) -> bool: ...
     @classmethod
     def new(
@@ -404,15 +433,17 @@ class Deployment(GObject.Object):
         osname: str,
         csum: str,
         deployserial: int,
-        bootcsum: Optional[str],
+        bootcsum: typing.Optional[str],
         bootserial: int,
     ) -> Deployment: ...
     @staticmethod
     def origin_remove_transient_state(origin: GLib.KeyFile) -> None: ...
-    def set_bootconfig(self, bootconfig: Optional[BootconfigParser] = None) -> None: ...
+    def set_bootconfig(
+        self, bootconfig: typing.Optional[BootconfigParser] = None
+    ) -> None: ...
     def set_bootserial(self, index: int) -> None: ...
     def set_index(self, index: int) -> None: ...
-    def set_origin(self, origin: Optional[GLib.KeyFile] = None) -> None: ...
+    def set_origin(self, origin: typing.Optional[GLib.KeyFile] = None) -> None: ...
     @staticmethod
     def unlocked_state_to_string(state: DeploymentUnlockedState) -> str: ...
 
@@ -464,39 +495,38 @@ class GpgVerifyResult(GObject.Object, Gio.Initable):
     Signals from GObject:
       notify (GParam)
     """
-
     def count_all(self) -> int: ...
     def count_valid(self) -> int: ...
     def describe(
         self,
         signature_index: int,
         output_buffer: GLib.String,
-        line_prefix: Optional[str],
+        line_prefix: typing.Optional[str],
         flags: GpgSignatureFormatFlags,
     ) -> None: ...
     @staticmethod
     def describe_variant(
         variant: GLib.Variant,
         output_buffer: GLib.String,
-        line_prefix: Optional[str],
+        line_prefix: typing.Optional[str],
         flags: GpgSignatureFormatFlags,
     ) -> None: ...
     def get(
-        self, signature_index: int, attrs: Sequence[GpgSignatureAttr]
+        self, signature_index: int, attrs: typing.Sequence[GpgSignatureAttr]
     ) -> GLib.Variant: ...
     def get_all(self, signature_index: int) -> GLib.Variant: ...
-    def lookup(self, key_id: str) -> Tuple[bool, int]: ...
+    def lookup(self, key_id: str) -> typing.Tuple[bool, int]: ...
     def require_valid_signature(self) -> bool: ...
 
 class KernelArgs(GObject.GPointer):
     def append(self, arg: str) -> None: ...
-    def append_argv(self, argv: Sequence[str]) -> None: ...
+    def append_argv(self, argv: typing.Sequence[str]) -> None: ...
     def append_argv_filtered(
-        self, argv: Sequence[str], prefixes: Sequence[str]
+        self, argv: typing.Sequence[str], prefixes: typing.Sequence[str]
     ) -> None: ...
     def append_if_missing(self, arg: str) -> None: ...
     def append_proc_cmdline(
-        self, cancellable: Optional[Gio.Cancellable] = None
+        self, cancellable: typing.Optional[Gio.Cancellable] = None
     ) -> bool: ...
     @staticmethod
     def cleanup(loc: None) -> None: ...
@@ -505,7 +535,7 @@ class KernelArgs(GObject.GPointer):
     def delete_if_present(self, arg: str) -> bool: ...
     def delete_key_entry(self, key: str) -> bool: ...
     def free(self) -> None: ...
-    def get_last_value(self, key: str) -> Optional[str]: ...
+    def get_last_value(self, key: str) -> typing.Optional[str]: ...
     def new_replace(self, arg: str) -> bool: ...
     def parse_append(self, options: str) -> None: ...
     def replace(self, arg: str) -> None: ...
@@ -513,8 +543,6 @@ class KernelArgs(GObject.GPointer):
     def replace_take(self, arg: str) -> None: ...
     def to_string(self) -> str: ...
     def to_strv(self) -> list[str]: ...
-
-class KernelArgsEntry(GObject.GPointer): ...
 
 class MutableTree(GObject.Object):
     """
@@ -532,12 +560,11 @@ class MutableTree(GObject.Object):
     Signals from GObject:
       notify (GParam)
     """
-
     def check_error(self) -> bool: ...
-    def ensure_dir(self, name: str) -> Tuple[bool, MutableTree]: ...
+    def ensure_dir(self, name: str) -> typing.Tuple[bool, MutableTree]: ...
     def ensure_parent_dirs(
-        self, split_path: Sequence[str], metadata_checksum: str
-    ) -> Tuple[bool, MutableTree]: ...
+        self, split_path: typing.Sequence[str], metadata_checksum: str
+    ) -> typing.Tuple[bool, MutableTree]: ...
     def fill_empty_from_dirtree(
         self, repo: Repo, contents_checksum: str, metadata_checksum: str
     ) -> bool: ...
@@ -545,7 +572,7 @@ class MutableTree(GObject.Object):
     def get_files(self) -> dict[str, str]: ...
     def get_metadata_checksum(self) -> str: ...
     def get_subdirs(self) -> dict[str, MutableTree]: ...
-    def lookup(self, name: str) -> Tuple[bool, str, MutableTree]: ...
+    def lookup(self, name: str) -> typing.Tuple[bool, str, MutableTree]: ...
     @classmethod
     def new(cls) -> MutableTree: ...
     @classmethod
@@ -559,8 +586,8 @@ class MutableTree(GObject.Object):
     def set_contents_checksum(self, checksum: str) -> None: ...
     def set_metadata_checksum(self, checksum: str) -> None: ...
     def walk(
-        self, split_path: Sequence[str], start: int
-    ) -> Tuple[bool, MutableTree]: ...
+        self, split_path: typing.Sequence[str], start: int
+    ) -> typing.Tuple[bool, MutableTree]: ...
 
 class MutableTreeClass(GObject.GPointer):
     """
@@ -587,7 +614,7 @@ class MutableTreeIter(GObject.GPointer):
 
 class Remote(GObject.GBoxed):
     def get_name(self) -> str: ...
-    def get_url(self) -> Optional[str]: ...
+    def get_url(self) -> typing.Optional[str]: ...
     def ref(self) -> Remote: ...
     def unref(self) -> None: ...
 
@@ -618,8 +645,7 @@ class Repo(GObject.Object):
     Signals from GObject:
       notify (GParam)
     """
-
-    class Props:
+    class Props(GObject.Object.Props):
         path: Gio.File
         remotes_config_dir: str
         sysroot_path: Gio.File
@@ -630,31 +656,41 @@ class Repo(GObject.Object):
         path: Gio.File = ...,
         remotes_config_dir: str = ...,
         sysroot_path: Gio.File = ...,
-    ): ...
+    ) -> None: ...
     def abort_transaction(
-        self, cancellable: Optional[Gio.Cancellable] = None
+        self, cancellable: typing.Optional[Gio.Cancellable] = None
     ) -> bool: ...
     def add_gpg_signature_summary(
         self,
-        key_id: Sequence[str],
-        homedir: Optional[str] = None,
-        cancellable: Optional[Gio.Cancellable] = None,
+        key_id: typing.Sequence[str],
+        homedir: typing.Optional[str] = None,
+        cancellable: typing.Optional[Gio.Cancellable] = None,
     ) -> bool: ...
     def append_gpg_signature(
         self,
         commit_checksum: str,
         signature_bytes: GLib.Bytes,
-        cancellable: Optional[Gio.Cancellable] = None,
+        cancellable: typing.Optional[Gio.Cancellable] = None,
     ) -> bool: ...
     def checkout_at(
         self,
-        options: Optional[RepoCheckoutAtOptions],
+        options: typing.Optional[RepoCheckoutAtOptions],
         destination_dfd: int,
         destination_path: str,
         commit: str,
-        cancellable: Optional[Gio.Cancellable] = None,
+        cancellable: typing.Optional[Gio.Cancellable] = None,
     ) -> bool: ...
-    def checkout_gc(self, cancellable: Optional[Gio.Cancellable] = None) -> bool: ...
+    def checkout_composefs(
+        self,
+        options: typing.Optional[GLib.Variant],
+        destination_dfd: int,
+        destination_path: str,
+        checksum: str,
+        cancellable: typing.Optional[Gio.Cancellable] = None,
+    ) -> bool: ...
+    def checkout_gc(
+        self, cancellable: typing.Optional[Gio.Cancellable] = None
+    ) -> bool: ...
     def checkout_tree(
         self,
         mode: RepoCheckoutMode,
@@ -662,46 +698,46 @@ class Repo(GObject.Object):
         destination: Gio.File,
         source: RepoFile,
         source_info: Gio.FileInfo,
-        cancellable: Optional[Gio.Cancellable] = None,
+        cancellable: typing.Optional[Gio.Cancellable] = None,
     ) -> bool: ...
     def commit_add_composefs_metadata(
         self,
         format_version: int,
         dict: GLib.VariantDict,
         repo_root: RepoFile,
-        cancellable: Optional[Gio.Cancellable] = None,
+        cancellable: typing.Optional[Gio.Cancellable] = None,
     ) -> bool: ...
     def commit_transaction(
-        self, cancellable: Optional[Gio.Cancellable] = None
-    ) -> Tuple[bool, RepoTransactionStats]: ...
+        self, cancellable: typing.Optional[Gio.Cancellable] = None
+    ) -> typing.Tuple[bool, RepoTransactionStats]: ...
     def copy_config(self) -> GLib.KeyFile: ...
     def create(
-        self, mode: RepoMode, cancellable: Optional[Gio.Cancellable] = None
+        self, mode: RepoMode, cancellable: typing.Optional[Gio.Cancellable] = None
     ) -> bool: ...
     @staticmethod
     def create_at(
         dfd: int,
         path: str,
         mode: RepoMode,
-        options: Optional[GLib.Variant] = None,
-        cancellable: Optional[Gio.Cancellable] = None,
+        options: typing.Optional[GLib.Variant] = None,
+        cancellable: typing.Optional[Gio.Cancellable] = None,
     ) -> Repo: ...
     def delete_object(
         self,
         objtype: ObjectType,
         sha256: str,
-        cancellable: Optional[Gio.Cancellable] = None,
+        cancellable: typing.Optional[Gio.Cancellable] = None,
     ) -> bool: ...
     def equal(self, b: Repo) -> bool: ...
     def find_remotes_async(
         self,
-        refs: Sequence[CollectionRef],
-        options: Optional[GLib.Variant],
-        finders: Sequence[RepoFinder],
-        progress: Optional[AsyncProgress] = None,
-        cancellable: Optional[Gio.Cancellable] = None,
-        callback: Optional[Callable[..., None]] = None,
-        *user_data: Any,
+        refs: typing.Sequence[CollectionRef],
+        options: typing.Optional[GLib.Variant],
+        finders: typing.Sequence[RepoFinder],
+        progress: typing.Optional[AsyncProgress] = None,
+        cancellable: typing.Optional[Gio.Cancellable] = None,
+        callback: typing.Optional[typing.Callable[..., None]] = None,
+        *user_data: typing.Any,
     ) -> None: ...
     def find_remotes_finish(
         self, result: Gio.AsyncResult
@@ -710,57 +746,60 @@ class Repo(GObject.Object):
         self,
         objtype: ObjectType,
         sha256: str,
-        cancellable: Optional[Gio.Cancellable] = None,
+        cancellable: typing.Optional[Gio.Cancellable] = None,
     ) -> bool: ...
     def get_bootloader(self) -> str: ...
-    def get_collection_id(self) -> Optional[str]: ...
+    def get_collection_id(self) -> typing.Optional[str]: ...
     def get_config(self) -> GLib.KeyFile: ...
     def get_default_repo_finders(self) -> list[str]: ...
     def get_dfd(self) -> int: ...
     def get_disable_fsync(self) -> bool: ...
-    def get_min_free_space_bytes(self) -> Tuple[bool, int]: ...
+    def get_min_free_space_bytes(self) -> typing.Tuple[bool, int]: ...
     def get_mode(self) -> RepoMode: ...
-    def get_parent(self) -> Optional[Repo]: ...
+    def get_parent(self) -> typing.Optional[Repo]: ...
     def get_path(self) -> Gio.File: ...
     def get_remote_boolean_option(
         self, remote_name: str, option_name: str, default_value: bool
-    ) -> Tuple[bool, bool]: ...
+    ) -> typing.Tuple[bool, bool]: ...
     def get_remote_list_option(
         self, remote_name: str, option_name: str
-    ) -> Tuple[bool, list[str]]: ...
+    ) -> typing.Tuple[bool, list[str]]: ...
     def get_remote_option(
-        self, remote_name: str, option_name: str, default_value: Optional[str] = None
-    ) -> Tuple[bool, str]: ...
+        self,
+        remote_name: str,
+        option_name: str,
+        default_value: typing.Optional[str] = None,
+    ) -> typing.Tuple[bool, str]: ...
     def gpg_sign_data(
         self,
         data: GLib.Bytes,
-        old_signatures: Optional[GLib.Bytes],
-        key_id: Sequence[str],
-        homedir: Optional[str] = None,
-        cancellable: Optional[Gio.Cancellable] = None,
-    ) -> Tuple[bool, GLib.Bytes]: ...
+        old_signatures: typing.Optional[GLib.Bytes],
+        key_id: typing.Sequence[str],
+        homedir: typing.Optional[str] = None,
+        cancellable: typing.Optional[Gio.Cancellable] = None,
+    ) -> typing.Tuple[bool, GLib.Bytes]: ...
     def gpg_verify_data(
         self,
-        remote_name: Optional[str],
+        remote_name: typing.Optional[str],
         data: GLib.Bytes,
         signatures: GLib.Bytes,
-        keyringdir: Optional[Gio.File] = None,
-        extra_keyring: Optional[Gio.File] = None,
-        cancellable: Optional[Gio.Cancellable] = None,
+        keyringdir: typing.Optional[Gio.File] = None,
+        extra_keyring: typing.Optional[Gio.File] = None,
+        cancellable: typing.Optional[Gio.Cancellable] = None,
     ) -> GpgVerifyResult: ...
     def has_object(
         self,
         objtype: ObjectType,
         checksum: str,
-        cancellable: Optional[Gio.Cancellable] = None,
-    ) -> Tuple[bool, bool]: ...
+        cancellable: typing.Optional[Gio.Cancellable] = None,
+    ) -> typing.Tuple[bool, bool]: ...
     def hash(self) -> int: ...
     def import_object_from(
         self,
         source: Repo,
         objtype: ObjectType,
         checksum: str,
-        cancellable: Optional[Gio.Cancellable] = None,
+        cancellable: typing.Optional[Gio.Cancellable] = None,
     ) -> bool: ...
     def import_object_from_with_trust(
         self,
@@ -768,69 +807,75 @@ class Repo(GObject.Object):
         objtype: ObjectType,
         checksum: str,
         trusted: bool,
-        cancellable: Optional[Gio.Cancellable] = None,
+        cancellable: typing.Optional[Gio.Cancellable] = None,
     ) -> bool: ...
     def is_system(self) -> bool: ...
     def is_writable(self) -> bool: ...
     def list_collection_refs(
         self,
-        match_collection_id: Optional[str],
+        match_collection_id: typing.Optional[str],
         flags: RepoListRefsExtFlags,
-        cancellable: Optional[Gio.Cancellable] = None,
-    ) -> Tuple[bool, dict[CollectionRef, str]]: ...
+        cancellable: typing.Optional[Gio.Cancellable] = None,
+    ) -> typing.Tuple[bool, dict[CollectionRef, str]]: ...
     def list_commit_objects_starting_with(
-        self, start: str, cancellable: Optional[Gio.Cancellable] = None
-    ) -> Tuple[bool, dict[GLib.Variant, GLib.Variant]]: ...
+        self, start: str, cancellable: typing.Optional[Gio.Cancellable] = None
+    ) -> typing.Tuple[bool, dict[GLib.Variant, GLib.Variant]]: ...
     def list_objects(
-        self, flags: RepoListObjectsFlags, cancellable: Optional[Gio.Cancellable] = None
-    ) -> Tuple[bool, dict[GLib.Variant, GLib.Variant]]: ...
+        self,
+        flags: RepoListObjectsFlags,
+        cancellable: typing.Optional[Gio.Cancellable] = None,
+    ) -> typing.Tuple[bool, dict[GLib.Variant, GLib.Variant]]: ...
     def list_refs(
         self,
-        refspec_prefix: Optional[str] = None,
-        cancellable: Optional[Gio.Cancellable] = None,
-    ) -> Tuple[bool, dict[str, str]]: ...
+        refspec_prefix: typing.Optional[str] = None,
+        cancellable: typing.Optional[Gio.Cancellable] = None,
+    ) -> typing.Tuple[bool, dict[str, str]]: ...
     def list_refs_ext(
         self,
-        refspec_prefix: Optional[str],
+        refspec_prefix: typing.Optional[str],
         flags: RepoListRefsExtFlags,
-        cancellable: Optional[Gio.Cancellable] = None,
-    ) -> Tuple[bool, dict[str, str]]: ...
+        cancellable: typing.Optional[Gio.Cancellable] = None,
+    ) -> typing.Tuple[bool, dict[str, str]]: ...
     def list_static_delta_indexes(
-        self, cancellable: Optional[Gio.Cancellable] = None
-    ) -> Tuple[bool, list[str]]: ...
+        self, cancellable: typing.Optional[Gio.Cancellable] = None
+    ) -> typing.Tuple[bool, list[str]]: ...
     def list_static_delta_names(
-        self, cancellable: Optional[Gio.Cancellable] = None
-    ) -> Tuple[bool, list[str]]: ...
+        self, cancellable: typing.Optional[Gio.Cancellable] = None
+    ) -> typing.Tuple[bool, list[str]]: ...
     def load_commit(
         self, checksum: str
-    ) -> Tuple[bool, GLib.Variant, RepoCommitState]: ...
+    ) -> typing.Tuple[bool, GLib.Variant, RepoCommitState]: ...
     def load_file(
-        self, checksum: str, cancellable: Optional[Gio.Cancellable] = None
-    ) -> Tuple[bool, Gio.InputStream, Gio.FileInfo, GLib.Variant]: ...
+        self, checksum: str, cancellable: typing.Optional[Gio.Cancellable] = None
+    ) -> typing.Tuple[bool, Gio.InputStream, Gio.FileInfo, GLib.Variant]: ...
     def load_object_stream(
         self,
         objtype: ObjectType,
         checksum: str,
-        cancellable: Optional[Gio.Cancellable] = None,
-    ) -> Tuple[bool, Gio.InputStream, int]: ...
+        cancellable: typing.Optional[Gio.Cancellable] = None,
+    ) -> typing.Tuple[bool, Gio.InputStream, int]: ...
     def load_variant(
         self, objtype: ObjectType, sha256: str
-    ) -> Tuple[bool, GLib.Variant]: ...
+    ) -> typing.Tuple[bool, GLib.Variant]: ...
     def load_variant_if_exists(
         self, objtype: ObjectType, sha256: str
-    ) -> Tuple[bool, GLib.Variant]: ...
+    ) -> typing.Tuple[bool, GLib.Variant]: ...
     def lock_pop(
-        self, lock_type: RepoLockType, cancellable: Optional[Gio.Cancellable] = None
+        self,
+        lock_type: RepoLockType,
+        cancellable: typing.Optional[Gio.Cancellable] = None,
     ) -> bool: ...
     def lock_push(
-        self, lock_type: RepoLockType, cancellable: Optional[Gio.Cancellable] = None
+        self,
+        lock_type: RepoLockType,
+        cancellable: typing.Optional[Gio.Cancellable] = None,
     ) -> bool: ...
     def mark_commit_partial(self, checksum: str, is_partial: bool) -> bool: ...
     def mark_commit_partial_reason(
         self, checksum: str, is_partial: bool, in_state: RepoCommitState
     ) -> bool: ...
     @staticmethod
-    def mode_from_string(mode: str) -> Tuple[bool, RepoMode]: ...
+    def mode_from_string(mode: str) -> typing.Tuple[bool, RepoMode]: ...
     @classmethod
     def new(cls, path: Gio.File) -> Repo: ...
     @classmethod
@@ -839,35 +884,37 @@ class Repo(GObject.Object):
     def new_for_sysroot_path(
         cls, repo_path: Gio.File, sysroot_path: Gio.File
     ) -> Repo: ...
-    def open(self, cancellable: Optional[Gio.Cancellable] = None) -> bool: ...
+    def open(self, cancellable: typing.Optional[Gio.Cancellable] = None) -> bool: ...
     @staticmethod
     def open_at(
-        dfd: int, path: str, cancellable: Optional[Gio.Cancellable] = None
+        dfd: int, path: str, cancellable: typing.Optional[Gio.Cancellable] = None
     ) -> Repo: ...
     def prepare_transaction(
-        self, cancellable: Optional[Gio.Cancellable] = None
-    ) -> Tuple[bool, bool]: ...
+        self, cancellable: typing.Optional[Gio.Cancellable] = None
+    ) -> typing.Tuple[bool, bool]: ...
     def prune(
         self,
         flags: RepoPruneFlags,
         depth: int,
-        cancellable: Optional[Gio.Cancellable] = None,
-    ) -> Tuple[bool, int, int, int]: ...
+        cancellable: typing.Optional[Gio.Cancellable] = None,
+    ) -> typing.Tuple[bool, int, int, int]: ...
     def prune_from_reachable(
-        self, options: RepoPruneOptions, cancellable: Optional[Gio.Cancellable] = None
-    ) -> Tuple[bool, int, int, int]: ...
+        self,
+        options: RepoPruneOptions,
+        cancellable: typing.Optional[Gio.Cancellable] = None,
+    ) -> typing.Tuple[bool, int, int, int]: ...
     def prune_static_deltas(
         self,
-        commit: Optional[str] = None,
-        cancellable: Optional[Gio.Cancellable] = None,
+        commit: typing.Optional[str] = None,
+        cancellable: typing.Optional[Gio.Cancellable] = None,
     ) -> bool: ...
     def pull(
         self,
         remote_name: str,
-        refs_to_fetch: Optional[Sequence[str]],
+        refs_to_fetch: typing.Optional[typing.Sequence[str]],
         flags: RepoPullFlags,
-        progress: Optional[AsyncProgress] = None,
-        cancellable: Optional[Gio.Cancellable] = None,
+        progress: typing.Optional[AsyncProgress] = None,
+        cancellable: typing.Optional[Gio.Cancellable] = None,
     ) -> bool: ...
     @staticmethod
     def pull_default_console_progress_changed(
@@ -875,151 +922,157 @@ class Repo(GObject.Object):
     ) -> None: ...
     def pull_from_remotes_async(
         self,
-        results: Sequence[RepoFinderResult],
-        options: Optional[GLib.Variant] = None,
-        progress: Optional[AsyncProgress] = None,
-        cancellable: Optional[Gio.Cancellable] = None,
-        callback: Optional[Callable[..., None]] = None,
-        *user_data: Any,
+        results: typing.Sequence[RepoFinderResult],
+        options: typing.Optional[GLib.Variant] = None,
+        progress: typing.Optional[AsyncProgress] = None,
+        cancellable: typing.Optional[Gio.Cancellable] = None,
+        callback: typing.Optional[typing.Callable[..., None]] = None,
+        *user_data: typing.Any,
     ) -> None: ...
     def pull_from_remotes_finish(self, result: Gio.AsyncResult) -> bool: ...
     def pull_one_dir(
         self,
         remote_name: str,
         dir_to_pull: str,
-        refs_to_fetch: Optional[Sequence[str]],
+        refs_to_fetch: typing.Optional[typing.Sequence[str]],
         flags: RepoPullFlags,
-        progress: Optional[AsyncProgress] = None,
-        cancellable: Optional[Gio.Cancellable] = None,
+        progress: typing.Optional[AsyncProgress] = None,
+        cancellable: typing.Optional[Gio.Cancellable] = None,
     ) -> bool: ...
     def pull_with_options(
         self,
         remote_name_or_baseurl: str,
         options: GLib.Variant,
-        progress: Optional[AsyncProgress] = None,
-        cancellable: Optional[Gio.Cancellable] = None,
+        progress: typing.Optional[AsyncProgress] = None,
+        cancellable: typing.Optional[Gio.Cancellable] = None,
     ) -> bool: ...
     def query_object_storage_size(
         self,
         objtype: ObjectType,
         sha256: str,
-        cancellable: Optional[Gio.Cancellable] = None,
-    ) -> Tuple[bool, int]: ...
+        cancellable: typing.Optional[Gio.Cancellable] = None,
+    ) -> typing.Tuple[bool, int]: ...
     def read_commit(
-        self, ref: str, cancellable: Optional[Gio.Cancellable] = None
-    ) -> Tuple[bool, Gio.File, str]: ...
+        self, ref: str, cancellable: typing.Optional[Gio.Cancellable] = None
+    ) -> typing.Tuple[bool, Gio.File, str]: ...
     def read_commit_detached_metadata(
-        self, checksum: str, cancellable: Optional[Gio.Cancellable] = None
-    ) -> Tuple[bool, GLib.Variant]: ...
+        self, checksum: str, cancellable: typing.Optional[Gio.Cancellable] = None
+    ) -> typing.Tuple[bool, GLib.Variant]: ...
     def regenerate_metadata(
         self,
-        additional_metadata: Optional[GLib.Variant] = None,
-        options: Optional[GLib.Variant] = None,
-        cancellable: Optional[Gio.Cancellable] = None,
+        additional_metadata: typing.Optional[GLib.Variant] = None,
+        options: typing.Optional[GLib.Variant] = None,
+        cancellable: typing.Optional[Gio.Cancellable] = None,
     ) -> bool: ...
     def regenerate_summary(
         self,
-        additional_metadata: Optional[GLib.Variant] = None,
-        cancellable: Optional[Gio.Cancellable] = None,
+        additional_metadata: typing.Optional[GLib.Variant] = None,
+        cancellable: typing.Optional[Gio.Cancellable] = None,
     ) -> bool: ...
-    def reload_config(self, cancellable: Optional[Gio.Cancellable] = None) -> bool: ...
+    def reload_config(
+        self, cancellable: typing.Optional[Gio.Cancellable] = None
+    ) -> bool: ...
     def remote_add(
         self,
         name: str,
-        url: Optional[str] = None,
-        options: Optional[GLib.Variant] = None,
-        cancellable: Optional[Gio.Cancellable] = None,
+        url: typing.Optional[str] = None,
+        options: typing.Optional[GLib.Variant] = None,
+        cancellable: typing.Optional[Gio.Cancellable] = None,
     ) -> bool: ...
     def remote_change(
         self,
-        sysroot: Optional[Gio.File],
+        sysroot: typing.Optional[Gio.File],
         changeop: RepoRemoteChange,
         name: str,
-        url: Optional[str] = None,
-        options: Optional[GLib.Variant] = None,
-        cancellable: Optional[Gio.Cancellable] = None,
+        url: typing.Optional[str] = None,
+        options: typing.Optional[GLib.Variant] = None,
+        cancellable: typing.Optional[Gio.Cancellable] = None,
     ) -> bool: ...
     def remote_delete(
-        self, name: str, cancellable: Optional[Gio.Cancellable] = None
+        self, name: str, cancellable: typing.Optional[Gio.Cancellable] = None
     ) -> bool: ...
     def remote_fetch_summary(
-        self, name: str, cancellable: Optional[Gio.Cancellable] = None
-    ) -> Tuple[bool, GLib.Bytes, GLib.Bytes]: ...
+        self, name: str, cancellable: typing.Optional[Gio.Cancellable] = None
+    ) -> typing.Tuple[bool, GLib.Bytes, GLib.Bytes]: ...
     def remote_fetch_summary_with_options(
         self,
         name: str,
-        options: Optional[GLib.Variant] = None,
-        cancellable: Optional[Gio.Cancellable] = None,
-    ) -> Tuple[bool, GLib.Bytes, GLib.Bytes]: ...
+        options: typing.Optional[GLib.Variant] = None,
+        cancellable: typing.Optional[Gio.Cancellable] = None,
+    ) -> typing.Tuple[bool, GLib.Bytes, GLib.Bytes]: ...
     def remote_get_gpg_keys(
         self,
-        name: Optional[str] = None,
-        key_ids: Optional[Sequence[str]] = None,
-        cancellable: Optional[Gio.Cancellable] = None,
-    ) -> Tuple[bool, list[GLib.Variant]]: ...
-    def remote_get_gpg_verify(self, name: str) -> Tuple[bool, bool]: ...
-    def remote_get_gpg_verify_summary(self, name: str) -> Tuple[bool, bool]: ...
-    def remote_get_url(self, name: str) -> Tuple[bool, str]: ...
+        name: typing.Optional[str] = None,
+        key_ids: typing.Optional[typing.Sequence[str]] = None,
+        cancellable: typing.Optional[Gio.Cancellable] = None,
+    ) -> typing.Tuple[bool, list[GLib.Variant]]: ...
+    def remote_get_gpg_verify(self, name: str) -> typing.Tuple[bool, bool]: ...
+    def remote_get_gpg_verify_summary(self, name: str) -> typing.Tuple[bool, bool]: ...
+    def remote_get_url(self, name: str) -> typing.Tuple[bool, str]: ...
     def remote_gpg_import(
         self,
         name: str,
-        source_stream: Optional[Gio.InputStream] = None,
-        key_ids: Optional[Sequence[str]] = None,
-        cancellable: Optional[Gio.Cancellable] = None,
-    ) -> Tuple[bool, int]: ...
+        source_stream: typing.Optional[Gio.InputStream] = None,
+        key_ids: typing.Optional[typing.Sequence[str]] = None,
+        cancellable: typing.Optional[Gio.Cancellable] = None,
+    ) -> typing.Tuple[bool, int]: ...
     def remote_list(self) -> list[str]: ...
     def remote_list_collection_refs(
-        self, remote_name: str, cancellable: Optional[Gio.Cancellable] = None
-    ) -> Tuple[bool, dict[CollectionRef, str]]: ...
+        self, remote_name: str, cancellable: typing.Optional[Gio.Cancellable] = None
+    ) -> typing.Tuple[bool, dict[CollectionRef, str]]: ...
     def remote_list_refs(
-        self, remote_name: str, cancellable: Optional[Gio.Cancellable] = None
-    ) -> Tuple[bool, dict[str, str]]: ...
+        self, remote_name: str, cancellable: typing.Optional[Gio.Cancellable] = None
+    ) -> typing.Tuple[bool, dict[str, str]]: ...
     def resolve_collection_ref(
         self,
         ref: CollectionRef,
         allow_noent: bool,
         flags: RepoResolveRevExtFlags,
-        cancellable: Optional[Gio.Cancellable] = None,
-    ) -> Tuple[bool, str]: ...
+        cancellable: typing.Optional[Gio.Cancellable] = None,
+    ) -> typing.Tuple[bool, str]: ...
     def resolve_keyring_for_collection(
-        self, collection_id: str, cancellable: Optional[Gio.Cancellable] = None
+        self, collection_id: str, cancellable: typing.Optional[Gio.Cancellable] = None
     ) -> Remote: ...
-    def resolve_rev(self, refspec: str, allow_noent: bool) -> Tuple[bool, str]: ...
+    def resolve_rev(
+        self, refspec: str, allow_noent: bool
+    ) -> typing.Tuple[bool, str]: ...
     def resolve_rev_ext(
         self, refspec: str, allow_noent: bool, flags: RepoResolveRevExtFlags
-    ) -> Tuple[bool, str]: ...
-    def scan_hardlinks(self, cancellable: Optional[Gio.Cancellable] = None) -> bool: ...
+    ) -> typing.Tuple[bool, str]: ...
+    def scan_hardlinks(
+        self, cancellable: typing.Optional[Gio.Cancellable] = None
+    ) -> bool: ...
     def set_alias_ref_immediate(
         self,
-        remote: Optional[str],
+        remote: typing.Optional[str],
         ref: str,
-        target: Optional[str] = None,
-        cancellable: Optional[Gio.Cancellable] = None,
+        target: typing.Optional[str] = None,
+        cancellable: typing.Optional[Gio.Cancellable] = None,
     ) -> bool: ...
     def set_cache_dir(
-        self, dfd: int, path: str, cancellable: Optional[Gio.Cancellable] = None
+        self, dfd: int, path: str, cancellable: typing.Optional[Gio.Cancellable] = None
     ) -> bool: ...
-    def set_collection_id(self, collection_id: Optional[str] = None) -> bool: ...
+    def set_collection_id(self, collection_id: typing.Optional[str] = None) -> bool: ...
     def set_collection_ref_immediate(
         self,
         ref: CollectionRef,
-        checksum: Optional[str] = None,
-        cancellable: Optional[Gio.Cancellable] = None,
+        checksum: typing.Optional[str] = None,
+        cancellable: typing.Optional[Gio.Cancellable] = None,
     ) -> bool: ...
     def set_disable_fsync(self, disable_fsync: bool) -> None: ...
     def set_ref_immediate(
         self,
-        remote: Optional[str],
+        remote: typing.Optional[str],
         ref: str,
-        checksum: Optional[str] = None,
-        cancellable: Optional[Gio.Cancellable] = None,
+        checksum: typing.Optional[str] = None,
+        cancellable: typing.Optional[Gio.Cancellable] = None,
     ) -> bool: ...
     def sign_commit(
         self,
         commit_checksum: str,
         key_id: str,
-        homedir: Optional[str] = None,
-        cancellable: Optional[Gio.Cancellable] = None,
+        homedir: typing.Optional[str] = None,
+        cancellable: typing.Optional[Gio.Cancellable] = None,
     ) -> bool: ...
     def sign_delta(
         self,
@@ -1027,7 +1080,7 @@ class Repo(GObject.Object):
         to_commit: str,
         key_id: str,
         homedir: str,
-        cancellable: Optional[Gio.Cancellable] = None,
+        cancellable: typing.Optional[Gio.Cancellable] = None,
     ) -> bool: ...
     def signature_verify_commit_data(
         self,
@@ -1035,53 +1088,56 @@ class Repo(GObject.Object):
         commit_data: GLib.Bytes,
         commit_metadata: GLib.Bytes,
         flags: RepoVerifyFlags,
-    ) -> Tuple[bool, str]: ...
+    ) -> typing.Tuple[bool, str]: ...
     def static_delta_execute_offline(
         self,
         dir_or_file: Gio.File,
         skip_validation: bool,
-        cancellable: Optional[Gio.Cancellable] = None,
+        cancellable: typing.Optional[Gio.Cancellable] = None,
     ) -> bool: ...
     def static_delta_execute_offline_with_signature(
         self,
         dir_or_file: Gio.File,
         sign: Sign,
         skip_validation: bool,
-        cancellable: Optional[Gio.Cancellable] = None,
+        cancellable: typing.Optional[Gio.Cancellable] = None,
     ) -> bool: ...
     def static_delta_generate(
         self,
         opt: StaticDeltaGenerateOpt,
-        from_: Optional[str],
+        from_: typing.Optional[str],
         to: str,
-        metadata: Optional[GLib.Variant] = None,
-        params: Optional[GLib.Variant] = None,
-        cancellable: Optional[Gio.Cancellable] = None,
+        metadata: typing.Optional[GLib.Variant] = None,
+        params: typing.Optional[GLib.Variant] = None,
+        cancellable: typing.Optional[Gio.Cancellable] = None,
     ) -> bool: ...
     def static_delta_reindex(
         self,
         flags: StaticDeltaIndexFlags,
         opt_to_commit: str,
-        cancellable: Optional[Gio.Cancellable] = None,
+        cancellable: typing.Optional[Gio.Cancellable] = None,
     ) -> bool: ...
     def static_delta_verify_signature(
         self, delta_id: str, sign: Sign
-    ) -> Tuple[bool, str]: ...
+    ) -> typing.Tuple[bool, str]: ...
     def transaction_set_collection_ref(
-        self, ref: CollectionRef, checksum: Optional[str] = None
+        self, ref: CollectionRef, checksum: typing.Optional[str] = None
     ) -> None: ...
     def transaction_set_ref(
-        self, remote: Optional[str], ref: str, checksum: Optional[str] = None
+        self,
+        remote: typing.Optional[str],
+        ref: str,
+        checksum: typing.Optional[str] = None,
     ) -> None: ...
     def transaction_set_refspec(
-        self, refspec: str, checksum: Optional[str] = None
+        self, refspec: str, checksum: typing.Optional[str] = None
     ) -> None: ...
     def traverse_commit(
         self,
         commit_checksum: str,
         maxdepth: int,
-        cancellable: Optional[Gio.Cancellable] = None,
-    ) -> Tuple[bool, dict[GLib.Variant, GLib.Variant]]: ...
+        cancellable: typing.Optional[Gio.Cancellable] = None,
+    ) -> typing.Tuple[bool, dict[GLib.Variant, GLib.Variant]]: ...
     @staticmethod
     def traverse_new_parents() -> dict[GLib.Variant, GLib.Variant]: ...
     @staticmethod
@@ -1094,178 +1150,183 @@ class Repo(GObject.Object):
         self,
         depth: int,
         reachable: dict[GLib.Variant, GLib.Variant],
-        cancellable: Optional[Gio.Cancellable] = None,
+        cancellable: typing.Optional[Gio.Cancellable] = None,
     ) -> bool: ...
     def verify_commit(
         self,
         commit_checksum: str,
-        keyringdir: Optional[Gio.File] = None,
-        extra_keyring: Optional[Gio.File] = None,
-        cancellable: Optional[Gio.Cancellable] = None,
+        keyringdir: typing.Optional[Gio.File] = None,
+        extra_keyring: typing.Optional[Gio.File] = None,
+        cancellable: typing.Optional[Gio.Cancellable] = None,
     ) -> bool: ...
     def verify_commit_ext(
         self,
         commit_checksum: str,
-        keyringdir: Optional[Gio.File] = None,
-        extra_keyring: Optional[Gio.File] = None,
-        cancellable: Optional[Gio.Cancellable] = None,
+        keyringdir: typing.Optional[Gio.File] = None,
+        extra_keyring: typing.Optional[Gio.File] = None,
+        cancellable: typing.Optional[Gio.Cancellable] = None,
     ) -> GpgVerifyResult: ...
     def verify_commit_for_remote(
         self,
         commit_checksum: str,
         remote_name: str,
-        cancellable: Optional[Gio.Cancellable] = None,
+        cancellable: typing.Optional[Gio.Cancellable] = None,
     ) -> GpgVerifyResult: ...
     def verify_summary(
         self,
         remote_name: str,
         summary: GLib.Bytes,
         signatures: GLib.Bytes,
-        cancellable: Optional[Gio.Cancellable] = None,
+        cancellable: typing.Optional[Gio.Cancellable] = None,
     ) -> GpgVerifyResult: ...
     def write_archive_to_mtree(
         self,
         archive: Gio.File,
         mtree: MutableTree,
-        modifier: Optional[RepoCommitModifier],
+        modifier: typing.Optional[RepoCommitModifier],
         autocreate_parents: bool,
-        cancellable: Optional[Gio.Cancellable] = None,
+        cancellable: typing.Optional[Gio.Cancellable] = None,
     ) -> bool: ...
     def write_archive_to_mtree_from_fd(
         self,
         fd: int,
         mtree: MutableTree,
-        modifier: Optional[RepoCommitModifier],
+        modifier: typing.Optional[RepoCommitModifier],
         autocreate_parents: bool,
-        cancellable: Optional[Gio.Cancellable] = None,
+        cancellable: typing.Optional[Gio.Cancellable] = None,
     ) -> bool: ...
     def write_commit(
         self,
-        parent: Optional[str],
-        subject: Optional[str],
-        body: Optional[str],
-        metadata: Optional[GLib.Variant],
+        parent: typing.Optional[str],
+        subject: typing.Optional[str],
+        body: typing.Optional[str],
+        metadata: typing.Optional[GLib.Variant],
         root: RepoFile,
-        cancellable: Optional[Gio.Cancellable] = None,
-    ) -> Tuple[bool, str]: ...
+        cancellable: typing.Optional[Gio.Cancellable] = None,
+    ) -> typing.Tuple[bool, str]: ...
     def write_commit_detached_metadata(
         self,
         checksum: str,
-        metadata: Optional[GLib.Variant] = None,
-        cancellable: Optional[Gio.Cancellable] = None,
+        metadata: typing.Optional[GLib.Variant] = None,
+        cancellable: typing.Optional[Gio.Cancellable] = None,
     ) -> bool: ...
     def write_commit_with_time(
         self,
-        parent: Optional[str],
-        subject: Optional[str],
-        body: Optional[str],
-        metadata: Optional[GLib.Variant],
+        parent: typing.Optional[str],
+        subject: typing.Optional[str],
+        body: typing.Optional[str],
+        metadata: typing.Optional[GLib.Variant],
         root: RepoFile,
         time: int,
-        cancellable: Optional[Gio.Cancellable] = None,
-    ) -> Tuple[bool, str]: ...
+        cancellable: typing.Optional[Gio.Cancellable] = None,
+    ) -> typing.Tuple[bool, str]: ...
     def write_config(self, new_config: GLib.KeyFile) -> bool: ...
+    def write_config_and_reload(self, new_config: GLib.KeyFile) -> bool: ...
     def write_content(
         self,
-        expected_checksum: Optional[str],
+        expected_checksum: typing.Optional[str],
         object_input: Gio.InputStream,
         length: int,
-        cancellable: Optional[Gio.Cancellable] = None,
-    ) -> Tuple[bool, bytes]: ...
+        cancellable: typing.Optional[Gio.Cancellable] = None,
+    ) -> typing.Tuple[bool, bytes]: ...
     def write_content_async(
         self,
-        expected_checksum: Optional[str],
+        expected_checksum: typing.Optional[str],
         object: Gio.InputStream,
         length: int,
-        cancellable: Optional[Gio.Cancellable] = None,
-        callback: Optional[Callable[..., None]] = None,
-        *user_data: Any,
+        cancellable: typing.Optional[Gio.Cancellable] = None,
+        callback: typing.Optional[typing.Callable[..., None]] = None,
+        *user_data: typing.Any,
     ) -> None: ...
-    def write_content_finish(self, result: Gio.AsyncResult) -> Tuple[bool, int]: ...
+    def write_content_finish(
+        self, result: Gio.AsyncResult
+    ) -> typing.Tuple[bool, int]: ...
     def write_content_trusted(
         self,
         checksum: str,
         object_input: Gio.InputStream,
         length: int,
-        cancellable: Optional[Gio.Cancellable] = None,
+        cancellable: typing.Optional[Gio.Cancellable] = None,
     ) -> bool: ...
     def write_dfd_to_mtree(
         self,
         dfd: int,
         path: str,
         mtree: MutableTree,
-        modifier: Optional[RepoCommitModifier] = None,
-        cancellable: Optional[Gio.Cancellable] = None,
+        modifier: typing.Optional[RepoCommitModifier] = None,
+        cancellable: typing.Optional[Gio.Cancellable] = None,
     ) -> bool: ...
     def write_directory_to_mtree(
         self,
         dir: Gio.File,
         mtree: MutableTree,
-        modifier: Optional[RepoCommitModifier] = None,
-        cancellable: Optional[Gio.Cancellable] = None,
+        modifier: typing.Optional[RepoCommitModifier] = None,
+        cancellable: typing.Optional[Gio.Cancellable] = None,
     ) -> bool: ...
     def write_metadata(
         self,
         objtype: ObjectType,
-        expected_checksum: Optional[str],
+        expected_checksum: typing.Optional[str],
         object: GLib.Variant,
-        cancellable: Optional[Gio.Cancellable] = None,
-    ) -> Tuple[bool, bytes]: ...
+        cancellable: typing.Optional[Gio.Cancellable] = None,
+    ) -> typing.Tuple[bool, bytes]: ...
     def write_metadata_async(
         self,
         objtype: ObjectType,
-        expected_checksum: Optional[str],
+        expected_checksum: typing.Optional[str],
         object: GLib.Variant,
-        cancellable: Optional[Gio.Cancellable] = None,
-        callback: Optional[Callable[..., None]] = None,
-        *user_data: Any,
+        cancellable: typing.Optional[Gio.Cancellable] = None,
+        callback: typing.Optional[typing.Callable[..., None]] = None,
+        *user_data: typing.Any,
     ) -> None: ...
-    def write_metadata_finish(self, result: Gio.AsyncResult) -> Tuple[bool, bytes]: ...
+    def write_metadata_finish(
+        self, result: Gio.AsyncResult
+    ) -> typing.Tuple[bool, bytes]: ...
     def write_metadata_stream_trusted(
         self,
         objtype: ObjectType,
         checksum: str,
         object_input: Gio.InputStream,
         length: int,
-        cancellable: Optional[Gio.Cancellable] = None,
+        cancellable: typing.Optional[Gio.Cancellable] = None,
     ) -> bool: ...
     def write_metadata_trusted(
         self,
         objtype: ObjectType,
         checksum: str,
         variant: GLib.Variant,
-        cancellable: Optional[Gio.Cancellable] = None,
+        cancellable: typing.Optional[Gio.Cancellable] = None,
     ) -> bool: ...
     def write_mtree(
-        self, mtree: MutableTree, cancellable: Optional[Gio.Cancellable] = None
-    ) -> Tuple[bool, Gio.File]: ...
+        self, mtree: MutableTree, cancellable: typing.Optional[Gio.Cancellable] = None
+    ) -> typing.Tuple[bool, Gio.File]: ...
     def write_regfile(
         self,
-        expected_checksum: Optional[str],
+        expected_checksum: typing.Optional[str],
         uid: int,
         gid: int,
         mode: int,
         content_len: int,
-        xattrs: Optional[GLib.Variant] = None,
+        xattrs: typing.Optional[GLib.Variant] = None,
     ) -> ContentWriter: ...
     def write_regfile_inline(
         self,
-        expected_checksum: Optional[str],
+        expected_checksum: typing.Optional[str],
         uid: int,
         gid: int,
         mode: int,
-        xattrs: Optional[GLib.Variant],
-        buf: Sequence[int],
-        cancellable: Optional[Gio.Cancellable] = None,
+        xattrs: typing.Optional[GLib.Variant],
+        buf: typing.Sequence[int],
+        cancellable: typing.Optional[Gio.Cancellable] = None,
     ) -> str: ...
     def write_symlink(
         self,
-        expected_checksum: Optional[str],
+        expected_checksum: typing.Optional[str],
         uid: int,
         gid: int,
-        xattrs: Optional[GLib.Variant],
+        xattrs: typing.Optional[GLib.Variant],
         symlink_target: str,
-        cancellable: Optional[Gio.Cancellable] = None,
+        cancellable: typing.Optional[Gio.Cancellable] = None,
     ) -> str: ...
 
 class RepoCheckoutAtOptions(GObject.GPointer):
@@ -1292,11 +1353,11 @@ class RepoCheckoutAtOptions(GObject.GPointer):
     devino_to_csum_cache: RepoDevInoCache = ...
     unused_ints: list[int] = ...
     unused_ptrs: list[None] = ...
-    filter: Callable[..., RepoCheckoutFilterResult] = ...
+    filter: typing.Callable[..., RepoCheckoutFilterResult] = ...
     filter_user_data: None = ...
     sepolicy: SePolicy = ...
     sepolicy_prefix: str = ...
-    def set_devino(self, cache: Optional[RepoDevInoCache] = None) -> None: ...
+    def set_devino(self, cache: typing.Optional[RepoDevInoCache] = None) -> None: ...
 
 class RepoCommitModifier(GObject.GBoxed):
     """
@@ -1306,22 +1367,23 @@ class RepoCommitModifier(GObject.GBoxed):
 
         new(flags:OSTree.RepoCommitModifierFlags, commit_filter:OSTree.RepoCommitFilter=None, user_data=None) -> OSTree.RepoCommitModifier
     """
-
     @classmethod
     def new(
         cls,
         flags: RepoCommitModifierFlags,
-        commit_filter: Optional[Callable[..., RepoCommitFilterResult]] = None,
-        *user_data: Any,
+        commit_filter: typing.Optional[
+            typing.Callable[..., RepoCommitFilterResult]
+        ] = None,
+        *user_data: typing.Any,
     ) -> RepoCommitModifier: ...
     def ref(self) -> RepoCommitModifier: ...
     def set_devino_cache(self, cache: RepoDevInoCache) -> None: ...
-    def set_sepolicy(self, sepolicy: Optional[SePolicy] = None) -> None: ...
+    def set_sepolicy(self, sepolicy: typing.Optional[SePolicy] = None) -> None: ...
     def set_sepolicy_from_commit(
-        self, repo: Repo, rev: str, cancellable: Optional[Gio.Cancellable] = None
+        self, repo: Repo, rev: str, cancellable: typing.Optional[Gio.Cancellable] = None
     ) -> bool: ...
     def set_xattr_callback(
-        self, callback: Callable[..., GLib.Variant], *user_data: Any
+        self, callback: typing.Callable[..., GLib.Variant], *user_data: typing.Any
     ) -> None: ...
     def unref(self) -> None: ...
 
@@ -1340,8 +1402,8 @@ class RepoCommitTraverseIter(GObject.GPointer):
     @staticmethod
     def cleanup(p: None) -> None: ...
     def clear(self) -> None: ...
-    def get_dir(self) -> Tuple[str, str, str]: ...
-    def get_file(self) -> Tuple[str, str]: ...
+    def get_dir(self) -> typing.Tuple[str, str, str]: ...
+    def get_file(self) -> typing.Tuple[str, str]: ...
     def init_commit(
         self, repo: Repo, commit: GLib.Variant, flags: RepoCommitTraverseFlags
     ) -> bool: ...
@@ -1349,7 +1411,7 @@ class RepoCommitTraverseIter(GObject.GPointer):
         self, repo: Repo, dirtree: GLib.Variant, flags: RepoCommitTraverseFlags
     ) -> bool: ...
     def next(
-        self, cancellable: Optional[Gio.Cancellable] = None
+        self, cancellable: typing.Optional[Gio.Cancellable] = None
     ) -> RepoCommitIterResult: ...
 
 class RepoDevInoCache(GObject.GBoxed):
@@ -1360,7 +1422,6 @@ class RepoDevInoCache(GObject.GBoxed):
 
         new() -> OSTree.RepoDevInoCache
     """
-
     @classmethod
     def new(cls) -> RepoDevInoCache: ...
     def ref(self) -> RepoDevInoCache: ...
@@ -1379,26 +1440,25 @@ class RepoFile(GObject.Object, Gio.File):
     Signals from GObject:
       notify (GParam)
     """
-
     def ensure_resolved(self) -> bool: ...
     def get_checksum(self) -> str: ...
     def get_repo(self) -> Repo: ...
     def get_root(self) -> RepoFile: ...
     def get_xattrs(
-        self, cancellable: Optional[Gio.Cancellable] = None
-    ) -> Tuple[bool, GLib.Variant]: ...
-    def tree_find_child(self, name: str) -> Tuple[int, bool, GLib.Variant]: ...
-    def tree_get_contents(self) -> Optional[GLib.Variant]: ...
-    def tree_get_contents_checksum(self) -> Optional[str]: ...
-    def tree_get_metadata(self) -> Optional[GLib.Variant]: ...
-    def tree_get_metadata_checksum(self) -> Optional[str]: ...
+        self, cancellable: typing.Optional[Gio.Cancellable] = None
+    ) -> typing.Tuple[bool, GLib.Variant]: ...
+    def tree_find_child(self, name: str) -> typing.Tuple[int, bool, GLib.Variant]: ...
+    def tree_get_contents(self) -> typing.Optional[GLib.Variant]: ...
+    def tree_get_contents_checksum(self) -> typing.Optional[str]: ...
+    def tree_get_metadata(self) -> typing.Optional[GLib.Variant]: ...
+    def tree_get_metadata_checksum(self) -> typing.Optional[str]: ...
     def tree_query_child(
         self,
         n: int,
         attributes: str,
         flags: Gio.FileQueryInfoFlags,
-        cancellable: Optional[Gio.Cancellable] = None,
-    ) -> Tuple[bool, Gio.FileInfo]: ...
+        cancellable: typing.Optional[Gio.Cancellable] = None,
+    ) -> typing.Tuple[bool, Gio.FileInfo]: ...
     def tree_set_metadata(self, checksum: str, metadata: GLib.Variant) -> None: ...
 
 class RepoFileClass(GObject.GPointer):
@@ -1419,25 +1479,24 @@ class RepoFinder(GObject.GInterface):
     Signals from GObject:
       notify (GParam)
     """
-
     @staticmethod
     def resolve_all_async(
-        finders: Sequence[RepoFinder],
-        refs: Sequence[CollectionRef],
+        finders: typing.Sequence[RepoFinder],
+        refs: typing.Sequence[CollectionRef],
         parent_repo: Repo,
-        cancellable: Optional[Gio.Cancellable] = None,
-        callback: Optional[Callable[..., None]] = None,
-        *user_data: Any,
+        cancellable: typing.Optional[Gio.Cancellable] = None,
+        callback: typing.Optional[typing.Callable[..., None]] = None,
+        *user_data: typing.Any,
     ) -> None: ...
     @staticmethod
     def resolve_all_finish(result: Gio.AsyncResult) -> list[RepoFinderResult]: ...
     def resolve_async(
         self,
-        refs: Sequence[CollectionRef],
+        refs: typing.Sequence[CollectionRef],
         parent_repo: Repo,
-        cancellable: Optional[Gio.Cancellable] = None,
-        callback: Optional[Callable[..., None]] = None,
-        *user_data: Any,
+        cancellable: typing.Optional[Gio.Cancellable] = None,
+        callback: typing.Optional[typing.Callable[..., None]] = None,
+        *user_data: typing.Any,
     ) -> None: ...
     def resolve_finish(self, result: Gio.AsyncResult) -> list[RepoFinderResult]: ...
 
@@ -1455,9 +1514,10 @@ class RepoFinderAvahi(GObject.Object, RepoFinder):
     Signals from GObject:
       notify (GParam)
     """
-
     @classmethod
-    def new(cls, context: Optional[GLib.MainContext] = None) -> RepoFinderAvahi: ...
+    def new(
+        cls, context: typing.Optional[GLib.MainContext] = None
+    ) -> RepoFinderAvahi: ...
     def start(self) -> None: ...
     def stop(self) -> None: ...
 
@@ -1486,7 +1546,6 @@ class RepoFinderConfig(GObject.Object, RepoFinder):
     Signals from GObject:
       notify (GParam)
     """
-
     @classmethod
     def new(cls) -> RepoFinderConfig: ...
 
@@ -1511,8 +1570,8 @@ class RepoFinderInterface(GObject.GPointer):
     """
 
     g_iface: GObject.TypeInterface = ...
-    resolve_async: Callable[..., None] = ...
-    resolve_finish: Callable[
+    resolve_async: typing.Callable[..., None] = ...
+    resolve_finish: typing.Callable[
         [RepoFinder, Gio.AsyncResult], list[RepoFinderResult]
     ] = ...
 
@@ -1534,14 +1593,15 @@ class RepoFinderMount(GObject.Object, RepoFinder):
     Signals from GObject:
       notify (GParam)
     """
-
-    class Props:
+    class Props(GObject.Object.Props):
         monitor: Gio.VolumeMonitor
 
     props: Props = ...
-    def __init__(self, monitor: Gio.VolumeMonitor = ...): ...
+    def __init__(self, monitor: Gio.VolumeMonitor = ...) -> None: ...
     @classmethod
-    def new(cls, monitor: Optional[Gio.VolumeMonitor] = None) -> RepoFinderMount: ...
+    def new(
+        cls, monitor: typing.Optional[Gio.VolumeMonitor] = None
+    ) -> RepoFinderMount: ...
 
 class RepoFinderMountClass(GObject.GPointer):
     """
@@ -1568,7 +1628,6 @@ class RepoFinderOverride(GObject.Object, RepoFinder):
     Signals from GObject:
       notify (GParam)
     """
-
     def add_uri(self, uri: str) -> None: ...
     @classmethod
     def new(cls) -> RepoFinderOverride: ...
@@ -1605,7 +1664,7 @@ class RepoFinderResult(GObject.GBoxed):
     def dup(self) -> RepoFinderResult: ...
     def free(self) -> None: ...
     @staticmethod
-    def freev(results: Sequence[RepoFinderResult]) -> None: ...
+    def freev(results: typing.Sequence[RepoFinderResult]) -> None: ...
     @classmethod
     def new(
         cls,
@@ -1613,7 +1672,7 @@ class RepoFinderResult(GObject.GBoxed):
         finder: RepoFinder,
         priority: int,
         ref_to_checksum: dict[CollectionRef, str],
-        ref_to_timestamp: Optional[dict[CollectionRef, int]],
+        ref_to_timestamp: typing.Optional[dict[CollectionRef, int]],
         summary_last_modified: int,
     ) -> RepoFinderResult: ...
 
@@ -1674,44 +1733,45 @@ class SePolicy(GObject.Object, Gio.Initable):
     Signals from GObject:
       notify (GParam)
     """
-
-    class Props:
-        path: Optional[Gio.File]
+    class Props(GObject.Object.Props):
+        path: typing.Optional[Gio.File]
         rootfs_dfd: int
 
     props: Props = ...
-    def __init__(self, path: Gio.File = ..., rootfs_dfd: int = ...): ...
+    def __init__(self, path: Gio.File = ..., rootfs_dfd: int = ...) -> None: ...
     @staticmethod
     def fscreatecon_cleanup(unused: None) -> None: ...
-    def get_csum(self) -> Optional[str]: ...
+    def get_csum(self) -> typing.Optional[str]: ...
     def get_label(
         self,
         relpath: str,
         unix_mode: int,
-        cancellable: Optional[Gio.Cancellable] = None,
-    ) -> Tuple[bool, str]: ...
-    def get_name(self) -> str: ...
-    def get_path(self) -> Optional[Gio.File]: ...
+        cancellable: typing.Optional[Gio.Cancellable] = None,
+    ) -> typing.Tuple[bool, str]: ...
+    def get_name(self) -> typing.Optional[str]: ...
+    def get_path(self) -> typing.Optional[Gio.File]: ...
     @classmethod
     def new(
-        cls, path: Gio.File, cancellable: Optional[Gio.Cancellable] = None
+        cls, path: Gio.File, cancellable: typing.Optional[Gio.Cancellable] = None
     ) -> SePolicy: ...
     @classmethod
     def new_at(
-        cls, rootfs_dfd: int, cancellable: Optional[Gio.Cancellable] = None
+        cls, rootfs_dfd: int, cancellable: typing.Optional[Gio.Cancellable] = None
     ) -> SePolicy: ...
     @classmethod
     def new_from_commit(
-        cls, repo: Repo, rev: str, cancellable: Optional[Gio.Cancellable] = None
+        cls, repo: Repo, rev: str, cancellable: typing.Optional[Gio.Cancellable] = None
     ) -> SePolicy: ...
     def restorecon(
         self,
         path: str,
-        info: Optional[Gio.FileInfo],
+        info: typing.Optional[Gio.FileInfo],
         target: Gio.File,
         flags: SePolicyRestoreconFlags,
-        cancellable: Optional[Gio.Cancellable] = None,
-    ) -> Tuple[bool, str]: ...
+        cancellable: typing.Optional[Gio.Cancellable] = None,
+    ) -> typing.Tuple[bool, str]: ...
+    @staticmethod
+    def set_null_log() -> None: ...
     def setfscreatecon(self, path: str, mode: int) -> bool: ...
 
 class Sign(GObject.GInterface):
@@ -1721,34 +1781,33 @@ class Sign(GObject.GInterface):
     Signals from GObject:
       notify (GParam)
     """
-
     def add_pk(self, public_key: GLib.Variant) -> bool: ...
     def clear_keys(self) -> bool: ...
     def commit(
         self,
         repo: Repo,
         commit_checksum: str,
-        cancellable: Optional[Gio.Cancellable] = None,
+        cancellable: typing.Optional[Gio.Cancellable] = None,
     ) -> bool: ...
     def commit_verify(
         self,
         repo: Repo,
         commit_checksum: str,
-        cancellable: Optional[Gio.Cancellable] = None,
-    ) -> Tuple[bool, str]: ...
+        cancellable: typing.Optional[Gio.Cancellable] = None,
+    ) -> typing.Tuple[bool, str]: ...
     def data(
-        self, data: GLib.Bytes, cancellable: Optional[Gio.Cancellable] = None
-    ) -> Tuple[bool, GLib.Bytes]: ...
+        self, data: GLib.Bytes, cancellable: typing.Optional[Gio.Cancellable] = None
+    ) -> typing.Tuple[bool, GLib.Bytes]: ...
     def data_verify(
         self, data: GLib.Bytes, signatures: GLib.Variant
-    ) -> Tuple[bool, str]: ...
+    ) -> typing.Tuple[bool, str]: ...
     def ed25519_add_pk(self, public_key: GLib.Variant) -> bool: ...
     def ed25519_clear_keys(self) -> bool: ...
     def ed25519_data(
         self,
         data: GLib.Bytes,
         signature: GLib.Bytes,
-        cancellable: Optional[Gio.Cancellable] = None,
+        cancellable: typing.Optional[Gio.Cancellable] = None,
     ) -> bool: ...
     def ed25519_data_verify(
         self, data: GLib.Bytes, signatures: GLib.Variant, out_success_message: str
@@ -1767,13 +1826,15 @@ class Sign(GObject.GInterface):
     def load_pk(self, options: GLib.Variant) -> bool: ...
     def metadata_format(self) -> str: ...
     def metadata_key(self) -> str: ...
+    def read_pk(self, stream: Gio.InputStream) -> BlobReader: ...
+    def read_sk(self, stream: Gio.InputStream) -> BlobReader: ...
     def set_pk(self, public_key: GLib.Variant) -> bool: ...
     def set_sk(self, secret_key: GLib.Variant) -> bool: ...
     def summary(
         self,
         repo: Repo,
         keys: GLib.Variant,
-        cancellable: Optional[Gio.Cancellable] = None,
+        cancellable: typing.Optional[Gio.Cancellable] = None,
     ) -> bool: ...
 
 class SignEd25519(GObject.GPointer): ...
@@ -1799,18 +1860,21 @@ class SignInterface(GObject.GPointer):
     """
 
     g_iface: GObject.TypeInterface = ...
-    get_name: Callable[[Sign], str] = ...
-    data: Callable[
-        [Sign, GLib.Bytes, Optional[Gio.Cancellable]], Tuple[bool, GLib.Bytes]
+    get_name: typing.Callable[[Sign], str] = ...
+    data: typing.Callable[
+        [Sign, GLib.Bytes, typing.Optional[Gio.Cancellable]],
+        typing.Tuple[bool, GLib.Bytes],
     ] = ...
-    data_verify: Callable[[Sign, GLib.Bytes, GLib.Variant], Tuple[bool, str]] = ...
-    metadata_key: Callable[[Sign], str] = ...
-    metadata_format: Callable[[Sign], str] = ...
-    clear_keys: Callable[[Sign], bool] = ...
-    set_sk: Callable[[Sign, GLib.Variant], bool] = ...
-    set_pk: Callable[[Sign, GLib.Variant], bool] = ...
-    add_pk: Callable[[Sign, GLib.Variant], bool] = ...
-    load_pk: Callable[[Sign, GLib.Variant], bool] = ...
+    data_verify: typing.Callable[
+        [Sign, GLib.Bytes, GLib.Variant], typing.Tuple[bool, str]
+    ] = ...
+    metadata_key: typing.Callable[[Sign], str] = ...
+    metadata_format: typing.Callable[[Sign], str] = ...
+    clear_keys: typing.Callable[[Sign], bool] = ...
+    set_sk: typing.Callable[[Sign, GLib.Variant], bool] = ...
+    set_pk: typing.Callable[[Sign, GLib.Variant], bool] = ...
+    add_pk: typing.Callable[[Sign, GLib.Variant], bool] = ...
+    load_pk: typing.Callable[[Sign, GLib.Variant], bool] = ...
 
 class Sysroot(GObject.Object):
     """
@@ -1834,65 +1898,82 @@ class Sysroot(GObject.Object):
     Signals from GObject:
       notify (GParam)
     """
-
-    class Props:
+    class Props(GObject.Object.Props):
         path: Gio.File
 
     props: Props = ...
-    def __init__(self, path: Gio.File = ...): ...
-    def cleanup(self, cancellable: Optional[Gio.Cancellable] = None) -> bool: ...
+    def __init__(self, path: Gio.File = ...) -> None: ...
+    def change_finalization(self, deployment: Deployment) -> bool: ...
+    def cleanup(self, cancellable: typing.Optional[Gio.Cancellable] = None) -> bool: ...
     def cleanup_prune_repo(
-        self, options: RepoPruneOptions, cancellable: Optional[Gio.Cancellable] = None
-    ) -> Tuple[bool, int, int, int]: ...
+        self,
+        options: RepoPruneOptions,
+        cancellable: typing.Optional[Gio.Cancellable] = None,
+    ) -> typing.Tuple[bool, int, int, int]: ...
+    def clear_soft_reboot(
+        self, cancellable: typing.Optional[Gio.Cancellable] = None
+    ) -> bool: ...
     def deploy_tree(
         self,
-        osname: Optional[str],
+        osname: typing.Optional[str],
         revision: str,
-        origin: Optional[GLib.KeyFile] = None,
-        provided_merge_deployment: Optional[Deployment] = None,
-        override_kernel_argv: Optional[Sequence[str]] = None,
-        cancellable: Optional[Gio.Cancellable] = None,
-    ) -> Tuple[bool, Deployment]: ...
+        origin: typing.Optional[GLib.KeyFile] = None,
+        provided_merge_deployment: typing.Optional[Deployment] = None,
+        override_kernel_argv: typing.Optional[typing.Sequence[str]] = None,
+        cancellable: typing.Optional[Gio.Cancellable] = None,
+    ) -> typing.Tuple[bool, Deployment]: ...
     def deploy_tree_with_options(
         self,
-        osname: Optional[str],
+        osname: typing.Optional[str],
         revision: str,
-        origin: Optional[GLib.KeyFile] = None,
-        provided_merge_deployment: Optional[Deployment] = None,
-        opts: Optional[SysrootDeployTreeOpts] = None,
-        cancellable: Optional[Gio.Cancellable] = None,
-    ) -> Tuple[bool, Deployment]: ...
+        origin: typing.Optional[GLib.KeyFile] = None,
+        provided_merge_deployment: typing.Optional[Deployment] = None,
+        opts: typing.Optional[SysrootDeployTreeOpts] = None,
+        cancellable: typing.Optional[Gio.Cancellable] = None,
+    ) -> typing.Tuple[bool, Deployment]: ...
+    def deployment_can_soft_reboot(self, deployment: Deployment) -> bool: ...
+    def deployment_kexec_load(
+        self,
+        deployment: Deployment,
+        cancellable: typing.Optional[Gio.Cancellable] = None,
+    ) -> bool: ...
     def deployment_set_kargs(
         self,
         deployment: Deployment,
-        new_kargs: Sequence[str],
-        cancellable: Optional[Gio.Cancellable] = None,
+        new_kargs: typing.Sequence[str],
+        cancellable: typing.Optional[Gio.Cancellable] = None,
     ) -> bool: ...
     def deployment_set_kargs_in_place(
         self,
         deployment: Deployment,
-        kargs_str: Optional[str] = None,
-        cancellable: Optional[Gio.Cancellable] = None,
+        kargs_str: typing.Optional[str] = None,
+        cancellable: typing.Optional[Gio.Cancellable] = None,
     ) -> bool: ...
     def deployment_set_mutable(
         self,
         deployment: Deployment,
         is_mutable: bool,
-        cancellable: Optional[Gio.Cancellable] = None,
+        cancellable: typing.Optional[Gio.Cancellable] = None,
     ) -> bool: ...
     def deployment_set_pinned(
         self, deployment: Deployment, is_pinned: bool
+    ) -> bool: ...
+    def deployment_set_soft_reboot(
+        self,
+        deployment: Deployment,
+        allow_kernel_skew: bool,
+        cancellable: typing.Optional[Gio.Cancellable] = None,
     ) -> bool: ...
     def deployment_unlock(
         self,
         deployment: Deployment,
         unlocked_state: DeploymentUnlockedState,
-        cancellable: Optional[Gio.Cancellable] = None,
+        cancellable: typing.Optional[Gio.Cancellable] = None,
     ) -> bool: ...
     def ensure_initialized(
-        self, cancellable: Optional[Gio.Cancellable] = None
+        self, cancellable: typing.Optional[Gio.Cancellable] = None
     ) -> bool: ...
-    def get_booted_deployment(self) -> Optional[Deployment]: ...
+    def get_booted_deployment(self) -> typing.Optional[Deployment]: ...
     def get_bootversion(self) -> int: ...
     def get_deployment_directory(self, deployment: Deployment) -> Gio.File: ...
     def get_deployment_dirpath(self, deployment: Deployment) -> str: ...
@@ -1901,96 +1982,99 @@ class Sysroot(GObject.Object):
     def get_deployments(self) -> list[Deployment]: ...
     def get_fd(self) -> int: ...
     def get_merge_deployment(
-        self, osname: Optional[str] = None
-    ) -> Optional[Deployment]: ...
+        self, osname: typing.Optional[str] = None
+    ) -> typing.Optional[Deployment]: ...
     def get_path(self) -> Gio.File: ...
     def get_repo(
-        self, cancellable: Optional[Gio.Cancellable] = None
-    ) -> Tuple[bool, Repo]: ...
-    def get_staged_deployment(self) -> Optional[Deployment]: ...
+        self, cancellable: typing.Optional[Gio.Cancellable] = None
+    ) -> typing.Tuple[bool, Repo]: ...
+    def get_staged_deployment(self) -> typing.Optional[Deployment]: ...
     def get_subbootversion(self) -> int: ...
     def init_osname(
-        self, osname: str, cancellable: Optional[Gio.Cancellable] = None
+        self, osname: str, cancellable: typing.Optional[Gio.Cancellable] = None
     ) -> bool: ...
     def initialize(self) -> bool: ...
     def initialize_with_mount_namespace(
-        self, cancellable: Optional[Gio.Cancellable] = None
+        self, cancellable: typing.Optional[Gio.Cancellable] = None
     ) -> bool: ...
     def is_booted(self) -> bool: ...
-    def load(self, cancellable: Optional[Gio.Cancellable] = None) -> bool: ...
+    def load(self, cancellable: typing.Optional[Gio.Cancellable] = None) -> bool: ...
     def load_if_changed(
-        self, cancellable: Optional[Gio.Cancellable] = None
-    ) -> Tuple[bool, bool]: ...
+        self, cancellable: typing.Optional[Gio.Cancellable] = None
+    ) -> typing.Tuple[bool, bool]: ...
     def lock(self) -> bool: ...
     def lock_async(
         self,
-        cancellable: Optional[Gio.Cancellable] = None,
-        callback: Optional[Callable[..., None]] = None,
-        *user_data: Any,
+        cancellable: typing.Optional[Gio.Cancellable] = None,
+        callback: typing.Optional[typing.Callable[..., None]] = None,
+        *user_data: typing.Any,
     ) -> None: ...
     def lock_finish(self, result: Gio.AsyncResult) -> bool: ...
     @classmethod
-    def new(cls, path: Optional[Gio.File] = None) -> Sysroot: ...
+    def new(cls, path: typing.Optional[Gio.File] = None) -> Sysroot: ...
     @classmethod
     def new_default(cls) -> Sysroot: ...
     def origin_new_from_refspec(self, refspec: str) -> GLib.KeyFile: ...
     def prepare_cleanup(
-        self, cancellable: Optional[Gio.Cancellable] = None
+        self, cancellable: typing.Optional[Gio.Cancellable] = None
     ) -> bool: ...
     def query_deployments_for(
-        self, osname: Optional[str] = None
-    ) -> Tuple[Deployment, Deployment]: ...
+        self, osname: typing.Optional[str] = None
+    ) -> typing.Tuple[Deployment, Deployment]: ...
     def repo(self) -> Repo: ...
     def require_booted_deployment(self) -> Deployment: ...
     def set_mount_namespace_in_use(self) -> None: ...
     def simple_write_deployment(
         self,
-        osname: Optional[str],
+        osname: typing.Optional[str],
         new_deployment: Deployment,
-        merge_deployment: Optional[Deployment],
+        merge_deployment: typing.Optional[Deployment],
         flags: SysrootSimpleWriteDeploymentFlags,
-        cancellable: Optional[Gio.Cancellable] = None,
+        cancellable: typing.Optional[Gio.Cancellable] = None,
     ) -> bool: ...
     def stage_overlay_initrd(
-        self, fd: int, cancellable: Optional[Gio.Cancellable] = None
-    ) -> Tuple[bool, str]: ...
+        self, fd: int, cancellable: typing.Optional[Gio.Cancellable] = None
+    ) -> typing.Tuple[bool, str]: ...
     def stage_tree(
         self,
-        osname: Optional[str],
+        osname: typing.Optional[str],
         revision: str,
-        origin: Optional[GLib.KeyFile] = None,
-        merge_deployment: Optional[Deployment] = None,
-        override_kernel_argv: Optional[Sequence[str]] = None,
-        cancellable: Optional[Gio.Cancellable] = None,
-    ) -> Tuple[bool, Deployment]: ...
+        origin: typing.Optional[GLib.KeyFile] = None,
+        merge_deployment: typing.Optional[Deployment] = None,
+        override_kernel_argv: typing.Optional[typing.Sequence[str]] = None,
+        cancellable: typing.Optional[Gio.Cancellable] = None,
+    ) -> typing.Tuple[bool, Deployment]: ...
     def stage_tree_with_options(
         self,
-        osname: Optional[str],
+        osname: typing.Optional[str],
         revision: str,
-        origin: Optional[GLib.KeyFile],
-        merge_deployment: Optional[Deployment],
+        origin: typing.Optional[GLib.KeyFile],
+        merge_deployment: typing.Optional[Deployment],
         opts: SysrootDeployTreeOpts,
-        cancellable: Optional[Gio.Cancellable] = None,
-    ) -> Tuple[bool, Deployment]: ...
-    def try_lock(self) -> Tuple[bool, bool]: ...
+        cancellable: typing.Optional[Gio.Cancellable] = None,
+    ) -> typing.Tuple[bool, Deployment]: ...
+    def try_lock(self) -> typing.Tuple[bool, bool]: ...
     def unload(self) -> None: ...
     def unlock(self) -> None: ...
+    def update_post_copy(
+        self, cancellable: typing.Optional[Gio.Cancellable] = None
+    ) -> bool: ...
     def write_deployments(
         self,
-        new_deployments: Sequence[Deployment],
-        cancellable: Optional[Gio.Cancellable] = None,
+        new_deployments: typing.Sequence[Deployment],
+        cancellable: typing.Optional[Gio.Cancellable] = None,
     ) -> bool: ...
     def write_deployments_with_options(
         self,
-        new_deployments: Sequence[Deployment],
+        new_deployments: typing.Sequence[Deployment],
         opts: SysrootWriteDeploymentsOpts,
-        cancellable: Optional[Gio.Cancellable] = None,
+        cancellable: typing.Optional[Gio.Cancellable] = None,
     ) -> bool: ...
     def write_origin_file(
         self,
         deployment: Deployment,
-        new_origin: Optional[GLib.KeyFile] = None,
-        cancellable: Optional[Gio.Cancellable] = None,
+        new_origin: typing.Optional[GLib.KeyFile] = None,
+        cancellable: typing.Optional[Gio.Cancellable] = None,
     ) -> bool: ...
 
 class SysrootDeployTreeOpts(GObject.GPointer):
@@ -2002,6 +2086,7 @@ class SysrootDeployTreeOpts(GObject.GPointer):
         SysrootDeployTreeOpts()
     """
 
+    locked: bool = ...
     unused_bools: list[bool] = ...
     unused_ints: list[int] = ...
     override_kernel_argv: str = ...
@@ -2032,8 +2117,7 @@ class SysrootUpgrader(GObject.Object, Gio.Initable):
     Signals from GObject:
       notify (GParam)
     """
-
-    class Props:
+    class Props(GObject.Object.Props):
         flags: SysrootUpgraderFlags
         osname: str
         sysroot: Sysroot
@@ -2044,51 +2128,51 @@ class SysrootUpgrader(GObject.Object, Gio.Initable):
         flags: SysrootUpgraderFlags = ...,
         osname: str = ...,
         sysroot: Sysroot = ...,
-    ): ...
+    ) -> None: ...
     @staticmethod
     def check_timestamps(repo: Repo, from_rev: str, to_rev: str) -> bool: ...
-    def deploy(self, cancellable: Optional[Gio.Cancellable] = None) -> bool: ...
-    def dup_origin(self) -> Optional[GLib.KeyFile]: ...
-    def get_origin(self) -> Optional[GLib.KeyFile]: ...
-    def get_origin_description(self) -> Optional[str]: ...
+    def deploy(self, cancellable: typing.Optional[Gio.Cancellable] = None) -> bool: ...
+    def dup_origin(self) -> typing.Optional[GLib.KeyFile]: ...
+    def get_origin(self) -> typing.Optional[GLib.KeyFile]: ...
+    def get_origin_description(self) -> typing.Optional[str]: ...
     @classmethod
     def new(
-        cls, sysroot: Sysroot, cancellable: Optional[Gio.Cancellable] = None
+        cls, sysroot: Sysroot, cancellable: typing.Optional[Gio.Cancellable] = None
     ) -> SysrootUpgrader: ...
     @classmethod
     def new_for_os(
         cls,
         sysroot: Sysroot,
-        osname: Optional[str] = None,
-        cancellable: Optional[Gio.Cancellable] = None,
+        osname: typing.Optional[str] = None,
+        cancellable: typing.Optional[Gio.Cancellable] = None,
     ) -> SysrootUpgrader: ...
     @classmethod
     def new_for_os_with_flags(
         cls,
         sysroot: Sysroot,
-        osname: Optional[str],
+        osname: typing.Optional[str],
         flags: SysrootUpgraderFlags,
-        cancellable: Optional[Gio.Cancellable] = None,
+        cancellable: typing.Optional[Gio.Cancellable] = None,
     ) -> SysrootUpgrader: ...
     def pull(
         self,
         flags: RepoPullFlags,
         upgrader_flags: SysrootUpgraderPullFlags,
-        progress: Optional[AsyncProgress] = None,
-        cancellable: Optional[Gio.Cancellable] = None,
-    ) -> Tuple[bool, bool]: ...
+        progress: typing.Optional[AsyncProgress] = None,
+        cancellable: typing.Optional[Gio.Cancellable] = None,
+    ) -> typing.Tuple[bool, bool]: ...
     def pull_one_dir(
         self,
         dir_to_pull: str,
         flags: RepoPullFlags,
         upgrader_flags: SysrootUpgraderPullFlags,
-        progress: Optional[AsyncProgress] = None,
-        cancellable: Optional[Gio.Cancellable] = None,
-    ) -> Tuple[bool, bool]: ...
+        progress: typing.Optional[AsyncProgress] = None,
+        cancellable: typing.Optional[Gio.Cancellable] = None,
+    ) -> typing.Tuple[bool, bool]: ...
     def set_origin(
         self,
-        origin: Optional[GLib.KeyFile] = None,
-        cancellable: Optional[Gio.Cancellable] = None,
+        origin: typing.Optional[GLib.KeyFile] = None,
+        cancellable: typing.Optional[Gio.Cancellable] = None,
     ) -> bool: ...
 
 class SysrootWriteDeploymentsOpts(GObject.GPointer):
@@ -2125,6 +2209,7 @@ class RepoCommitModifierFlags(GObject.GFlags):
     ERROR_ON_UNLABELED = 8
     GENERATE_SIZES = 2
     NONE = 0
+    SELINUX_LABEL_V1 = 64
     SKIP_XATTRS = 1
 
 class RepoCommitState(GObject.GFlags):
@@ -2186,6 +2271,7 @@ class SysrootSimpleWriteDeploymentFlags(GObject.GFlags):
 
 class SysrootUpgraderFlags(GObject.GFlags):
     IGNORE_UNCONFIGURED = 2
+    KEXEC = 8
     STAGE = 4
 
 class SysrootUpgraderPullFlags(GObject.GFlags):

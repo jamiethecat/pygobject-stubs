@@ -4312,8 +4312,7 @@ class ScrollEvent(Event):
     """
     def get_deltas(self) -> typing.Tuple[float, float]: ...
     def get_direction(self) -> ScrollDirection: ...
-    @staticmethod
-    def get_relative_direction(event: Event) -> ScrollRelativeDirection: ...
+    def get_relative_direction(self) -> ScrollRelativeDirection: ...
     def get_unit(self) -> ScrollUnit: ...
     def is_stop(self) -> bool: ...
 
@@ -4733,6 +4732,8 @@ class ModifierType(GObject.GFlags):
 class PaintableFlags(GObject.GFlags):
     CONTENTS = 2
     SIZE = 1
+    STATIC_CONTENTS = 2
+    STATIC_SIZE = 1
 
 class SeatCapabilities(GObject.GFlags):
     ALL = 31
@@ -4791,6 +4792,12 @@ class AxisUse(GObject.GEnum):
 class CicpRange(GObject.GEnum):
     FULL = 1
     NARROW = 0
+
+class ColorChannel(GObject.GEnum):
+    ALPHA = 3
+    BLUE = 2
+    GREEN = 1
+    RED = 0
 
 class CrossingMode(GObject.GEnum):
     DEVICE_SWITCH = 8

@@ -8,10 +8,6 @@ from typing_extensions import Self
 
 T = typing.TypeVar("T")
 
-_lock = ...  # FIXME Constant
-_namespace: str = "GdkX11"
-_version: str = "4.0"
-
 def x11_device_get_id(device: X11DeviceXI2) -> int: ...
 def x11_device_manager_lookup(
     device_manager: X11DeviceManagerXI2, device_id: int

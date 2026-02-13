@@ -26,6 +26,7 @@ CellRendererT = typing.TypeVar(
     CellRendererToggle,
 )
 WidgetT = typing.TypeVar("WidgetT", bound=Widget)
+
 _SomeSurface = typing.TypeVar("_SomeSurface", bound=cairo.Surface)
 
 ACCESSIBLE_ATTRIBUTE_BACKGROUND: str = "bg-color"
@@ -64,10 +65,10 @@ ACCESSIBLE_ATTRIBUTE_VARIANT_TITLE_CAPS: str = "title-caps"
 ACCESSIBLE_ATTRIBUTE_VARIANT_UNICASE: str = "unicase"
 ACCESSIBLE_ATTRIBUTE_WEIGHT: str = "weight"
 ACCESSIBLE_VALUE_UNDEFINED: int = -1
-BINARY_AGE: int = 2003
+BINARY_AGE: int = 2106
 IM_MODULE_EXTENSION_POINT_NAME: str = "gtk-im-module"
 INPUT_ERROR: int = -1
-INTERFACE_AGE: int = 3
+INTERFACE_AGE: int = 0
 INVALID_LIST_POSITION: int = 4294967295
 LEVEL_BAR_OFFSET_FULL: str = "full"
 LEVEL_BAR_OFFSET_HIGH: str = "high"
@@ -75,8 +76,8 @@ LEVEL_BAR_OFFSET_LOW: str = "low"
 MAJOR_VERSION: int = 4
 MAX_COMPOSE_LEN: int = 7
 MEDIA_FILE_EXTENSION_POINT_NAME: str = "gtk-media-file"
-MICRO_VERSION: int = 3
-MINOR_VERSION: int = 20
+MICRO_VERSION: int = 6
+MINOR_VERSION: int = 21
 PAPER_NAME_A3: str = "iso_a3"
 PAPER_NAME_A4: str = "iso_a4"
 PAPER_NAME_A5: str = "iso_a5"
@@ -122,10 +123,14 @@ STYLE_PROVIDER_PRIORITY_FALLBACK: int = 1
 STYLE_PROVIDER_PRIORITY_SETTINGS: int = 400
 STYLE_PROVIDER_PRIORITY_THEME: int = 200
 STYLE_PROVIDER_PRIORITY_USER: int = 800
+SVG_ALL_FEATURES: int = 15
 TEXT_VIEW_PRIORITY_VALIDATE: int = 125
 TREE_SORTABLE_DEFAULT_SORT_COLUMN_ID: int = -1
 TREE_SORTABLE_UNSORTED_SORT_COLUMN_ID: int = -2
 
+def accelerator_get_accessible_label(
+    accelerator_key: int, accelerator_mods: Gdk.ModifierType
+) -> str: ...
 def accelerator_get_default_mod_mask() -> Gdk.ModifierType: ...
 def accelerator_get_label(
     accelerator_key: int, accelerator_mods: Gdk.ModifierType
@@ -172,6 +177,7 @@ def constraint_vfl_parser_error_quark() -> int: ...
 def css_parser_error_quark() -> int: ...
 def css_parser_warning_quark() -> int: ...
 def dialog_error_quark() -> int: ...
+def disable_portal_interfaces(portal_interfaces: typing.Sequence[str]) -> None: ...
 def disable_portals() -> None: ...
 def disable_setlocale() -> None: ...
 def distribute_natural_allocation(
@@ -329,6 +335,11 @@ def show_uri_full(
     *user_data: typing.Any,
 ) -> None: ...
 def show_uri_full_finish(parent: Window, result: Gio.AsyncResult) -> bool: ...
+def svg_error_get_attribute(error: GLib.Error) -> typing.Optional[str]: ...
+def svg_error_get_element(error: GLib.Error) -> typing.Optional[str]: ...
+def svg_error_get_end(error: GLib.Error) -> typing.Optional[SvgLocation]: ...
+def svg_error_get_start(error: GLib.Error) -> typing.Optional[SvgLocation]: ...
+def svg_error_quark() -> int: ...
 def test_accessible_assertion_message_role(
     domain: str,
     file: str,
@@ -744,6 +755,7 @@ class Accessible(GObject.GInterface):
     def announce(
         self, message: str, priority: AccessibleAnnouncementPriority
     ) -> None: ...
+    def get_accessible_id(self) -> typing.Optional[str]: ...
     def get_accessible_parent(self) -> typing.Optional[Accessible]: ...
     def get_accessible_role(self) -> AccessibleRole: ...
     def get_at_context(self) -> ATContext: ...
@@ -779,6 +791,64 @@ class Accessible(GObject.GInterface):
         values: typing.Sequence[typing.Any],
     ) -> None: ...
 
+class AccessibleHyperlink(GObject.Object, Accessible):
+    """
+    :Constructors:
+
+    ::
+
+        AccessibleHyperlink(**properties)
+        new(parent:Gtk.AccessibleHypertext, index:int, uri:str, bounds:Gtk.AccessibleTextRange) -> Gtk.AccessibleHyperlink
+
+    Object GtkAccessibleHyperlink
+
+    Signals from GObject:
+      notify (GParam)
+    """
+    class Props(GObject.Object.Props):
+        accessible_role: AccessibleRole
+
+    props: Props = ...
+    def __init__(self, accessible_role: AccessibleRole = ...) -> None: ...
+    @classmethod
+    def new(
+        cls,
+        parent: AccessibleHypertext,
+        index: int,
+        uri: str,
+        bounds: AccessibleTextRange,
+    ) -> AccessibleHyperlink: ...
+    def set_platform_state(
+        self, state: AccessiblePlatformState, enabled: bool
+    ) -> None: ...
+
+class AccessibleHyperlinkClass(GObject.GPointer):
+    """
+    :Constructors:
+
+    ::
+
+        AccessibleHyperlinkClass()
+    """
+
+    parent_class: GObject.ObjectClass = ...
+
+class AccessibleHypertext(GObject.GInterface): ...
+
+class AccessibleHypertextInterface(GObject.GPointer):
+    """
+    :Constructors:
+
+    ::
+
+        AccessibleHypertextInterface()
+    """
+
+    g_iface: GObject.TypeInterface = ...
+    get_n_links: typing.Callable[[AccessibleHypertext], int] = ...
+    get_link: typing.Callable[[AccessibleHypertext, int], AccessibleHyperlink] = ...
+    get_link_at: typing.Callable[[AccessibleHypertext, int], int] = ...
+
 class AccessibleInterface(GObject.GPointer):
     """
     :Constructors:
@@ -805,6 +875,7 @@ class AccessibleInterface(GObject.GPointer):
     get_bounds: typing.Callable[
         [Accessible], typing.Tuple[bool, int, int, int, int]
     ] = ...
+    get_accessible_id: typing.Callable[[Accessible], typing.Optional[str]] = ...
 
 class AccessibleList(GObject.GBoxed):
     """
@@ -879,6 +950,10 @@ class AccessibleTextInterface(GObject.GPointer):
     get_extents: typing.Callable[[AccessibleText, int, int, Graphene.Rect], bool] = ...
     get_offset: typing.Callable[
         [AccessibleText, Graphene.Point], typing.Tuple[bool, int]
+    ] = ...
+    set_caret_position: typing.Callable[[AccessibleText, int], bool] = ...
+    set_selection: typing.Callable[
+        [AccessibleText, int, AccessibleTextRange], bool
     ] = ...
 
 class AccessibleTextRange(GObject.GPointer):
@@ -3491,7 +3566,7 @@ class Builder(GObject.Object):
         def force_floating(
             self, *args, **kargs
         ): ...  # FIXME: Override is missing typing annotation
-        def freeze_notify(self):
+        def freeze_notify(self) -> typing.ContextManager[None]:
             """
             Freezes the object's property-changed notification queue.
 
@@ -3506,7 +3581,7 @@ class Builder(GObject.Object):
 
                 with obj.freeze_notify():
                     pass
-            """  # FIXME: Override is missing typing annotation
+            """
         def get_data(
             self, *args, **kargs
         ): ...  # FIXME: Override is missing typing annotation
@@ -8854,6 +8929,7 @@ class CssProvider(GObject.Object, StyleProvider):
     Properties from GtkCssProvider:
       prefers-color-scheme -> GtkInterfaceColorScheme: prefers-color-scheme
       prefers-contrast -> GtkInterfaceContrast: prefers-contrast
+      prefers-reduced-motion -> GtkReducedMotion: prefers-reduced-motion
 
     Signals from GtkStyleProvider:
       gtk-private-changed ()
@@ -8864,6 +8940,7 @@ class CssProvider(GObject.Object, StyleProvider):
     class Props(GObject.Object.Props):
         prefers_color_scheme: InterfaceColorScheme
         prefers_contrast: InterfaceContrast
+        prefers_reduced_motion: ReducedMotion
 
     props: Props = ...
     parent_instance: GObject.Object = ...
@@ -8871,6 +8948,7 @@ class CssProvider(GObject.Object, StyleProvider):
         self,
         prefers_color_scheme: InterfaceColorScheme = ...,
         prefers_contrast: InterfaceContrast = ...,
+        prefers_reduced_motion: ReducedMotion = ...,
     ) -> None: ...
     def load_from_bytes(self, data: GLib.Bytes) -> None: ...
     def load_from_data(
@@ -16302,6 +16380,7 @@ class IMContext(GObject.Object):
       commit (gchararray)
       retrieve-surrounding () -> gboolean
       delete-surrounding (gint, gint) -> gboolean
+      invalid-composition (gchararray) -> gboolean
 
     Properties from GtkIMContext:
       input-purpose -> GtkInputPurpose: input-purpose
@@ -16333,6 +16412,7 @@ class IMContext(GObject.Object):
     def do_get_surrounding_with_selection(
         self,
     ) -> typing.Tuple[bool, str, int, int]: ...
+    def do_invalid_composition(self, str: str) -> bool: ...
     def do_preedit_changed(self) -> None: ...
     def do_preedit_end(self) -> None: ...
     def do_preedit_start(self) -> None: ...
@@ -16408,6 +16488,7 @@ class IMContextClass(GObject.GPointer):
     ] = ...
     activate_osk: typing.Callable[[IMContext], None] = ...
     activate_osk_with_event: typing.Callable[[IMContext, Gdk.Event], bool] = ...
+    invalid_composition: typing.Callable[[IMContext, str], bool] = ...
 
 class IMContextSimple(IMContext):
     """
@@ -16427,6 +16508,7 @@ class IMContextSimple(IMContext):
       commit (gchararray)
       retrieve-surrounding () -> gboolean
       delete-surrounding (gint, gint) -> gboolean
+      invalid-composition (gchararray) -> gboolean
 
     Properties from GtkIMContext:
       input-purpose -> GtkInputPurpose: input-purpose
@@ -16480,6 +16562,7 @@ class IMMulticontext(IMContext):
       commit (gchararray)
       retrieve-surrounding () -> gboolean
       delete-surrounding (gint, gint) -> gboolean
+      invalid-composition (gchararray) -> gboolean
 
     Properties from GtkIMContext:
       input-purpose -> GtkInputPurpose: input-purpose
@@ -17591,7 +17674,9 @@ class KeyvalTrigger(ShortcutTrigger):
 
 class KeyvalTriggerClass(GObject.GPointer): ...
 
-class Label(Widget, Accessible, AccessibleText, Buildable, ConstraintTarget):
+class Label(
+    Widget, Accessible, AccessibleHypertext, AccessibleText, Buildable, ConstraintTarget
+):
     """
     :Constructors:
 
@@ -22398,6 +22483,7 @@ class Picture(Widget, Accessible, Buildable, ConstraintTarget):
       keep-aspect-ratio -> gboolean: keep-aspect-ratio
       can-shrink -> gboolean: can-shrink
       content-fit -> GtkContentFit: content-fit
+      isolate-contents -> gboolean: isolate-contents
 
     Signals from GtkWidget:
       direction-changed (GtkTextDirection)
@@ -22459,6 +22545,7 @@ class Picture(Widget, Accessible, Buildable, ConstraintTarget):
         can_shrink: bool
         content_fit: ContentFit
         file: typing.Optional[Gio.File]
+        isolate_contents: bool
         keep_aspect_ratio: bool
         paintable: typing.Optional[Gdk.Paintable]
         can_focus: bool
@@ -22505,6 +22592,7 @@ class Picture(Widget, Accessible, Buildable, ConstraintTarget):
         can_shrink: bool = ...,
         content_fit: ContentFit = ...,
         file: typing.Optional[Gio.File] = ...,
+        isolate_contents: bool = ...,
         keep_aspect_ratio: bool = ...,
         paintable: typing.Optional[Gdk.Paintable] = ...,
         can_focus: bool = ...,
@@ -22543,6 +22631,7 @@ class Picture(Widget, Accessible, Buildable, ConstraintTarget):
     def get_can_shrink(self) -> bool: ...
     def get_content_fit(self) -> ContentFit: ...
     def get_file(self) -> typing.Optional[Gio.File]: ...
+    def get_isolate_contents(self) -> bool: ...
     def get_keep_aspect_ratio(self) -> bool: ...
     def get_paintable(self) -> typing.Optional[Gdk.Paintable]: ...
     @classmethod
@@ -22570,6 +22659,7 @@ class Picture(Widget, Accessible, Buildable, ConstraintTarget):
     def set_content_fit(self, content_fit: ContentFit) -> None: ...
     def set_file(self, file: typing.Optional[Gio.File] = None) -> None: ...
     def set_filename(self, filename: typing.Optional[str] = None) -> None: ...
+    def set_isolate_contents(self, isolate_contents: bool) -> None: ...
     def set_keep_aspect_ratio(self, keep_aspect_ratio: bool) -> None: ...
     def set_paintable(
         self, paintable: typing.Optional[Gdk.Paintable] = None
@@ -22782,6 +22872,183 @@ class Popover(Widget, Accessible, Buildable, ConstraintTarget, Native, ShortcutM
     def set_offset(self, x_offset: int, y_offset: int) -> None: ...
     def set_pointing_to(self, rect: typing.Optional[Gdk.Rectangle] = None) -> None: ...
     def set_position(self, position: PositionType) -> None: ...
+
+class PopoverBin(Widget, Accessible, Buildable, ConstraintTarget):
+    """
+    :Constructors:
+
+    ::
+
+        PopoverBin(**properties)
+        new() -> Gtk.Widget
+
+    Object GtkPopoverBin
+
+    Properties from GtkPopoverBin:
+      child -> GtkWidget: child
+      popover -> GtkPopover: popover
+      menu-model -> GMenuModel: menu-model
+      handle-input -> gboolean: handle-input
+
+    Signals from GtkWidget:
+      direction-changed (GtkTextDirection)
+      destroy ()
+      show ()
+      hide ()
+      map ()
+      unmap ()
+      realize ()
+      unrealize ()
+      state-flags-changed (GtkStateFlags)
+      mnemonic-activate (gboolean) -> gboolean
+      move-focus (GtkDirectionType)
+      keynav-failed (GtkDirectionType) -> gboolean
+      query-tooltip (gint, gint, gboolean, GtkTooltip) -> gboolean
+
+    Properties from GtkWidget:
+      name -> gchararray: name
+      parent -> GtkWidget: parent
+      root -> GtkRoot: root
+      width-request -> gint: width-request
+      height-request -> gint: height-request
+      visible -> gboolean: visible
+      sensitive -> gboolean: sensitive
+      can-focus -> gboolean: can-focus
+      has-focus -> gboolean: has-focus
+      can-target -> gboolean: can-target
+      focus-on-click -> gboolean: focus-on-click
+      focusable -> gboolean: focusable
+      has-default -> gboolean: has-default
+      receives-default -> gboolean: receives-default
+      cursor -> GdkCursor: cursor
+      has-tooltip -> gboolean: has-tooltip
+      tooltip-markup -> gchararray: tooltip-markup
+      tooltip-text -> gchararray: tooltip-text
+      opacity -> gdouble: opacity
+      overflow -> GtkOverflow: overflow
+      halign -> GtkAlign: halign
+      valign -> GtkAlign: valign
+      margin-start -> gint: margin-start
+      margin-end -> gint: margin-end
+      margin-top -> gint: margin-top
+      margin-bottom -> gint: margin-bottom
+      hexpand -> gboolean: hexpand
+      vexpand -> gboolean: vexpand
+      hexpand-set -> gboolean: hexpand-set
+      vexpand-set -> gboolean: vexpand-set
+      scale-factor -> gint: scale-factor
+      css-name -> gchararray: css-name
+      css-classes -> GStrv: css-classes
+      layout-manager -> GtkLayoutManager: layout-manager
+      limit-events -> gboolean: limit-events
+
+    Signals from GObject:
+      notify (GParam)
+    """
+    class Props(Widget.Props):
+        child: typing.Optional[Widget]
+        handle_input: bool
+        menu_model: typing.Optional[Gio.MenuModel]
+        popover: typing.Optional[Popover]
+        can_focus: bool
+        can_target: bool
+        css_classes: list[str]
+        css_name: str
+        cursor: typing.Optional[Gdk.Cursor]
+        focus_on_click: bool
+        focusable: bool
+        halign: Align
+        has_default: bool
+        has_focus: bool
+        has_tooltip: bool
+        height_request: int
+        hexpand: bool
+        hexpand_set: bool
+        layout_manager: typing.Optional[LayoutManager]
+        limit_events: bool
+        margin_bottom: int
+        margin_end: int
+        margin_start: int
+        margin_top: int
+        name: str
+        opacity: float
+        overflow: Overflow
+        parent: typing.Optional[Widget]
+        receives_default: bool
+        root: typing.Optional[Root]
+        scale_factor: int
+        sensitive: bool
+        tooltip_markup: typing.Optional[str]
+        tooltip_text: typing.Optional[str]
+        valign: Align
+        vexpand: bool
+        vexpand_set: bool
+        visible: bool
+        width_request: int
+        accessible_role: AccessibleRole
+
+    props: Props = ...
+    def __init__(
+        self,
+        child: typing.Optional[Widget] = ...,
+        handle_input: bool = ...,
+        menu_model: typing.Optional[Gio.MenuModel] = ...,
+        popover: typing.Optional[Popover] = ...,
+        can_focus: bool = ...,
+        can_target: bool = ...,
+        css_classes: typing.Sequence[str] = ...,
+        css_name: str = ...,
+        cursor: typing.Optional[Gdk.Cursor] = ...,
+        focus_on_click: bool = ...,
+        focusable: bool = ...,
+        halign: Align = ...,
+        has_tooltip: bool = ...,
+        height_request: int = ...,
+        hexpand: bool = ...,
+        hexpand_set: bool = ...,
+        layout_manager: typing.Optional[LayoutManager] = ...,
+        limit_events: bool = ...,
+        margin_bottom: int = ...,
+        margin_end: int = ...,
+        margin_start: int = ...,
+        margin_top: int = ...,
+        name: str = ...,
+        opacity: float = ...,
+        overflow: Overflow = ...,
+        receives_default: bool = ...,
+        sensitive: bool = ...,
+        tooltip_markup: typing.Optional[str] = ...,
+        tooltip_text: typing.Optional[str] = ...,
+        valign: Align = ...,
+        vexpand: bool = ...,
+        vexpand_set: bool = ...,
+        visible: bool = ...,
+        width_request: int = ...,
+        accessible_role: AccessibleRole = ...,
+    ) -> None: ...
+    def get_child(self) -> typing.Optional[Widget]: ...
+    def get_handle_input(self) -> bool: ...
+    def get_menu_model(self) -> typing.Optional[Gio.MenuModel]: ...
+    def get_popover(self) -> typing.Optional[Popover]: ...
+    @classmethod
+    def new(cls) -> PopoverBin: ...
+    def popdown(self) -> None: ...
+    def popup(self) -> None: ...
+    def set_child(self, child: typing.Optional[Widget] = None) -> None: ...
+    def set_handle_input(self, handle_input: bool) -> None: ...
+    def set_menu_model(self, model: typing.Optional[Gio.MenuModel] = None) -> None: ...
+    def set_popover(self, popover: typing.Optional[Popover] = None) -> None: ...
+
+class PopoverBinClass(GObject.GPointer):
+    """
+    :Constructors:
+
+    ::
+
+        PopoverBinClass()
+    """
+
+    parent_class: WidgetClass = ...
 
 class PopoverClass(GObject.GPointer):
     """
@@ -25815,6 +26082,7 @@ class SearchEntry(Widget, Accessible, Buildable, ConstraintTarget, Editable):
       input-hints -> GtkInputHints: input-hints
       activates-default -> gboolean: activates-default
       search-delay -> guint: search-delay
+      key-capture-widget -> GtkWidget: key-capture-widget
 
     Signals from GtkEditable:
       changed ()
@@ -25880,6 +26148,7 @@ class SearchEntry(Widget, Accessible, Buildable, ConstraintTarget, Editable):
         activates_default: bool
         input_hints: InputHints
         input_purpose: InputPurpose
+        key_capture_widget: typing.Optional[Widget]
         placeholder_text: typing.Optional[str]
         search_delay: int
         can_focus: bool
@@ -25933,6 +26202,7 @@ class SearchEntry(Widget, Accessible, Buildable, ConstraintTarget, Editable):
         activates_default: bool = ...,
         input_hints: InputHints = ...,
         input_purpose: InputPurpose = ...,
+        key_capture_widget: typing.Optional[Widget] = ...,
         placeholder_text: typing.Optional[str] = ...,
         search_delay: int = ...,
         can_focus: bool = ...,
@@ -26307,6 +26577,7 @@ class Settings(GObject.Object, StyleProvider):
       gtk-font-rendering -> GtkFontRendering: gtk-font-rendering
       gtk-interface-color-scheme -> GtkInterfaceColorScheme: gtk-interface-color-scheme
       gtk-interface-contrast -> GtkInterfaceContrast: gtk-interface-contrast
+      gtk-interface-reduced-motion -> GtkReducedMotion: gtk-interface-reduced-motion
 
     Signals from GtkStyleProvider:
       gtk-private-changed ()
@@ -26345,6 +26616,7 @@ class Settings(GObject.Object, StyleProvider):
         gtk_im_module: str
         gtk_interface_color_scheme: InterfaceColorScheme
         gtk_interface_contrast: InterfaceContrast
+        gtk_interface_reduced_motion: ReducedMotion
         gtk_keynav_use_caret: bool
         gtk_label_select_on_focus: bool
         gtk_long_press_time: int
@@ -26403,6 +26675,7 @@ class Settings(GObject.Object, StyleProvider):
         gtk_im_module: str = ...,
         gtk_interface_color_scheme: InterfaceColorScheme = ...,
         gtk_interface_contrast: InterfaceContrast = ...,
+        gtk_interface_reduced_motion: ReducedMotion = ...,
         gtk_keynav_use_caret: bool = ...,
         gtk_label_select_on_focus: bool = ...,
         gtk_long_press_time: int = ...,
@@ -27822,6 +28095,7 @@ class Snapshot(Gdk.Snapshot):
         spread: float,
         blur_radius: float,
     ) -> None: ...
+    def append_paste(self, bounds: Graphene.Rect, nth: int) -> None: ...
     def append_radial_gradient(
         self,
         bounds: Graphene.Rect,
@@ -27874,11 +28148,14 @@ class Snapshot(Gdk.Snapshot):
         blue: Gsk.ComponentTransfer,
         alpha: Gsk.ComponentTransfer,
     ) -> None: ...
+    def push_composite(self, op: Gsk.PorterDuff) -> None: ...
+    def push_copy(self) -> None: ...
     def push_cross_fade(self, progress: float) -> None: ...
     def push_fill(self, path: Gsk.Path, fill_rule: Gsk.FillRule) -> None: ...
     def push_gl_shader(
         self, shader: Gsk.GLShader, bounds: Graphene.Rect, take_args: GLib.Bytes
     ) -> None: ...
+    def push_isolation(self, features: Gsk.Isolation) -> None: ...
     def push_mask(self, mask_mode: Gsk.MaskMode) -> None: ...
     def push_opacity(self, opacity: float) -> None: ...
     def push_repeat(
@@ -29422,6 +29699,97 @@ class StyleContextClass(GObject.GPointer):
 
 class StyleProvider(GObject.GInterface): ...
 
+class Svg(GObject.Object, Gdk.Paintable, SymbolicPaintable):
+    """
+    :Constructors:
+
+    ::
+
+        Svg(**properties)
+        new() -> Gtk.Svg
+        new_from_bytes(bytes:GLib.Bytes) -> Gtk.Svg
+        new_from_resource(path:str) -> Gtk.Svg
+
+    Object GtkSvg
+
+    Signals from GtkSvg:
+      error (GError)
+
+    Properties from GtkSvg:
+      resource -> gchararray: resource
+      features -> GtkSvgFeatures: features
+      playing -> gboolean: playing
+      weight -> gdouble: weight
+      state -> guint: state
+
+    Signals from GdkPaintable:
+      invalidate-contents ()
+      invalidate-size ()
+
+    Signals from GObject:
+      notify (GParam)
+    """
+    class Props(GObject.Object.Props):
+        features: SvgFeatures
+        playing: bool
+        resource: str
+        state: int
+        weight: float
+
+    props: Props = ...
+    def __init__(
+        self,
+        features: SvgFeatures = ...,
+        playing: bool = ...,
+        resource: str = ...,
+        state: int = ...,
+        weight: float = ...,
+    ) -> None: ...
+    def get_features(self) -> SvgFeatures: ...
+    def get_n_states(self) -> int: ...
+    def get_state(self) -> int: ...
+    def get_weight(self) -> float: ...
+    def load_from_bytes(self, bytes: GLib.Bytes) -> None: ...
+    def load_from_resource(self, path: str) -> None: ...
+    @classmethod
+    def new(cls) -> Svg: ...
+    @classmethod
+    def new_from_bytes(cls, bytes: GLib.Bytes) -> Svg: ...
+    @classmethod
+    def new_from_resource(cls, path: str) -> Svg: ...
+    def pause(self) -> None: ...
+    def play(self) -> None: ...
+    def serialize(self) -> GLib.Bytes: ...
+    def set_features(self, features: SvgFeatures) -> None: ...
+    def set_frame_clock(self, clock: Gdk.FrameClock) -> None: ...
+    def set_state(self, state: int) -> None: ...
+    def set_weight(self, weight: float) -> None: ...
+    def write_to_file(self, filename: str) -> bool: ...
+
+class SvgClass(GObject.GPointer):
+    """
+    :Constructors:
+
+    ::
+
+        SvgClass()
+    """
+
+    parent_class: GObject.ObjectClass = ...
+
+class SvgLocation(GObject.GPointer):
+    """
+    :Constructors:
+
+    ::
+
+        SvgLocation()
+    """
+
+    bytes: int = ...
+    lines: int = ...
+    line_chars: int = ...
+
 class Switch(Widget, Accessible, Actionable, Buildable, ConstraintTarget):
     """
     :Constructors:
@@ -29598,6 +29966,14 @@ class SymbolicPaintable(GObject.GInterface):
         height: float,
         colors: typing.Sequence[Gdk.RGBA],
     ) -> None: ...
+    def snapshot_with_weight(
+        self,
+        snapshot: Gdk.Snapshot,
+        width: float,
+        height: float,
+        colors: typing.Sequence[Gdk.RGBA],
+        weight: float,
+    ) -> None: ...
 
 class SymbolicPaintableInterface(GObject.GPointer):
     """
@@ -29611,6 +29987,17 @@ class SymbolicPaintableInterface(GObject.GPointer):
     g_iface: GObject.TypeInterface = ...
     snapshot_symbolic: typing.Callable[
         [SymbolicPaintable, Gdk.Snapshot, float, float, typing.Sequence[Gdk.RGBA]], None
+    ] = ...
+    snapshot_with_weight: typing.Callable[
+        [
+            SymbolicPaintable,
+            Gdk.Snapshot,
+            float,
+            float,
+            typing.Sequence[Gdk.RGBA],
+            float,
+        ],
+        None,
     ] = ...
 
 # override
@@ -30803,7 +31190,7 @@ class TextView(
         buffer: TextBuffer
         cursor_visible: bool
         editable: bool
-        extra_menu: Gio.MenuModel
+        extra_menu: typing.Optional[Gio.MenuModel]
         im_module: str
         indent: int
         input_hints: InputHints
@@ -30959,7 +31346,7 @@ class TextView(
     ) -> typing.Tuple[Gdk.Rectangle, Gdk.Rectangle]: ...
     def get_cursor_visible(self) -> bool: ...
     def get_editable(self) -> bool: ...
-    def get_extra_menu(self) -> Gio.MenuModel: ...
+    def get_extra_menu(self) -> typing.Optional[Gio.MenuModel]: ...
     def get_gutter(self, win: TextWindowType) -> typing.Optional[Widget]: ...
     def get_indent(self) -> int: ...
     def get_input_hints(self) -> InputHints: ...
@@ -32823,6 +33210,18 @@ class TreeViewColumn(GObject.InitiallyUnowned, Buildable, CellLayout):
     def set_title(self, title: str) -> None: ...
     def set_visible(self, visible: bool) -> None: ...
     def set_widget(self, widget: typing.Optional[Widget] = None) -> None: ...
+
+class TryExpression(Expression):
+    """
+    :Constructors:
+
+    ::
+
+        TryExpression(**properties)
+        new(expressions:list) -> Gtk.TryExpression
+    """
+    @classmethod
+    def new(cls, expressions: typing.Sequence[Expression]) -> TryExpression: ...
 
 class UriLauncher(GObject.Object):
     """
@@ -34696,6 +35095,7 @@ class DebugFlags(GObject.GFlags):
     MODULES = 8
     NO_CSS_CACHE = 512
     PRINTING = 64
+    SESSION = 4194304
     SIZE_REQUEST = 256
     SNAPSHOT = 16384
     TEXT = 1
@@ -34796,6 +35196,12 @@ class StyleContextPrintFlags(GObject.GFlags):
     RECURSE = 1
     SHOW_CHANGE = 4
     SHOW_STYLE = 2
+
+class SvgFeatures(GObject.GFlags):
+    ANIMATIONS = 1
+    EXTENSIONS = 8
+    EXTERNAL_RESOURCES = 4
+    SYSTEM_RESOURCES = 2
 
 class TextBufferNotifyFlags(GObject.GFlags):
     AFTER_DELETE = 8
@@ -35116,12 +35522,12 @@ class ConstraintStrength(GObject.GEnum):
     WEAK = 1
 
 class ConstraintVflParserError(GObject.GEnum):
-    ATTRIBUTE = 1
-    METRIC = 3
-    PRIORITY = 4
-    RELATION = 5
-    SYMBOL = 0
-    VIEW = 2
+    INVALID_ATTRIBUTE = 1
+    INVALID_METRIC = 3
+    INVALID_PRIORITY = 4
+    INVALID_RELATION = 5
+    INVALID_SYMBOL = 0
+    INVALID_VIEW = 2
     @staticmethod
     def quark() -> int: ...
 
@@ -35484,6 +35890,10 @@ class RecentManagerError(GObject.GEnum):
     @staticmethod
     def quark() -> int: ...
 
+class ReducedMotion(GObject.GEnum):
+    NO_PREFERENCE = 0
+    REDUCE = 1
+
 class ResponseType(GObject.GEnum):
     ACCEPT = -3
     APPLY = -10
@@ -35499,6 +35909,10 @@ class ResponseType(GObject.GEnum):
 
 class RevealerTransitionType(GObject.GEnum):
     CROSSFADE = 1
+    FADE_SLIDE_DOWN = 13
+    FADE_SLIDE_LEFT = 11
+    FADE_SLIDE_RIGHT = 10
+    FADE_SLIDE_UP = 12
     NONE = 0
     SLIDE_DOWN = 5
     SLIDE_LEFT = 3
@@ -35636,7 +36050,27 @@ class StringFilterMatchMode(GObject.GEnum):
     PREFIX = 2
     SUBSTRING = 1
 
+class SvgError(GObject.GEnum):
+    FAILED_RENDERING = 6
+    FAILED_UPDATE = 5
+    INVALID_ATTRIBUTE = 2
+    INVALID_ELEMENT = 1
+    INVALID_REFERENCE = 4
+    INVALID_SYNTAX = 0
+    MISSING_ATTRIBUTE = 3
+    @staticmethod
+    def get_attribute(error: GLib.Error) -> typing.Optional[str]: ...
+    @staticmethod
+    def get_element(error: GLib.Error) -> typing.Optional[str]: ...
+    @staticmethod
+    def get_end(error: GLib.Error) -> typing.Optional[SvgLocation]: ...
+    @staticmethod
+    def get_start(error: GLib.Error) -> typing.Optional[SvgLocation]: ...
+    @staticmethod
+    def quark() -> int: ...
+
 class SymbolicColor(GObject.GEnum):
+    ACCENT = 4
     ERROR = 1
     FOREGROUND = 0
     SUCCESS = 3

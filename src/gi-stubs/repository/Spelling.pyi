@@ -8,10 +8,6 @@ from typing_extensions import Self
 
 T = typing.TypeVar("T")
 
-_lock = ...  # FIXME Constant
-_namespace: str = "Spelling"
-_version: str = "1"
-
 def init() -> None: ...
 
 class Checker(GObject.Object):

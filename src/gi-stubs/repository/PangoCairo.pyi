@@ -8,10 +8,6 @@ from typing_extensions import Self
 T = typing.TypeVar("T")
 _SomeSurface = typing.TypeVar("_SomeSurface", bound=cairo.Surface)
 
-_lock = ...  # FIXME Constant
-_namespace: str = "PangoCairo"
-_version: str = "1.0"
-
 def context_get_font_options(
     context: Pango.Context,
 ) -> typing.Optional[cairo.FontOptions]: ...

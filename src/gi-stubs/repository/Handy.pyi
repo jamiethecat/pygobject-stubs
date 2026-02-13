@@ -1,11 +1,4 @@
-from typing import Any
-from typing import Callable
-from typing import Literal
-from typing import Optional
-from typing import Sequence
-from typing import Tuple
-from typing import Type
-from typing import TypeVar
+import typing
 
 from gi.repository import Atk
 from gi.repository import Gdk
@@ -15,10 +8,9 @@ from gi.repository import GLib
 from gi.repository import GObject
 from gi.repository import Gtk
 from gi.repository import Pango
+from typing_extensions import Self
 
-_lock = ...  # FIXME Constant
-_namespace: str = "Handy"
-_version: str = "1"
+T = typing.TypeVar("T")
 
 def ease_out_cubic(t: float) -> float: ...
 def enum_value_row_name(value: EnumValueObject, user_data: None) -> str: ...
@@ -85,6 +77,8 @@ class ActionRow(PreferencesRow, Atk.ImplementorIface, Gtk.Actionable, Gtk.Builda
     Signals from GtkWidget:
       composited-changed ()
       event (GdkEvent) -> gboolean
+      direction-changed (GtkTextDirection)
+      state-changed (GtkStateType)
       destroy ()
       show ()
       hide ()
@@ -93,13 +87,11 @@ class ActionRow(PreferencesRow, Atk.ImplementorIface, Gtk.Actionable, Gtk.Builda
       realize ()
       unrealize ()
       size-allocate (GdkRectangle)
-      state-changed (GtkStateType)
       state-flags-changed (GtkStateFlags)
       parent-set (GtkWidget)
       hierarchy-changed (GtkWidget)
       style-set (GtkStyle)
       style-updated ()
-      direction-changed (GtkTextDirection)
       grab-notify (gboolean)
       child-notify (GParam)
       draw (CairoContext) -> gboolean
@@ -236,15 +228,14 @@ class ActionRow(PreferencesRow, Atk.ImplementorIface, Gtk.Actionable, Gtk.Builda
     Signals from GObject:
       notify (GParam)
     """
-
-    class Props:
-        activatable_widget: Optional[Gtk.Widget]
+    class Props(PreferencesRow.Props):
+        activatable_widget: typing.Optional[Gtk.Widget]
         icon_name: str
-        subtitle: Optional[str]
+        subtitle: typing.Optional[str]
         subtitle_lines: int
         title_lines: int
         use_underline: bool
-        title: Optional[str]
+        title: typing.Optional[str]
         activatable: bool
         selectable: bool
         border_width: int
@@ -275,20 +266,20 @@ class ActionRow(PreferencesRow, Atk.ImplementorIface, Gtk.Actionable, Gtk.Builda
         name: str
         no_show_all: bool
         opacity: float
-        parent: Optional[Gtk.Container]
+        parent: typing.Optional[Gtk.Container]
         receives_default: bool
         scale_factor: int
         sensitive: bool
         style: Gtk.Style
-        tooltip_markup: Optional[str]
-        tooltip_text: Optional[str]
+        tooltip_markup: typing.Optional[str]
+        tooltip_text: typing.Optional[str]
         valign: Gtk.Align
         vexpand: bool
         vexpand_set: bool
         visible: bool
         width_request: int
-        window: Optional[Gdk.Window]
-        action_name: Optional[str]
+        window: typing.Optional[Gdk.Window]
+        action_name: typing.Optional[str]
         action_target: GLib.Variant
         child: Gtk.Widget
 
@@ -296,13 +287,13 @@ class ActionRow(PreferencesRow, Atk.ImplementorIface, Gtk.Actionable, Gtk.Builda
     parent_instance: PreferencesRow = ...
     def __init__(
         self,
-        activatable_widget: Optional[Gtk.Widget] = ...,
+        activatable_widget: typing.Optional[Gtk.Widget] = ...,
         icon_name: str = ...,
-        subtitle: Optional[str] = ...,
+        subtitle: typing.Optional[str] = ...,
         subtitle_lines: int = ...,
         title_lines: int = ...,
         use_underline: bool = ...,
-        title: Optional[str] = ...,
+        title: typing.Optional[str] = ...,
         activatable: bool = ...,
         selectable: bool = ...,
         border_width: int = ...,
@@ -336,30 +327,32 @@ class ActionRow(PreferencesRow, Atk.ImplementorIface, Gtk.Actionable, Gtk.Builda
         parent: Gtk.Container = ...,
         receives_default: bool = ...,
         sensitive: bool = ...,
-        style: Optional[Gtk.Style] = ...,
-        tooltip_markup: Optional[str] = ...,
-        tooltip_text: Optional[str] = ...,
+        style: typing.Optional[Gtk.Style] = ...,
+        tooltip_markup: typing.Optional[str] = ...,
+        tooltip_text: typing.Optional[str] = ...,
         valign: Gtk.Align = ...,
         vexpand: bool = ...,
         vexpand_set: bool = ...,
         visible: bool = ...,
         width_request: int = ...,
-        action_name: Optional[str] = ...,
+        action_name: typing.Optional[str] = ...,
         action_target: GLib.Variant = ...,
-    ): ...
+    ) -> None: ...
     def activate(self) -> None: ...
     def add_prefix(self, widget: Gtk.Widget) -> None: ...
-    def get_activatable_widget(self) -> Optional[Gtk.Widget]: ...
+    def get_activatable_widget(self) -> typing.Optional[Gtk.Widget]: ...
     def get_icon_name(self) -> str: ...
-    def get_subtitle(self) -> Optional[str]: ...
+    def get_subtitle(self) -> typing.Optional[str]: ...
     def get_subtitle_lines(self) -> int: ...
     def get_title_lines(self) -> int: ...
     def get_use_underline(self) -> bool: ...
     @classmethod
     def new(cls) -> ActionRow: ...
-    def set_activatable_widget(self, widget: Optional[Gtk.Widget] = None) -> None: ...
+    def set_activatable_widget(
+        self, widget: typing.Optional[Gtk.Widget] = None
+    ) -> None: ...
     def set_icon_name(self, icon_name: str) -> None: ...
-    def set_subtitle(self, subtitle: Optional[str] = None) -> None: ...
+    def set_subtitle(self, subtitle: typing.Optional[str] = None) -> None: ...
     def set_subtitle_lines(self, subtitle_lines: int) -> None: ...
     def set_title_lines(self, title_lines: int) -> None: ...
     def set_use_underline(self, use_underline: bool) -> None: ...
@@ -374,7 +367,7 @@ class ActionRowClass(GObject.GPointer):
     """
 
     parent_class: Gtk.ListBoxRowClass = ...
-    activate: Callable[[ActionRow], None] = ...
+    activate: typing.Callable[[ActionRow], None] = ...
     padding: list[None] = ...
 
 class ApplicationWindow(
@@ -502,6 +495,8 @@ class ApplicationWindow(
     Signals from GtkWidget:
       composited-changed ()
       event (GdkEvent) -> gboolean
+      direction-changed (GtkTextDirection)
+      state-changed (GtkStateType)
       destroy ()
       show ()
       hide ()
@@ -510,13 +505,11 @@ class ApplicationWindow(
       realize ()
       unrealize ()
       size-allocate (GdkRectangle)
-      state-changed (GtkStateType)
       state-flags-changed (GtkStateFlags)
       parent-set (GtkWidget)
       hierarchy-changed (GtkWidget)
       style-set (GtkStyle)
       style-updated ()
-      direction-changed (GtkTextDirection)
       grab-notify (gboolean)
       child-notify (GParam)
       draw (CairoContext) -> gboolean
@@ -653,12 +646,11 @@ class ApplicationWindow(
     Signals from GObject:
       notify (GParam)
     """
-
-    class Props:
+    class Props(Gtk.ApplicationWindow.Props):
         show_menubar: bool
         accept_focus: bool
-        application: Optional[Gtk.Application]
-        attached_to: Optional[Gtk.Widget]
+        application: typing.Optional[Gtk.Application]
+        attached_to: typing.Optional[Gtk.Widget]
         decorated: bool
         default_height: int
         default_width: int
@@ -670,20 +662,20 @@ class ApplicationWindow(
         has_resize_grip: bool
         has_toplevel_focus: bool
         hide_titlebar_when_maximized: bool
-        icon: Optional[GdkPixbuf.Pixbuf]
-        icon_name: Optional[str]
+        icon: typing.Optional[GdkPixbuf.Pixbuf]
+        icon_name: typing.Optional[str]
         is_active: bool
         is_maximized: bool
         mnemonics_visible: bool
         modal: bool
         resizable: bool
         resize_grip_visible: bool
-        role: Optional[str]
+        role: typing.Optional[str]
         screen: Gdk.Screen
         skip_pager_hint: bool
         skip_taskbar_hint: bool
-        title: Optional[str]
-        transient_for: Optional[Gtk.Window]
+        title: typing.Optional[str]
+        transient_for: typing.Optional[Gtk.Window]
         type: Gtk.WindowType
         type_hint: Gdk.WindowTypeHint
         urgency_hint: bool
@@ -716,19 +708,19 @@ class ApplicationWindow(
         name: str
         no_show_all: bool
         opacity: float
-        parent: Optional[Gtk.Container]
+        parent: typing.Optional[Gtk.Container]
         receives_default: bool
         scale_factor: int
         sensitive: bool
         style: Gtk.Style
-        tooltip_markup: Optional[str]
-        tooltip_text: Optional[str]
+        tooltip_markup: typing.Optional[str]
+        tooltip_text: typing.Optional[str]
         valign: Gtk.Align
         vexpand: bool
         vexpand_set: bool
         visible: bool
         width_request: int
-        window: Optional[Gdk.Window]
+        window: typing.Optional[Gdk.Window]
         startup_id: str
         child: Gtk.Widget
 
@@ -738,8 +730,8 @@ class ApplicationWindow(
         self,
         show_menubar: bool = ...,
         accept_focus: bool = ...,
-        application: Optional[Gtk.Application] = ...,
-        attached_to: Optional[Gtk.Widget] = ...,
+        application: typing.Optional[Gtk.Application] = ...,
+        attached_to: typing.Optional[Gtk.Widget] = ...,
         decorated: bool = ...,
         default_height: int = ...,
         default_width: int = ...,
@@ -750,8 +742,8 @@ class ApplicationWindow(
         gravity: Gdk.Gravity = ...,
         has_resize_grip: bool = ...,
         hide_titlebar_when_maximized: bool = ...,
-        icon: Optional[GdkPixbuf.Pixbuf] = ...,
-        icon_name: Optional[str] = ...,
+        icon: typing.Optional[GdkPixbuf.Pixbuf] = ...,
+        icon_name: typing.Optional[str] = ...,
         mnemonics_visible: bool = ...,
         modal: bool = ...,
         resizable: bool = ...,
@@ -761,7 +753,7 @@ class ApplicationWindow(
         skip_taskbar_hint: bool = ...,
         startup_id: str = ...,
         title: str = ...,
-        transient_for: Optional[Gtk.Window] = ...,
+        transient_for: typing.Optional[Gtk.Window] = ...,
         type: Gtk.WindowType = ...,
         type_hint: Gdk.WindowTypeHint = ...,
         urgency_hint: bool = ...,
@@ -797,15 +789,15 @@ class ApplicationWindow(
         parent: Gtk.Container = ...,
         receives_default: bool = ...,
         sensitive: bool = ...,
-        style: Optional[Gtk.Style] = ...,
-        tooltip_markup: Optional[str] = ...,
-        tooltip_text: Optional[str] = ...,
+        style: typing.Optional[Gtk.Style] = ...,
+        tooltip_markup: typing.Optional[str] = ...,
+        tooltip_text: typing.Optional[str] = ...,
         valign: Gtk.Align = ...,
         vexpand: bool = ...,
         vexpand_set: bool = ...,
         visible: bool = ...,
         width_request: int = ...,
-    ): ...
+    ) -> None: ...
     @classmethod
     def new(cls) -> ApplicationWindow: ...
 
@@ -847,6 +839,8 @@ class Avatar(Gtk.DrawingArea, Atk.ImplementorIface, Gtk.Buildable):
     Signals from GtkWidget:
       composited-changed ()
       event (GdkEvent) -> gboolean
+      direction-changed (GtkTextDirection)
+      state-changed (GtkStateType)
       destroy ()
       show ()
       hide ()
@@ -855,13 +849,11 @@ class Avatar(Gtk.DrawingArea, Atk.ImplementorIface, Gtk.Buildable):
       realize ()
       unrealize ()
       size-allocate (GdkRectangle)
-      state-changed (GtkStateType)
       state-flags-changed (GtkStateFlags)
       parent-set (GtkWidget)
       hierarchy-changed (GtkWidget)
       style-set (GtkStyle)
       style-updated ()
-      direction-changed (GtkTextDirection)
       grab-notify (gboolean)
       child-notify (GParam)
       draw (CairoContext) -> gboolean
@@ -998,13 +990,12 @@ class Avatar(Gtk.DrawingArea, Atk.ImplementorIface, Gtk.Buildable):
     Signals from GObject:
       notify (GParam)
     """
-
-    class Props:
-        icon_name: Optional[str]
-        loadable_icon: Optional[Gio.LoadableIcon]
+    class Props(Gtk.DrawingArea.Props):
+        icon_name: typing.Optional[str]
+        loadable_icon: typing.Optional[Gio.LoadableIcon]
         show_initials: bool
         size: int
-        text: Optional[str]
+        text: typing.Optional[str]
         app_paintable: bool
         can_default: bool
         can_focus: bool
@@ -1031,28 +1022,28 @@ class Avatar(Gtk.DrawingArea, Atk.ImplementorIface, Gtk.Buildable):
         name: str
         no_show_all: bool
         opacity: float
-        parent: Optional[Gtk.Container]
+        parent: typing.Optional[Gtk.Container]
         receives_default: bool
         scale_factor: int
         sensitive: bool
         style: Gtk.Style
-        tooltip_markup: Optional[str]
-        tooltip_text: Optional[str]
+        tooltip_markup: typing.Optional[str]
+        tooltip_text: typing.Optional[str]
         valign: Gtk.Align
         vexpand: bool
         vexpand_set: bool
         visible: bool
         width_request: int
-        window: Optional[Gdk.Window]
+        window: typing.Optional[Gdk.Window]
 
     props: Props = ...
     def __init__(
         self,
-        icon_name: Optional[str] = ...,
-        loadable_icon: Optional[Gio.LoadableIcon] = ...,
+        icon_name: typing.Optional[str] = ...,
+        loadable_icon: typing.Optional[Gio.LoadableIcon] = ...,
         show_initials: bool = ...,
         size: int = ...,
-        text: Optional[str] = ...,
+        text: typing.Optional[str] = ...,
         app_paintable: bool = ...,
         can_default: bool = ...,
         can_focus: bool = ...,
@@ -1081,44 +1072,50 @@ class Avatar(Gtk.DrawingArea, Atk.ImplementorIface, Gtk.Buildable):
         parent: Gtk.Container = ...,
         receives_default: bool = ...,
         sensitive: bool = ...,
-        style: Optional[Gtk.Style] = ...,
-        tooltip_markup: Optional[str] = ...,
-        tooltip_text: Optional[str] = ...,
+        style: typing.Optional[Gtk.Style] = ...,
+        tooltip_markup: typing.Optional[str] = ...,
+        tooltip_text: typing.Optional[str] = ...,
         valign: Gtk.Align = ...,
         vexpand: bool = ...,
         vexpand_set: bool = ...,
         visible: bool = ...,
         width_request: int = ...,
-    ): ...
+    ) -> None: ...
     def draw_to_pixbuf(self, size: int, scale_factor: int) -> GdkPixbuf.Pixbuf: ...
     def draw_to_pixbuf_async(
         self,
         size: int,
         scale_factor: int,
-        cancellable: Optional[Gio.Cancellable] = None,
-        callback: Optional[Callable[..., None]] = None,
-        *user_data: Any,
+        cancellable: typing.Optional[Gio.Cancellable] = None,
+        callback: typing.Optional[typing.Callable[..., None]] = None,
+        *user_data: typing.Any,
     ) -> None: ...
     def draw_to_pixbuf_finish(
         self, async_result: Gio.AsyncResult
     ) -> GdkPixbuf.Pixbuf: ...
-    def get_icon_name(self) -> Optional[str]: ...
-    def get_loadable_icon(self) -> Optional[Gio.LoadableIcon]: ...
+    def get_icon_name(self) -> typing.Optional[str]: ...
+    def get_loadable_icon(self) -> typing.Optional[Gio.LoadableIcon]: ...
     def get_show_initials(self) -> bool: ...
     def get_size(self) -> int: ...
-    def get_text(self) -> Optional[str]: ...
+    def get_text(self) -> typing.Optional[str]: ...
     @classmethod
-    def new(cls, size: int, text: Optional[str], show_initials: bool) -> Avatar: ...
-    def set_icon_name(self, icon_name: Optional[str] = None) -> None: ...
+    def new(
+        cls, size: int, text: typing.Optional[str], show_initials: bool
+    ) -> Avatar: ...
+    def set_icon_name(self, icon_name: typing.Optional[str] = None) -> None: ...
     def set_image_load_func(
         self,
-        load_image: Optional[Callable[..., Optional[GdkPixbuf.Pixbuf]]] = None,
-        *user_data: Any,
+        load_image: typing.Optional[
+            typing.Callable[..., typing.Optional[GdkPixbuf.Pixbuf]]
+        ] = None,
+        *user_data: typing.Any,
     ) -> None: ...
-    def set_loadable_icon(self, icon: Optional[Gio.LoadableIcon] = None) -> None: ...
+    def set_loadable_icon(
+        self, icon: typing.Optional[Gio.LoadableIcon] = None
+    ) -> None: ...
     def set_show_initials(self, show_initials: bool) -> None: ...
     def set_size(self, size: int) -> None: ...
-    def set_text(self, text: Optional[str] = None) -> None: ...
+    def set_text(self, text: typing.Optional[str] = None) -> None: ...
 
 class AvatarClass(GObject.GPointer):
     """
@@ -1193,6 +1190,8 @@ class Carousel(
     Signals from GtkWidget:
       composited-changed ()
       event (GdkEvent) -> gboolean
+      direction-changed (GtkTextDirection)
+      state-changed (GtkStateType)
       destroy ()
       show ()
       hide ()
@@ -1201,13 +1200,11 @@ class Carousel(
       realize ()
       unrealize ()
       size-allocate (GdkRectangle)
-      state-changed (GtkStateType)
       state-flags-changed (GtkStateFlags)
       parent-set (GtkWidget)
       hierarchy-changed (GtkWidget)
       style-set (GtkStyle)
       style-updated ()
-      direction-changed (GtkTextDirection)
       grab-notify (gboolean)
       child-notify (GParam)
       draw (CairoContext) -> gboolean
@@ -1344,8 +1341,7 @@ class Carousel(
     Signals from GObject:
       notify (GParam)
     """
-
-    class Props:
+    class Props(Gtk.EventBox.Props):
         allow_long_swipes: bool
         allow_mouse_drag: bool
         allow_scroll_wheel: bool
@@ -1385,19 +1381,19 @@ class Carousel(
         name: str
         no_show_all: bool
         opacity: float
-        parent: Optional[Gtk.Container]
+        parent: typing.Optional[Gtk.Container]
         receives_default: bool
         scale_factor: int
         sensitive: bool
         style: Gtk.Style
-        tooltip_markup: Optional[str]
-        tooltip_text: Optional[str]
+        tooltip_markup: typing.Optional[str]
+        tooltip_text: typing.Optional[str]
         valign: Gtk.Align
         vexpand: bool
         vexpand_set: bool
         visible: bool
         width_request: int
-        window: Optional[Gdk.Window]
+        window: typing.Optional[Gdk.Window]
         orientation: Gtk.Orientation
         child: Gtk.Widget
 
@@ -1444,16 +1440,16 @@ class Carousel(
         parent: Gtk.Container = ...,
         receives_default: bool = ...,
         sensitive: bool = ...,
-        style: Optional[Gtk.Style] = ...,
-        tooltip_markup: Optional[str] = ...,
-        tooltip_text: Optional[str] = ...,
+        style: typing.Optional[Gtk.Style] = ...,
+        tooltip_markup: typing.Optional[str] = ...,
+        tooltip_text: typing.Optional[str] = ...,
         valign: Gtk.Align = ...,
         vexpand: bool = ...,
         vexpand_set: bool = ...,
         visible: bool = ...,
         width_request: int = ...,
         orientation: Gtk.Orientation = ...,
-    ): ...
+    ) -> None: ...
     def get_allow_long_swipes(self) -> bool: ...
     def get_allow_mouse_drag(self) -> bool: ...
     def get_allow_scroll_wheel(self) -> bool: ...
@@ -1509,6 +1505,8 @@ class CarouselIndicatorDots(
     Signals from GtkWidget:
       composited-changed ()
       event (GdkEvent) -> gboolean
+      direction-changed (GtkTextDirection)
+      state-changed (GtkStateType)
       destroy ()
       show ()
       hide ()
@@ -1517,13 +1515,11 @@ class CarouselIndicatorDots(
       realize ()
       unrealize ()
       size-allocate (GdkRectangle)
-      state-changed (GtkStateType)
       state-flags-changed (GtkStateFlags)
       parent-set (GtkWidget)
       hierarchy-changed (GtkWidget)
       style-set (GtkStyle)
       style-updated ()
-      direction-changed (GtkTextDirection)
       grab-notify (gboolean)
       child-notify (GParam)
       draw (CairoContext) -> gboolean
@@ -1660,9 +1656,8 @@ class CarouselIndicatorDots(
     Signals from GObject:
       notify (GParam)
     """
-
-    class Props:
-        carousel: Optional[Carousel]
+    class Props(Gtk.DrawingArea.Props):
+        carousel: typing.Optional[Carousel]
         app_paintable: bool
         can_default: bool
         can_focus: bool
@@ -1689,25 +1684,25 @@ class CarouselIndicatorDots(
         name: str
         no_show_all: bool
         opacity: float
-        parent: Optional[Gtk.Container]
+        parent: typing.Optional[Gtk.Container]
         receives_default: bool
         scale_factor: int
         sensitive: bool
         style: Gtk.Style
-        tooltip_markup: Optional[str]
-        tooltip_text: Optional[str]
+        tooltip_markup: typing.Optional[str]
+        tooltip_text: typing.Optional[str]
         valign: Gtk.Align
         vexpand: bool
         vexpand_set: bool
         visible: bool
         width_request: int
-        window: Optional[Gdk.Window]
+        window: typing.Optional[Gdk.Window]
         orientation: Gtk.Orientation
 
     props: Props = ...
     def __init__(
         self,
-        carousel: Optional[Carousel] = ...,
+        carousel: typing.Optional[Carousel] = ...,
         app_paintable: bool = ...,
         can_default: bool = ...,
         can_focus: bool = ...,
@@ -1736,20 +1731,20 @@ class CarouselIndicatorDots(
         parent: Gtk.Container = ...,
         receives_default: bool = ...,
         sensitive: bool = ...,
-        style: Optional[Gtk.Style] = ...,
-        tooltip_markup: Optional[str] = ...,
-        tooltip_text: Optional[str] = ...,
+        style: typing.Optional[Gtk.Style] = ...,
+        tooltip_markup: typing.Optional[str] = ...,
+        tooltip_text: typing.Optional[str] = ...,
         valign: Gtk.Align = ...,
         vexpand: bool = ...,
         vexpand_set: bool = ...,
         visible: bool = ...,
         width_request: int = ...,
         orientation: Gtk.Orientation = ...,
-    ): ...
-    def get_carousel(self) -> Optional[Carousel]: ...
+    ) -> None: ...
+    def get_carousel(self) -> typing.Optional[Carousel]: ...
     @classmethod
     def new(cls) -> CarouselIndicatorDots: ...
-    def set_carousel(self, carousel: Optional[Carousel] = None) -> None: ...
+    def set_carousel(self, carousel: typing.Optional[Carousel] = None) -> None: ...
 
 class CarouselIndicatorDotsClass(GObject.GPointer):
     """
@@ -1782,6 +1777,8 @@ class CarouselIndicatorLines(
     Signals from GtkWidget:
       composited-changed ()
       event (GdkEvent) -> gboolean
+      direction-changed (GtkTextDirection)
+      state-changed (GtkStateType)
       destroy ()
       show ()
       hide ()
@@ -1790,13 +1787,11 @@ class CarouselIndicatorLines(
       realize ()
       unrealize ()
       size-allocate (GdkRectangle)
-      state-changed (GtkStateType)
       state-flags-changed (GtkStateFlags)
       parent-set (GtkWidget)
       hierarchy-changed (GtkWidget)
       style-set (GtkStyle)
       style-updated ()
-      direction-changed (GtkTextDirection)
       grab-notify (gboolean)
       child-notify (GParam)
       draw (CairoContext) -> gboolean
@@ -1933,9 +1928,8 @@ class CarouselIndicatorLines(
     Signals from GObject:
       notify (GParam)
     """
-
-    class Props:
-        carousel: Optional[Carousel]
+    class Props(Gtk.DrawingArea.Props):
+        carousel: typing.Optional[Carousel]
         app_paintable: bool
         can_default: bool
         can_focus: bool
@@ -1962,25 +1956,25 @@ class CarouselIndicatorLines(
         name: str
         no_show_all: bool
         opacity: float
-        parent: Optional[Gtk.Container]
+        parent: typing.Optional[Gtk.Container]
         receives_default: bool
         scale_factor: int
         sensitive: bool
         style: Gtk.Style
-        tooltip_markup: Optional[str]
-        tooltip_text: Optional[str]
+        tooltip_markup: typing.Optional[str]
+        tooltip_text: typing.Optional[str]
         valign: Gtk.Align
         vexpand: bool
         vexpand_set: bool
         visible: bool
         width_request: int
-        window: Optional[Gdk.Window]
+        window: typing.Optional[Gdk.Window]
         orientation: Gtk.Orientation
 
     props: Props = ...
     def __init__(
         self,
-        carousel: Optional[Carousel] = ...,
+        carousel: typing.Optional[Carousel] = ...,
         app_paintable: bool = ...,
         can_default: bool = ...,
         can_focus: bool = ...,
@@ -2009,20 +2003,20 @@ class CarouselIndicatorLines(
         parent: Gtk.Container = ...,
         receives_default: bool = ...,
         sensitive: bool = ...,
-        style: Optional[Gtk.Style] = ...,
-        tooltip_markup: Optional[str] = ...,
-        tooltip_text: Optional[str] = ...,
+        style: typing.Optional[Gtk.Style] = ...,
+        tooltip_markup: typing.Optional[str] = ...,
+        tooltip_text: typing.Optional[str] = ...,
         valign: Gtk.Align = ...,
         vexpand: bool = ...,
         vexpand_set: bool = ...,
         visible: bool = ...,
         width_request: int = ...,
         orientation: Gtk.Orientation = ...,
-    ): ...
-    def get_carousel(self) -> Optional[Carousel]: ...
+    ) -> None: ...
+    def get_carousel(self) -> typing.Optional[Carousel]: ...
     @classmethod
     def new(cls) -> CarouselIndicatorLines: ...
-    def set_carousel(self, carousel: Optional[Carousel] = None) -> None: ...
+    def set_carousel(self, carousel: typing.Optional[Carousel] = None) -> None: ...
 
 class CarouselIndicatorLinesClass(GObject.GPointer):
     """
@@ -2069,6 +2063,8 @@ class Clamp(Gtk.Bin, Atk.ImplementorIface, Gtk.Buildable, Gtk.Orientable):
     Signals from GtkWidget:
       composited-changed ()
       event (GdkEvent) -> gboolean
+      direction-changed (GtkTextDirection)
+      state-changed (GtkStateType)
       destroy ()
       show ()
       hide ()
@@ -2077,13 +2073,11 @@ class Clamp(Gtk.Bin, Atk.ImplementorIface, Gtk.Buildable, Gtk.Orientable):
       realize ()
       unrealize ()
       size-allocate (GdkRectangle)
-      state-changed (GtkStateType)
       state-flags-changed (GtkStateFlags)
       parent-set (GtkWidget)
       hierarchy-changed (GtkWidget)
       style-set (GtkStyle)
       style-updated ()
-      direction-changed (GtkTextDirection)
       grab-notify (gboolean)
       child-notify (GParam)
       draw (CairoContext) -> gboolean
@@ -2220,8 +2214,7 @@ class Clamp(Gtk.Bin, Atk.ImplementorIface, Gtk.Buildable, Gtk.Orientable):
     Signals from GObject:
       notify (GParam)
     """
-
-    class Props:
+    class Props(Gtk.Bin.Props):
         maximum_size: int
         tightening_threshold: int
         border_width: int
@@ -2252,19 +2245,19 @@ class Clamp(Gtk.Bin, Atk.ImplementorIface, Gtk.Buildable, Gtk.Orientable):
         name: str
         no_show_all: bool
         opacity: float
-        parent: Optional[Gtk.Container]
+        parent: typing.Optional[Gtk.Container]
         receives_default: bool
         scale_factor: int
         sensitive: bool
         style: Gtk.Style
-        tooltip_markup: Optional[str]
-        tooltip_text: Optional[str]
+        tooltip_markup: typing.Optional[str]
+        tooltip_text: typing.Optional[str]
         valign: Gtk.Align
         vexpand: bool
         vexpand_set: bool
         visible: bool
         width_request: int
-        window: Optional[Gdk.Window]
+        window: typing.Optional[Gdk.Window]
         orientation: Gtk.Orientation
         child: Gtk.Widget
 
@@ -2304,16 +2297,16 @@ class Clamp(Gtk.Bin, Atk.ImplementorIface, Gtk.Buildable, Gtk.Orientable):
         parent: Gtk.Container = ...,
         receives_default: bool = ...,
         sensitive: bool = ...,
-        style: Optional[Gtk.Style] = ...,
-        tooltip_markup: Optional[str] = ...,
-        tooltip_text: Optional[str] = ...,
+        style: typing.Optional[Gtk.Style] = ...,
+        tooltip_markup: typing.Optional[str] = ...,
+        tooltip_text: typing.Optional[str] = ...,
         valign: Gtk.Align = ...,
         vexpand: bool = ...,
         vexpand_set: bool = ...,
         visible: bool = ...,
         width_request: int = ...,
         orientation: Gtk.Orientation = ...,
-    ): ...
+    ) -> None: ...
     def get_maximum_size(self) -> int: ...
     def get_tightening_threshold(self) -> int: ...
     @classmethod
@@ -2398,6 +2391,8 @@ class ComboRow(ActionRow, Atk.ImplementorIface, Gtk.Actionable, Gtk.Buildable):
     Signals from GtkWidget:
       composited-changed ()
       event (GdkEvent) -> gboolean
+      direction-changed (GtkTextDirection)
+      state-changed (GtkStateType)
       destroy ()
       show ()
       hide ()
@@ -2406,13 +2401,11 @@ class ComboRow(ActionRow, Atk.ImplementorIface, Gtk.Actionable, Gtk.Buildable):
       realize ()
       unrealize ()
       size-allocate (GdkRectangle)
-      state-changed (GtkStateType)
       state-flags-changed (GtkStateFlags)
       parent-set (GtkWidget)
       hierarchy-changed (GtkWidget)
       style-set (GtkStyle)
       style-updated ()
-      direction-changed (GtkTextDirection)
       grab-notify (gboolean)
       child-notify (GParam)
       draw (CairoContext) -> gboolean
@@ -2549,17 +2542,16 @@ class ComboRow(ActionRow, Atk.ImplementorIface, Gtk.Actionable, Gtk.Buildable):
     Signals from GObject:
       notify (GParam)
     """
-
-    class Props:
+    class Props(ActionRow.Props):
         selected_index: int
         use_subtitle: bool
-        activatable_widget: Optional[Gtk.Widget]
+        activatable_widget: typing.Optional[Gtk.Widget]
         icon_name: str
-        subtitle: Optional[str]
+        subtitle: typing.Optional[str]
         subtitle_lines: int
         title_lines: int
         use_underline: bool
-        title: Optional[str]
+        title: typing.Optional[str]
         activatable: bool
         selectable: bool
         border_width: int
@@ -2590,20 +2582,20 @@ class ComboRow(ActionRow, Atk.ImplementorIface, Gtk.Actionable, Gtk.Buildable):
         name: str
         no_show_all: bool
         opacity: float
-        parent: Optional[Gtk.Container]
+        parent: typing.Optional[Gtk.Container]
         receives_default: bool
         scale_factor: int
         sensitive: bool
         style: Gtk.Style
-        tooltip_markup: Optional[str]
-        tooltip_text: Optional[str]
+        tooltip_markup: typing.Optional[str]
+        tooltip_text: typing.Optional[str]
         valign: Gtk.Align
         vexpand: bool
         vexpand_set: bool
         visible: bool
         width_request: int
-        window: Optional[Gdk.Window]
-        action_name: Optional[str]
+        window: typing.Optional[Gdk.Window]
+        action_name: typing.Optional[str]
         action_target: GLib.Variant
         child: Gtk.Widget
 
@@ -2613,13 +2605,13 @@ class ComboRow(ActionRow, Atk.ImplementorIface, Gtk.Actionable, Gtk.Buildable):
         self,
         selected_index: int = ...,
         use_subtitle: bool = ...,
-        activatable_widget: Optional[Gtk.Widget] = ...,
+        activatable_widget: typing.Optional[Gtk.Widget] = ...,
         icon_name: str = ...,
-        subtitle: Optional[str] = ...,
+        subtitle: typing.Optional[str] = ...,
         subtitle_lines: int = ...,
         title_lines: int = ...,
         use_underline: bool = ...,
-        title: Optional[str] = ...,
+        title: typing.Optional[str] = ...,
         activatable: bool = ...,
         selectable: bool = ...,
         border_width: int = ...,
@@ -2653,43 +2645,49 @@ class ComboRow(ActionRow, Atk.ImplementorIface, Gtk.Actionable, Gtk.Buildable):
         parent: Gtk.Container = ...,
         receives_default: bool = ...,
         sensitive: bool = ...,
-        style: Optional[Gtk.Style] = ...,
-        tooltip_markup: Optional[str] = ...,
-        tooltip_text: Optional[str] = ...,
+        style: typing.Optional[Gtk.Style] = ...,
+        tooltip_markup: typing.Optional[str] = ...,
+        tooltip_text: typing.Optional[str] = ...,
         valign: Gtk.Align = ...,
         vexpand: bool = ...,
         vexpand_set: bool = ...,
         visible: bool = ...,
         width_request: int = ...,
-        action_name: Optional[str] = ...,
+        action_name: typing.Optional[str] = ...,
         action_target: GLib.Variant = ...,
-    ): ...
+    ) -> None: ...
     def bind_model(
         self,
-        model: Optional[Gio.ListModel] = None,
-        create_list_widget_func: Optional[Callable[..., Gtk.Widget]] = None,
-        create_current_widget_func: Optional[Callable[..., Gtk.Widget]] = None,
-        *user_data: Any,
+        model: typing.Optional[Gio.ListModel] = None,
+        create_list_widget_func: typing.Optional[
+            typing.Callable[..., Gtk.Widget]
+        ] = None,
+        create_current_widget_func: typing.Optional[
+            typing.Callable[..., Gtk.Widget]
+        ] = None,
+        *user_data: typing.Any,
     ) -> None: ...
     def bind_name_model(
         self,
-        model: Optional[Gio.ListModel] = None,
-        get_name_func: Optional[Callable[..., str]] = None,
-        *user_data: Any,
+        model: typing.Optional[Gio.ListModel] = None,
+        get_name_func: typing.Optional[typing.Callable[..., str]] = None,
+        *user_data: typing.Any,
     ) -> None: ...
-    def get_model(self) -> Optional[Gio.ListModel]: ...
+    def get_model(self) -> typing.Optional[Gio.ListModel]: ...
     def get_selected_index(self) -> int: ...
     def get_use_subtitle(self) -> bool: ...
     @classmethod
     def new(cls) -> ComboRow: ...
     def set_for_enum(
         self,
-        enum_type: Type,
-        get_name_func: Optional[Callable[..., str]] = None,
-        *user_data: Any,
+        enum_type: typing.Type[typing.Any],
+        get_name_func: typing.Optional[typing.Callable[..., str]] = None,
+        *user_data: typing.Any,
     ) -> None: ...
     def set_get_name_func(
-        self, get_name_func: Optional[Callable[..., str]] = None, *user_data: Any
+        self,
+        get_name_func: typing.Optional[typing.Callable[..., str]] = None,
+        *user_data: typing.Any,
     ) -> None: ...
     def set_selected_index(self, selected_index: int) -> None: ...
     def set_use_subtitle(self, use_subtitle: bool) -> None: ...
@@ -2761,6 +2759,8 @@ class Deck(
     Signals from GtkWidget:
       composited-changed ()
       event (GdkEvent) -> gboolean
+      direction-changed (GtkTextDirection)
+      state-changed (GtkStateType)
       destroy ()
       show ()
       hide ()
@@ -2769,13 +2769,11 @@ class Deck(
       realize ()
       unrealize ()
       size-allocate (GdkRectangle)
-      state-changed (GtkStateType)
       state-flags-changed (GtkStateFlags)
       parent-set (GtkWidget)
       hierarchy-changed (GtkWidget)
       style-set (GtkStyle)
       style-updated ()
-      direction-changed (GtkTextDirection)
       grab-notify (gboolean)
       child-notify (GParam)
       draw (CairoContext) -> gboolean
@@ -2912,8 +2910,7 @@ class Deck(
     Signals from GObject:
       notify (GParam)
     """
-
-    class Props:
+    class Props(Gtk.Container.Props):
         can_swipe_back: bool
         can_swipe_forward: bool
         hhomogeneous: bool
@@ -2952,19 +2949,19 @@ class Deck(
         name: str
         no_show_all: bool
         opacity: float
-        parent: Optional[Gtk.Container]
+        parent: typing.Optional[Gtk.Container]
         receives_default: bool
         scale_factor: int
         sensitive: bool
         style: Gtk.Style
-        tooltip_markup: Optional[str]
-        tooltip_text: Optional[str]
+        tooltip_markup: typing.Optional[str]
+        tooltip_text: typing.Optional[str]
         valign: Gtk.Align
         vexpand: bool
         vexpand_set: bool
         visible: bool
         width_request: int
-        window: Optional[Gdk.Window]
+        window: typing.Optional[Gdk.Window]
         orientation: Gtk.Orientation
         child: Gtk.Widget
 
@@ -3012,22 +3009,22 @@ class Deck(
         parent: Gtk.Container = ...,
         receives_default: bool = ...,
         sensitive: bool = ...,
-        style: Optional[Gtk.Style] = ...,
-        tooltip_markup: Optional[str] = ...,
-        tooltip_text: Optional[str] = ...,
+        style: typing.Optional[Gtk.Style] = ...,
+        tooltip_markup: typing.Optional[str] = ...,
+        tooltip_text: typing.Optional[str] = ...,
         valign: Gtk.Align = ...,
         vexpand: bool = ...,
         vexpand_set: bool = ...,
         visible: bool = ...,
         width_request: int = ...,
         orientation: Gtk.Orientation = ...,
-    ): ...
+    ) -> None: ...
     def get_adjacent_child(
         self, direction: NavigationDirection
-    ) -> Optional[Gtk.Widget]: ...
+    ) -> typing.Optional[Gtk.Widget]: ...
     def get_can_swipe_back(self) -> bool: ...
     def get_can_swipe_forward(self) -> bool: ...
-    def get_child_by_name(self, name: str) -> Optional[Gtk.Widget]: ...
+    def get_child_by_name(self, name: str) -> typing.Optional[Gtk.Widget]: ...
     def get_homogeneous(self, orientation: Gtk.Orientation) -> bool: ...
     def get_interpolate_size(self) -> bool: ...
     def get_transition_duration(self) -> int: ...
@@ -3036,14 +3033,14 @@ class Deck(
     def get_visible_child(self) -> Gtk.Widget: ...
     def get_visible_child_name(self) -> str: ...
     def insert_child_after(
-        self, child: Gtk.Widget, sibling: Optional[Gtk.Widget] = None
+        self, child: Gtk.Widget, sibling: typing.Optional[Gtk.Widget] = None
     ) -> None: ...
     def navigate(self, direction: NavigationDirection) -> bool: ...
     @classmethod
     def new(cls) -> Deck: ...
     def prepend(self, child: Gtk.Widget) -> None: ...
     def reorder_child_after(
-        self, child: Gtk.Widget, sibling: Optional[Gtk.Widget] = None
+        self, child: Gtk.Widget, sibling: typing.Optional[Gtk.Widget] = None
     ) -> None: ...
     def set_can_swipe_back(self, can_swipe_back: bool) -> None: ...
     def set_can_swipe_forward(self, can_swipe_forward: bool) -> None: ...
@@ -3082,7 +3079,6 @@ class EnumValueObject(GObject.Object):
     Signals from GObject:
       notify (GParam)
     """
-
     def get_name(self) -> str: ...
     def get_nick(self) -> str: ...
     def get_value(self) -> int: ...
@@ -3157,6 +3153,8 @@ class ExpanderRow(PreferencesRow, Atk.ImplementorIface, Gtk.Actionable, Gtk.Buil
     Signals from GtkWidget:
       composited-changed ()
       event (GdkEvent) -> gboolean
+      direction-changed (GtkTextDirection)
+      state-changed (GtkStateType)
       destroy ()
       show ()
       hide ()
@@ -3165,13 +3163,11 @@ class ExpanderRow(PreferencesRow, Atk.ImplementorIface, Gtk.Actionable, Gtk.Buil
       realize ()
       unrealize ()
       size-allocate (GdkRectangle)
-      state-changed (GtkStateType)
       state-flags-changed (GtkStateFlags)
       parent-set (GtkWidget)
       hierarchy-changed (GtkWidget)
       style-set (GtkStyle)
       style-updated ()
-      direction-changed (GtkTextDirection)
       grab-notify (gboolean)
       child-notify (GParam)
       draw (CairoContext) -> gboolean
@@ -3308,15 +3304,14 @@ class ExpanderRow(PreferencesRow, Atk.ImplementorIface, Gtk.Actionable, Gtk.Buil
     Signals from GObject:
       notify (GParam)
     """
-
-    class Props:
+    class Props(PreferencesRow.Props):
         enable_expansion: bool
         expanded: bool
         icon_name: str
         show_enable_switch: bool
-        subtitle: Optional[str]
+        subtitle: typing.Optional[str]
         use_underline: bool
-        title: Optional[str]
+        title: typing.Optional[str]
         activatable: bool
         selectable: bool
         border_width: int
@@ -3347,20 +3342,20 @@ class ExpanderRow(PreferencesRow, Atk.ImplementorIface, Gtk.Actionable, Gtk.Buil
         name: str
         no_show_all: bool
         opacity: float
-        parent: Optional[Gtk.Container]
+        parent: typing.Optional[Gtk.Container]
         receives_default: bool
         scale_factor: int
         sensitive: bool
         style: Gtk.Style
-        tooltip_markup: Optional[str]
-        tooltip_text: Optional[str]
+        tooltip_markup: typing.Optional[str]
+        tooltip_text: typing.Optional[str]
         valign: Gtk.Align
         vexpand: bool
         vexpand_set: bool
         visible: bool
         width_request: int
-        window: Optional[Gdk.Window]
-        action_name: Optional[str]
+        window: typing.Optional[Gdk.Window]
+        action_name: typing.Optional[str]
         action_target: GLib.Variant
         child: Gtk.Widget
 
@@ -3372,9 +3367,9 @@ class ExpanderRow(PreferencesRow, Atk.ImplementorIface, Gtk.Actionable, Gtk.Buil
         expanded: bool = ...,
         icon_name: str = ...,
         show_enable_switch: bool = ...,
-        subtitle: Optional[str] = ...,
+        subtitle: typing.Optional[str] = ...,
         use_underline: bool = ...,
-        title: Optional[str] = ...,
+        title: typing.Optional[str] = ...,
         activatable: bool = ...,
         selectable: bool = ...,
         border_width: int = ...,
@@ -3408,24 +3403,24 @@ class ExpanderRow(PreferencesRow, Atk.ImplementorIface, Gtk.Actionable, Gtk.Buil
         parent: Gtk.Container = ...,
         receives_default: bool = ...,
         sensitive: bool = ...,
-        style: Optional[Gtk.Style] = ...,
-        tooltip_markup: Optional[str] = ...,
-        tooltip_text: Optional[str] = ...,
+        style: typing.Optional[Gtk.Style] = ...,
+        tooltip_markup: typing.Optional[str] = ...,
+        tooltip_text: typing.Optional[str] = ...,
         valign: Gtk.Align = ...,
         vexpand: bool = ...,
         vexpand_set: bool = ...,
         visible: bool = ...,
         width_request: int = ...,
-        action_name: Optional[str] = ...,
+        action_name: typing.Optional[str] = ...,
         action_target: GLib.Variant = ...,
-    ): ...
+    ) -> None: ...
     def add_action(self, widget: Gtk.Widget) -> None: ...
     def add_prefix(self, widget: Gtk.Widget) -> None: ...
     def get_enable_expansion(self) -> bool: ...
     def get_expanded(self) -> bool: ...
     def get_icon_name(self) -> str: ...
     def get_show_enable_switch(self) -> bool: ...
-    def get_subtitle(self) -> Optional[str]: ...
+    def get_subtitle(self) -> typing.Optional[str]: ...
     def get_use_underline(self) -> bool: ...
     @classmethod
     def new(cls) -> ExpanderRow: ...
@@ -3433,7 +3428,7 @@ class ExpanderRow(PreferencesRow, Atk.ImplementorIface, Gtk.Actionable, Gtk.Buil
     def set_expanded(self, expanded: bool) -> None: ...
     def set_icon_name(self, icon_name: str) -> None: ...
     def set_show_enable_switch(self, show_enable_switch: bool) -> None: ...
-    def set_subtitle(self, subtitle: Optional[str] = None) -> None: ...
+    def set_subtitle(self, subtitle: typing.Optional[str] = None) -> None: ...
     def set_use_underline(self, use_underline: bool) -> None: ...
 
 class ExpanderRowClass(GObject.GPointer):
@@ -3513,6 +3508,8 @@ class Flap(
     Signals from GtkWidget:
       composited-changed ()
       event (GdkEvent) -> gboolean
+      direction-changed (GtkTextDirection)
+      state-changed (GtkStateType)
       destroy ()
       show ()
       hide ()
@@ -3521,13 +3518,11 @@ class Flap(
       realize ()
       unrealize ()
       size-allocate (GdkRectangle)
-      state-changed (GtkStateType)
       state-flags-changed (GtkStateFlags)
       parent-set (GtkWidget)
       hierarchy-changed (GtkWidget)
       style-set (GtkStyle)
       style-updated ()
-      direction-changed (GtkTextDirection)
       grab-notify (gboolean)
       child-notify (GParam)
       draw (CairoContext) -> gboolean
@@ -3664,10 +3659,9 @@ class Flap(
     Signals from GObject:
       notify (GParam)
     """
-
-    class Props:
-        content: Optional[Gtk.Widget]
-        flap: Optional[Gtk.Widget]
+    class Props(Gtk.Container.Props):
+        content: typing.Optional[Gtk.Widget]
+        flap: typing.Optional[Gtk.Widget]
         flap_position: Gtk.PackType
         fold_duration: int
         fold_policy: FlapFoldPolicy
@@ -3677,7 +3671,7 @@ class Flap(
         reveal_duration: int
         reveal_flap: bool
         reveal_progress: float
-        separator: Optional[Gtk.Widget]
+        separator: typing.Optional[Gtk.Widget]
         swipe_to_close: bool
         swipe_to_open: bool
         transition_type: FlapTransitionType
@@ -3709,27 +3703,27 @@ class Flap(
         name: str
         no_show_all: bool
         opacity: float
-        parent: Optional[Gtk.Container]
+        parent: typing.Optional[Gtk.Container]
         receives_default: bool
         scale_factor: int
         sensitive: bool
         style: Gtk.Style
-        tooltip_markup: Optional[str]
-        tooltip_text: Optional[str]
+        tooltip_markup: typing.Optional[str]
+        tooltip_text: typing.Optional[str]
         valign: Gtk.Align
         vexpand: bool
         vexpand_set: bool
         visible: bool
         width_request: int
-        window: Optional[Gdk.Window]
+        window: typing.Optional[Gdk.Window]
         orientation: Gtk.Orientation
         child: Gtk.Widget
 
     props: Props = ...
     def __init__(
         self,
-        content: Optional[Gtk.Widget] = ...,
-        flap: Optional[Gtk.Widget] = ...,
+        content: typing.Optional[Gtk.Widget] = ...,
+        flap: typing.Optional[Gtk.Widget] = ...,
         flap_position: Gtk.PackType = ...,
         fold_duration: int = ...,
         fold_policy: FlapFoldPolicy = ...,
@@ -3737,7 +3731,7 @@ class Flap(
         modal: bool = ...,
         reveal_duration: int = ...,
         reveal_flap: bool = ...,
-        separator: Optional[Gtk.Widget] = ...,
+        separator: typing.Optional[Gtk.Widget] = ...,
         swipe_to_close: bool = ...,
         swipe_to_open: bool = ...,
         transition_type: FlapTransitionType = ...,
@@ -3772,18 +3766,18 @@ class Flap(
         parent: Gtk.Container = ...,
         receives_default: bool = ...,
         sensitive: bool = ...,
-        style: Optional[Gtk.Style] = ...,
-        tooltip_markup: Optional[str] = ...,
-        tooltip_text: Optional[str] = ...,
+        style: typing.Optional[Gtk.Style] = ...,
+        tooltip_markup: typing.Optional[str] = ...,
+        tooltip_text: typing.Optional[str] = ...,
         valign: Gtk.Align = ...,
         vexpand: bool = ...,
         vexpand_set: bool = ...,
         visible: bool = ...,
         width_request: int = ...,
         orientation: Gtk.Orientation = ...,
-    ): ...
-    def get_content(self) -> Optional[Gtk.Widget]: ...
-    def get_flap(self) -> Optional[Gtk.Widget]: ...
+    ) -> None: ...
+    def get_content(self) -> typing.Optional[Gtk.Widget]: ...
+    def get_flap(self) -> typing.Optional[Gtk.Widget]: ...
     def get_flap_position(self) -> Gtk.PackType: ...
     def get_fold_duration(self) -> int: ...
     def get_fold_policy(self) -> FlapFoldPolicy: ...
@@ -3793,14 +3787,14 @@ class Flap(
     def get_reveal_duration(self) -> int: ...
     def get_reveal_flap(self) -> bool: ...
     def get_reveal_progress(self) -> float: ...
-    def get_separator(self) -> Optional[Gtk.Widget]: ...
+    def get_separator(self) -> typing.Optional[Gtk.Widget]: ...
     def get_swipe_to_close(self) -> bool: ...
     def get_swipe_to_open(self) -> bool: ...
     def get_transition_type(self) -> FlapTransitionType: ...
     @classmethod
     def new(cls) -> Flap: ...
-    def set_content(self, content: Optional[Gtk.Widget] = None) -> None: ...
-    def set_flap(self, flap: Optional[Gtk.Widget] = None) -> None: ...
+    def set_content(self, content: typing.Optional[Gtk.Widget] = None) -> None: ...
+    def set_flap(self, flap: typing.Optional[Gtk.Widget] = None) -> None: ...
     def set_flap_position(self, position: Gtk.PackType) -> None: ...
     def set_fold_duration(self, duration: int) -> None: ...
     def set_fold_policy(self, policy: FlapFoldPolicy) -> None: ...
@@ -3808,7 +3802,7 @@ class Flap(
     def set_modal(self, modal: bool) -> None: ...
     def set_reveal_duration(self, duration: int) -> None: ...
     def set_reveal_flap(self, reveal_flap: bool) -> None: ...
-    def set_separator(self, separator: Optional[Gtk.Widget] = None) -> None: ...
+    def set_separator(self, separator: typing.Optional[Gtk.Widget] = None) -> None: ...
     def set_swipe_to_close(self, swipe_to_close: bool) -> None: ...
     def set_swipe_to_open(self, swipe_to_open: bool) -> None: ...
     def set_transition_type(self, transition_type: FlapTransitionType) -> None: ...
@@ -3878,6 +3872,8 @@ class HeaderBar(Gtk.Container, Atk.ImplementorIface, Gtk.Buildable):
     Signals from GtkWidget:
       composited-changed ()
       event (GdkEvent) -> gboolean
+      direction-changed (GtkTextDirection)
+      state-changed (GtkStateType)
       destroy ()
       show ()
       hide ()
@@ -3886,13 +3882,11 @@ class HeaderBar(Gtk.Container, Atk.ImplementorIface, Gtk.Buildable):
       realize ()
       unrealize ()
       size-allocate (GdkRectangle)
-      state-changed (GtkStateType)
       state-flags-changed (GtkStateFlags)
       parent-set (GtkWidget)
       hierarchy-changed (GtkWidget)
       style-set (GtkStyle)
       style-updated ()
-      direction-changed (GtkTextDirection)
       grab-notify (gboolean)
       child-notify (GParam)
       draw (CairoContext) -> gboolean
@@ -4029,18 +4023,17 @@ class HeaderBar(Gtk.Container, Atk.ImplementorIface, Gtk.Buildable):
     Signals from GObject:
       notify (GParam)
     """
-
-    class Props:
+    class Props(Gtk.Container.Props):
         centering_policy: CenteringPolicy
-        custom_title: Optional[Gtk.Widget]
+        custom_title: typing.Optional[Gtk.Widget]
         decoration_layout: str
         decoration_layout_set: bool
         has_subtitle: bool
         interpolate_size: bool
         show_close_button: bool
         spacing: int
-        subtitle: Optional[str]
-        title: Optional[str]
+        subtitle: typing.Optional[str]
+        title: typing.Optional[str]
         transition_duration: int
         transition_running: bool
         border_width: int
@@ -4071,19 +4064,19 @@ class HeaderBar(Gtk.Container, Atk.ImplementorIface, Gtk.Buildable):
         name: str
         no_show_all: bool
         opacity: float
-        parent: Optional[Gtk.Container]
+        parent: typing.Optional[Gtk.Container]
         receives_default: bool
         scale_factor: int
         sensitive: bool
         style: Gtk.Style
-        tooltip_markup: Optional[str]
-        tooltip_text: Optional[str]
+        tooltip_markup: typing.Optional[str]
+        tooltip_text: typing.Optional[str]
         valign: Gtk.Align
         vexpand: bool
         vexpand_set: bool
         visible: bool
         width_request: int
-        window: Optional[Gdk.Window]
+        window: typing.Optional[Gdk.Window]
         child: Gtk.Widget
 
     props: Props = ...
@@ -4091,15 +4084,15 @@ class HeaderBar(Gtk.Container, Atk.ImplementorIface, Gtk.Buildable):
     def __init__(
         self,
         centering_policy: CenteringPolicy = ...,
-        custom_title: Optional[Gtk.Widget] = ...,
-        decoration_layout: Optional[str] = ...,
+        custom_title: typing.Optional[Gtk.Widget] = ...,
+        decoration_layout: typing.Optional[str] = ...,
         decoration_layout_set: bool = ...,
         has_subtitle: bool = ...,
         interpolate_size: bool = ...,
         show_close_button: bool = ...,
         spacing: int = ...,
-        subtitle: Optional[str] = ...,
-        title: Optional[str] = ...,
+        subtitle: typing.Optional[str] = ...,
+        title: typing.Optional[str] = ...,
         transition_duration: int = ...,
         border_width: int = ...,
         child: Gtk.Widget = ...,
@@ -4132,23 +4125,23 @@ class HeaderBar(Gtk.Container, Atk.ImplementorIface, Gtk.Buildable):
         parent: Gtk.Container = ...,
         receives_default: bool = ...,
         sensitive: bool = ...,
-        style: Optional[Gtk.Style] = ...,
-        tooltip_markup: Optional[str] = ...,
-        tooltip_text: Optional[str] = ...,
+        style: typing.Optional[Gtk.Style] = ...,
+        tooltip_markup: typing.Optional[str] = ...,
+        tooltip_text: typing.Optional[str] = ...,
         valign: Gtk.Align = ...,
         vexpand: bool = ...,
         vexpand_set: bool = ...,
         visible: bool = ...,
         width_request: int = ...,
-    ): ...
+    ) -> None: ...
     def get_centering_policy(self) -> CenteringPolicy: ...
-    def get_custom_title(self) -> Optional[Gtk.Widget]: ...
+    def get_custom_title(self) -> typing.Optional[Gtk.Widget]: ...
     def get_decoration_layout(self) -> str: ...
     def get_has_subtitle(self) -> bool: ...
     def get_interpolate_size(self) -> bool: ...
     def get_show_close_button(self) -> bool: ...
-    def get_subtitle(self) -> Optional[str]: ...
-    def get_title(self) -> Optional[str]: ...
+    def get_subtitle(self) -> typing.Optional[str]: ...
+    def get_title(self) -> typing.Optional[str]: ...
     def get_transition_duration(self) -> int: ...
     def get_transition_running(self) -> bool: ...
     @classmethod
@@ -4156,13 +4149,15 @@ class HeaderBar(Gtk.Container, Atk.ImplementorIface, Gtk.Buildable):
     def pack_end(self, child: Gtk.Widget) -> None: ...
     def pack_start(self, child: Gtk.Widget) -> None: ...
     def set_centering_policy(self, centering_policy: CenteringPolicy) -> None: ...
-    def set_custom_title(self, title_widget: Optional[Gtk.Widget] = None) -> None: ...
-    def set_decoration_layout(self, layout: Optional[str] = None) -> None: ...
+    def set_custom_title(
+        self, title_widget: typing.Optional[Gtk.Widget] = None
+    ) -> None: ...
+    def set_decoration_layout(self, layout: typing.Optional[str] = None) -> None: ...
     def set_has_subtitle(self, setting: bool) -> None: ...
     def set_interpolate_size(self, interpolate_size: bool) -> None: ...
     def set_show_close_button(self, setting: bool) -> None: ...
-    def set_subtitle(self, subtitle: Optional[str] = None) -> None: ...
-    def set_title(self, title: Optional[str] = None) -> None: ...
+    def set_subtitle(self, subtitle: typing.Optional[str] = None) -> None: ...
+    def set_title(self, title: typing.Optional[str] = None) -> None: ...
     def set_transition_duration(self, duration: int) -> None: ...
 
 class HeaderBarClass(GObject.GPointer):
@@ -4198,12 +4193,11 @@ class HeaderGroup(GObject.Object, Gtk.Buildable):
     Signals from GObject:
       notify (GParam)
     """
-
-    class Props:
+    class Props(GObject.Object.Props):
         decorate_all: bool
 
     props: Props = ...
-    def __init__(self, decorate_all: bool = ...): ...
+    def __init__(self, decorate_all: bool = ...) -> None: ...
     def add_gtk_header_bar(self, header_bar: Gtk.HeaderBar) -> None: ...
     def add_header_bar(self, header_bar: HeaderBar) -> None: ...
     def add_header_group(self, header_group: HeaderGroup) -> None: ...
@@ -4230,7 +4224,6 @@ class HeaderGroupChild(GObject.Object):
     Signals from GObject:
       notify (GParam)
     """
-
     def get_child_type(self) -> HeaderGroupChildType: ...
     def get_gtk_header_bar(self) -> Gtk.HeaderBar: ...
     def get_header_bar(self) -> HeaderBar: ...
@@ -4302,6 +4295,8 @@ class Keypad(Gtk.Bin, Atk.ImplementorIface, Gtk.Buildable):
     Signals from GtkWidget:
       composited-changed ()
       event (GdkEvent) -> gboolean
+      direction-changed (GtkTextDirection)
+      state-changed (GtkStateType)
       destroy ()
       show ()
       hide ()
@@ -4310,13 +4305,11 @@ class Keypad(Gtk.Bin, Atk.ImplementorIface, Gtk.Buildable):
       realize ()
       unrealize ()
       size-allocate (GdkRectangle)
-      state-changed (GtkStateType)
       state-flags-changed (GtkStateFlags)
       parent-set (GtkWidget)
       hierarchy-changed (GtkWidget)
       style-set (GtkStyle)
       style-updated ()
-      direction-changed (GtkTextDirection)
       grab-notify (gboolean)
       child-notify (GParam)
       draw (CairoContext) -> gboolean
@@ -4453,14 +4446,13 @@ class Keypad(Gtk.Bin, Atk.ImplementorIface, Gtk.Buildable):
     Signals from GObject:
       notify (GParam)
     """
-
-    class Props:
+    class Props(Gtk.Bin.Props):
         column_spacing: int
-        end_action: Optional[Gtk.Widget]
+        end_action: typing.Optional[Gtk.Widget]
         entry: Gtk.Entry
         letters_visible: bool
         row_spacing: int
-        start_action: Optional[Gtk.Widget]
+        start_action: typing.Optional[Gtk.Widget]
         symbols_visible: bool
         border_width: int
         resize_mode: Gtk.ResizeMode
@@ -4490,19 +4482,19 @@ class Keypad(Gtk.Bin, Atk.ImplementorIface, Gtk.Buildable):
         name: str
         no_show_all: bool
         opacity: float
-        parent: Optional[Gtk.Container]
+        parent: typing.Optional[Gtk.Container]
         receives_default: bool
         scale_factor: int
         sensitive: bool
         style: Gtk.Style
-        tooltip_markup: Optional[str]
-        tooltip_text: Optional[str]
+        tooltip_markup: typing.Optional[str]
+        tooltip_text: typing.Optional[str]
         valign: Gtk.Align
         vexpand: bool
         vexpand_set: bool
         visible: bool
         width_request: int
-        window: Optional[Gdk.Window]
+        window: typing.Optional[Gdk.Window]
         child: Gtk.Widget
 
     props: Props = ...
@@ -4510,11 +4502,11 @@ class Keypad(Gtk.Bin, Atk.ImplementorIface, Gtk.Buildable):
     def __init__(
         self,
         column_spacing: int = ...,
-        end_action: Optional[Gtk.Widget] = ...,
-        entry: Optional[Gtk.Entry] = ...,
+        end_action: typing.Optional[Gtk.Widget] = ...,
+        entry: typing.Optional[Gtk.Entry] = ...,
         letters_visible: bool = ...,
         row_spacing: int = ...,
-        start_action: Optional[Gtk.Widget] = ...,
+        start_action: typing.Optional[Gtk.Widget] = ...,
         symbols_visible: bool = ...,
         border_width: int = ...,
         child: Gtk.Widget = ...,
@@ -4547,30 +4539,34 @@ class Keypad(Gtk.Bin, Atk.ImplementorIface, Gtk.Buildable):
         parent: Gtk.Container = ...,
         receives_default: bool = ...,
         sensitive: bool = ...,
-        style: Optional[Gtk.Style] = ...,
-        tooltip_markup: Optional[str] = ...,
-        tooltip_text: Optional[str] = ...,
+        style: typing.Optional[Gtk.Style] = ...,
+        tooltip_markup: typing.Optional[str] = ...,
+        tooltip_text: typing.Optional[str] = ...,
         valign: Gtk.Align = ...,
         vexpand: bool = ...,
         vexpand_set: bool = ...,
         visible: bool = ...,
         width_request: int = ...,
-    ): ...
+    ) -> None: ...
     def get_column_spacing(self) -> int: ...
-    def get_end_action(self) -> Optional[Gtk.Widget]: ...
+    def get_end_action(self) -> typing.Optional[Gtk.Widget]: ...
     def get_entry(self) -> Gtk.Entry: ...
     def get_letters_visible(self) -> bool: ...
     def get_row_spacing(self) -> int: ...
-    def get_start_action(self) -> Optional[Gtk.Widget]: ...
+    def get_start_action(self) -> typing.Optional[Gtk.Widget]: ...
     def get_symbols_visible(self) -> bool: ...
     @classmethod
     def new(cls, symbols_visible: bool, letters_visible: bool) -> Keypad: ...
     def set_column_spacing(self, spacing: int) -> None: ...
-    def set_end_action(self, end_action: Optional[Gtk.Widget] = None) -> None: ...
-    def set_entry(self, entry: Optional[Gtk.Entry] = None) -> None: ...
+    def set_end_action(
+        self, end_action: typing.Optional[Gtk.Widget] = None
+    ) -> None: ...
+    def set_entry(self, entry: typing.Optional[Gtk.Entry] = None) -> None: ...
     def set_letters_visible(self, letters_visible: bool) -> None: ...
     def set_row_spacing(self, spacing: int) -> None: ...
-    def set_start_action(self, start_action: Optional[Gtk.Widget] = None) -> None: ...
+    def set_start_action(
+        self, start_action: typing.Optional[Gtk.Widget] = None
+    ) -> None: ...
     def set_symbols_visible(self, symbols_visible: bool) -> None: ...
 
 class KeypadClass(GObject.GPointer):
@@ -4648,6 +4644,8 @@ class Leaflet(
     Signals from GtkWidget:
       composited-changed ()
       event (GdkEvent) -> gboolean
+      direction-changed (GtkTextDirection)
+      state-changed (GtkStateType)
       destroy ()
       show ()
       hide ()
@@ -4656,13 +4654,11 @@ class Leaflet(
       realize ()
       unrealize ()
       size-allocate (GdkRectangle)
-      state-changed (GtkStateType)
       state-flags-changed (GtkStateFlags)
       parent-set (GtkWidget)
       hierarchy-changed (GtkWidget)
       style-set (GtkStyle)
       style-updated ()
-      direction-changed (GtkTextDirection)
       grab-notify (gboolean)
       child-notify (GParam)
       draw (CairoContext) -> gboolean
@@ -4799,8 +4795,7 @@ class Leaflet(
     Signals from GObject:
       notify (GParam)
     """
-
-    class Props:
+    class Props(Gtk.Container.Props):
         can_swipe_back: bool
         can_swipe_forward: bool
         child_transition_duration: int
@@ -4843,19 +4838,19 @@ class Leaflet(
         name: str
         no_show_all: bool
         opacity: float
-        parent: Optional[Gtk.Container]
+        parent: typing.Optional[Gtk.Container]
         receives_default: bool
         scale_factor: int
         sensitive: bool
         style: Gtk.Style
-        tooltip_markup: Optional[str]
-        tooltip_text: Optional[str]
+        tooltip_markup: typing.Optional[str]
+        tooltip_text: typing.Optional[str]
         valign: Gtk.Align
         vexpand: bool
         vexpand_set: bool
         visible: bool
         width_request: int
-        window: Optional[Gdk.Window]
+        window: typing.Optional[Gdk.Window]
         orientation: Gtk.Orientation
         child: Gtk.Widget
 
@@ -4906,22 +4901,22 @@ class Leaflet(
         parent: Gtk.Container = ...,
         receives_default: bool = ...,
         sensitive: bool = ...,
-        style: Optional[Gtk.Style] = ...,
-        tooltip_markup: Optional[str] = ...,
-        tooltip_text: Optional[str] = ...,
+        style: typing.Optional[Gtk.Style] = ...,
+        tooltip_markup: typing.Optional[str] = ...,
+        tooltip_text: typing.Optional[str] = ...,
         valign: Gtk.Align = ...,
         vexpand: bool = ...,
         vexpand_set: bool = ...,
         visible: bool = ...,
         width_request: int = ...,
         orientation: Gtk.Orientation = ...,
-    ): ...
+    ) -> None: ...
     def get_adjacent_child(
         self, direction: NavigationDirection
-    ) -> Optional[Gtk.Widget]: ...
+    ) -> typing.Optional[Gtk.Widget]: ...
     def get_can_swipe_back(self) -> bool: ...
     def get_can_swipe_forward(self) -> bool: ...
-    def get_child_by_name(self, name: str) -> Optional[Gtk.Widget]: ...
+    def get_child_by_name(self, name: str) -> typing.Optional[Gtk.Widget]: ...
     def get_child_transition_duration(self) -> int: ...
     def get_child_transition_running(self) -> bool: ...
     def get_folded(self) -> bool: ...
@@ -4932,14 +4927,14 @@ class Leaflet(
     def get_visible_child(self) -> Gtk.Widget: ...
     def get_visible_child_name(self) -> str: ...
     def insert_child_after(
-        self, child: Gtk.Widget, sibling: Optional[Gtk.Widget] = None
+        self, child: Gtk.Widget, sibling: typing.Optional[Gtk.Widget] = None
     ) -> None: ...
     def navigate(self, direction: NavigationDirection) -> bool: ...
     @classmethod
     def new(cls) -> Leaflet: ...
     def prepend(self, child: Gtk.Widget) -> None: ...
     def reorder_child_after(
-        self, child: Gtk.Widget, sibling: Optional[Gtk.Widget] = None
+        self, child: Gtk.Widget, sibling: typing.Optional[Gtk.Widget] = None
     ) -> None: ...
     def set_can_swipe_back(self, can_swipe_back: bool) -> None: ...
     def set_can_swipe_forward(self, can_swipe_forward: bool) -> None: ...
@@ -5001,6 +4996,8 @@ class PreferencesGroup(Gtk.Bin, Atk.ImplementorIface, Gtk.Buildable):
     Signals from GtkWidget:
       composited-changed ()
       event (GdkEvent) -> gboolean
+      direction-changed (GtkTextDirection)
+      state-changed (GtkStateType)
       destroy ()
       show ()
       hide ()
@@ -5009,13 +5006,11 @@ class PreferencesGroup(Gtk.Bin, Atk.ImplementorIface, Gtk.Buildable):
       realize ()
       unrealize ()
       size-allocate (GdkRectangle)
-      state-changed (GtkStateType)
       state-flags-changed (GtkStateFlags)
       parent-set (GtkWidget)
       hierarchy-changed (GtkWidget)
       style-set (GtkStyle)
       style-updated ()
-      direction-changed (GtkTextDirection)
       grab-notify (gboolean)
       child-notify (GParam)
       draw (CairoContext) -> gboolean
@@ -5152,8 +5147,7 @@ class PreferencesGroup(Gtk.Bin, Atk.ImplementorIface, Gtk.Buildable):
     Signals from GObject:
       notify (GParam)
     """
-
-    class Props:
+    class Props(Gtk.Bin.Props):
         description: str
         title: str
         use_markup: bool
@@ -5185,19 +5179,19 @@ class PreferencesGroup(Gtk.Bin, Atk.ImplementorIface, Gtk.Buildable):
         name: str
         no_show_all: bool
         opacity: float
-        parent: Optional[Gtk.Container]
+        parent: typing.Optional[Gtk.Container]
         receives_default: bool
         scale_factor: int
         sensitive: bool
         style: Gtk.Style
-        tooltip_markup: Optional[str]
-        tooltip_text: Optional[str]
+        tooltip_markup: typing.Optional[str]
+        tooltip_text: typing.Optional[str]
         valign: Gtk.Align
         vexpand: bool
         vexpand_set: bool
         visible: bool
         width_request: int
-        window: Optional[Gdk.Window]
+        window: typing.Optional[Gdk.Window]
         child: Gtk.Widget
 
     props: Props = ...
@@ -5238,15 +5232,15 @@ class PreferencesGroup(Gtk.Bin, Atk.ImplementorIface, Gtk.Buildable):
         parent: Gtk.Container = ...,
         receives_default: bool = ...,
         sensitive: bool = ...,
-        style: Optional[Gtk.Style] = ...,
-        tooltip_markup: Optional[str] = ...,
-        tooltip_text: Optional[str] = ...,
+        style: typing.Optional[Gtk.Style] = ...,
+        tooltip_markup: typing.Optional[str] = ...,
+        tooltip_text: typing.Optional[str] = ...,
         valign: Gtk.Align = ...,
         vexpand: bool = ...,
         vexpand_set: bool = ...,
         visible: bool = ...,
         width_request: int = ...,
-    ): ...
+    ) -> None: ...
     def get_description(self) -> str: ...
     def get_title(self) -> str: ...
     def get_use_markup(self) -> bool: ...
@@ -5302,6 +5296,8 @@ class PreferencesPage(Gtk.Bin, Atk.ImplementorIface, Gtk.Buildable):
     Signals from GtkWidget:
       composited-changed ()
       event (GdkEvent) -> gboolean
+      direction-changed (GtkTextDirection)
+      state-changed (GtkStateType)
       destroy ()
       show ()
       hide ()
@@ -5310,13 +5306,11 @@ class PreferencesPage(Gtk.Bin, Atk.ImplementorIface, Gtk.Buildable):
       realize ()
       unrealize ()
       size-allocate (GdkRectangle)
-      state-changed (GtkStateType)
       state-flags-changed (GtkStateFlags)
       parent-set (GtkWidget)
       hierarchy-changed (GtkWidget)
       style-set (GtkStyle)
       style-updated ()
-      direction-changed (GtkTextDirection)
       grab-notify (gboolean)
       child-notify (GParam)
       draw (CairoContext) -> gboolean
@@ -5453,10 +5447,9 @@ class PreferencesPage(Gtk.Bin, Atk.ImplementorIface, Gtk.Buildable):
     Signals from GObject:
       notify (GParam)
     """
-
-    class Props:
-        icon_name: Optional[str]
-        title: Optional[str]
+    class Props(Gtk.Bin.Props):
+        icon_name: typing.Optional[str]
+        title: typing.Optional[str]
         border_width: int
         resize_mode: Gtk.ResizeMode
         app_paintable: bool
@@ -5485,27 +5478,27 @@ class PreferencesPage(Gtk.Bin, Atk.ImplementorIface, Gtk.Buildable):
         name: str
         no_show_all: bool
         opacity: float
-        parent: Optional[Gtk.Container]
+        parent: typing.Optional[Gtk.Container]
         receives_default: bool
         scale_factor: int
         sensitive: bool
         style: Gtk.Style
-        tooltip_markup: Optional[str]
-        tooltip_text: Optional[str]
+        tooltip_markup: typing.Optional[str]
+        tooltip_text: typing.Optional[str]
         valign: Gtk.Align
         vexpand: bool
         vexpand_set: bool
         visible: bool
         width_request: int
-        window: Optional[Gdk.Window]
+        window: typing.Optional[Gdk.Window]
         child: Gtk.Widget
 
     props: Props = ...
     parent_instance: Gtk.Bin = ...
     def __init__(
         self,
-        icon_name: Optional[str] = ...,
-        title: Optional[str] = ...,
+        icon_name: typing.Optional[str] = ...,
+        title: typing.Optional[str] = ...,
         border_width: int = ...,
         child: Gtk.Widget = ...,
         resize_mode: Gtk.ResizeMode = ...,
@@ -5537,21 +5530,21 @@ class PreferencesPage(Gtk.Bin, Atk.ImplementorIface, Gtk.Buildable):
         parent: Gtk.Container = ...,
         receives_default: bool = ...,
         sensitive: bool = ...,
-        style: Optional[Gtk.Style] = ...,
-        tooltip_markup: Optional[str] = ...,
-        tooltip_text: Optional[str] = ...,
+        style: typing.Optional[Gtk.Style] = ...,
+        tooltip_markup: typing.Optional[str] = ...,
+        tooltip_text: typing.Optional[str] = ...,
         valign: Gtk.Align = ...,
         vexpand: bool = ...,
         vexpand_set: bool = ...,
         visible: bool = ...,
         width_request: int = ...,
-    ): ...
-    def get_icon_name(self) -> Optional[str]: ...
-    def get_title(self) -> Optional[str]: ...
+    ) -> None: ...
+    def get_icon_name(self) -> typing.Optional[str]: ...
+    def get_title(self) -> typing.Optional[str]: ...
     @classmethod
     def new(cls) -> PreferencesPage: ...
-    def set_icon_name(self, icon_name: Optional[str] = None) -> None: ...
-    def set_title(self, title: Optional[str] = None) -> None: ...
+    def set_icon_name(self, icon_name: typing.Optional[str] = None) -> None: ...
+    def set_title(self, title: typing.Optional[str] = None) -> None: ...
 
 class PreferencesPageClass(GObject.GPointer):
     """
@@ -5610,6 +5603,8 @@ class PreferencesRow(
     Signals from GtkWidget:
       composited-changed ()
       event (GdkEvent) -> gboolean
+      direction-changed (GtkTextDirection)
+      state-changed (GtkStateType)
       destroy ()
       show ()
       hide ()
@@ -5618,13 +5613,11 @@ class PreferencesRow(
       realize ()
       unrealize ()
       size-allocate (GdkRectangle)
-      state-changed (GtkStateType)
       state-flags-changed (GtkStateFlags)
       parent-set (GtkWidget)
       hierarchy-changed (GtkWidget)
       style-set (GtkStyle)
       style-updated ()
-      direction-changed (GtkTextDirection)
       grab-notify (gboolean)
       child-notify (GParam)
       draw (CairoContext) -> gboolean
@@ -5761,9 +5754,8 @@ class PreferencesRow(
     Signals from GObject:
       notify (GParam)
     """
-
-    class Props:
-        title: Optional[str]
+    class Props(Gtk.ListBoxRow.Props):
+        title: typing.Optional[str]
         use_underline: bool
         activatable: bool
         selectable: bool
@@ -5795,20 +5787,20 @@ class PreferencesRow(
         name: str
         no_show_all: bool
         opacity: float
-        parent: Optional[Gtk.Container]
+        parent: typing.Optional[Gtk.Container]
         receives_default: bool
         scale_factor: int
         sensitive: bool
         style: Gtk.Style
-        tooltip_markup: Optional[str]
-        tooltip_text: Optional[str]
+        tooltip_markup: typing.Optional[str]
+        tooltip_text: typing.Optional[str]
         valign: Gtk.Align
         vexpand: bool
         vexpand_set: bool
         visible: bool
         width_request: int
-        window: Optional[Gdk.Window]
-        action_name: Optional[str]
+        window: typing.Optional[Gdk.Window]
+        action_name: typing.Optional[str]
         action_target: GLib.Variant
         child: Gtk.Widget
 
@@ -5816,7 +5808,7 @@ class PreferencesRow(
     parent_instance: Gtk.ListBoxRow = ...
     def __init__(
         self,
-        title: Optional[str] = ...,
+        title: typing.Optional[str] = ...,
         use_underline: bool = ...,
         activatable: bool = ...,
         selectable: bool = ...,
@@ -5851,22 +5843,22 @@ class PreferencesRow(
         parent: Gtk.Container = ...,
         receives_default: bool = ...,
         sensitive: bool = ...,
-        style: Optional[Gtk.Style] = ...,
-        tooltip_markup: Optional[str] = ...,
-        tooltip_text: Optional[str] = ...,
+        style: typing.Optional[Gtk.Style] = ...,
+        tooltip_markup: typing.Optional[str] = ...,
+        tooltip_text: typing.Optional[str] = ...,
         valign: Gtk.Align = ...,
         vexpand: bool = ...,
         vexpand_set: bool = ...,
         visible: bool = ...,
         width_request: int = ...,
-        action_name: Optional[str] = ...,
+        action_name: typing.Optional[str] = ...,
         action_target: GLib.Variant = ...,
-    ): ...
-    def get_title(self) -> Optional[str]: ...
+    ) -> None: ...
+    def get_title(self) -> typing.Optional[str]: ...
     def get_use_underline(self) -> bool: ...
     @classmethod
     def new(cls) -> PreferencesRow: ...
-    def set_title(self, title: Optional[str] = None) -> None: ...
+    def set_title(self, title: typing.Optional[str] = None) -> None: ...
     def set_use_underline(self, use_underline: bool) -> None: ...
 
 class PreferencesRowClass(GObject.GPointer):
@@ -5990,6 +5982,8 @@ class PreferencesWindow(Window, Atk.ImplementorIface, Gtk.Buildable):
     Signals from GtkWidget:
       composited-changed ()
       event (GdkEvent) -> gboolean
+      direction-changed (GtkTextDirection)
+      state-changed (GtkStateType)
       destroy ()
       show ()
       hide ()
@@ -5998,13 +5992,11 @@ class PreferencesWindow(Window, Atk.ImplementorIface, Gtk.Buildable):
       realize ()
       unrealize ()
       size-allocate (GdkRectangle)
-      state-changed (GtkStateType)
       state-flags-changed (GtkStateFlags)
       parent-set (GtkWidget)
       hierarchy-changed (GtkWidget)
       style-set (GtkStyle)
       style-updated ()
-      direction-changed (GtkTextDirection)
       grab-notify (gboolean)
       child-notify (GParam)
       draw (CairoContext) -> gboolean
@@ -6141,13 +6133,12 @@ class PreferencesWindow(Window, Atk.ImplementorIface, Gtk.Buildable):
     Signals from GObject:
       notify (GParam)
     """
-
-    class Props:
+    class Props(Window.Props):
         can_swipe_back: bool
         search_enabled: bool
         accept_focus: bool
-        application: Optional[Gtk.Application]
-        attached_to: Optional[Gtk.Widget]
+        application: typing.Optional[Gtk.Application]
+        attached_to: typing.Optional[Gtk.Widget]
         decorated: bool
         default_height: int
         default_width: int
@@ -6159,20 +6150,20 @@ class PreferencesWindow(Window, Atk.ImplementorIface, Gtk.Buildable):
         has_resize_grip: bool
         has_toplevel_focus: bool
         hide_titlebar_when_maximized: bool
-        icon: Optional[GdkPixbuf.Pixbuf]
-        icon_name: Optional[str]
+        icon: typing.Optional[GdkPixbuf.Pixbuf]
+        icon_name: typing.Optional[str]
         is_active: bool
         is_maximized: bool
         mnemonics_visible: bool
         modal: bool
         resizable: bool
         resize_grip_visible: bool
-        role: Optional[str]
+        role: typing.Optional[str]
         screen: Gdk.Screen
         skip_pager_hint: bool
         skip_taskbar_hint: bool
-        title: Optional[str]
-        transient_for: Optional[Gtk.Window]
+        title: typing.Optional[str]
+        transient_for: typing.Optional[Gtk.Window]
         type: Gtk.WindowType
         type_hint: Gdk.WindowTypeHint
         urgency_hint: bool
@@ -6205,19 +6196,19 @@ class PreferencesWindow(Window, Atk.ImplementorIface, Gtk.Buildable):
         name: str
         no_show_all: bool
         opacity: float
-        parent: Optional[Gtk.Container]
+        parent: typing.Optional[Gtk.Container]
         receives_default: bool
         scale_factor: int
         sensitive: bool
         style: Gtk.Style
-        tooltip_markup: Optional[str]
-        tooltip_text: Optional[str]
+        tooltip_markup: typing.Optional[str]
+        tooltip_text: typing.Optional[str]
         valign: Gtk.Align
         vexpand: bool
         vexpand_set: bool
         visible: bool
         width_request: int
-        window: Optional[Gdk.Window]
+        window: typing.Optional[Gdk.Window]
         startup_id: str
         child: Gtk.Widget
 
@@ -6228,8 +6219,8 @@ class PreferencesWindow(Window, Atk.ImplementorIface, Gtk.Buildable):
         can_swipe_back: bool = ...,
         search_enabled: bool = ...,
         accept_focus: bool = ...,
-        application: Optional[Gtk.Application] = ...,
-        attached_to: Optional[Gtk.Widget] = ...,
+        application: typing.Optional[Gtk.Application] = ...,
+        attached_to: typing.Optional[Gtk.Widget] = ...,
         decorated: bool = ...,
         default_height: int = ...,
         default_width: int = ...,
@@ -6240,8 +6231,8 @@ class PreferencesWindow(Window, Atk.ImplementorIface, Gtk.Buildable):
         gravity: Gdk.Gravity = ...,
         has_resize_grip: bool = ...,
         hide_titlebar_when_maximized: bool = ...,
-        icon: Optional[GdkPixbuf.Pixbuf] = ...,
-        icon_name: Optional[str] = ...,
+        icon: typing.Optional[GdkPixbuf.Pixbuf] = ...,
+        icon_name: typing.Optional[str] = ...,
         mnemonics_visible: bool = ...,
         modal: bool = ...,
         resizable: bool = ...,
@@ -6251,7 +6242,7 @@ class PreferencesWindow(Window, Atk.ImplementorIface, Gtk.Buildable):
         skip_taskbar_hint: bool = ...,
         startup_id: str = ...,
         title: str = ...,
-        transient_for: Optional[Gtk.Window] = ...,
+        transient_for: typing.Optional[Gtk.Window] = ...,
         type: Gtk.WindowType = ...,
         type_hint: Gdk.WindowTypeHint = ...,
         urgency_hint: bool = ...,
@@ -6287,15 +6278,15 @@ class PreferencesWindow(Window, Atk.ImplementorIface, Gtk.Buildable):
         parent: Gtk.Container = ...,
         receives_default: bool = ...,
         sensitive: bool = ...,
-        style: Optional[Gtk.Style] = ...,
-        tooltip_markup: Optional[str] = ...,
-        tooltip_text: Optional[str] = ...,
+        style: typing.Optional[Gtk.Style] = ...,
+        tooltip_markup: typing.Optional[str] = ...,
+        tooltip_text: typing.Optional[str] = ...,
         valign: Gtk.Align = ...,
         vexpand: bool = ...,
         vexpand_set: bool = ...,
         visible: bool = ...,
         width_request: int = ...,
-    ): ...
+    ) -> None: ...
     def close_subpage(self) -> None: ...
     def get_can_swipe_back(self) -> bool: ...
     def get_search_enabled(self) -> bool: ...
@@ -6351,6 +6342,8 @@ class SearchBar(Gtk.Bin, Atk.ImplementorIface, Gtk.Buildable):
     Signals from GtkWidget:
       composited-changed ()
       event (GdkEvent) -> gboolean
+      direction-changed (GtkTextDirection)
+      state-changed (GtkStateType)
       destroy ()
       show ()
       hide ()
@@ -6359,13 +6352,11 @@ class SearchBar(Gtk.Bin, Atk.ImplementorIface, Gtk.Buildable):
       realize ()
       unrealize ()
       size-allocate (GdkRectangle)
-      state-changed (GtkStateType)
       state-flags-changed (GtkStateFlags)
       parent-set (GtkWidget)
       hierarchy-changed (GtkWidget)
       style-set (GtkStyle)
       style-updated ()
-      direction-changed (GtkTextDirection)
       grab-notify (gboolean)
       child-notify (GParam)
       draw (CairoContext) -> gboolean
@@ -6502,8 +6493,7 @@ class SearchBar(Gtk.Bin, Atk.ImplementorIface, Gtk.Buildable):
     Signals from GObject:
       notify (GParam)
     """
-
-    class Props:
+    class Props(Gtk.Bin.Props):
         search_mode_enabled: bool
         show_close_button: bool
         border_width: int
@@ -6534,19 +6524,19 @@ class SearchBar(Gtk.Bin, Atk.ImplementorIface, Gtk.Buildable):
         name: str
         no_show_all: bool
         opacity: float
-        parent: Optional[Gtk.Container]
+        parent: typing.Optional[Gtk.Container]
         receives_default: bool
         scale_factor: int
         sensitive: bool
         style: Gtk.Style
-        tooltip_markup: Optional[str]
-        tooltip_text: Optional[str]
+        tooltip_markup: typing.Optional[str]
+        tooltip_text: typing.Optional[str]
         valign: Gtk.Align
         vexpand: bool
         vexpand_set: bool
         visible: bool
         width_request: int
-        window: Optional[Gdk.Window]
+        window: typing.Optional[Gdk.Window]
         child: Gtk.Widget
 
     props: Props = ...
@@ -6586,15 +6576,15 @@ class SearchBar(Gtk.Bin, Atk.ImplementorIface, Gtk.Buildable):
         parent: Gtk.Container = ...,
         receives_default: bool = ...,
         sensitive: bool = ...,
-        style: Optional[Gtk.Style] = ...,
-        tooltip_markup: Optional[str] = ...,
-        tooltip_text: Optional[str] = ...,
+        style: typing.Optional[Gtk.Style] = ...,
+        tooltip_markup: typing.Optional[str] = ...,
+        tooltip_text: typing.Optional[str] = ...,
         valign: Gtk.Align = ...,
         vexpand: bool = ...,
         vexpand_set: bool = ...,
         visible: bool = ...,
         width_request: int = ...,
-    ): ...
+    ) -> None: ...
     def connect_entry(self, entry: Gtk.Entry) -> None: ...
     def get_search_mode(self) -> bool: ...
     def get_show_close_button(self) -> bool: ...
@@ -6662,6 +6652,8 @@ class Squeezer(Gtk.Container, Atk.ImplementorIface, Gtk.Buildable, Gtk.Orientabl
     Signals from GtkWidget:
       composited-changed ()
       event (GdkEvent) -> gboolean
+      direction-changed (GtkTextDirection)
+      state-changed (GtkStateType)
       destroy ()
       show ()
       hide ()
@@ -6670,13 +6662,11 @@ class Squeezer(Gtk.Container, Atk.ImplementorIface, Gtk.Buildable, Gtk.Orientabl
       realize ()
       unrealize ()
       size-allocate (GdkRectangle)
-      state-changed (GtkStateType)
       state-flags-changed (GtkStateFlags)
       parent-set (GtkWidget)
       hierarchy-changed (GtkWidget)
       style-set (GtkStyle)
       style-updated ()
-      direction-changed (GtkTextDirection)
       grab-notify (gboolean)
       child-notify (GParam)
       draw (CairoContext) -> gboolean
@@ -6813,14 +6803,13 @@ class Squeezer(Gtk.Container, Atk.ImplementorIface, Gtk.Buildable, Gtk.Orientabl
     Signals from GObject:
       notify (GParam)
     """
-
-    class Props:
+    class Props(Gtk.Container.Props):
         homogeneous: bool
         interpolate_size: bool
         transition_duration: int
         transition_running: bool
         transition_type: SqueezerTransitionType
-        visible_child: Optional[Gtk.Widget]
+        visible_child: typing.Optional[Gtk.Widget]
         xalign: float
         yalign: float
         border_width: int
@@ -6851,19 +6840,19 @@ class Squeezer(Gtk.Container, Atk.ImplementorIface, Gtk.Buildable, Gtk.Orientabl
         name: str
         no_show_all: bool
         opacity: float
-        parent: Optional[Gtk.Container]
+        parent: typing.Optional[Gtk.Container]
         receives_default: bool
         scale_factor: int
         sensitive: bool
         style: Gtk.Style
-        tooltip_markup: Optional[str]
-        tooltip_text: Optional[str]
+        tooltip_markup: typing.Optional[str]
+        tooltip_text: typing.Optional[str]
         valign: Gtk.Align
         vexpand: bool
         vexpand_set: bool
         visible: bool
         width_request: int
-        window: Optional[Gdk.Window]
+        window: typing.Optional[Gdk.Window]
         orientation: Gtk.Orientation
         child: Gtk.Widget
 
@@ -6907,23 +6896,23 @@ class Squeezer(Gtk.Container, Atk.ImplementorIface, Gtk.Buildable, Gtk.Orientabl
         parent: Gtk.Container = ...,
         receives_default: bool = ...,
         sensitive: bool = ...,
-        style: Optional[Gtk.Style] = ...,
-        tooltip_markup: Optional[str] = ...,
-        tooltip_text: Optional[str] = ...,
+        style: typing.Optional[Gtk.Style] = ...,
+        tooltip_markup: typing.Optional[str] = ...,
+        tooltip_text: typing.Optional[str] = ...,
         valign: Gtk.Align = ...,
         vexpand: bool = ...,
         vexpand_set: bool = ...,
         visible: bool = ...,
         width_request: int = ...,
         orientation: Gtk.Orientation = ...,
-    ): ...
+    ) -> None: ...
     def get_child_enabled(self, child: Gtk.Widget) -> bool: ...
     def get_homogeneous(self) -> bool: ...
     def get_interpolate_size(self) -> bool: ...
     def get_transition_duration(self) -> int: ...
     def get_transition_running(self) -> bool: ...
     def get_transition_type(self) -> SqueezerTransitionType: ...
-    def get_visible_child(self) -> Optional[Gtk.Widget]: ...
+    def get_visible_child(self) -> typing.Optional[Gtk.Widget]: ...
     def get_xalign(self) -> float: ...
     def get_yalign(self) -> float: ...
     @classmethod
@@ -6983,6 +6972,8 @@ class StatusPage(Gtk.Bin, Atk.ImplementorIface, Gtk.Buildable):
     Signals from GtkWidget:
       composited-changed ()
       event (GdkEvent) -> gboolean
+      direction-changed (GtkTextDirection)
+      state-changed (GtkStateType)
       destroy ()
       show ()
       hide ()
@@ -6991,13 +6982,11 @@ class StatusPage(Gtk.Bin, Atk.ImplementorIface, Gtk.Buildable):
       realize ()
       unrealize ()
       size-allocate (GdkRectangle)
-      state-changed (GtkStateType)
       state-flags-changed (GtkStateFlags)
       parent-set (GtkWidget)
       hierarchy-changed (GtkWidget)
       style-set (GtkStyle)
       style-updated ()
-      direction-changed (GtkTextDirection)
       grab-notify (gboolean)
       child-notify (GParam)
       draw (CairoContext) -> gboolean
@@ -7134,11 +7123,10 @@ class StatusPage(Gtk.Bin, Atk.ImplementorIface, Gtk.Buildable):
     Signals from GObject:
       notify (GParam)
     """
-
-    class Props:
-        description: Optional[str]
-        icon_name: Optional[str]
-        title: Optional[str]
+    class Props(Gtk.Bin.Props):
+        description: typing.Optional[str]
+        icon_name: typing.Optional[str]
+        title: typing.Optional[str]
         border_width: int
         resize_mode: Gtk.ResizeMode
         app_paintable: bool
@@ -7167,27 +7155,27 @@ class StatusPage(Gtk.Bin, Atk.ImplementorIface, Gtk.Buildable):
         name: str
         no_show_all: bool
         opacity: float
-        parent: Optional[Gtk.Container]
+        parent: typing.Optional[Gtk.Container]
         receives_default: bool
         scale_factor: int
         sensitive: bool
         style: Gtk.Style
-        tooltip_markup: Optional[str]
-        tooltip_text: Optional[str]
+        tooltip_markup: typing.Optional[str]
+        tooltip_text: typing.Optional[str]
         valign: Gtk.Align
         vexpand: bool
         vexpand_set: bool
         visible: bool
         width_request: int
-        window: Optional[Gdk.Window]
+        window: typing.Optional[Gdk.Window]
         child: Gtk.Widget
 
     props: Props = ...
     def __init__(
         self,
-        description: Optional[str] = ...,
-        icon_name: Optional[str] = ...,
-        title: Optional[str] = ...,
+        description: typing.Optional[str] = ...,
+        icon_name: typing.Optional[str] = ...,
+        title: typing.Optional[str] = ...,
         border_width: int = ...,
         child: Gtk.Widget = ...,
         resize_mode: Gtk.ResizeMode = ...,
@@ -7219,23 +7207,23 @@ class StatusPage(Gtk.Bin, Atk.ImplementorIface, Gtk.Buildable):
         parent: Gtk.Container = ...,
         receives_default: bool = ...,
         sensitive: bool = ...,
-        style: Optional[Gtk.Style] = ...,
-        tooltip_markup: Optional[str] = ...,
-        tooltip_text: Optional[str] = ...,
+        style: typing.Optional[Gtk.Style] = ...,
+        tooltip_markup: typing.Optional[str] = ...,
+        tooltip_text: typing.Optional[str] = ...,
         valign: Gtk.Align = ...,
         vexpand: bool = ...,
         vexpand_set: bool = ...,
         visible: bool = ...,
         width_request: int = ...,
-    ): ...
-    def get_description(self) -> Optional[str]: ...
-    def get_icon_name(self) -> Optional[str]: ...
-    def get_title(self) -> Optional[str]: ...
+    ) -> None: ...
+    def get_description(self) -> typing.Optional[str]: ...
+    def get_icon_name(self) -> typing.Optional[str]: ...
+    def get_title(self) -> typing.Optional[str]: ...
     @classmethod
     def new(cls) -> StatusPage: ...
-    def set_description(self, description: Optional[str] = None) -> None: ...
-    def set_icon_name(self, icon_name: Optional[str] = None) -> None: ...
-    def set_title(self, title: Optional[str] = None) -> None: ...
+    def set_description(self, description: typing.Optional[str] = None) -> None: ...
+    def set_icon_name(self, icon_name: typing.Optional[str] = None) -> None: ...
+    def set_title(self, title: typing.Optional[str] = None) -> None: ...
 
 class StatusPageClass(GObject.GPointer):
     """
@@ -7273,8 +7261,7 @@ class StyleManager(GObject.Object):
     Signals from GObject:
       notify (GParam)
     """
-
-    class Props:
+    class Props(GObject.Object.Props):
         color_scheme: ColorScheme
         dark: bool
         display: Gdk.Display
@@ -7282,7 +7269,9 @@ class StyleManager(GObject.Object):
         system_supports_color_schemes: bool
 
     props: Props = ...
-    def __init__(self, color_scheme: ColorScheme = ..., display: Gdk.Display = ...): ...
+    def __init__(
+        self, color_scheme: ColorScheme = ..., display: Gdk.Display = ...
+    ) -> None: ...
     def get_color_scheme(self) -> ColorScheme: ...
     def get_dark(self) -> bool: ...
     @staticmethod
@@ -7319,7 +7308,6 @@ class SwipeGroup(GObject.Object, Gtk.Buildable):
     Signals from GObject:
       notify (GParam)
     """
-
     def add_swipeable(self, swipeable: Swipeable) -> None: ...
     def get_swipeables(self) -> list[Swipeable]: ...
     @classmethod
@@ -7368,8 +7356,7 @@ class SwipeTracker(GObject.Object, Gtk.Orientable):
     Signals from GObject:
       notify (GParam)
     """
-
-    class Props:
+    class Props(GObject.Object.Props):
         allow_long_swipes: bool
         allow_mouse_drag: bool
         enabled: bool
@@ -7386,7 +7373,7 @@ class SwipeTracker(GObject.Object, Gtk.Orientable):
         reversed: bool = ...,
         swipeable: Swipeable = ...,
         orientation: Gtk.Orientation = ...,
-    ): ...
+    ) -> None: ...
     def get_allow_long_swipes(self) -> bool: ...
     def get_allow_mouse_drag(self) -> bool: ...
     def get_enabled(self) -> bool: ...
@@ -7418,7 +7405,6 @@ class Swipeable(GObject.GInterface):
     Signals from GObject:
       notify (GParam)
     """
-
     def emit_child_switched(self, index: int, duration: int) -> None: ...
     def get_cancel_progress(self) -> float: ...
     def get_distance(self) -> float: ...
@@ -7440,13 +7426,13 @@ class SwipeableInterface(GObject.GPointer):
     """
 
     parent: GObject.TypeInterface = ...
-    switch_child: Callable[[Swipeable, int, int], None] = ...
-    get_swipe_tracker: Callable[[Swipeable], SwipeTracker] = ...
-    get_distance: Callable[[Swipeable], float] = ...
-    get_snap_points: Callable[[Swipeable], list[float]] = ...
-    get_progress: Callable[[Swipeable], float] = ...
-    get_cancel_progress: Callable[[Swipeable], float] = ...
-    get_swipe_area: Callable[
+    switch_child: typing.Callable[[Swipeable, int, int], None] = ...
+    get_swipe_tracker: typing.Callable[[Swipeable], SwipeTracker] = ...
+    get_distance: typing.Callable[[Swipeable], float] = ...
+    get_snap_points: typing.Callable[[Swipeable], list[float]] = ...
+    get_progress: typing.Callable[[Swipeable], float] = ...
+    get_cancel_progress: typing.Callable[[Swipeable], float] = ...
+    get_swipe_area: typing.Callable[
         [Swipeable, NavigationDirection, bool], Gdk.Rectangle
     ] = ...
     padding: list[None] = ...
@@ -7502,6 +7488,8 @@ class TabBar(Gtk.Bin, Atk.ImplementorIface, Gtk.Buildable):
     Signals from GtkWidget:
       composited-changed ()
       event (GdkEvent) -> gboolean
+      direction-changed (GtkTextDirection)
+      state-changed (GtkStateType)
       destroy ()
       show ()
       hide ()
@@ -7510,13 +7498,11 @@ class TabBar(Gtk.Bin, Atk.ImplementorIface, Gtk.Buildable):
       realize ()
       unrealize ()
       size-allocate (GdkRectangle)
-      state-changed (GtkStateType)
       state-flags-changed (GtkStateFlags)
       parent-set (GtkWidget)
       hierarchy-changed (GtkWidget)
       style-set (GtkStyle)
       style-updated ()
-      direction-changed (GtkTextDirection)
       grab-notify (gboolean)
       child-notify (GParam)
       draw (CairoContext) -> gboolean
@@ -7653,17 +7639,16 @@ class TabBar(Gtk.Bin, Atk.ImplementorIface, Gtk.Buildable):
     Signals from GObject:
       notify (GParam)
     """
-
-    class Props:
+    class Props(Gtk.Bin.Props):
         autohide: bool
-        end_action_widget: Optional[Gtk.Widget]
+        end_action_widget: typing.Optional[Gtk.Widget]
         expand_tabs: bool
-        extra_drag_dest_targets: Optional[Gtk.TargetList]
+        extra_drag_dest_targets: typing.Optional[Gtk.TargetList]
         inverted: bool
         is_overflowing: bool
-        start_action_widget: Optional[Gtk.Widget]
+        start_action_widget: typing.Optional[Gtk.Widget]
         tabs_revealed: bool
-        view: Optional[TabView]
+        view: typing.Optional[TabView]
         border_width: int
         resize_mode: Gtk.ResizeMode
         app_paintable: bool
@@ -7692,31 +7677,31 @@ class TabBar(Gtk.Bin, Atk.ImplementorIface, Gtk.Buildable):
         name: str
         no_show_all: bool
         opacity: float
-        parent: Optional[Gtk.Container]
+        parent: typing.Optional[Gtk.Container]
         receives_default: bool
         scale_factor: int
         sensitive: bool
         style: Gtk.Style
-        tooltip_markup: Optional[str]
-        tooltip_text: Optional[str]
+        tooltip_markup: typing.Optional[str]
+        tooltip_text: typing.Optional[str]
         valign: Gtk.Align
         vexpand: bool
         vexpand_set: bool
         visible: bool
         width_request: int
-        window: Optional[Gdk.Window]
+        window: typing.Optional[Gdk.Window]
         child: Gtk.Widget
 
     props: Props = ...
     def __init__(
         self,
         autohide: bool = ...,
-        end_action_widget: Optional[Gtk.Widget] = ...,
+        end_action_widget: typing.Optional[Gtk.Widget] = ...,
         expand_tabs: bool = ...,
-        extra_drag_dest_targets: Optional[Gtk.TargetList] = ...,
+        extra_drag_dest_targets: typing.Optional[Gtk.TargetList] = ...,
         inverted: bool = ...,
-        start_action_widget: Optional[Gtk.Widget] = ...,
-        view: Optional[TabView] = ...,
+        start_action_widget: typing.Optional[Gtk.Widget] = ...,
+        view: typing.Optional[TabView] = ...,
         border_width: int = ...,
         child: Gtk.Widget = ...,
         resize_mode: Gtk.ResizeMode = ...,
@@ -7748,35 +7733,39 @@ class TabBar(Gtk.Bin, Atk.ImplementorIface, Gtk.Buildable):
         parent: Gtk.Container = ...,
         receives_default: bool = ...,
         sensitive: bool = ...,
-        style: Optional[Gtk.Style] = ...,
-        tooltip_markup: Optional[str] = ...,
-        tooltip_text: Optional[str] = ...,
+        style: typing.Optional[Gtk.Style] = ...,
+        tooltip_markup: typing.Optional[str] = ...,
+        tooltip_text: typing.Optional[str] = ...,
         valign: Gtk.Align = ...,
         vexpand: bool = ...,
         vexpand_set: bool = ...,
         visible: bool = ...,
         width_request: int = ...,
-    ): ...
+    ) -> None: ...
     def get_autohide(self) -> bool: ...
-    def get_end_action_widget(self) -> Optional[Gtk.Widget]: ...
+    def get_end_action_widget(self) -> typing.Optional[Gtk.Widget]: ...
     def get_expand_tabs(self) -> bool: ...
-    def get_extra_drag_dest_targets(self) -> Optional[Gtk.TargetList]: ...
+    def get_extra_drag_dest_targets(self) -> typing.Optional[Gtk.TargetList]: ...
     def get_inverted(self) -> bool: ...
     def get_is_overflowing(self) -> bool: ...
-    def get_start_action_widget(self) -> Optional[Gtk.Widget]: ...
+    def get_start_action_widget(self) -> typing.Optional[Gtk.Widget]: ...
     def get_tabs_revealed(self) -> bool: ...
-    def get_view(self) -> Optional[TabView]: ...
+    def get_view(self) -> typing.Optional[TabView]: ...
     @classmethod
     def new(cls) -> TabBar: ...
     def set_autohide(self, autohide: bool) -> None: ...
-    def set_end_action_widget(self, widget: Optional[Gtk.Widget] = None) -> None: ...
+    def set_end_action_widget(
+        self, widget: typing.Optional[Gtk.Widget] = None
+    ) -> None: ...
     def set_expand_tabs(self, expand_tabs: bool) -> None: ...
     def set_extra_drag_dest_targets(
-        self, extra_drag_dest_targets: Optional[Gtk.TargetList] = None
+        self, extra_drag_dest_targets: typing.Optional[Gtk.TargetList] = None
     ) -> None: ...
     def set_inverted(self, inverted: bool) -> None: ...
-    def set_start_action_widget(self, widget: Optional[Gtk.Widget] = None) -> None: ...
-    def set_view(self, view: Optional[TabView] = None) -> None: ...
+    def set_start_action_widget(
+        self, widget: typing.Optional[Gtk.Widget] = None
+    ) -> None: ...
+    def set_view(self, view: typing.Optional[TabView] = None) -> None: ...
 
 class TabBarClass(GObject.GPointer):
     """
@@ -7826,51 +7815,52 @@ class TabPage(GObject.Object):
     Signals from GObject:
       notify (GParam)
     """
-
-    class Props:
+    class Props(GObject.Object.Props):
         child: Gtk.Widget
-        icon: Optional[Gio.Icon]
+        icon: typing.Optional[Gio.Icon]
         indicator_activatable: bool
-        indicator_icon: Optional[Gio.Icon]
+        indicator_icon: typing.Optional[Gio.Icon]
         loading: bool
         needs_attention: bool
-        parent: Optional[TabPage]
+        parent: typing.Optional[TabPage]
         pinned: bool
         selected: bool
-        title: Optional[str]
-        tooltip: Optional[str]
+        title: typing.Optional[str]
+        tooltip: typing.Optional[str]
 
     props: Props = ...
     def __init__(
         self,
         child: Gtk.Widget = ...,
-        icon: Optional[Gio.Icon] = ...,
+        icon: typing.Optional[Gio.Icon] = ...,
         indicator_activatable: bool = ...,
-        indicator_icon: Optional[Gio.Icon] = ...,
+        indicator_icon: typing.Optional[Gio.Icon] = ...,
         loading: bool = ...,
         needs_attention: bool = ...,
         parent: TabPage = ...,
-        title: Optional[str] = ...,
-        tooltip: Optional[str] = ...,
-    ): ...
+        title: typing.Optional[str] = ...,
+        tooltip: typing.Optional[str] = ...,
+    ) -> None: ...
     def get_child(self) -> Gtk.Widget: ...
-    def get_icon(self) -> Optional[Gio.Icon]: ...
+    def get_icon(self) -> typing.Optional[Gio.Icon]: ...
     def get_indicator_activatable(self) -> bool: ...
-    def get_indicator_icon(self) -> Optional[Gio.Icon]: ...
+    def get_indicator_icon(self) -> typing.Optional[Gio.Icon]: ...
     def get_loading(self) -> bool: ...
     def get_needs_attention(self) -> bool: ...
-    def get_parent(self) -> Optional[TabPage]: ...
+    def get_parent(self) -> typing.Optional[TabPage]: ...
     def get_pinned(self) -> bool: ...
     def get_selected(self) -> bool: ...
-    def get_title(self) -> Optional[str]: ...
-    def get_tooltip(self) -> Optional[str]: ...
-    def set_icon(self, icon: Optional[Gio.Icon] = None) -> None: ...
+    def get_title(self) -> typing.Optional[str]: ...
+    def get_tooltip(self) -> typing.Optional[str]: ...
+    def set_icon(self, icon: typing.Optional[Gio.Icon] = None) -> None: ...
     def set_indicator_activatable(self, activatable: bool) -> None: ...
-    def set_indicator_icon(self, indicator_icon: Optional[Gio.Icon] = None) -> None: ...
+    def set_indicator_icon(
+        self, indicator_icon: typing.Optional[Gio.Icon] = None
+    ) -> None: ...
     def set_loading(self, loading: bool) -> None: ...
     def set_needs_attention(self, needs_attention: bool) -> None: ...
-    def set_title(self, title: Optional[str] = None) -> None: ...
-    def set_tooltip(self, tooltip: Optional[str] = None) -> None: ...
+    def set_title(self, title: typing.Optional[str] = None) -> None: ...
+    def set_tooltip(self, tooltip: typing.Optional[str] = None) -> None: ...
 
 class TabPageClass(GObject.GPointer):
     """
@@ -7936,6 +7926,8 @@ class TabView(Gtk.Bin, Atk.ImplementorIface, Gtk.Buildable):
     Signals from GtkWidget:
       composited-changed ()
       event (GdkEvent) -> gboolean
+      direction-changed (GtkTextDirection)
+      state-changed (GtkStateType)
       destroy ()
       show ()
       hide ()
@@ -7944,13 +7936,11 @@ class TabView(Gtk.Bin, Atk.ImplementorIface, Gtk.Buildable):
       realize ()
       unrealize ()
       size-allocate (GdkRectangle)
-      state-changed (GtkStateType)
       state-flags-changed (GtkStateFlags)
       parent-set (GtkWidget)
       hierarchy-changed (GtkWidget)
       style-set (GtkStyle)
       style-updated ()
-      direction-changed (GtkTextDirection)
       grab-notify (gboolean)
       child-notify (GParam)
       draw (CairoContext) -> gboolean
@@ -8087,15 +8077,14 @@ class TabView(Gtk.Bin, Atk.ImplementorIface, Gtk.Buildable):
     Signals from GObject:
       notify (GParam)
     """
-
-    class Props:
+    class Props(Gtk.Bin.Props):
         default_icon: Gio.Icon
         is_transferring_page: bool
-        menu_model: Optional[Gio.MenuModel]
+        menu_model: typing.Optional[Gio.MenuModel]
         n_pages: int
         n_pinned_pages: int
-        selected_page: Optional[TabPage]
-        shortcut_widget: Optional[Gtk.Widget]
+        selected_page: typing.Optional[TabPage]
+        shortcut_widget: typing.Optional[Gtk.Widget]
         border_width: int
         resize_mode: Gtk.ResizeMode
         app_paintable: bool
@@ -8124,28 +8113,28 @@ class TabView(Gtk.Bin, Atk.ImplementorIface, Gtk.Buildable):
         name: str
         no_show_all: bool
         opacity: float
-        parent: Optional[Gtk.Container]
+        parent: typing.Optional[Gtk.Container]
         receives_default: bool
         scale_factor: int
         sensitive: bool
         style: Gtk.Style
-        tooltip_markup: Optional[str]
-        tooltip_text: Optional[str]
+        tooltip_markup: typing.Optional[str]
+        tooltip_text: typing.Optional[str]
         valign: Gtk.Align
         vexpand: bool
         vexpand_set: bool
         visible: bool
         width_request: int
-        window: Optional[Gdk.Window]
+        window: typing.Optional[Gdk.Window]
         child: Gtk.Widget
 
     props: Props = ...
     def __init__(
         self,
         default_icon: Gio.Icon = ...,
-        menu_model: Optional[Gio.MenuModel] = ...,
+        menu_model: typing.Optional[Gio.MenuModel] = ...,
         selected_page: TabPage = ...,
-        shortcut_widget: Optional[Gtk.Widget] = ...,
+        shortcut_widget: typing.Optional[Gtk.Widget] = ...,
         border_width: int = ...,
         child: Gtk.Widget = ...,
         resize_mode: Gtk.ResizeMode = ...,
@@ -8177,17 +8166,17 @@ class TabView(Gtk.Bin, Atk.ImplementorIface, Gtk.Buildable):
         parent: Gtk.Container = ...,
         receives_default: bool = ...,
         sensitive: bool = ...,
-        style: Optional[Gtk.Style] = ...,
-        tooltip_markup: Optional[str] = ...,
-        tooltip_text: Optional[str] = ...,
+        style: typing.Optional[Gtk.Style] = ...,
+        tooltip_markup: typing.Optional[str] = ...,
+        tooltip_text: typing.Optional[str] = ...,
         valign: Gtk.Align = ...,
         vexpand: bool = ...,
         vexpand_set: bool = ...,
         visible: bool = ...,
         width_request: int = ...,
-    ): ...
+    ) -> None: ...
     def add_page(
-        self, child: Gtk.Widget, parent: Optional[TabPage] = None
+        self, child: Gtk.Widget, parent: typing.Optional[TabPage] = None
     ) -> TabPage: ...
     def append(self, child: Gtk.Widget) -> TabPage: ...
     def append_pinned(self, child: Gtk.Widget) -> TabPage: ...
@@ -8198,15 +8187,15 @@ class TabView(Gtk.Bin, Atk.ImplementorIface, Gtk.Buildable):
     def close_pages_before(self, page: TabPage) -> None: ...
     def get_default_icon(self) -> Gio.Icon: ...
     def get_is_transferring_page(self) -> bool: ...
-    def get_menu_model(self) -> Optional[Gio.MenuModel]: ...
+    def get_menu_model(self) -> typing.Optional[Gio.MenuModel]: ...
     def get_n_pages(self) -> int: ...
     def get_n_pinned_pages(self) -> int: ...
     def get_nth_page(self, position: int) -> TabPage: ...
     def get_page(self, child: Gtk.Widget) -> TabPage: ...
     def get_page_position(self, page: TabPage) -> int: ...
     def get_pages(self) -> Gio.ListModel: ...
-    def get_selected_page(self) -> Optional[TabPage]: ...
-    def get_shortcut_widget(self) -> Optional[Gtk.Widget]: ...
+    def get_selected_page(self) -> typing.Optional[TabPage]: ...
+    def get_shortcut_widget(self) -> typing.Optional[Gtk.Widget]: ...
     def insert(self, child: Gtk.Widget, position: int) -> TabPage: ...
     def insert_pinned(self, child: Gtk.Widget, position: int) -> TabPage: ...
     @classmethod
@@ -8221,10 +8210,14 @@ class TabView(Gtk.Bin, Atk.ImplementorIface, Gtk.Buildable):
     def select_next_page(self) -> bool: ...
     def select_previous_page(self) -> bool: ...
     def set_default_icon(self, default_icon: Gio.Icon) -> None: ...
-    def set_menu_model(self, menu_model: Optional[Gio.MenuModel] = None) -> None: ...
+    def set_menu_model(
+        self, menu_model: typing.Optional[Gio.MenuModel] = None
+    ) -> None: ...
     def set_page_pinned(self, page: TabPage, pinned: bool) -> None: ...
     def set_selected_page(self, selected_page: TabPage) -> None: ...
-    def set_shortcut_widget(self, widget: Optional[Gtk.Widget] = None) -> None: ...
+    def set_shortcut_widget(
+        self, widget: typing.Optional[Gtk.Widget] = None
+    ) -> None: ...
     def transfer_page(
         self, page: TabPage, other_view: TabView, position: int
     ) -> None: ...
@@ -8272,6 +8265,8 @@ class TitleBar(Gtk.Bin, Atk.ImplementorIface, Gtk.Buildable):
     Signals from GtkWidget:
       composited-changed ()
       event (GdkEvent) -> gboolean
+      direction-changed (GtkTextDirection)
+      state-changed (GtkStateType)
       destroy ()
       show ()
       hide ()
@@ -8280,13 +8275,11 @@ class TitleBar(Gtk.Bin, Atk.ImplementorIface, Gtk.Buildable):
       realize ()
       unrealize ()
       size-allocate (GdkRectangle)
-      state-changed (GtkStateType)
       state-flags-changed (GtkStateFlags)
       parent-set (GtkWidget)
       hierarchy-changed (GtkWidget)
       style-set (GtkStyle)
       style-updated ()
-      direction-changed (GtkTextDirection)
       grab-notify (gboolean)
       child-notify (GParam)
       draw (CairoContext) -> gboolean
@@ -8423,8 +8416,7 @@ class TitleBar(Gtk.Bin, Atk.ImplementorIface, Gtk.Buildable):
     Signals from GObject:
       notify (GParam)
     """
-
-    class Props:
+    class Props(Gtk.Bin.Props):
         selection_mode: bool
         border_width: int
         resize_mode: Gtk.ResizeMode
@@ -8454,19 +8446,19 @@ class TitleBar(Gtk.Bin, Atk.ImplementorIface, Gtk.Buildable):
         name: str
         no_show_all: bool
         opacity: float
-        parent: Optional[Gtk.Container]
+        parent: typing.Optional[Gtk.Container]
         receives_default: bool
         scale_factor: int
         sensitive: bool
         style: Gtk.Style
-        tooltip_markup: Optional[str]
-        tooltip_text: Optional[str]
+        tooltip_markup: typing.Optional[str]
+        tooltip_text: typing.Optional[str]
         valign: Gtk.Align
         vexpand: bool
         vexpand_set: bool
         visible: bool
         width_request: int
-        window: Optional[Gdk.Window]
+        window: typing.Optional[Gdk.Window]
         child: Gtk.Widget
 
     props: Props = ...
@@ -8504,15 +8496,15 @@ class TitleBar(Gtk.Bin, Atk.ImplementorIface, Gtk.Buildable):
         parent: Gtk.Container = ...,
         receives_default: bool = ...,
         sensitive: bool = ...,
-        style: Optional[Gtk.Style] = ...,
-        tooltip_markup: Optional[str] = ...,
-        tooltip_text: Optional[str] = ...,
+        style: typing.Optional[Gtk.Style] = ...,
+        tooltip_markup: typing.Optional[str] = ...,
+        tooltip_text: typing.Optional[str] = ...,
         valign: Gtk.Align = ...,
         vexpand: bool = ...,
         vexpand_set: bool = ...,
         visible: bool = ...,
         width_request: int = ...,
-    ): ...
+    ) -> None: ...
     def get_selection_mode(self) -> bool: ...
     @classmethod
     def new(cls) -> TitleBar: ...
@@ -8547,18 +8539,17 @@ class ValueObject(GObject.Object):
     Signals from GObject:
       notify (GParam)
     """
-
-    class Props:
-        value: Any
+    class Props(GObject.Object.Props):
+        value: typing.Any
 
     props: Props = ...
-    def __init__(self, value: Any = ...): ...
-    def copy_value(self, dest: Any) -> None: ...
+    def __init__(self, value: typing.Any = ...) -> None: ...
+    def copy_value(self, dest: typing.Any) -> None: ...
     def dup_string(self) -> str: ...
     def get_string(self) -> str: ...
-    def get_value(self) -> Any: ...
+    def get_value(self) -> typing.Any: ...
     @classmethod
-    def new(cls, value: Any) -> ValueObject: ...
+    def new(cls, value: typing.Any) -> ValueObject: ...
 
 class ValueObjectClass(GObject.GPointer):
     """
@@ -8607,6 +8598,8 @@ class ViewSwitcher(Gtk.Bin, Atk.ImplementorIface, Gtk.Buildable):
     Signals from GtkWidget:
       composited-changed ()
       event (GdkEvent) -> gboolean
+      direction-changed (GtkTextDirection)
+      state-changed (GtkStateType)
       destroy ()
       show ()
       hide ()
@@ -8615,13 +8608,11 @@ class ViewSwitcher(Gtk.Bin, Atk.ImplementorIface, Gtk.Buildable):
       realize ()
       unrealize ()
       size-allocate (GdkRectangle)
-      state-changed (GtkStateType)
       state-flags-changed (GtkStateFlags)
       parent-set (GtkWidget)
       hierarchy-changed (GtkWidget)
       style-set (GtkStyle)
       style-updated ()
-      direction-changed (GtkTextDirection)
       grab-notify (gboolean)
       child-notify (GParam)
       draw (CairoContext) -> gboolean
@@ -8758,11 +8749,10 @@ class ViewSwitcher(Gtk.Bin, Atk.ImplementorIface, Gtk.Buildable):
     Signals from GObject:
       notify (GParam)
     """
-
-    class Props:
+    class Props(Gtk.Bin.Props):
         narrow_ellipsize: Pango.EllipsizeMode
         policy: ViewSwitcherPolicy
-        stack: Optional[Gtk.Stack]
+        stack: typing.Optional[Gtk.Stack]
         border_width: int
         resize_mode: Gtk.ResizeMode
         app_paintable: bool
@@ -8791,19 +8781,19 @@ class ViewSwitcher(Gtk.Bin, Atk.ImplementorIface, Gtk.Buildable):
         name: str
         no_show_all: bool
         opacity: float
-        parent: Optional[Gtk.Container]
+        parent: typing.Optional[Gtk.Container]
         receives_default: bool
         scale_factor: int
         sensitive: bool
         style: Gtk.Style
-        tooltip_markup: Optional[str]
-        tooltip_text: Optional[str]
+        tooltip_markup: typing.Optional[str]
+        tooltip_text: typing.Optional[str]
         valign: Gtk.Align
         vexpand: bool
         vexpand_set: bool
         visible: bool
         width_request: int
-        window: Optional[Gdk.Window]
+        window: typing.Optional[Gdk.Window]
         child: Gtk.Widget
 
     props: Props = ...
@@ -8811,7 +8801,7 @@ class ViewSwitcher(Gtk.Bin, Atk.ImplementorIface, Gtk.Buildable):
         self,
         narrow_ellipsize: Pango.EllipsizeMode = ...,
         policy: ViewSwitcherPolicy = ...,
-        stack: Optional[Gtk.Stack] = ...,
+        stack: typing.Optional[Gtk.Stack] = ...,
         border_width: int = ...,
         child: Gtk.Widget = ...,
         resize_mode: Gtk.ResizeMode = ...,
@@ -8843,23 +8833,23 @@ class ViewSwitcher(Gtk.Bin, Atk.ImplementorIface, Gtk.Buildable):
         parent: Gtk.Container = ...,
         receives_default: bool = ...,
         sensitive: bool = ...,
-        style: Optional[Gtk.Style] = ...,
-        tooltip_markup: Optional[str] = ...,
-        tooltip_text: Optional[str] = ...,
+        style: typing.Optional[Gtk.Style] = ...,
+        tooltip_markup: typing.Optional[str] = ...,
+        tooltip_text: typing.Optional[str] = ...,
         valign: Gtk.Align = ...,
         vexpand: bool = ...,
         vexpand_set: bool = ...,
         visible: bool = ...,
         width_request: int = ...,
-    ): ...
+    ) -> None: ...
     def get_narrow_ellipsize(self) -> Pango.EllipsizeMode: ...
     def get_policy(self) -> ViewSwitcherPolicy: ...
-    def get_stack(self) -> Optional[Gtk.Stack]: ...
+    def get_stack(self) -> typing.Optional[Gtk.Stack]: ...
     @classmethod
     def new(cls) -> ViewSwitcher: ...
     def set_narrow_ellipsize(self, mode: Pango.EllipsizeMode) -> None: ...
     def set_policy(self, policy: ViewSwitcherPolicy) -> None: ...
-    def set_stack(self, stack: Optional[Gtk.Stack] = None) -> None: ...
+    def set_stack(self, stack: typing.Optional[Gtk.Stack] = None) -> None: ...
 
 class ViewSwitcherBar(Gtk.Bin, Atk.ImplementorIface, Gtk.Buildable):
     """
@@ -8897,6 +8887,8 @@ class ViewSwitcherBar(Gtk.Bin, Atk.ImplementorIface, Gtk.Buildable):
     Signals from GtkWidget:
       composited-changed ()
       event (GdkEvent) -> gboolean
+      direction-changed (GtkTextDirection)
+      state-changed (GtkStateType)
       destroy ()
       show ()
       hide ()
@@ -8905,13 +8897,11 @@ class ViewSwitcherBar(Gtk.Bin, Atk.ImplementorIface, Gtk.Buildable):
       realize ()
       unrealize ()
       size-allocate (GdkRectangle)
-      state-changed (GtkStateType)
       state-flags-changed (GtkStateFlags)
       parent-set (GtkWidget)
       hierarchy-changed (GtkWidget)
       style-set (GtkStyle)
       style-updated ()
-      direction-changed (GtkTextDirection)
       grab-notify (gboolean)
       child-notify (GParam)
       draw (CairoContext) -> gboolean
@@ -9048,11 +9038,10 @@ class ViewSwitcherBar(Gtk.Bin, Atk.ImplementorIface, Gtk.Buildable):
     Signals from GObject:
       notify (GParam)
     """
-
-    class Props:
+    class Props(Gtk.Bin.Props):
         policy: ViewSwitcherPolicy
         reveal: bool
-        stack: Optional[Gtk.Stack]
+        stack: typing.Optional[Gtk.Stack]
         border_width: int
         resize_mode: Gtk.ResizeMode
         app_paintable: bool
@@ -9081,19 +9070,19 @@ class ViewSwitcherBar(Gtk.Bin, Atk.ImplementorIface, Gtk.Buildable):
         name: str
         no_show_all: bool
         opacity: float
-        parent: Optional[Gtk.Container]
+        parent: typing.Optional[Gtk.Container]
         receives_default: bool
         scale_factor: int
         sensitive: bool
         style: Gtk.Style
-        tooltip_markup: Optional[str]
-        tooltip_text: Optional[str]
+        tooltip_markup: typing.Optional[str]
+        tooltip_text: typing.Optional[str]
         valign: Gtk.Align
         vexpand: bool
         vexpand_set: bool
         visible: bool
         width_request: int
-        window: Optional[Gdk.Window]
+        window: typing.Optional[Gdk.Window]
         child: Gtk.Widget
 
     props: Props = ...
@@ -9101,7 +9090,7 @@ class ViewSwitcherBar(Gtk.Bin, Atk.ImplementorIface, Gtk.Buildable):
         self,
         policy: ViewSwitcherPolicy = ...,
         reveal: bool = ...,
-        stack: Optional[Gtk.Stack] = ...,
+        stack: typing.Optional[Gtk.Stack] = ...,
         border_width: int = ...,
         child: Gtk.Widget = ...,
         resize_mode: Gtk.ResizeMode = ...,
@@ -9133,23 +9122,23 @@ class ViewSwitcherBar(Gtk.Bin, Atk.ImplementorIface, Gtk.Buildable):
         parent: Gtk.Container = ...,
         receives_default: bool = ...,
         sensitive: bool = ...,
-        style: Optional[Gtk.Style] = ...,
-        tooltip_markup: Optional[str] = ...,
-        tooltip_text: Optional[str] = ...,
+        style: typing.Optional[Gtk.Style] = ...,
+        tooltip_markup: typing.Optional[str] = ...,
+        tooltip_text: typing.Optional[str] = ...,
         valign: Gtk.Align = ...,
         vexpand: bool = ...,
         vexpand_set: bool = ...,
         visible: bool = ...,
         width_request: int = ...,
-    ): ...
+    ) -> None: ...
     def get_policy(self) -> ViewSwitcherPolicy: ...
     def get_reveal(self) -> bool: ...
-    def get_stack(self) -> Optional[Gtk.Stack]: ...
+    def get_stack(self) -> typing.Optional[Gtk.Stack]: ...
     @classmethod
     def new(cls) -> ViewSwitcherBar: ...
     def set_policy(self, policy: ViewSwitcherPolicy) -> None: ...
     def set_reveal(self, reveal: bool) -> None: ...
-    def set_stack(self, stack: Optional[Gtk.Stack] = None) -> None: ...
+    def set_stack(self, stack: typing.Optional[Gtk.Stack] = None) -> None: ...
 
 class ViewSwitcherBarClass(GObject.GPointer):
     """
@@ -9215,6 +9204,8 @@ class ViewSwitcherTitle(Gtk.Bin, Atk.ImplementorIface, Gtk.Buildable):
     Signals from GtkWidget:
       composited-changed ()
       event (GdkEvent) -> gboolean
+      direction-changed (GtkTextDirection)
+      state-changed (GtkStateType)
       destroy ()
       show ()
       hide ()
@@ -9223,13 +9214,11 @@ class ViewSwitcherTitle(Gtk.Bin, Atk.ImplementorIface, Gtk.Buildable):
       realize ()
       unrealize ()
       size-allocate (GdkRectangle)
-      state-changed (GtkStateType)
       state-flags-changed (GtkStateFlags)
       parent-set (GtkWidget)
       hierarchy-changed (GtkWidget)
       style-set (GtkStyle)
       style-updated ()
-      direction-changed (GtkTextDirection)
       grab-notify (gboolean)
       child-notify (GParam)
       draw (CairoContext) -> gboolean
@@ -9366,12 +9355,11 @@ class ViewSwitcherTitle(Gtk.Bin, Atk.ImplementorIface, Gtk.Buildable):
     Signals from GObject:
       notify (GParam)
     """
-
-    class Props:
+    class Props(Gtk.Bin.Props):
         policy: ViewSwitcherPolicy
-        stack: Optional[Gtk.Stack]
-        subtitle: Optional[str]
-        title: Optional[str]
+        stack: typing.Optional[Gtk.Stack]
+        subtitle: typing.Optional[str]
+        title: typing.Optional[str]
         title_visible: bool
         view_switcher_enabled: bool
         border_width: int
@@ -9402,28 +9390,28 @@ class ViewSwitcherTitle(Gtk.Bin, Atk.ImplementorIface, Gtk.Buildable):
         name: str
         no_show_all: bool
         opacity: float
-        parent: Optional[Gtk.Container]
+        parent: typing.Optional[Gtk.Container]
         receives_default: bool
         scale_factor: int
         sensitive: bool
         style: Gtk.Style
-        tooltip_markup: Optional[str]
-        tooltip_text: Optional[str]
+        tooltip_markup: typing.Optional[str]
+        tooltip_text: typing.Optional[str]
         valign: Gtk.Align
         vexpand: bool
         vexpand_set: bool
         visible: bool
         width_request: int
-        window: Optional[Gdk.Window]
+        window: typing.Optional[Gdk.Window]
         child: Gtk.Widget
 
     props: Props = ...
     def __init__(
         self,
         policy: ViewSwitcherPolicy = ...,
-        stack: Optional[Gtk.Stack] = ...,
-        subtitle: Optional[str] = ...,
-        title: Optional[str] = ...,
+        stack: typing.Optional[Gtk.Stack] = ...,
+        subtitle: typing.Optional[str] = ...,
+        title: typing.Optional[str] = ...,
         view_switcher_enabled: bool = ...,
         border_width: int = ...,
         child: Gtk.Widget = ...,
@@ -9456,27 +9444,27 @@ class ViewSwitcherTitle(Gtk.Bin, Atk.ImplementorIface, Gtk.Buildable):
         parent: Gtk.Container = ...,
         receives_default: bool = ...,
         sensitive: bool = ...,
-        style: Optional[Gtk.Style] = ...,
-        tooltip_markup: Optional[str] = ...,
-        tooltip_text: Optional[str] = ...,
+        style: typing.Optional[Gtk.Style] = ...,
+        tooltip_markup: typing.Optional[str] = ...,
+        tooltip_text: typing.Optional[str] = ...,
         valign: Gtk.Align = ...,
         vexpand: bool = ...,
         vexpand_set: bool = ...,
         visible: bool = ...,
         width_request: int = ...,
-    ): ...
+    ) -> None: ...
     def get_policy(self) -> ViewSwitcherPolicy: ...
-    def get_stack(self) -> Optional[Gtk.Stack]: ...
-    def get_subtitle(self) -> Optional[str]: ...
-    def get_title(self) -> Optional[str]: ...
+    def get_stack(self) -> typing.Optional[Gtk.Stack]: ...
+    def get_subtitle(self) -> typing.Optional[str]: ...
+    def get_title(self) -> typing.Optional[str]: ...
     def get_title_visible(self) -> bool: ...
     def get_view_switcher_enabled(self) -> bool: ...
     @classmethod
     def new(cls) -> ViewSwitcherTitle: ...
     def set_policy(self, policy: ViewSwitcherPolicy) -> None: ...
-    def set_stack(self, stack: Optional[Gtk.Stack] = None) -> None: ...
-    def set_subtitle(self, subtitle: Optional[str] = None) -> None: ...
-    def set_title(self, title: Optional[str] = None) -> None: ...
+    def set_stack(self, stack: typing.Optional[Gtk.Stack] = None) -> None: ...
+    def set_subtitle(self, subtitle: typing.Optional[str] = None) -> None: ...
+    def set_title(self, title: typing.Optional[str] = None) -> None: ...
     def set_view_switcher_enabled(self, enabled: bool) -> None: ...
 
 class ViewSwitcherTitleClass(GObject.GPointer):
@@ -9593,6 +9581,8 @@ class Window(Gtk.Window, Atk.ImplementorIface, Gtk.Buildable):
     Signals from GtkWidget:
       composited-changed ()
       event (GdkEvent) -> gboolean
+      direction-changed (GtkTextDirection)
+      state-changed (GtkStateType)
       destroy ()
       show ()
       hide ()
@@ -9601,13 +9591,11 @@ class Window(Gtk.Window, Atk.ImplementorIface, Gtk.Buildable):
       realize ()
       unrealize ()
       size-allocate (GdkRectangle)
-      state-changed (GtkStateType)
       state-flags-changed (GtkStateFlags)
       parent-set (GtkWidget)
       hierarchy-changed (GtkWidget)
       style-set (GtkStyle)
       style-updated ()
-      direction-changed (GtkTextDirection)
       grab-notify (gboolean)
       child-notify (GParam)
       draw (CairoContext) -> gboolean
@@ -9744,11 +9732,10 @@ class Window(Gtk.Window, Atk.ImplementorIface, Gtk.Buildable):
     Signals from GObject:
       notify (GParam)
     """
-
-    class Props:
+    class Props(Gtk.Window.Props):
         accept_focus: bool
-        application: Optional[Gtk.Application]
-        attached_to: Optional[Gtk.Widget]
+        application: typing.Optional[Gtk.Application]
+        attached_to: typing.Optional[Gtk.Widget]
         decorated: bool
         default_height: int
         default_width: int
@@ -9760,20 +9747,20 @@ class Window(Gtk.Window, Atk.ImplementorIface, Gtk.Buildable):
         has_resize_grip: bool
         has_toplevel_focus: bool
         hide_titlebar_when_maximized: bool
-        icon: Optional[GdkPixbuf.Pixbuf]
-        icon_name: Optional[str]
+        icon: typing.Optional[GdkPixbuf.Pixbuf]
+        icon_name: typing.Optional[str]
         is_active: bool
         is_maximized: bool
         mnemonics_visible: bool
         modal: bool
         resizable: bool
         resize_grip_visible: bool
-        role: Optional[str]
+        role: typing.Optional[str]
         screen: Gdk.Screen
         skip_pager_hint: bool
         skip_taskbar_hint: bool
-        title: Optional[str]
-        transient_for: Optional[Gtk.Window]
+        title: typing.Optional[str]
+        transient_for: typing.Optional[Gtk.Window]
         type: Gtk.WindowType
         type_hint: Gdk.WindowTypeHint
         urgency_hint: bool
@@ -9806,19 +9793,19 @@ class Window(Gtk.Window, Atk.ImplementorIface, Gtk.Buildable):
         name: str
         no_show_all: bool
         opacity: float
-        parent: Optional[Gtk.Container]
+        parent: typing.Optional[Gtk.Container]
         receives_default: bool
         scale_factor: int
         sensitive: bool
         style: Gtk.Style
-        tooltip_markup: Optional[str]
-        tooltip_text: Optional[str]
+        tooltip_markup: typing.Optional[str]
+        tooltip_text: typing.Optional[str]
         valign: Gtk.Align
         vexpand: bool
         vexpand_set: bool
         visible: bool
         width_request: int
-        window: Optional[Gdk.Window]
+        window: typing.Optional[Gdk.Window]
         startup_id: str
         child: Gtk.Widget
 
@@ -9827,8 +9814,8 @@ class Window(Gtk.Window, Atk.ImplementorIface, Gtk.Buildable):
     def __init__(
         self,
         accept_focus: bool = ...,
-        application: Optional[Gtk.Application] = ...,
-        attached_to: Optional[Gtk.Widget] = ...,
+        application: typing.Optional[Gtk.Application] = ...,
+        attached_to: typing.Optional[Gtk.Widget] = ...,
         decorated: bool = ...,
         default_height: int = ...,
         default_width: int = ...,
@@ -9839,8 +9826,8 @@ class Window(Gtk.Window, Atk.ImplementorIface, Gtk.Buildable):
         gravity: Gdk.Gravity = ...,
         has_resize_grip: bool = ...,
         hide_titlebar_when_maximized: bool = ...,
-        icon: Optional[GdkPixbuf.Pixbuf] = ...,
-        icon_name: Optional[str] = ...,
+        icon: typing.Optional[GdkPixbuf.Pixbuf] = ...,
+        icon_name: typing.Optional[str] = ...,
         mnemonics_visible: bool = ...,
         modal: bool = ...,
         resizable: bool = ...,
@@ -9850,7 +9837,7 @@ class Window(Gtk.Window, Atk.ImplementorIface, Gtk.Buildable):
         skip_taskbar_hint: bool = ...,
         startup_id: str = ...,
         title: str = ...,
-        transient_for: Optional[Gtk.Window] = ...,
+        transient_for: typing.Optional[Gtk.Window] = ...,
         type: Gtk.WindowType = ...,
         type_hint: Gdk.WindowTypeHint = ...,
         urgency_hint: bool = ...,
@@ -9886,15 +9873,15 @@ class Window(Gtk.Window, Atk.ImplementorIface, Gtk.Buildable):
         parent: Gtk.Container = ...,
         receives_default: bool = ...,
         sensitive: bool = ...,
-        style: Optional[Gtk.Style] = ...,
-        tooltip_markup: Optional[str] = ...,
-        tooltip_text: Optional[str] = ...,
+        style: typing.Optional[Gtk.Style] = ...,
+        tooltip_markup: typing.Optional[str] = ...,
+        tooltip_text: typing.Optional[str] = ...,
         valign: Gtk.Align = ...,
         vexpand: bool = ...,
         vexpand_set: bool = ...,
         visible: bool = ...,
         width_request: int = ...,
-    ): ...
+    ) -> None: ...
     @classmethod
     def new(cls) -> Window: ...
 
@@ -9944,6 +9931,8 @@ class WindowHandle(Gtk.EventBox, Atk.ImplementorIface, Gtk.Buildable):
     Signals from GtkWidget:
       composited-changed ()
       event (GdkEvent) -> gboolean
+      direction-changed (GtkTextDirection)
+      state-changed (GtkStateType)
       destroy ()
       show ()
       hide ()
@@ -9952,13 +9941,11 @@ class WindowHandle(Gtk.EventBox, Atk.ImplementorIface, Gtk.Buildable):
       realize ()
       unrealize ()
       size-allocate (GdkRectangle)
-      state-changed (GtkStateType)
       state-flags-changed (GtkStateFlags)
       parent-set (GtkWidget)
       hierarchy-changed (GtkWidget)
       style-set (GtkStyle)
       style-updated ()
-      direction-changed (GtkTextDirection)
       grab-notify (gboolean)
       child-notify (GParam)
       draw (CairoContext) -> gboolean
@@ -10095,8 +10082,7 @@ class WindowHandle(Gtk.EventBox, Atk.ImplementorIface, Gtk.Buildable):
     Signals from GObject:
       notify (GParam)
     """
-
-    class Props:
+    class Props(Gtk.EventBox.Props):
         above_child: bool
         visible_window: bool
         border_width: int
@@ -10127,19 +10113,19 @@ class WindowHandle(Gtk.EventBox, Atk.ImplementorIface, Gtk.Buildable):
         name: str
         no_show_all: bool
         opacity: float
-        parent: Optional[Gtk.Container]
+        parent: typing.Optional[Gtk.Container]
         receives_default: bool
         scale_factor: int
         sensitive: bool
         style: Gtk.Style
-        tooltip_markup: Optional[str]
-        tooltip_text: Optional[str]
+        tooltip_markup: typing.Optional[str]
+        tooltip_text: typing.Optional[str]
         valign: Gtk.Align
         vexpand: bool
         vexpand_set: bool
         visible: bool
         width_request: int
-        window: Optional[Gdk.Window]
+        window: typing.Optional[Gdk.Window]
         child: Gtk.Widget
 
     props: Props = ...
@@ -10178,15 +10164,15 @@ class WindowHandle(Gtk.EventBox, Atk.ImplementorIface, Gtk.Buildable):
         parent: Gtk.Container = ...,
         receives_default: bool = ...,
         sensitive: bool = ...,
-        style: Optional[Gtk.Style] = ...,
-        tooltip_markup: Optional[str] = ...,
-        tooltip_text: Optional[str] = ...,
+        style: typing.Optional[Gtk.Style] = ...,
+        tooltip_markup: typing.Optional[str] = ...,
+        tooltip_text: typing.Optional[str] = ...,
         valign: Gtk.Align = ...,
         vexpand: bool = ...,
         vexpand_set: bool = ...,
         visible: bool = ...,
         width_request: int = ...,
-    ): ...
+    ) -> None: ...
     @classmethod
     def new(cls) -> WindowHandle: ...
 

@@ -8,7 +8,7 @@ from typing_extensions import Self
 T = typing.TypeVar("T")
 
 MAJOR_VERSION: int = 1
-MICRO_VERSION: int = 1
+MICRO_VERSION: int = 3
 MINOR_VERSION: int = 16
 
 def error_quark() -> int: ...

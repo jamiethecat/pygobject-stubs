@@ -9,13 +9,9 @@ from typing_extensions import Self
 T = typing.TypeVar("T")
 
 PIXBUF_MAJOR: int = 2
-PIXBUF_MICRO: int = 12
-PIXBUF_MINOR: int = 42
-PIXBUF_VERSION: str = "2.42.12"
-_lock = ...  # FIXME Constant
-_namespace: str = "GdkPixbuf"
-_overrides_module = ...  # FIXME Constant
-_version: str = "2.0"
+PIXBUF_MICRO: int = 5
+PIXBUF_MINOR: int = 44
+PIXBUF_VERSION: str = "2.44.5"
 
 def pixbuf_error_quark() -> int: ...
 
@@ -584,10 +580,6 @@ class PixbufModule(GObject.GPointer):
     ] = ...
     save_to_callback: None = ...
     is_save_option_supported: typing.Callable[[str], bool] = ...
-    _reserved1: None = ...
-    _reserved2: None = ...
-    _reserved3: None = ...
-    _reserved4: None = ...
 
 class PixbufModulePattern(GObject.GPointer):
     """

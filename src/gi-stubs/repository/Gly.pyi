@@ -1,16 +1,11 @@
 import typing
 
-import enum
-
 from gi.repository import Gio
 from gi.repository import GLib
 from gi.repository import GObject
+from typing_extensions import Self
 
 T = typing.TypeVar("T")
-
-_lock = ...  # FIXME Constant
-_namespace: str = "Gly"
-_version: str = "2"
 
 def loader_error_quark() -> int: ...
 def memory_format_has_alpha(memory_format: MemoryFormat) -> bool: ...
@@ -362,7 +357,7 @@ class NewFrameClass(GObject.GPointer):
 
     parent_class: GObject.ObjectClass = ...
 
-class MemoryFormatSelection(enum.IntFlag):
+class MemoryFormatSelection(GObject.GFlags):
     A8B8G8R8 = 64
     A8R8G8B8 = 16
     A8R8G8B8_PREMULTIPLIED = 2
@@ -387,14 +382,14 @@ class MemoryFormatSelection(enum.IntFlag):
     R8G8B8A8 = 32
     R8G8B8A8_PREMULTIPLIED = 4
 
-class LoaderError(enum.IntEnum):
+class LoaderError(GObject.GEnum):
     FAILED = 0
     NO_MORE_FRAMES = 2
     UNKNOWN_IMAGE_FORMAT = 1
     @staticmethod
     def quark() -> int: ...
 
-class MemoryFormat(enum.IntEnum):
+class MemoryFormat(GObject.GEnum):
     A8B8G8R8 = 6
     A8R8G8B8 = 4
     A8R8G8B8_PREMULTIPLIED = 1
@@ -423,7 +418,7 @@ class MemoryFormat(enum.IntEnum):
     @staticmethod
     def is_premultiplied(memory_format: MemoryFormat) -> bool: ...
 
-class SandboxSelector(enum.IntEnum):
+class SandboxSelector(GObject.GEnum):
     AUTO = 0
     BWRAP = 1
     FLATPAK_SPAWN = 2
