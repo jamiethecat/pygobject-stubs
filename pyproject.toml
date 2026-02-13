@@ -30,7 +30,7 @@ repository = "https://github.com/pygobject/pygobject-stubs"
 
 [dependency-groups]
 dev = [
-    "pygobject>=3.53.0",
+    "pygobject @ git+https://gitlab.gnome.org/GNOME/pygobject",
     "codespell>=2.4.1",
     "isort>=6.0.1",
     "ruff>=0.12.7",
