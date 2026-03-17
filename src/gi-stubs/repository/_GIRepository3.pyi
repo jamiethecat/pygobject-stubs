@@ -1,6 +1,5 @@
 import typing
 
-from gi.repository import gi
 from gi.repository import GLib
 from gi.repository import GObject
 from typing_extensions import Self
@@ -43,27 +42,27 @@ class ArgInfo(BaseInfo):
     def may_be_null(self) -> bool: ...
 
 class Argument(GObject.GPointer):
-    v_boolean = ...  # FIXME Constant
-    v_double = ...  # FIXME Constant
-    v_float = ...  # FIXME Constant
-    v_int = ...  # FIXME Constant
-    v_int16 = ...  # FIXME Constant
-    v_int32 = ...  # FIXME Constant
-    v_int64 = ...  # FIXME Constant
-    v_int8 = ...  # FIXME Constant
-    v_long = ...  # FIXME Constant
-    v_pointer = ...  # FIXME Constant
-    v_short = ...  # FIXME Constant
-    v_size = ...  # FIXME Constant
-    v_ssize = ...  # FIXME Constant
-    v_string = ...  # FIXME Constant
-    v_uint = ...  # FIXME Constant
-    v_uint16 = ...  # FIXME Constant
-    v_uint32 = ...  # FIXME Constant
-    v_uint64 = ...  # FIXME Constant
-    v_uint8 = ...  # FIXME Constant
-    v_ulong = ...  # FIXME Constant
-    v_ushort = ...  # FIXME Constant
+    v_boolean = ...  # FIXME: Constant is missing typing annotation
+    v_double = ...  # FIXME: Constant is missing typing annotation
+    v_float = ...  # FIXME: Constant is missing typing annotation
+    v_int = ...  # FIXME: Constant is missing typing annotation
+    v_int16 = ...  # FIXME: Constant is missing typing annotation
+    v_int32 = ...  # FIXME: Constant is missing typing annotation
+    v_int64 = ...  # FIXME: Constant is missing typing annotation
+    v_int8 = ...  # FIXME: Constant is missing typing annotation
+    v_long = ...  # FIXME: Constant is missing typing annotation
+    v_pointer = ...  # FIXME: Constant is missing typing annotation
+    v_short = ...  # FIXME: Constant is missing typing annotation
+    v_size = ...  # FIXME: Constant is missing typing annotation
+    v_ssize = ...  # FIXME: Constant is missing typing annotation
+    v_string = ...  # FIXME: Constant is missing typing annotation
+    v_uint = ...  # FIXME: Constant is missing typing annotation
+    v_uint16 = ...  # FIXME: Constant is missing typing annotation
+    v_uint32 = ...  # FIXME: Constant is missing typing annotation
+    v_uint64 = ...  # FIXME: Constant is missing typing annotation
+    v_uint8 = ...  # FIXME: Constant is missing typing annotation
+    v_ulong = ...  # FIXME: Constant is missing typing annotation
+    v_ushort = ...  # FIXME: Constant is missing typing annotation
 
 class AttributeIter(GObject.GPointer):
     """
@@ -76,7 +75,7 @@ class AttributeIter(GObject.GPointer):
 
     data: None = ...
 
-class BaseInfo(gi.Fundamental):
+class BaseInfo:
     """
     :Constructors:
 

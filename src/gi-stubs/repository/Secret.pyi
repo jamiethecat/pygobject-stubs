@@ -3,6 +3,7 @@ import typing
 from gi.repository import Gio
 from gi.repository import GLib
 from gi.repository import GObject
+from typing_extensions import Self
 
 T = typing.TypeVar("T")
 
@@ -12,9 +13,6 @@ COLLECTION_SESSION: str = "session"
 MAJOR_VERSION: int = 0
 MICRO_VERSION: int = 7
 MINOR_VERSION: int = 21
-_lock = ...  # FIXME Constant
-_namespace: str = "Secret"
-_version: str = "1"
 
 def attributes_validate(schema: Schema, attributes: dict[None, None]) -> bool: ...
 def backend_get(
@@ -113,7 +111,6 @@ class Backend(GObject.GInterface):
     Signals from GObject:
       notify (GParam)
     """
-
     @staticmethod
     def get(
         flags: BackendFlags,
@@ -189,8 +186,7 @@ class Collection(Gio.DBusProxy, Gio.AsyncInitable, Gio.DBusInterface, Gio.Initab
     Signals from GObject:
       notify (GParam)
     """
-
-    class Props:
+    class Props(Gio.DBusProxy.Props):
         created: int
         flags: CollectionFlags
         label: str
@@ -212,6 +208,7 @@ class Collection(Gio.DBusProxy, Gio.AsyncInitable, Gio.DBusInterface, Gio.Initab
     pv: CollectionPrivate = ...
     def __init__(
         self,
+        *,
         created: int = ...,
         flags: CollectionFlags = ...,
         label: str = ...,
@@ -373,8 +370,7 @@ class Item(
     Signals from GObject:
       notify (GParam)
     """
-
-    class Props:
+    class Props(Gio.DBusProxy.Props):
         flags: ItemFlags
         locked: bool
         service: Service
@@ -397,6 +393,7 @@ class Item(
     pv: ItemPrivate = ...
     def __init__(
         self,
+        *,
         flags: ItemFlags = ...,
         service: Service = ...,
         g_bus_type: Gio.BusType = ...,
@@ -559,8 +556,7 @@ class Prompt(Gio.DBusProxy, Gio.AsyncInitable, Gio.DBusInterface, Gio.Initable):
     Signals from GObject:
       notify (GParam)
     """
-
-    class Props:
+    class Props(Gio.DBusProxy.Props):
         g_connection: Gio.DBusConnection
         g_default_timeout: int
         g_flags: Gio.DBusProxyFlags
@@ -576,6 +572,7 @@ class Prompt(Gio.DBusProxy, Gio.AsyncInitable, Gio.DBusInterface, Gio.Initable):
     pv: PromptPrivate = ...
     def __init__(
         self,
+        *,
         g_bus_type: Gio.BusType = ...,
         g_connection: Gio.DBusConnection = ...,
         g_default_timeout: int = ...,
@@ -628,7 +625,6 @@ class Retrievable(GObject.GInterface):
     Signals from GObject:
       notify (GParam)
     """
-
     def get_attributes(self) -> dict[str, str]: ...
     def get_created(self) -> int: ...
     def get_label(self) -> str: ...
@@ -734,8 +730,7 @@ class Service(
     Signals from GObject:
       notify (GParam)
     """
-
-    class Props:
+    class Props(Gio.DBusProxy.Props):
         g_connection: Gio.DBusConnection
         g_default_timeout: int
         g_flags: Gio.DBusProxyFlags
@@ -752,6 +747,7 @@ class Service(
     pv: ServicePrivate = ...
     def __init__(
         self,
+        *,
         g_bus_type: Gio.BusType = ...,
         g_connection: Gio.DBusConnection = ...,
         g_default_timeout: int = ...,
@@ -1010,7 +1006,10 @@ class Value(GObject.GBoxed):
         new(secret:str, length:int, content_type:str) -> Secret.Value
         new_full(secret:str, length:int, content_type:str, destroy:GLib.DestroyNotify) -> Secret.Value
     """
-
+    @staticmethod
+    def __new__(
+        cls: type[Self], secret: str, length: int, content_type: str
+    ) -> Self: ...
     def get(self) -> bytes: ...
     def get_content_type(self) -> str: ...
     def get_text(self) -> typing.Optional[str]: ...

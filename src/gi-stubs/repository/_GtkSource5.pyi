@@ -12,8 +12,8 @@ from typing_extensions import Self
 T = typing.TypeVar("T")
 
 MAJOR_VERSION: int = 5
-MICRO_VERSION: int = 0
-MINOR_VERSION: int = 18
+MICRO_VERSION: int = 1
+MINOR_VERSION: int = 19
 
 def check_version(major: int, minor: int, micro: int) -> bool: ...
 def encoding_get_all() -> list[Encoding]: ...
@@ -254,6 +254,7 @@ class Buffer(Gtk.TextBuffer):
     parent_instance: Gtk.TextBuffer = ...
     def __init__(
         self,
+        *,
         highlight_matching_brackets: bool = ...,
         highlight_syntax: bool = ...,
         implicit_trailing_newline: bool = ...,
@@ -382,6 +383,7 @@ class Completion(GObject.Object):
     props: Props = ...
     def __init__(
         self,
+        *,
         page_size: int = ...,
         remember_info_visibility: bool = ...,
         select_on_show: bool = ...,
@@ -530,6 +532,7 @@ class CompletionCell(Gtk.Widget, Gtk.Accessible, Gtk.Buildable, Gtk.ConstraintTa
     props: Props = ...
     def __init__(
         self,
+        *,
         column: CompletionColumn = ...,
         markup: str = ...,
         paintable: Gdk.Paintable = ...,
@@ -632,7 +635,7 @@ class CompletionContext(GObject.Object, Gio.ListModel):
         empty: bool
 
     props: Props = ...
-    def __init__(self, completion: Completion = ...) -> None: ...
+    def __init__(self, *, completion: Completion = ...) -> None: ...
     def get_activation(self) -> CompletionActivation: ...
     def get_bounds(self) -> typing.Tuple[bool, Gtk.TextIter, Gtk.TextIter]: ...
     def get_buffer(self) -> typing.Optional[Buffer]: ...
@@ -792,7 +795,7 @@ class CompletionSnippets(GObject.Object, CompletionProvider):
 
     props: Props = ...
     parent_instance: GObject.Object = ...
-    def __init__(self, priority: int = ..., title: str = ...) -> None: ...
+    def __init__(self, *, priority: int = ..., title: str = ...) -> None: ...
     @classmethod
     def new(cls) -> CompletionSnippets: ...
 
@@ -844,6 +847,7 @@ class CompletionWords(GObject.Object, CompletionProvider):
     parent_instance: GObject.Object = ...
     def __init__(
         self,
+        *,
         minimum_word_size: int = ...,
         priority: int = ...,
         proposals_batch_size: int = ...,
@@ -912,17 +916,17 @@ class File(GObject.Object):
     class Props(GObject.Object.Props):
         compression_type: CompressionType
         encoding: Encoding
-        location: Gio.File
+        location: typing.Optional[Gio.File]
         newline_type: NewlineType
         read_only: bool
 
     props: Props = ...
     parent_instance: GObject.Object = ...
-    def __init__(self, location: typing.Optional[Gio.File] = ...) -> None: ...
+    def __init__(self, *, location: typing.Optional[Gio.File] = ...) -> None: ...
     def check_file_on_disk(self) -> None: ...
     def get_compression_type(self) -> CompressionType: ...
     def get_encoding(self) -> Encoding: ...
-    def get_location(self) -> Gio.File: ...
+    def get_location(self) -> typing.Optional[Gio.File]: ...
     def get_newline_type(self) -> NewlineType: ...
     def is_deleted(self) -> bool: ...
     def is_externally_modified(self) -> bool: ...
@@ -977,6 +981,7 @@ class FileLoader(GObject.Object):
     props: Props = ...
     def __init__(
         self,
+        *,
         buffer: Buffer = ...,
         file: File = ...,
         input_stream: Gio.InputStream = ...,
@@ -1060,6 +1065,7 @@ class FileSaver(GObject.Object):
     props: Props = ...
     def __init__(
         self,
+        *,
         buffer: Buffer = ...,
         compression_type: CompressionType = ...,
         encoding: typing.Optional[Encoding] = ...,
@@ -1220,6 +1226,7 @@ class Gutter(Gtk.Widget, Gtk.Accessible, Gtk.Buildable, Gtk.ConstraintTarget):
     props: Props = ...
     def __init__(
         self,
+        *,
         view: View = ...,
         window_type: Gtk.TextWindowType = ...,
         can_focus: bool = ...,
@@ -1451,6 +1458,7 @@ class GutterRenderer(Gtk.Widget, Gtk.Accessible, Gtk.Buildable, Gtk.ConstraintTa
     parent_instance: Gtk.Widget = ...
     def __init__(
         self,
+        *,
         alignment_mode: GutterRendererAlignmentMode = ...,
         xalign: float = ...,
         xpad: int = ...,
@@ -1709,6 +1717,7 @@ class GutterRendererPixbuf(
     parent_instance: GutterRenderer = ...
     def __init__(
         self,
+        *,
         gicon: typing.Optional[Gio.Icon] = ...,
         icon_name: typing.Optional[str] = ...,
         paintable: typing.Optional[Gdk.Paintable] = ...,
@@ -1921,6 +1930,7 @@ class GutterRendererText(
     parent_instance: GutterRenderer = ...
     def __init__(
         self,
+        *,
         markup: str = ...,
         text: str = ...,
         alignment_mode: GutterRendererAlignmentMode = ...,
@@ -1999,7 +2009,7 @@ class Hover(GObject.Object):
         hover_delay: int
 
     props: Props = ...
-    def __init__(self, hover_delay: int = ...) -> None: ...
+    def __init__(self, *, hover_delay: int = ...) -> None: ...
     def add_provider(self, provider: HoverProvider) -> None: ...
     def remove_provider(self, provider: HoverProvider) -> None: ...
 
@@ -2149,6 +2159,7 @@ class HoverDisplay(Gtk.Widget, Gtk.Accessible, Gtk.Buildable, Gtk.ConstraintTarg
     props: Props = ...
     def __init__(
         self,
+        *,
         can_focus: bool = ...,
         can_target: bool = ...,
         css_classes: typing.Sequence[str] = ...,
@@ -2333,7 +2344,7 @@ class LanguageManager(GObject.Object):
 
     props: Props = ...
     def __init__(
-        self, search_path: typing.Optional[typing.Sequence[str]] = ...
+        self, *, search_path: typing.Optional[typing.Sequence[str]] = ...
     ) -> None: ...
     def append_search_path(self, path: str) -> None: ...
     @staticmethod
@@ -2558,7 +2569,7 @@ class Map(
         buffer: Gtk.TextBuffer
         cursor_visible: bool
         editable: bool
-        extra_menu: Gio.MenuModel
+        extra_menu: typing.Optional[Gio.MenuModel]
         im_module: str
         indent: int
         input_hints: Gtk.InputHints
@@ -2619,6 +2630,7 @@ class Map(
     parent_instance: View = ...
     def __init__(
         self,
+        *,
         font_desc: Pango.FontDescription = ...,
         view: View = ...,
         auto_indent: bool = ...,
@@ -2739,7 +2751,7 @@ class Mark(Gtk.TextMark):
     props: Props = ...
     parent_instance: Gtk.TextMark = ...
     def __init__(
-        self, category: str = ..., left_gravity: bool = ..., name: str = ...
+        self, *, category: str = ..., left_gravity: bool = ..., name: str = ...
     ) -> None: ...
     def get_category(self) -> str: ...
     @classmethod
@@ -2784,6 +2796,7 @@ class MarkAttributes(GObject.Object):
     props: Props = ...
     def __init__(
         self,
+        *,
         background: Gdk.RGBA = ...,
         gicon: Gio.Icon = ...,
         icon_name: str = ...,
@@ -2884,6 +2897,7 @@ class PrintCompositor(GObject.Object):
     parent_instance: GObject.Object = ...
     def __init__(
         self,
+        *,
         body_font_name: str = ...,
         buffer: Buffer = ...,
         footer_font_name: typing.Optional[str] = ...,
@@ -2985,7 +2999,7 @@ class Region(GObject.Object):
 
     props: Props = ...
     parent_instance: GObject.Object = ...
-    def __init__(self, buffer: Gtk.TextBuffer = ...) -> None: ...
+    def __init__(self, *, buffer: Gtk.TextBuffer = ...) -> None: ...
     def add_region(self, region_to_add: typing.Optional[Region] = None) -> None: ...
     def add_subregion(self, _start: Gtk.TextIter, _end: Gtk.TextIter) -> None: ...
     def get_bounds(self) -> typing.Tuple[bool, Gtk.TextIter, Gtk.TextIter]: ...
@@ -3064,7 +3078,7 @@ class SearchContext(GObject.Object):
     class Props(GObject.Object.Props):
         buffer: Buffer
         highlight: bool
-        match_style: Style
+        match_style: typing.Optional[Style]
         occurrences_count: int
         regex_error: typing.Optional[GLib.Error]
         settings: SearchSettings
@@ -3072,6 +3086,7 @@ class SearchContext(GObject.Object):
     props: Props = ...
     def __init__(
         self,
+        *,
         buffer: Buffer = ...,
         highlight: bool = ...,
         match_style: typing.Optional[Style] = ...,
@@ -3105,7 +3120,7 @@ class SearchContext(GObject.Object):
     ) -> typing.Tuple[bool, Gtk.TextIter, Gtk.TextIter, bool]: ...
     def get_buffer(self) -> Buffer: ...
     def get_highlight(self) -> bool: ...
-    def get_match_style(self) -> Style: ...
+    def get_match_style(self) -> typing.Optional[Style]: ...
     def get_occurrence_position(
         self, match_start: Gtk.TextIter, match_end: Gtk.TextIter
     ) -> int: ...
@@ -3178,6 +3193,7 @@ class SearchSettings(GObject.Object):
     parent_instance: GObject.Object = ...
     def __init__(
         self,
+        *,
         at_word_boundaries: bool = ...,
         case_sensitive: bool = ...,
         regex_enabled: bool = ...,
@@ -3251,6 +3267,7 @@ class Snippet(GObject.Object):
     props: Props = ...
     def __init__(
         self,
+        *,
         description: str = ...,
         language_id: str = ...,
         name: str = ...,
@@ -3318,6 +3335,7 @@ class SnippetChunk(GObject.InitiallyUnowned):
     props: Props = ...
     def __init__(
         self,
+        *,
         context: SnippetContext = ...,
         focus_position: int = ...,
         spec: str = ...,
@@ -3424,7 +3442,7 @@ class SnippetManager(GObject.Object):
 
     props: Props = ...
     def __init__(
-        self, search_path: typing.Optional[typing.Sequence[str]] = ...
+        self, *, search_path: typing.Optional[typing.Sequence[str]] = ...
     ) -> None: ...
     @staticmethod
     def get_default() -> SnippetManager: ...
@@ -3484,7 +3502,7 @@ class SpaceDrawer(GObject.Object):
 
     props: Props = ...
     def __init__(
-        self, enable_matrix: bool = ..., matrix: typing.Optional[GLib.Variant] = ...
+        self, *, enable_matrix: bool = ..., matrix: typing.Optional[GLib.Variant] = ...
     ) -> None: ...
     def bind_matrix_setting(
         self, settings: Gio.Settings, key: str, flags: Gio.SettingsBindFlags
@@ -3593,6 +3611,7 @@ class Style(GObject.Object):
     props: Props = ...
     def __init__(
         self,
+        *,
         background: str = ...,
         background_set: bool = ...,
         bold: bool = ...,
@@ -3658,7 +3677,7 @@ class StyleScheme(GObject.Object):
         name: str
 
     props: Props = ...
-    def __init__(self, id: str = ...) -> None: ...
+    def __init__(self, *, id: str = ...) -> None: ...
     def get_authors(self) -> typing.Optional[list[str]]: ...
     def get_description(self) -> typing.Optional[str]: ...
     def get_filename(self) -> typing.Optional[str]: ...
@@ -3813,6 +3832,7 @@ class StyleSchemeChooserButton(
     parent_instance: Gtk.Button = ...
     def __init__(
         self,
+        *,
         can_shrink: bool = ...,
         child: typing.Optional[Gtk.Widget] = ...,
         has_frame: bool = ...,
@@ -3992,6 +4012,7 @@ class StyleSchemeChooserWidget(
     parent_instance: Gtk.Widget = ...
     def __init__(
         self,
+        *,
         can_focus: bool = ...,
         can_target: bool = ...,
         css_classes: typing.Sequence[str] = ...,
@@ -4076,7 +4097,7 @@ class StyleSchemeManager(GObject.Object):
 
     props: Props = ...
     def __init__(
-        self, search_path: typing.Optional[typing.Sequence[str]] = ...
+        self, *, search_path: typing.Optional[typing.Sequence[str]] = ...
     ) -> None: ...
     def append_search_path(self, path: str) -> None: ...
     def force_rescan(self) -> None: ...
@@ -4225,6 +4246,7 @@ class StyleSchemePreview(
     props: Props = ...
     def __init__(
         self,
+        *,
         scheme: StyleScheme = ...,
         selected: bool = ...,
         can_focus: bool = ...,
@@ -4486,6 +4508,7 @@ class Tag(Gtk.TextTag):
     parent_instance: Gtk.TextTag = ...
     def __init__(
         self,
+        *,
         draw_spaces: bool = ...,
         draw_spaces_set: bool = ...,
         accumulative_margin: bool = ...,
@@ -4756,6 +4779,7 @@ class View(
     Signals from GObject:
       notify (GParam)
     """
+
     class Props(Gtk.TextView.Props):
         annotations: Annotations
         auto_indent: bool
@@ -4839,6 +4863,7 @@ class View(
 
     props: Props = ...
     parent_instance: Gtk.TextView = ...
+
     def __init__(
         self,
         auto_indent: bool = ...,
@@ -5025,6 +5050,7 @@ class VimIMContext(Gtk.IMContext):
       commit (gchararray)
       retrieve-surrounding () -> gboolean
       delete-surrounding (gint, gint) -> gboolean
+      invalid-composition (gchararray) -> gboolean
 
     Properties from GtkIMContext:
       input-purpose -> GtkInputPurpose: input-purpose
@@ -5041,7 +5067,10 @@ class VimIMContext(Gtk.IMContext):
 
     props: Props = ...
     def __init__(
-        self, input_hints: Gtk.InputHints = ..., input_purpose: Gtk.InputPurpose = ...
+        self,
+        *,
+        input_hints: Gtk.InputHints = ...,
+        input_purpose: Gtk.InputPurpose = ...,
     ) -> None: ...
     def execute_command(self, command: str) -> None: ...
     def get_command_bar_text(self) -> str: ...

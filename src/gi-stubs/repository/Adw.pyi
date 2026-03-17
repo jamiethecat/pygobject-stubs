@@ -12,9 +12,9 @@ T = typing.TypeVar("T")
 
 DURATION_INFINITE: int = 4294967295
 MAJOR_VERSION: int = 1
-MICRO_VERSION: int = 2
-MINOR_VERSION: int = 8
-VERSION_S: str = "1.8.2"
+MICRO_VERSION: int = 0
+MINOR_VERSION: int = 9
+VERSION_S: str = "1.9.0"
 
 def accent_color_to_rgba(self: AccentColor) -> Gdk.RGBA: ...
 def accent_color_to_standalone_rgba(self: AccentColor, dark: bool) -> Gdk.RGBA: ...
@@ -53,6 +53,7 @@ class AboutDialog(
       activate-link (gchararray) -> gboolean
 
     Properties from AdwAboutDialog:
+      appdata-resource-path -> gchararray: appdata-resource-path
       application-icon -> gchararray: application-icon
       application-name -> gchararray: application-name
       developer-name -> gchararray: developer-name
@@ -91,6 +92,7 @@ class AboutDialog(
       current-breakpoint -> AdwBreakpoint: current-breakpoint
 
     Signals from GtkWidget:
+      direction-changed (GtkTextDirection)
       destroy ()
       show ()
       hide ()
@@ -99,7 +101,6 @@ class AboutDialog(
       realize ()
       unrealize ()
       state-flags-changed (GtkStateFlags)
-      direction-changed (GtkTextDirection)
       mnemonic-activate (gboolean) -> gboolean
       move-focus (GtkDirectionType)
       keynav-failed (GtkDirectionType) -> gboolean
@@ -146,6 +147,7 @@ class AboutDialog(
       notify (GParam)
     """
     class Props(Dialog.Props):
+        appdata_resource_path: typing.Optional[str]
         application_icon: str
         application_name: str
         artists: typing.Optional[list[str]]
@@ -216,6 +218,8 @@ class AboutDialog(
     props: Props = ...
     def __init__(
         self,
+        *,
+        appdata_resource_path: str = ...,
         application_icon: str = ...,
         application_name: str = ...,
         artists: typing.Optional[typing.Sequence[str]] = ...,
@@ -292,6 +296,7 @@ class AboutDialog(
     ) -> None: ...
     def add_link(self, title: str, url: str) -> None: ...
     def add_other_app(self, appid: str, name: str, summary: str) -> None: ...
+    def get_appdata_resource_path(self) -> typing.Optional[str]: ...
     def get_application_icon(self) -> str: ...
     def get_application_name(self) -> str: ...
     def get_artists(self) -> typing.Optional[list[str]]: ...
@@ -411,9 +416,9 @@ class AboutWindow(
       adaptive-preview -> gboolean: adaptive-preview
 
     Signals from GtkWindow:
+      keys-changed ()
       activate-focus ()
       activate-default ()
-      keys-changed ()
       enable-debugging (gboolean) -> gboolean
       close-request () -> gboolean
 
@@ -446,6 +451,7 @@ class AboutWindow(
       fullscreened -> gboolean: fullscreened
 
     Signals from GtkWidget:
+      direction-changed (GtkTextDirection)
       destroy ()
       show ()
       hide ()
@@ -454,7 +460,6 @@ class AboutWindow(
       realize ()
       unrealize ()
       state-flags-changed (GtkStateFlags)
-      direction-changed (GtkTextDirection)
       mnemonic-activate (gboolean) -> gboolean
       move-focus (GtkDirectionType)
       keynav-failed (GtkDirectionType) -> gboolean
@@ -592,6 +597,7 @@ class AboutWindow(
     props: Props = ...
     def __init__(
         self,
+        *,
         application_icon: str = ...,
         application_name: str = ...,
         artists: typing.Optional[typing.Sequence[str]] = ...,
@@ -789,6 +795,7 @@ class ActionRow(
       child -> GtkWidget: child
 
     Signals from GtkWidget:
+      direction-changed (GtkTextDirection)
       destroy ()
       show ()
       hide ()
@@ -797,7 +804,6 @@ class ActionRow(
       realize ()
       unrealize ()
       state-flags-changed (GtkStateFlags)
-      direction-changed (GtkTextDirection)
       mnemonic-activate (gboolean) -> gboolean
       move-focus (GtkDirectionType)
       keynav-failed (GtkDirectionType) -> gboolean
@@ -900,6 +906,7 @@ class ActionRow(
     parent_instance: PreferencesRow = ...
     def __init__(
         self,
+        *,
         activatable_widget: typing.Optional[Gtk.Widget] = ...,
         icon_name: typing.Optional[str] = ...,
         subtitle: str = ...,
@@ -950,6 +957,7 @@ class ActionRow(
     def activate(self) -> None: ...
     def add_prefix(self, widget: Gtk.Widget) -> None: ...
     def add_suffix(self, widget: Gtk.Widget) -> None: ...
+    def do_activate(self) -> None: ...
     def get_activatable_widget(self) -> typing.Optional[Gtk.Widget]: ...
     def get_icon_name(self) -> typing.Optional[str]: ...
     def get_subtitle(self) -> typing.Optional[str]: ...
@@ -1024,6 +1032,7 @@ class AlertDialog(
       current-breakpoint -> AdwBreakpoint: current-breakpoint
 
     Signals from GtkWidget:
+      direction-changed (GtkTextDirection)
       destroy ()
       show ()
       hide ()
@@ -1032,7 +1041,6 @@ class AlertDialog(
       realize ()
       unrealize ()
       state-flags-changed (GtkStateFlags)
-      direction-changed (GtkTextDirection)
       mnemonic-activate (gboolean) -> gboolean
       move-focus (GtkDirectionType)
       keynav-failed (GtkDirectionType) -> gboolean
@@ -1138,6 +1146,7 @@ class AlertDialog(
     parent_instance: Dialog = ...
     def __init__(
         self,
+        *,
         body: str = ...,
         body_use_markup: bool = ...,
         close_response: str = ...,
@@ -1275,6 +1284,7 @@ class Animation(GObject.Object):
     parent_instance: GObject.Object = ...
     def __init__(
         self,
+        *,
         follow_enable_animations_setting: bool = ...,
         target: AnimationTarget = ...,
         widget: Gtk.Widget = ...,
@@ -1382,6 +1392,7 @@ class Application(Gtk.Application, Gio.ActionGroup, Gio.ActionMap):
     parent_instance: Gtk.Application = ...
     def __init__(
         self,
+        *,
         menubar: typing.Optional[Gio.MenuModel] = ...,
         register_session: bool = ...,
         action_group: typing.Optional[Gio.ActionGroup] = ...,
@@ -1453,9 +1464,9 @@ class ApplicationWindow(
       action-state-changed (gchararray, GVariant)
 
     Signals from GtkWindow:
+      keys-changed ()
       activate-focus ()
       activate-default ()
-      keys-changed ()
       enable-debugging (gboolean) -> gboolean
       close-request () -> gboolean
 
@@ -1488,6 +1499,7 @@ class ApplicationWindow(
       fullscreened -> gboolean: fullscreened
 
     Signals from GtkWidget:
+      direction-changed (GtkTextDirection)
       destroy ()
       show ()
       hide ()
@@ -1496,7 +1508,6 @@ class ApplicationWindow(
       realize ()
       unrealize ()
       state-flags-changed (GtkStateFlags)
-      direction-changed (GtkTextDirection)
       mnemonic-activate (gboolean) -> gboolean
       move-focus (GtkDirectionType)
       keynav-failed (GtkDirectionType) -> gboolean
@@ -1616,6 +1627,7 @@ class ApplicationWindow(
     parent_instance: Gtk.ApplicationWindow = ...
     def __init__(
         self,
+        *,
         adaptive_preview: bool = ...,
         content: typing.Optional[Gtk.Widget] = ...,
         show_menubar: bool = ...,
@@ -1717,6 +1729,7 @@ class Avatar(Gtk.Widget, Gtk.Accessible, Gtk.Buildable, Gtk.ConstraintTarget):
       size -> gint: size
 
     Signals from GtkWidget:
+      direction-changed (GtkTextDirection)
       destroy ()
       show ()
       hide ()
@@ -1725,7 +1738,6 @@ class Avatar(Gtk.Widget, Gtk.Accessible, Gtk.Buildable, Gtk.ConstraintTarget):
       realize ()
       unrealize ()
       state-flags-changed (GtkStateFlags)
-      direction-changed (GtkTextDirection)
       mnemonic-activate (gboolean) -> gboolean
       move-focus (GtkDirectionType)
       keynav-failed (GtkDirectionType) -> gboolean
@@ -1817,6 +1829,7 @@ class Avatar(Gtk.Widget, Gtk.Accessible, Gtk.Buildable, Gtk.ConstraintTarget):
     props: Props = ...
     def __init__(
         self,
+        *,
         custom_image: typing.Optional[Gdk.Paintable] = ...,
         icon_name: typing.Optional[str] = ...,
         show_initials: bool = ...,
@@ -1907,6 +1920,7 @@ class Banner(
       button-style -> AdwBannerButtonStyle: button-style
 
     Signals from GtkWidget:
+      direction-changed (GtkTextDirection)
       destroy ()
       show ()
       hide ()
@@ -1915,7 +1929,6 @@ class Banner(
       realize ()
       unrealize ()
       state-flags-changed (GtkStateFlags)
-      direction-changed (GtkTextDirection)
       mnemonic-activate (gboolean) -> gboolean
       move-focus (GtkDirectionType)
       keynav-failed (GtkDirectionType) -> gboolean
@@ -2009,6 +2022,7 @@ class Banner(
     props: Props = ...
     def __init__(
         self,
+        *,
         button_label: typing.Optional[str] = ...,
         button_style: BannerButtonStyle = ...,
         revealed: bool = ...,
@@ -2087,6 +2101,7 @@ class Bin(Gtk.Widget, Gtk.Accessible, Gtk.Buildable, Gtk.ConstraintTarget):
       child -> GtkWidget: child
 
     Signals from GtkWidget:
+      direction-changed (GtkTextDirection)
       destroy ()
       show ()
       hide ()
@@ -2095,7 +2110,6 @@ class Bin(Gtk.Widget, Gtk.Accessible, Gtk.Buildable, Gtk.ConstraintTarget):
       realize ()
       unrealize ()
       state-flags-changed (GtkStateFlags)
-      direction-changed (GtkTextDirection)
       mnemonic-activate (gboolean) -> gboolean
       move-focus (GtkDirectionType)
       keynav-failed (GtkDirectionType) -> gboolean
@@ -2184,6 +2198,7 @@ class Bin(Gtk.Widget, Gtk.Accessible, Gtk.Buildable, Gtk.ConstraintTarget):
     parent_instance: Gtk.Widget = ...
     def __init__(
         self,
+        *,
         child: typing.Optional[Gtk.Widget] = ...,
         can_focus: bool = ...,
         can_target: bool = ...,
@@ -2265,6 +2280,7 @@ class BottomSheet(
       reveal-bottom-bar -> gboolean: reveal-bottom-bar
 
     Signals from GtkWidget:
+      direction-changed (GtkTextDirection)
       destroy ()
       show ()
       hide ()
@@ -2273,7 +2289,6 @@ class BottomSheet(
       realize ()
       unrealize ()
       state-flags-changed (GtkStateFlags)
-      direction-changed (GtkTextDirection)
       mnemonic-activate (gboolean) -> gboolean
       move-focus (GtkDirectionType)
       keynav-failed (GtkDirectionType) -> gboolean
@@ -2373,6 +2388,7 @@ class BottomSheet(
     props: Props = ...
     def __init__(
         self,
+        *,
         align: float = ...,
         bottom_bar: typing.Optional[Gtk.Widget] = ...,
         can_close: bool = ...,
@@ -2482,7 +2498,7 @@ class Breakpoint(GObject.Object, Gtk.Buildable):
 
     props: Props = ...
     def __init__(
-        self, condition: typing.Optional[BreakpointCondition] = ...
+        self, *, condition: typing.Optional[BreakpointCondition] = ...
     ) -> None: ...
     def add_setter(
         self,
@@ -2519,6 +2535,7 @@ class BreakpointBin(Gtk.Widget, Gtk.Accessible, Gtk.Buildable, Gtk.ConstraintTar
       current-breakpoint -> AdwBreakpoint: current-breakpoint
 
     Signals from GtkWidget:
+      direction-changed (GtkTextDirection)
       destroy ()
       show ()
       hide ()
@@ -2527,7 +2544,6 @@ class BreakpointBin(Gtk.Widget, Gtk.Accessible, Gtk.Buildable, Gtk.ConstraintTar
       realize ()
       unrealize ()
       state-flags-changed (GtkStateFlags)
-      direction-changed (GtkTextDirection)
       mnemonic-activate (gboolean) -> gboolean
       move-focus (GtkDirectionType)
       keynav-failed (GtkDirectionType) -> gboolean
@@ -2617,6 +2633,7 @@ class BreakpointBin(Gtk.Widget, Gtk.Accessible, Gtk.Buildable, Gtk.ConstraintTar
     parent_instance: Gtk.Widget = ...
     def __init__(
         self,
+        *,
         child: typing.Optional[Gtk.Widget] = ...,
         can_focus: bool = ...,
         can_target: bool = ...,
@@ -2732,6 +2749,7 @@ class ButtonContent(Gtk.Widget, Gtk.Accessible, Gtk.Buildable, Gtk.ConstraintTar
       can-shrink -> gboolean: can-shrink
 
     Signals from GtkWidget:
+      direction-changed (GtkTextDirection)
       destroy ()
       show ()
       hide ()
@@ -2740,7 +2758,6 @@ class ButtonContent(Gtk.Widget, Gtk.Accessible, Gtk.Buildable, Gtk.ConstraintTar
       realize ()
       unrealize ()
       state-flags-changed (GtkStateFlags)
-      direction-changed (GtkTextDirection)
       mnemonic-activate (gboolean) -> gboolean
       move-focus (GtkDirectionType)
       keynav-failed (GtkDirectionType) -> gboolean
@@ -2831,6 +2848,7 @@ class ButtonContent(Gtk.Widget, Gtk.Accessible, Gtk.Buildable, Gtk.ConstraintTar
     props: Props = ...
     def __init__(
         self,
+        *,
         can_shrink: bool = ...,
         icon_name: str = ...,
         label: str = ...,
@@ -2924,6 +2942,7 @@ class ButtonRow(
       child -> GtkWidget: child
 
     Signals from GtkWidget:
+      direction-changed (GtkTextDirection)
       destroy ()
       show ()
       hide ()
@@ -2932,7 +2951,6 @@ class ButtonRow(
       realize ()
       unrealize ()
       state-flags-changed (GtkStateFlags)
-      direction-changed (GtkTextDirection)
       mnemonic-activate (gboolean) -> gboolean
       move-focus (GtkDirectionType)
       keynav-failed (GtkDirectionType) -> gboolean
@@ -3030,6 +3048,7 @@ class ButtonRow(
     props: Props = ...
     def __init__(
         self,
+        *,
         end_icon_name: typing.Optional[str] = ...,
         start_icon_name: typing.Optional[str] = ...,
         title: str = ...,
@@ -3145,6 +3164,7 @@ class Carousel(
       reveal-duration -> guint: reveal-duration
 
     Signals from GtkWidget:
+      direction-changed (GtkTextDirection)
       destroy ()
       show ()
       hide ()
@@ -3153,7 +3173,6 @@ class Carousel(
       realize ()
       unrealize ()
       state-flags-changed (GtkStateFlags)
-      direction-changed (GtkTextDirection)
       mnemonic-activate (gboolean) -> gboolean
       move-focus (GtkDirectionType)
       keynav-failed (GtkDirectionType) -> gboolean
@@ -3250,6 +3269,7 @@ class Carousel(
     props: Props = ...
     def __init__(
         self,
+        *,
         allow_long_swipes: bool = ...,
         allow_mouse_drag: bool = ...,
         allow_scroll_wheel: bool = ...,
@@ -3344,6 +3364,7 @@ class CarouselIndicatorDots(
       carousel -> AdwCarousel: carousel
 
     Signals from GtkWidget:
+      direction-changed (GtkTextDirection)
       destroy ()
       show ()
       hide ()
@@ -3352,7 +3373,6 @@ class CarouselIndicatorDots(
       realize ()
       unrealize ()
       state-flags-changed (GtkStateFlags)
-      direction-changed (GtkTextDirection)
       mnemonic-activate (gboolean) -> gboolean
       move-focus (GtkDirectionType)
       keynav-failed (GtkDirectionType) -> gboolean
@@ -3441,6 +3461,7 @@ class CarouselIndicatorDots(
     props: Props = ...
     def __init__(
         self,
+        *,
         carousel: typing.Optional[Carousel] = ...,
         can_focus: bool = ...,
         can_target: bool = ...,
@@ -3508,6 +3529,7 @@ class CarouselIndicatorLines(
       carousel -> AdwCarousel: carousel
 
     Signals from GtkWidget:
+      direction-changed (GtkTextDirection)
       destroy ()
       show ()
       hide ()
@@ -3516,7 +3538,6 @@ class CarouselIndicatorLines(
       realize ()
       unrealize ()
       state-flags-changed (GtkStateFlags)
-      direction-changed (GtkTextDirection)
       mnemonic-activate (gboolean) -> gboolean
       move-focus (GtkDirectionType)
       keynav-failed (GtkDirectionType) -> gboolean
@@ -3605,6 +3626,7 @@ class CarouselIndicatorLines(
     props: Props = ...
     def __init__(
         self,
+        *,
         carousel: typing.Optional[Carousel] = ...,
         can_focus: bool = ...,
         can_target: bool = ...,
@@ -3675,6 +3697,7 @@ class Clamp(
       unit -> AdwLengthUnit: unit
 
     Signals from GtkWidget:
+      direction-changed (GtkTextDirection)
       destroy ()
       show ()
       hide ()
@@ -3683,7 +3706,6 @@ class Clamp(
       realize ()
       unrealize ()
       state-flags-changed (GtkStateFlags)
-      direction-changed (GtkTextDirection)
       mnemonic-activate (gboolean) -> gboolean
       move-focus (GtkDirectionType)
       keynav-failed (GtkDirectionType) -> gboolean
@@ -3775,6 +3797,7 @@ class Clamp(
     props: Props = ...
     def __init__(
         self,
+        *,
         child: typing.Optional[Gtk.Widget] = ...,
         maximum_size: int = ...,
         tightening_threshold: int = ...,
@@ -3862,6 +3885,7 @@ class ClampLayout(Gtk.LayoutManager, Gtk.Orientable):
     props: Props = ...
     def __init__(
         self,
+        *,
         maximum_size: int = ...,
         tightening_threshold: int = ...,
         unit: LengthUnit = ...,
@@ -3912,6 +3936,7 @@ class ClampScrollable(
       unit -> AdwLengthUnit: unit
 
     Signals from GtkWidget:
+      direction-changed (GtkTextDirection)
       destroy ()
       show ()
       hide ()
@@ -3920,7 +3945,6 @@ class ClampScrollable(
       realize ()
       unrealize ()
       state-flags-changed (GtkStateFlags)
-      direction-changed (GtkTextDirection)
       mnemonic-activate (gboolean) -> gboolean
       move-focus (GtkDirectionType)
       keynav-failed (GtkDirectionType) -> gboolean
@@ -4016,6 +4040,7 @@ class ClampScrollable(
     props: Props = ...
     def __init__(
         self,
+        *,
         child: typing.Optional[Gtk.Widget] = ...,
         maximum_size: int = ...,
         tightening_threshold: int = ...,
@@ -4131,6 +4156,7 @@ class ComboRow(
       child -> GtkWidget: child
 
     Signals from GtkWidget:
+      direction-changed (GtkTextDirection)
       destroy ()
       show ()
       hide ()
@@ -4139,7 +4165,6 @@ class ComboRow(
       realize ()
       unrealize ()
       state-flags-changed (GtkStateFlags)
-      direction-changed (GtkTextDirection)
       mnemonic-activate (gboolean) -> gboolean
       move-focus (GtkDirectionType)
       keynav-failed (GtkDirectionType) -> gboolean
@@ -4252,6 +4277,7 @@ class ComboRow(
     parent_instance: ActionRow = ...
     def __init__(
         self,
+        *,
         enable_search: bool = ...,
         expression: typing.Optional[Gtk.Expression] = ...,
         factory: typing.Optional[Gtk.ListItemFactory] = ...,
@@ -4382,6 +4408,7 @@ class Dialog(
       current-breakpoint -> AdwBreakpoint: current-breakpoint
 
     Signals from GtkWidget:
+      direction-changed (GtkTextDirection)
       destroy ()
       show ()
       hide ()
@@ -4390,7 +4417,6 @@ class Dialog(
       realize ()
       unrealize ()
       state-flags-changed (GtkStateFlags)
-      direction-changed (GtkTextDirection)
       mnemonic-activate (gboolean) -> gboolean
       move-focus (GtkDirectionType)
       keynav-failed (GtkDirectionType) -> gboolean
@@ -4488,6 +4514,7 @@ class Dialog(
     parent_instance: Gtk.Widget = ...
     def __init__(
         self,
+        *,
         can_close: bool = ...,
         child: typing.Optional[Gtk.Widget] = ...,
         content_height: int = ...,
@@ -4627,6 +4654,7 @@ class EntryRow(
       child -> GtkWidget: child
 
     Signals from GtkWidget:
+      direction-changed (GtkTextDirection)
       destroy ()
       show ()
       hide ()
@@ -4635,7 +4663,6 @@ class EntryRow(
       realize ()
       unrealize ()
       state-flags-changed (GtkStateFlags)
-      direction-changed (GtkTextDirection)
       mnemonic-activate (gboolean) -> gboolean
       move-focus (GtkDirectionType)
       keynav-failed (GtkDirectionType) -> gboolean
@@ -4748,6 +4775,7 @@ class EntryRow(
     parent_instance: PreferencesRow = ...
     def __init__(
         self,
+        *,
         activates_default: bool = ...,
         attributes: typing.Optional[Pango.AttrList] = ...,
         enable_emoji_completion: bool = ...,
@@ -4889,6 +4917,8 @@ class EnumListModel(GObject.Object, Gio.ListModel):
 
     Properties from AdwEnumListModel:
       enum-type -> GType: enum-type
+      item-type -> GType: item-type
+      n-items -> guint: n-items
 
     Signals from GListModel:
       items-changed (guint, guint, guint)
@@ -4898,9 +4928,11 @@ class EnumListModel(GObject.Object, Gio.ListModel):
     """
     class Props(GObject.Object.Props):
         enum_type: typing.Type[typing.Any]
+        item_type: typing.Type[typing.Any]
+        n_items: int
 
     props: Props = ...
-    def __init__(self, enum_type: typing.Type[typing.Any] = ...) -> None: ...
+    def __init__(self, *, enum_type: typing.Type[typing.Any] = ...) -> None: ...
     def find_position(self, value: int) -> int: ...
     def get_enum_type(self) -> typing.Type[typing.Any]: ...
     @classmethod
@@ -4954,6 +4986,7 @@ class ExpanderRow(
       child -> GtkWidget: child
 
     Signals from GtkWidget:
+      direction-changed (GtkTextDirection)
       destroy ()
       show ()
       hide ()
@@ -4962,7 +4995,6 @@ class ExpanderRow(
       realize ()
       unrealize ()
       state-flags-changed (GtkStateFlags)
-      direction-changed (GtkTextDirection)
       mnemonic-activate (gboolean) -> gboolean
       move-focus (GtkDirectionType)
       keynav-failed (GtkDirectionType) -> gboolean
@@ -5066,6 +5098,7 @@ class ExpanderRow(
     parent_instance: PreferencesRow = ...
     def __init__(
         self,
+        *,
         enable_expansion: bool = ...,
         expanded: bool = ...,
         icon_name: typing.Optional[str] = ...,
@@ -5185,6 +5218,7 @@ class Flap(
       swipe-to-close -> gboolean: swipe-to-close
 
     Signals from GtkWidget:
+      direction-changed (GtkTextDirection)
       destroy ()
       show ()
       hide ()
@@ -5193,7 +5227,6 @@ class Flap(
       realize ()
       unrealize ()
       state-flags-changed (GtkStateFlags)
-      direction-changed (GtkTextDirection)
       mnemonic-activate (gboolean) -> gboolean
       move-focus (GtkDirectionType)
       keynav-failed (GtkDirectionType) -> gboolean
@@ -5297,6 +5330,7 @@ class Flap(
     props: Props = ...
     def __init__(
         self,
+        *,
         content: typing.Optional[Gtk.Widget] = ...,
         flap: typing.Optional[Gtk.Widget] = ...,
         flap_position: Gtk.PackType = ...,
@@ -5409,6 +5443,7 @@ class HeaderBar(Gtk.Widget, Gtk.Accessible, Gtk.Buildable, Gtk.ConstraintTarget)
       show-title -> gboolean: show-title
 
     Signals from GtkWidget:
+      direction-changed (GtkTextDirection)
       destroy ()
       show ()
       hide ()
@@ -5417,7 +5452,6 @@ class HeaderBar(Gtk.Widget, Gtk.Accessible, Gtk.Buildable, Gtk.ConstraintTarget)
       realize ()
       unrealize ()
       state-flags-changed (GtkStateFlags)
-      direction-changed (GtkTextDirection)
       mnemonic-activate (gboolean) -> gboolean
       move-focus (GtkDirectionType)
       keynav-failed (GtkDirectionType) -> gboolean
@@ -5511,6 +5545,7 @@ class HeaderBar(Gtk.Widget, Gtk.Accessible, Gtk.Buildable, Gtk.ConstraintTarget)
     props: Props = ...
     def __init__(
         self,
+        *,
         centering_policy: CenteringPolicy = ...,
         decoration_layout: typing.Optional[str] = ...,
         show_back_button: bool = ...,
@@ -5603,6 +5638,7 @@ class InlineViewSwitcher(
       can-shrink -> gboolean: can-shrink
 
     Signals from GtkWidget:
+      direction-changed (GtkTextDirection)
       destroy ()
       show ()
       hide ()
@@ -5611,7 +5647,6 @@ class InlineViewSwitcher(
       realize ()
       unrealize ()
       state-flags-changed (GtkStateFlags)
-      direction-changed (GtkTextDirection)
       mnemonic-activate (gboolean) -> gboolean
       move-focus (GtkDirectionType)
       keynav-failed (GtkDirectionType) -> gboolean
@@ -5703,6 +5738,7 @@ class InlineViewSwitcher(
     props: Props = ...
     def __init__(
         self,
+        *,
         can_shrink: bool = ...,
         display_mode: InlineViewSwitcherDisplayMode = ...,
         homogeneous: bool = ...,
@@ -5786,7 +5822,7 @@ class Layout(GObject.Object, Gtk.Buildable):
 
     props: Props = ...
     def __init__(
-        self, content: Gtk.Widget = ..., name: typing.Optional[str] = ...
+        self, *, content: Gtk.Widget = ..., name: typing.Optional[str] = ...
     ) -> None: ...
     def get_content(self) -> Gtk.Widget: ...
     def get_name(self) -> typing.Optional[str]: ...
@@ -5820,6 +5856,7 @@ class LayoutSlot(Gtk.Widget, Gtk.Accessible, Gtk.Buildable, Gtk.ConstraintTarget
       id -> gchararray: id
 
     Signals from GtkWidget:
+      direction-changed (GtkTextDirection)
       destroy ()
       show ()
       hide ()
@@ -5828,7 +5865,6 @@ class LayoutSlot(Gtk.Widget, Gtk.Accessible, Gtk.Buildable, Gtk.ConstraintTarget
       realize ()
       unrealize ()
       state-flags-changed (GtkStateFlags)
-      direction-changed (GtkTextDirection)
       mnemonic-activate (gboolean) -> gboolean
       move-focus (GtkDirectionType)
       keynav-failed (GtkDirectionType) -> gboolean
@@ -5916,6 +5952,7 @@ class LayoutSlot(Gtk.Widget, Gtk.Accessible, Gtk.Buildable, Gtk.ConstraintTarget
     props: Props = ...
     def __init__(
         self,
+        *,
         id: str = ...,
         can_focus: bool = ...,
         can_target: bool = ...,
@@ -5998,6 +6035,7 @@ class Leaflet(
       pages -> GtkSelectionModel: pages
 
     Signals from GtkWidget:
+      direction-changed (GtkTextDirection)
       destroy ()
       show ()
       hide ()
@@ -6006,7 +6044,6 @@ class Leaflet(
       realize ()
       unrealize ()
       state-flags-changed (GtkStateFlags)
-      direction-changed (GtkTextDirection)
       mnemonic-activate (gboolean) -> gboolean
       move-focus (GtkDirectionType)
       keynav-failed (GtkDirectionType) -> gboolean
@@ -6107,6 +6144,7 @@ class Leaflet(
     props: Props = ...
     def __init__(
         self,
+        *,
         can_navigate_back: bool = ...,
         can_navigate_forward: bool = ...,
         can_unfold: bool = ...,
@@ -6228,6 +6266,7 @@ class LeafletPage(GObject.Object):
     props: Props = ...
     def __init__(
         self,
+        *,
         child: Gtk.Widget = ...,
         name: typing.Optional[str] = ...,
         navigatable: bool = ...,
@@ -6281,9 +6320,9 @@ class MessageDialog(
       close-response -> gchararray: close-response
 
     Signals from GtkWindow:
+      keys-changed ()
       activate-focus ()
       activate-default ()
-      keys-changed ()
       enable-debugging (gboolean) -> gboolean
       close-request () -> gboolean
 
@@ -6316,6 +6355,7 @@ class MessageDialog(
       fullscreened -> gboolean: fullscreened
 
     Signals from GtkWidget:
+      direction-changed (GtkTextDirection)
       destroy ()
       show ()
       hide ()
@@ -6324,7 +6364,6 @@ class MessageDialog(
       realize ()
       unrealize ()
       state-flags-changed (GtkStateFlags)
-      direction-changed (GtkTextDirection)
       mnemonic-activate (gboolean) -> gboolean
       move-focus (GtkDirectionType)
       keynav-failed (GtkDirectionType) -> gboolean
@@ -6445,6 +6484,7 @@ class MessageDialog(
     parent_instance: Gtk.Window = ...
     def __init__(
         self,
+        *,
         body: str = ...,
         body_use_markup: bool = ...,
         close_response: str = ...,
@@ -6579,6 +6619,7 @@ class MultiLayoutView(Gtk.Widget, Gtk.Accessible, Gtk.Buildable, Gtk.ConstraintT
       layout-name -> gchararray: layout-name
 
     Signals from GtkWidget:
+      direction-changed (GtkTextDirection)
       destroy ()
       show ()
       hide ()
@@ -6587,7 +6628,6 @@ class MultiLayoutView(Gtk.Widget, Gtk.Accessible, Gtk.Buildable, Gtk.ConstraintT
       realize ()
       unrealize ()
       state-flags-changed (GtkStateFlags)
-      direction-changed (GtkTextDirection)
       mnemonic-activate (gboolean) -> gboolean
       move-focus (GtkDirectionType)
       keynav-failed (GtkDirectionType) -> gboolean
@@ -6676,6 +6716,7 @@ class MultiLayoutView(Gtk.Widget, Gtk.Accessible, Gtk.Buildable, Gtk.ConstraintT
     props: Props = ...
     def __init__(
         self,
+        *,
         layout: Layout = ...,
         layout_name: str = ...,
         can_focus: bool = ...,
@@ -6758,6 +6799,7 @@ class NavigationPage(Gtk.Widget, Gtk.Accessible, Gtk.Buildable, Gtk.ConstraintTa
       can-pop -> gboolean: can-pop
 
     Signals from GtkWidget:
+      direction-changed (GtkTextDirection)
       destroy ()
       show ()
       hide ()
@@ -6766,7 +6808,6 @@ class NavigationPage(Gtk.Widget, Gtk.Accessible, Gtk.Buildable, Gtk.ConstraintTa
       realize ()
       unrealize ()
       state-flags-changed (GtkStateFlags)
-      direction-changed (GtkTextDirection)
       mnemonic-activate (gboolean) -> gboolean
       move-focus (GtkDirectionType)
       keynav-failed (GtkDirectionType) -> gboolean
@@ -6858,6 +6899,7 @@ class NavigationPage(Gtk.Widget, Gtk.Accessible, Gtk.Buildable, Gtk.ConstraintTa
     parent_instance: Gtk.Widget = ...
     def __init__(
         self,
+        *,
         can_pop: bool = ...,
         child: typing.Optional[Gtk.Widget] = ...,
         tag: typing.Optional[str] = ...,
@@ -6954,6 +6996,7 @@ class NavigationSplitView(
       sidebar-width-unit -> AdwLengthUnit: sidebar-width-unit
 
     Signals from GtkWidget:
+      direction-changed (GtkTextDirection)
       destroy ()
       show ()
       hide ()
@@ -6962,7 +7005,6 @@ class NavigationSplitView(
       realize ()
       unrealize ()
       state-flags-changed (GtkStateFlags)
-      direction-changed (GtkTextDirection)
       mnemonic-activate (gboolean) -> gboolean
       move-focus (GtkDirectionType)
       keynav-failed (GtkDirectionType) -> gboolean
@@ -7058,6 +7100,7 @@ class NavigationSplitView(
     props: Props = ...
     def __init__(
         self,
+        *,
         collapsed: bool = ...,
         content: typing.Optional[NavigationPage] = ...,
         max_sidebar_width: float = ...,
@@ -7160,6 +7203,7 @@ class NavigationView(
       navigation-stack -> GListModel: navigation-stack
 
     Signals from GtkWidget:
+      direction-changed (GtkTextDirection)
       destroy ()
       show ()
       hide ()
@@ -7168,7 +7212,6 @@ class NavigationView(
       realize ()
       unrealize ()
       state-flags-changed (GtkStateFlags)
-      direction-changed (GtkTextDirection)
       mnemonic-activate (gboolean) -> gboolean
       move-focus (GtkDirectionType)
       keynav-failed (GtkDirectionType) -> gboolean
@@ -7262,6 +7305,7 @@ class NavigationView(
     props: Props = ...
     def __init__(
         self,
+        *,
         animate_transitions: bool = ...,
         hhomogeneous: bool = ...,
         pop_on_escape: bool = ...,
@@ -7336,6 +7380,25 @@ class NavigationViewClass(GObject.GPointer):
 
     parent_class: Gtk.WidgetClass = ...
 
+class NoneAnimationTarget(AnimationTarget):
+    """
+    :Constructors:
+
+    ::
+
+        NoneAnimationTarget(**properties)
+        new() -> Adw.AnimationTarget
+
+    Object AdwNoneAnimationTarget
+
+    Signals from GObject:
+      notify (GParam)
+    """
+    @classmethod
+    def new(cls) -> NoneAnimationTarget: ...
+
+class NoneAnimationTargetClass(GObject.GPointer): ...
+
 class OverlaySplitView(
     Gtk.Widget, Swipeable, Gtk.Accessible, Gtk.Buildable, Gtk.ConstraintTarget
 ):
@@ -7364,6 +7427,7 @@ class OverlaySplitView(
       sidebar-width-unit -> AdwLengthUnit: sidebar-width-unit
 
     Signals from GtkWidget:
+      direction-changed (GtkTextDirection)
       destroy ()
       show ()
       hide ()
@@ -7372,7 +7436,6 @@ class OverlaySplitView(
       realize ()
       unrealize ()
       state-flags-changed (GtkStateFlags)
-      direction-changed (GtkTextDirection)
       mnemonic-activate (gboolean) -> gboolean
       move-focus (GtkDirectionType)
       keynav-failed (GtkDirectionType) -> gboolean
@@ -7471,6 +7534,7 @@ class OverlaySplitView(
     props: Props = ...
     def __init__(
         self,
+        *,
         collapsed: bool = ...,
         content: typing.Optional[Gtk.Widget] = ...,
         enable_hide_gesture: bool = ...,
@@ -7610,6 +7674,7 @@ class PasswordEntryRow(
       child -> GtkWidget: child
 
     Signals from GtkWidget:
+      direction-changed (GtkTextDirection)
       destroy ()
       show ()
       hide ()
@@ -7618,7 +7683,6 @@ class PasswordEntryRow(
       realize ()
       unrealize ()
       state-flags-changed (GtkStateFlags)
-      direction-changed (GtkTextDirection)
       mnemonic-activate (gboolean) -> gboolean
       move-focus (GtkDirectionType)
       keynav-failed (GtkDirectionType) -> gboolean
@@ -7730,6 +7794,7 @@ class PasswordEntryRow(
     props: Props = ...
     def __init__(
         self,
+        *,
         activates_default: bool = ...,
         attributes: typing.Optional[Pango.AttrList] = ...,
         enable_emoji_completion: bool = ...,
@@ -7833,6 +7898,7 @@ class PreferencesDialog(
       current-breakpoint -> AdwBreakpoint: current-breakpoint
 
     Signals from GtkWidget:
+      direction-changed (GtkTextDirection)
       destroy ()
       show ()
       hide ()
@@ -7841,7 +7907,6 @@ class PreferencesDialog(
       realize ()
       unrealize ()
       state-flags-changed (GtkStateFlags)
-      direction-changed (GtkTextDirection)
       mnemonic-activate (gboolean) -> gboolean
       move-focus (GtkDirectionType)
       keynav-failed (GtkDirectionType) -> gboolean
@@ -7942,6 +8007,7 @@ class PreferencesDialog(
     parent_instance: Dialog = ...
     def __init__(
         self,
+        *,
         search_enabled: bool = ...,
         visible_page: Gtk.Widget = ...,
         visible_page_name: str = ...,
@@ -8030,6 +8096,7 @@ class PreferencesGroup(Gtk.Widget, Gtk.Accessible, Gtk.Buildable, Gtk.Constraint
       separate-rows -> gboolean: separate-rows
 
     Signals from GtkWidget:
+      direction-changed (GtkTextDirection)
       destroy ()
       show ()
       hide ()
@@ -8038,7 +8105,6 @@ class PreferencesGroup(Gtk.Widget, Gtk.Accessible, Gtk.Buildable, Gtk.Constraint
       realize ()
       unrealize ()
       state-flags-changed (GtkStateFlags)
-      direction-changed (GtkTextDirection)
       mnemonic-activate (gboolean) -> gboolean
       move-focus (GtkDirectionType)
       keynav-failed (GtkDirectionType) -> gboolean
@@ -8130,6 +8196,7 @@ class PreferencesGroup(Gtk.Widget, Gtk.Accessible, Gtk.Buildable, Gtk.Constraint
     parent_instance: Gtk.Widget = ...
     def __init__(
         self,
+        *,
         description: typing.Optional[str] = ...,
         header_suffix: typing.Optional[Gtk.Widget] = ...,
         separate_rows: bool = ...,
@@ -8219,6 +8286,7 @@ class PreferencesPage(Gtk.Widget, Gtk.Accessible, Gtk.Buildable, Gtk.ConstraintT
       banner -> AdwBanner: banner
 
     Signals from GtkWidget:
+      direction-changed (GtkTextDirection)
       destroy ()
       show ()
       hide ()
@@ -8227,7 +8295,6 @@ class PreferencesPage(Gtk.Widget, Gtk.Accessible, Gtk.Buildable, Gtk.ConstraintT
       realize ()
       unrealize ()
       state-flags-changed (GtkStateFlags)
-      direction-changed (GtkTextDirection)
       mnemonic-activate (gboolean) -> gboolean
       move-focus (GtkDirectionType)
       keynav-failed (GtkDirectionType) -> gboolean
@@ -8321,6 +8388,7 @@ class PreferencesPage(Gtk.Widget, Gtk.Accessible, Gtk.Buildable, Gtk.ConstraintT
     parent_instance: Gtk.Widget = ...
     def __init__(
         self,
+        *,
         banner: typing.Optional[Banner] = ...,
         description: str = ...,
         description_centered: bool = ...,
@@ -8421,6 +8489,7 @@ class PreferencesRow(
       child -> GtkWidget: child
 
     Signals from GtkWidget:
+      direction-changed (GtkTextDirection)
       destroy ()
       show ()
       hide ()
@@ -8429,7 +8498,6 @@ class PreferencesRow(
       realize ()
       unrealize ()
       state-flags-changed (GtkStateFlags)
-      direction-changed (GtkTextDirection)
       mnemonic-activate (gboolean) -> gboolean
       move-focus (GtkDirectionType)
       keynav-failed (GtkDirectionType) -> gboolean
@@ -8526,6 +8594,7 @@ class PreferencesRow(
     parent_instance: Gtk.ListBoxRow = ...
     def __init__(
         self,
+        *,
         title: str = ...,
         title_selectable: bool = ...,
         use_markup: bool = ...,
@@ -8623,9 +8692,9 @@ class PreferencesWindow(
       adaptive-preview -> gboolean: adaptive-preview
 
     Signals from GtkWindow:
+      keys-changed ()
       activate-focus ()
       activate-default ()
-      keys-changed ()
       enable-debugging (gboolean) -> gboolean
       close-request () -> gboolean
 
@@ -8658,6 +8727,7 @@ class PreferencesWindow(
       fullscreened -> gboolean: fullscreened
 
     Signals from GtkWidget:
+      direction-changed (GtkTextDirection)
       destroy ()
       show ()
       hide ()
@@ -8666,7 +8736,6 @@ class PreferencesWindow(
       realize ()
       unrealize ()
       state-flags-changed (GtkStateFlags)
-      direction-changed (GtkTextDirection)
       mnemonic-activate (gboolean) -> gboolean
       move-focus (GtkDirectionType)
       keynav-failed (GtkDirectionType) -> gboolean
@@ -8789,6 +8858,7 @@ class PreferencesWindow(
     parent_instance: Window = ...
     def __init__(
         self,
+        *,
         can_navigate_back: bool = ...,
         search_enabled: bool = ...,
         visible_page: Gtk.Widget = ...,
@@ -8906,7 +8976,7 @@ class PropertyAnimationTarget(AnimationTarget):
 
     props: Props = ...
     def __init__(
-        self, object: GObject.Object = ..., pspec: GObject.ParamSpec = ...
+        self, *, object: GObject.Object = ..., pspec: GObject.ParamSpec = ...
     ) -> None: ...
     def get_object(self) -> GObject.Object: ...
     def get_pspec(self) -> GObject.ParamSpec: ...
@@ -8937,6 +9007,7 @@ class ShortcutLabel(Gtk.Widget, Gtk.Accessible, Gtk.Buildable, Gtk.ConstraintTar
       disabled-text -> gchararray: disabled-text
 
     Signals from GtkWidget:
+      direction-changed (GtkTextDirection)
       destroy ()
       show ()
       hide ()
@@ -8945,7 +9016,6 @@ class ShortcutLabel(Gtk.Widget, Gtk.Accessible, Gtk.Buildable, Gtk.ConstraintTar
       realize ()
       unrealize ()
       state-flags-changed (GtkStateFlags)
-      direction-changed (GtkTextDirection)
       mnemonic-activate (gboolean) -> gboolean
       move-focus (GtkDirectionType)
       keynav-failed (GtkDirectionType) -> gboolean
@@ -9034,6 +9104,7 @@ class ShortcutLabel(Gtk.Widget, Gtk.Accessible, Gtk.Buildable, Gtk.ConstraintTar
     props: Props = ...
     def __init__(
         self,
+        *,
         accelerator: str = ...,
         disabled_text: str = ...,
         can_focus: bool = ...,
@@ -9116,6 +9187,7 @@ class ShortcutsDialog(
       current-breakpoint -> AdwBreakpoint: current-breakpoint
 
     Signals from GtkWidget:
+      direction-changed (GtkTextDirection)
       destroy ()
       show ()
       hide ()
@@ -9124,7 +9196,6 @@ class ShortcutsDialog(
       realize ()
       unrealize ()
       state-flags-changed (GtkStateFlags)
-      direction-changed (GtkTextDirection)
       mnemonic-activate (gboolean) -> gboolean
       move-focus (GtkDirectionType)
       keynav-failed (GtkDirectionType) -> gboolean
@@ -9221,6 +9292,7 @@ class ShortcutsDialog(
     props: Props = ...
     def __init__(
         self,
+        *,
         can_close: bool = ...,
         child: typing.Optional[Gtk.Widget] = ...,
         content_height: int = ...,
@@ -9309,6 +9381,7 @@ class ShortcutsItem(GObject.Object):
     props: Props = ...
     def __init__(
         self,
+        *,
         accelerator: str = ...,
         action_name: str = ...,
         direction: Gtk.TextDirection = ...,
@@ -9354,6 +9427,8 @@ class ShortcutsSection(GObject.Object, Gio.ListModel, Gtk.Buildable):
 
     Properties from AdwShortcutsSection:
       title -> gchararray: title
+      item-type -> GType: item-type
+      n-items -> guint: n-items
 
     Signals from GListModel:
       items-changed (guint, guint, guint)
@@ -9362,10 +9437,12 @@ class ShortcutsSection(GObject.Object, Gio.ListModel, Gtk.Buildable):
       notify (GParam)
     """
     class Props(GObject.Object.Props):
+        item_type: typing.Type[typing.Any]
+        n_items: int
         title: typing.Optional[str]
 
     props: Props = ...
-    def __init__(self, title: typing.Optional[str] = ...) -> None: ...
+    def __init__(self, *, title: typing.Optional[str] = ...) -> None: ...
     def add(self, item: ShortcutsItem) -> None: ...
     def get_title(self) -> typing.Optional[str]: ...
     @classmethod
@@ -9379,6 +9456,387 @@ class ShortcutsSectionClass(GObject.GPointer):
     ::
 
         ShortcutsSectionClass()
+    """
+
+    parent_class: GObject.ObjectClass = ...
+
+class Sidebar(Gtk.Widget, Gtk.Accessible, Gtk.Buildable, Gtk.ConstraintTarget):
+    """
+    :Constructors:
+
+    ::
+
+        Sidebar(**properties)
+        new() -> Gtk.Widget
+
+    Object AdwSidebar
+
+    Signals from AdwSidebar:
+      activated (guint)
+      drop (guint, GValue, GdkDragAction) -> gboolean
+      drop-enter (guint) -> GdkDragAction
+      drop-value-loaded (guint, GValue) -> GdkDragAction
+      setup-menu (AdwSidebarItem)
+
+    Properties from AdwSidebar:
+      mode -> AdwSidebarMode: mode
+      selected -> guint: selected
+      selected-item -> AdwSidebarItem: selected-item
+      items -> GtkSelectionModel: items
+      sections -> GListModel: sections
+      filter -> GtkFilter: filter
+      placeholder -> GtkWidget: placeholder
+      drop-preload -> gboolean: drop-preload
+      menu-model -> GMenuModel: menu-model
+
+    Signals from GtkWidget:
+      direction-changed (GtkTextDirection)
+      destroy ()
+      show ()
+      hide ()
+      map ()
+      unmap ()
+      realize ()
+      unrealize ()
+      state-flags-changed (GtkStateFlags)
+      mnemonic-activate (gboolean) -> gboolean
+      move-focus (GtkDirectionType)
+      keynav-failed (GtkDirectionType) -> gboolean
+      query-tooltip (gint, gint, gboolean, GtkTooltip) -> gboolean
+
+    Properties from GtkWidget:
+      name -> gchararray: name
+      parent -> GtkWidget: parent
+      root -> GtkRoot: root
+      width-request -> gint: width-request
+      height-request -> gint: height-request
+      visible -> gboolean: visible
+      sensitive -> gboolean: sensitive
+      can-focus -> gboolean: can-focus
+      has-focus -> gboolean: has-focus
+      can-target -> gboolean: can-target
+      focus-on-click -> gboolean: focus-on-click
+      focusable -> gboolean: focusable
+      has-default -> gboolean: has-default
+      receives-default -> gboolean: receives-default
+      cursor -> GdkCursor: cursor
+      has-tooltip -> gboolean: has-tooltip
+      tooltip-markup -> gchararray: tooltip-markup
+      tooltip-text -> gchararray: tooltip-text
+      opacity -> gdouble: opacity
+      overflow -> GtkOverflow: overflow
+      halign -> GtkAlign: halign
+      valign -> GtkAlign: valign
+      margin-start -> gint: margin-start
+      margin-end -> gint: margin-end
+      margin-top -> gint: margin-top
+      margin-bottom -> gint: margin-bottom
+      hexpand -> gboolean: hexpand
+      vexpand -> gboolean: vexpand
+      hexpand-set -> gboolean: hexpand-set
+      vexpand-set -> gboolean: vexpand-set
+      scale-factor -> gint: scale-factor
+      css-name -> gchararray: css-name
+      css-classes -> GStrv: css-classes
+      layout-manager -> GtkLayoutManager: layout-manager
+      limit-events -> gboolean: limit-events
+
+    Signals from GObject:
+      notify (GParam)
+    """
+    class Props(Gtk.Widget.Props):
+        drop_preload: bool
+        filter: typing.Optional[Gtk.Filter]
+        items: Gtk.SelectionModel
+        menu_model: typing.Optional[Gio.MenuModel]
+        mode: SidebarMode
+        placeholder: typing.Optional[Gtk.Widget]
+        sections: Gio.ListModel
+        selected: int
+        selected_item: typing.Optional[SidebarItem]
+        can_focus: bool
+        can_target: bool
+        css_classes: list[str]
+        css_name: str
+        cursor: typing.Optional[Gdk.Cursor]
+        focus_on_click: bool
+        focusable: bool
+        halign: Gtk.Align
+        has_default: bool
+        has_focus: bool
+        has_tooltip: bool
+        height_request: int
+        hexpand: bool
+        hexpand_set: bool
+        layout_manager: typing.Optional[Gtk.LayoutManager]
+        limit_events: bool
+        margin_bottom: int
+        margin_end: int
+        margin_start: int
+        margin_top: int
+        name: str
+        opacity: float
+        overflow: Gtk.Overflow
+        parent: typing.Optional[Gtk.Widget]
+        receives_default: bool
+        root: typing.Optional[Gtk.Root]
+        scale_factor: int
+        sensitive: bool
+        tooltip_markup: typing.Optional[str]
+        tooltip_text: typing.Optional[str]
+        valign: Gtk.Align
+        vexpand: bool
+        vexpand_set: bool
+        visible: bool
+        width_request: int
+        accessible_role: Gtk.AccessibleRole
+
+    props: Props = ...
+    def __init__(
+        self,
+        *,
+        drop_preload: bool = ...,
+        filter: typing.Optional[Gtk.Filter] = ...,
+        menu_model: typing.Optional[Gio.MenuModel] = ...,
+        mode: SidebarMode = ...,
+        placeholder: typing.Optional[Gtk.Widget] = ...,
+        selected: int = ...,
+        can_focus: bool = ...,
+        can_target: bool = ...,
+        css_classes: typing.Sequence[str] = ...,
+        css_name: str = ...,
+        cursor: typing.Optional[Gdk.Cursor] = ...,
+        focus_on_click: bool = ...,
+        focusable: bool = ...,
+        halign: Gtk.Align = ...,
+        has_tooltip: bool = ...,
+        height_request: int = ...,
+        hexpand: bool = ...,
+        hexpand_set: bool = ...,
+        layout_manager: typing.Optional[Gtk.LayoutManager] = ...,
+        limit_events: bool = ...,
+        margin_bottom: int = ...,
+        margin_end: int = ...,
+        margin_start: int = ...,
+        margin_top: int = ...,
+        name: str = ...,
+        opacity: float = ...,
+        overflow: Gtk.Overflow = ...,
+        receives_default: bool = ...,
+        sensitive: bool = ...,
+        tooltip_markup: typing.Optional[str] = ...,
+        tooltip_text: typing.Optional[str] = ...,
+        valign: Gtk.Align = ...,
+        vexpand: bool = ...,
+        vexpand_set: bool = ...,
+        visible: bool = ...,
+        width_request: int = ...,
+        accessible_role: Gtk.AccessibleRole = ...,
+    ) -> None: ...
+    def append(self, section: SidebarSection) -> None: ...
+    def get_drop_preload(self) -> bool: ...
+    def get_filter(self) -> typing.Optional[Gtk.Filter]: ...
+    def get_item(self, index: int) -> typing.Optional[SidebarItem]: ...
+    def get_items(self) -> Gtk.SelectionModel: ...
+    def get_menu_model(self) -> typing.Optional[Gio.MenuModel]: ...
+    def get_mode(self) -> SidebarMode: ...
+    def get_placeholder(self) -> typing.Optional[Gtk.Widget]: ...
+    def get_section(self, index: int) -> typing.Optional[SidebarSection]: ...
+    def get_sections(self) -> Gio.ListModel: ...
+    def get_selected(self) -> int: ...
+    def get_selected_item(self) -> typing.Optional[SidebarItem]: ...
+    def insert(self, section: SidebarSection, position: int) -> None: ...
+    @classmethod
+    def new(cls) -> Sidebar: ...
+    def prepend(self, section: SidebarSection) -> None: ...
+    def remove(self, section: SidebarSection) -> None: ...
+    def remove_all(self) -> None: ...
+    def set_drop_preload(self, preload: bool) -> None: ...
+    def set_filter(self, filter: typing.Optional[Gtk.Filter] = None) -> None: ...
+    def set_menu_model(
+        self, menu_model: typing.Optional[Gio.MenuModel] = None
+    ) -> None: ...
+    def set_mode(self, mode: SidebarMode) -> None: ...
+    def set_placeholder(
+        self, placeholder: typing.Optional[Gtk.Widget] = None
+    ) -> None: ...
+    def set_selected(self, selected: int) -> None: ...
+    def setup_drop_target(
+        self,
+        actions: Gdk.DragAction,
+        types: typing.Optional[typing.Sequence[typing.Type[typing.Any]]] = None,
+    ) -> None: ...
+
+class SidebarClass(GObject.GPointer):
+    """
+    :Constructors:
+
+    ::
+
+        SidebarClass()
+    """
+
+    parent_class: Gtk.WidgetClass = ...
+
+class SidebarItem(GObject.Object):
+    """
+    :Constructors:
+
+    ::
+
+        SidebarItem(**properties)
+        new(title:str) -> Adw.SidebarItem
+
+    Object AdwSidebarItem
+
+    Properties from AdwSidebarItem:
+      title -> gchararray: title
+      subtitle -> gchararray: subtitle
+      use-underline -> gboolean: use-underline
+      icon-name -> gchararray: icon-name
+      icon-paintable -> GdkPaintable: icon-paintable
+      tooltip -> gchararray: tooltip
+      suffix -> GtkWidget: suffix
+      visible -> gboolean: visible
+      enabled -> gboolean: enabled
+      drag-motion-activate -> gboolean: drag-motion-activate
+      section -> AdwSidebarSection: section
+
+    Signals from GObject:
+      notify (GParam)
+    """
+    class Props(GObject.Object.Props):
+        drag_motion_activate: bool
+        enabled: bool
+        icon_name: typing.Optional[str]
+        icon_paintable: typing.Optional[Gdk.Paintable]
+        section: typing.Optional[SidebarSection]
+        subtitle: typing.Optional[str]
+        suffix: typing.Optional[Gtk.Widget]
+        title: typing.Optional[str]
+        tooltip: typing.Optional[str]
+        use_underline: bool
+        visible: bool
+
+    props: Props = ...
+    parent_instance: GObject.Object = ...
+    def __init__(
+        self,
+        *,
+        drag_motion_activate: bool = ...,
+        enabled: bool = ...,
+        icon_name: typing.Optional[str] = ...,
+        icon_paintable: typing.Optional[Gdk.Paintable] = ...,
+        subtitle: typing.Optional[str] = ...,
+        suffix: typing.Optional[Gtk.Widget] = ...,
+        title: typing.Optional[str] = ...,
+        tooltip: typing.Optional[str] = ...,
+        use_underline: bool = ...,
+        visible: bool = ...,
+    ) -> None: ...
+    def get_drag_motion_activate(self) -> bool: ...
+    def get_enabled(self) -> bool: ...
+    def get_icon_name(self) -> typing.Optional[str]: ...
+    def get_icon_paintable(self) -> typing.Optional[Gdk.Paintable]: ...
+    def get_index(self) -> int: ...
+    def get_section(self) -> typing.Optional[SidebarSection]: ...
+    def get_section_index(self) -> int: ...
+    def get_subtitle(self) -> typing.Optional[str]: ...
+    def get_suffix(self) -> typing.Optional[Gtk.Widget]: ...
+    def get_title(self) -> typing.Optional[str]: ...
+    def get_tooltip(self) -> typing.Optional[str]: ...
+    def get_use_underline(self) -> bool: ...
+    def get_visible(self) -> bool: ...
+    @classmethod
+    def new(cls, title: str) -> SidebarItem: ...
+    def set_drag_motion_activate(self, drag_motion_activate: bool) -> None: ...
+    def set_enabled(self, enabled: bool) -> None: ...
+    def set_icon_name(self, icon_name: typing.Optional[str] = None) -> None: ...
+    def set_icon_paintable(
+        self, paintable: typing.Optional[Gdk.Paintable] = None
+    ) -> None: ...
+    def set_subtitle(self, subtitle: typing.Optional[str] = None) -> None: ...
+    def set_suffix(self, suffix: typing.Optional[Gtk.Widget] = None) -> None: ...
+    def set_title(self, title: typing.Optional[str] = None) -> None: ...
+    def set_tooltip(self, tooltip: typing.Optional[str] = None) -> None: ...
+    def set_use_underline(self, use_underline: bool) -> None: ...
+    def set_visible(self, visible: bool) -> None: ...
+
+class SidebarItemClass(GObject.GPointer):
+    """
+    :Constructors:
+
+    ::
+
+        SidebarItemClass()
+    """
+
+    parent_class: GObject.ObjectClass = ...
+    padding: list[None] = ...
+
+class SidebarSection(GObject.Object, Gtk.Buildable):
+    """
+    :Constructors:
+
+    ::
+
+        SidebarSection(**properties)
+        new() -> Adw.SidebarSection
+
+    Object AdwSidebarSection
+
+    Properties from AdwSidebarSection:
+      title -> gchararray: title
+      menu-model -> GMenuModel: menu-model
+      items -> GListModel: items
+      sidebar -> AdwSidebar: sidebar
+
+    Signals from GObject:
+      notify (GParam)
+    """
+    class Props(GObject.Object.Props):
+        items: Gio.ListModel
+        menu_model: typing.Optional[Gio.MenuModel]
+        sidebar: typing.Optional[Sidebar]
+        title: typing.Optional[str]
+
+    props: Props = ...
+    def __init__(
+        self,
+        *,
+        menu_model: typing.Optional[Gio.MenuModel] = ...,
+        title: typing.Optional[str] = ...,
+    ) -> None: ...
+    def append(self, item: SidebarItem) -> None: ...
+    def bind_model(
+        self,
+        model: typing.Optional[Gio.ListModel] = None,
+        create_item_func: typing.Optional[typing.Callable[..., SidebarItem]] = None,
+        *user_data: typing.Any,
+    ) -> None: ...
+    def get_item(self, index: int) -> typing.Optional[SidebarItem]: ...
+    def get_items(self) -> Gio.ListModel: ...
+    def get_menu_model(self) -> typing.Optional[Gio.MenuModel]: ...
+    def get_sidebar(self) -> typing.Optional[Sidebar]: ...
+    def get_title(self) -> typing.Optional[str]: ...
+    def insert(self, item: SidebarItem, position: int) -> None: ...
+    @classmethod
+    def new(cls) -> SidebarSection: ...
+    def prepend(self, item: SidebarItem) -> None: ...
+    def remove(self, item: SidebarItem) -> None: ...
+    def remove_all(self) -> None: ...
+    def set_menu_model(
+        self, menu_model: typing.Optional[Gio.MenuModel] = None
+    ) -> None: ...
+    def set_title(self, title: typing.Optional[str] = None) -> None: ...
+
+class SidebarSectionClass(GObject.GPointer):
+    """
+    :Constructors:
+
+    ::
+
+        SidebarSectionClass()
     """
 
     parent_class: GObject.ObjectClass = ...
@@ -9448,6 +9906,7 @@ class SpinRow(
       child -> GtkWidget: child
 
     Signals from GtkWidget:
+      direction-changed (GtkTextDirection)
       destroy ()
       show ()
       hide ()
@@ -9456,7 +9915,6 @@ class SpinRow(
       realize ()
       unrealize ()
       state-flags-changed (GtkStateFlags)
-      direction-changed (GtkTextDirection)
       mnemonic-activate (gboolean) -> gboolean
       move-focus (GtkDirectionType)
       keynav-failed (GtkDirectionType) -> gboolean
@@ -9574,6 +10032,7 @@ class SpinRow(
     props: Props = ...
     def __init__(
         self,
+        *,
         adjustment: typing.Optional[Gtk.Adjustment] = ...,
         climb_rate: float = ...,
         digits: int = ...,
@@ -9691,6 +10150,7 @@ class Spinner(Gtk.Widget, Gtk.Accessible, Gtk.Buildable, Gtk.ConstraintTarget):
     Object AdwSpinner
 
     Signals from GtkWidget:
+      direction-changed (GtkTextDirection)
       destroy ()
       show ()
       hide ()
@@ -9699,7 +10159,6 @@ class Spinner(Gtk.Widget, Gtk.Accessible, Gtk.Buildable, Gtk.ConstraintTarget):
       realize ()
       unrealize ()
       state-flags-changed (GtkStateFlags)
-      direction-changed (GtkTextDirection)
       mnemonic-activate (gboolean) -> gboolean
       move-focus (GtkDirectionType)
       keynav-failed (GtkDirectionType) -> gboolean
@@ -9786,6 +10245,7 @@ class Spinner(Gtk.Widget, Gtk.Accessible, Gtk.Buildable, Gtk.ConstraintTarget):
     props: Props = ...
     def __init__(
         self,
+        *,
         can_focus: bool = ...,
         can_target: bool = ...,
         css_classes: typing.Sequence[str] = ...,
@@ -9857,7 +10317,7 @@ class SpinnerPaintable(GObject.Object, Gdk.Paintable, Gtk.SymbolicPaintable):
         widget: typing.Optional[Gtk.Widget]
 
     props: Props = ...
-    def __init__(self, widget: typing.Optional[Gtk.Widget] = ...) -> None: ...
+    def __init__(self, *, widget: typing.Optional[Gtk.Widget] = ...) -> None: ...
     def get_widget(self) -> typing.Optional[Gtk.Widget]: ...
     @classmethod
     def new(cls, widget: typing.Optional[Gtk.Widget] = None) -> SpinnerPaintable: ...
@@ -9903,6 +10363,7 @@ class SplitButton(
       dropdown-tooltip -> gchararray: dropdown-tooltip
 
     Signals from GtkWidget:
+      direction-changed (GtkTextDirection)
       destroy ()
       show ()
       hide ()
@@ -9911,7 +10372,6 @@ class SplitButton(
       realize ()
       unrealize ()
       state-flags-changed (GtkStateFlags)
-      direction-changed (GtkTextDirection)
       mnemonic-activate (gboolean) -> gboolean
       move-focus (GtkDirectionType)
       keynav-failed (GtkDirectionType) -> gboolean
@@ -10009,6 +10469,7 @@ class SplitButton(
     props: Props = ...
     def __init__(
         self,
+        *,
         can_shrink: bool = ...,
         child: typing.Optional[Gtk.Widget] = ...,
         direction: Gtk.ArrowType = ...,
@@ -10140,6 +10601,7 @@ class SpringAnimation(Animation):
     props: Props = ...
     def __init__(
         self,
+        *,
         clamp: bool = ...,
         epsilon: float = ...,
         initial_velocity: float = ...,
@@ -10187,6 +10649,10 @@ class SpringParams(GObject.GBoxed):
         new(damping_ratio:float, mass:float, stiffness:float) -> Adw.SpringParams
         new_full(damping:float, mass:float, stiffness:float) -> Adw.SpringParams
     """
+    @staticmethod
+    def __new__(
+        cls: type[Self], damping_ratio: float, mass: float, stiffness: float
+    ) -> Self: ...
     def get_damping(self) -> float: ...
     def get_damping_ratio(self) -> float: ...
     def get_mass(self) -> float: ...
@@ -10229,6 +10695,7 @@ class Squeezer(
       pages -> GtkSelectionModel: pages
 
     Signals from GtkWidget:
+      direction-changed (GtkTextDirection)
       destroy ()
       show ()
       hide ()
@@ -10237,7 +10704,6 @@ class Squeezer(
       realize ()
       unrealize ()
       state-flags-changed (GtkStateFlags)
-      direction-changed (GtkTextDirection)
       mnemonic-activate (gboolean) -> gboolean
       move-focus (GtkDirectionType)
       keynav-failed (GtkDirectionType) -> gboolean
@@ -10336,6 +10802,7 @@ class Squeezer(
     props: Props = ...
     def __init__(
         self,
+        *,
         allow_none: bool = ...,
         homogeneous: bool = ...,
         interpolate_size: bool = ...,
@@ -10435,7 +10902,7 @@ class SqueezerPage(GObject.Object):
         enabled: bool
 
     props: Props = ...
-    def __init__(self, child: Gtk.Widget = ..., enabled: bool = ...) -> None: ...
+    def __init__(self, *, child: Gtk.Widget = ..., enabled: bool = ...) -> None: ...
     def get_child(self) -> Gtk.Widget: ...
     def get_enabled(self) -> bool: ...
     def set_enabled(self, enabled: bool) -> None: ...
@@ -10470,6 +10937,7 @@ class StatusPage(Gtk.Widget, Gtk.Accessible, Gtk.Buildable, Gtk.ConstraintTarget
       child -> GtkWidget: child
 
     Signals from GtkWidget:
+      direction-changed (GtkTextDirection)
       destroy ()
       show ()
       hide ()
@@ -10478,7 +10946,6 @@ class StatusPage(Gtk.Widget, Gtk.Accessible, Gtk.Buildable, Gtk.ConstraintTarget
       realize ()
       unrealize ()
       state-flags-changed (GtkStateFlags)
-      direction-changed (GtkTextDirection)
       mnemonic-activate (gboolean) -> gboolean
       move-focus (GtkDirectionType)
       keynav-failed (GtkDirectionType) -> gboolean
@@ -10570,6 +11037,7 @@ class StatusPage(Gtk.Widget, Gtk.Accessible, Gtk.Buildable, Gtk.ConstraintTarget
     props: Props = ...
     def __init__(
         self,
+        *,
         child: typing.Optional[Gtk.Widget] = ...,
         description: typing.Optional[str] = ...,
         icon_name: typing.Optional[str] = ...,
@@ -10672,7 +11140,7 @@ class StyleManager(GObject.Object):
 
     props: Props = ...
     def __init__(
-        self, color_scheme: ColorScheme = ..., display: Gdk.Display = ...
+        self, *, color_scheme: ColorScheme = ..., display: Gdk.Display = ...
     ) -> None: ...
     def get_accent_color(self) -> AccentColor: ...
     def get_accent_color_rgba(self) -> Gdk.RGBA: ...
@@ -10745,6 +11213,7 @@ class SwipeTracker(GObject.Object, Gtk.Orientable):
     props: Props = ...
     def __init__(
         self,
+        *,
         allow_long_swipes: bool = ...,
         allow_mouse_drag: bool = ...,
         allow_window_handle: bool = ...,
@@ -10861,6 +11330,7 @@ class SwitchRow(
       child -> GtkWidget: child
 
     Signals from GtkWidget:
+      direction-changed (GtkTextDirection)
       destroy ()
       show ()
       hide ()
@@ -10869,7 +11339,6 @@ class SwitchRow(
       realize ()
       unrealize ()
       state-flags-changed (GtkStateFlags)
-      direction-changed (GtkTextDirection)
       mnemonic-activate (gboolean) -> gboolean
       move-focus (GtkDirectionType)
       keynav-failed (GtkDirectionType) -> gboolean
@@ -10972,6 +11441,7 @@ class SwitchRow(
     props: Props = ...
     def __init__(
         self,
+        *,
         active: bool = ...,
         activatable_widget: typing.Optional[Gtk.Widget] = ...,
         icon_name: typing.Optional[str] = ...,
@@ -11064,6 +11534,7 @@ class TabBar(Gtk.Widget, Gtk.Accessible, Gtk.Buildable, Gtk.ConstraintTarget):
       extra-drag-preferred-action -> GdkDragAction: extra-drag-preferred-action
 
     Signals from GtkWidget:
+      direction-changed (GtkTextDirection)
       destroy ()
       show ()
       hide ()
@@ -11072,7 +11543,6 @@ class TabBar(Gtk.Widget, Gtk.Accessible, Gtk.Buildable, Gtk.ConstraintTarget):
       realize ()
       unrealize ()
       state-flags-changed (GtkStateFlags)
-      direction-changed (GtkTextDirection)
       mnemonic-activate (gboolean) -> gboolean
       move-focus (GtkDirectionType)
       keynav-failed (GtkDirectionType) -> gboolean
@@ -11169,6 +11639,7 @@ class TabBar(Gtk.Widget, Gtk.Accessible, Gtk.Buildable, Gtk.ConstraintTarget):
     props: Props = ...
     def __init__(
         self,
+        *,
         autohide: bool = ...,
         end_action_widget: typing.Optional[Gtk.Widget] = ...,
         expand_tabs: bool = ...,
@@ -11269,6 +11740,7 @@ class TabButton(
       view -> AdwTabView: view
 
     Signals from GtkWidget:
+      direction-changed (GtkTextDirection)
       destroy ()
       show ()
       hide ()
@@ -11277,7 +11749,6 @@ class TabButton(
       realize ()
       unrealize ()
       state-flags-changed (GtkStateFlags)
-      direction-changed (GtkTextDirection)
       mnemonic-activate (gboolean) -> gboolean
       move-focus (GtkDirectionType)
       keynav-failed (GtkDirectionType) -> gboolean
@@ -11367,6 +11838,7 @@ class TabButton(
     props: Props = ...
     def __init__(
         self,
+        *,
         view: typing.Optional[TabView] = ...,
         can_focus: bool = ...,
         can_target: bool = ...,
@@ -11449,6 +11921,7 @@ class TabOverview(Gtk.Widget, Gtk.Accessible, Gtk.Buildable, Gtk.ConstraintTarge
       extra-drag-preload -> gboolean: extra-drag-preload
 
     Signals from GtkWidget:
+      direction-changed (GtkTextDirection)
       destroy ()
       show ()
       hide ()
@@ -11457,7 +11930,6 @@ class TabOverview(Gtk.Widget, Gtk.Accessible, Gtk.Buildable, Gtk.ConstraintTarge
       realize ()
       unrealize ()
       state-flags-changed (GtkStateFlags)
-      direction-changed (GtkTextDirection)
       mnemonic-activate (gboolean) -> gboolean
       move-focus (GtkDirectionType)
       keynav-failed (GtkDirectionType) -> gboolean
@@ -11556,6 +12028,7 @@ class TabOverview(Gtk.Widget, Gtk.Accessible, Gtk.Buildable, Gtk.ConstraintTarge
     props: Props = ...
     def __init__(
         self,
+        *,
         child: typing.Optional[Gtk.Widget] = ...,
         enable_new_tab: bool = ...,
         enable_search: bool = ...,
@@ -11694,6 +12167,7 @@ class TabPage(GObject.Object, Gtk.Accessible):
     props: Props = ...
     def __init__(
         self,
+        *,
         child: Gtk.Widget = ...,
         icon: typing.Optional[Gio.Icon] = ...,
         indicator_activatable: bool = ...,
@@ -11765,11 +12239,11 @@ class TabView(Gtk.Widget, Gtk.Accessible, Gtk.Buildable, Gtk.ConstraintTarget):
     Object AdwTabView
 
     Signals from AdwTabView:
+      setup-menu (AdwTabPage)
       page-attached (AdwTabPage, gint)
       page-detached (AdwTabPage, gint)
       page-reordered (AdwTabPage, gint)
       close-page (AdwTabPage) -> gboolean
-      setup-menu (AdwTabPage)
       create-window () -> AdwTabView
       indicator-activated (AdwTabPage)
 
@@ -11784,6 +12258,7 @@ class TabView(Gtk.Widget, Gtk.Accessible, Gtk.Buildable, Gtk.ConstraintTarget):
       pages -> GtkSelectionModel: pages
 
     Signals from GtkWidget:
+      direction-changed (GtkTextDirection)
       destroy ()
       show ()
       hide ()
@@ -11792,7 +12267,6 @@ class TabView(Gtk.Widget, Gtk.Accessible, Gtk.Buildable, Gtk.ConstraintTarget):
       realize ()
       unrealize ()
       state-flags-changed (GtkStateFlags)
-      direction-changed (GtkTextDirection)
       mnemonic-activate (gboolean) -> gboolean
       move-focus (GtkDirectionType)
       keynav-failed (GtkDirectionType) -> gboolean
@@ -11887,6 +12361,7 @@ class TabView(Gtk.Widget, Gtk.Accessible, Gtk.Buildable, Gtk.ConstraintTarget):
     props: Props = ...
     def __init__(
         self,
+        *,
         default_icon: Gio.Icon = ...,
         menu_model: typing.Optional[Gio.MenuModel] = ...,
         selected_page: TabPage = ...,
@@ -12032,6 +12507,7 @@ class TimedAnimation(Animation):
     props: Props = ...
     def __init__(
         self,
+        *,
         alternate: bool = ...,
         duration: int = ...,
         easing: Easing = ...,
@@ -12110,6 +12586,7 @@ class Toast(GObject.Object):
     props: Props = ...
     def __init__(
         self,
+        *,
         action_name: typing.Optional[str] = ...,
         action_target: typing.Optional[GLib.Variant] = ...,
         button_label: typing.Optional[str] = ...,
@@ -12170,6 +12647,7 @@ class ToastOverlay(Gtk.Widget, Gtk.Accessible, Gtk.Buildable, Gtk.ConstraintTarg
       child -> GtkWidget: child
 
     Signals from GtkWidget:
+      direction-changed (GtkTextDirection)
       destroy ()
       show ()
       hide ()
@@ -12178,7 +12656,6 @@ class ToastOverlay(Gtk.Widget, Gtk.Accessible, Gtk.Buildable, Gtk.ConstraintTarg
       realize ()
       unrealize ()
       state-flags-changed (GtkStateFlags)
-      direction-changed (GtkTextDirection)
       mnemonic-activate (gboolean) -> gboolean
       move-focus (GtkDirectionType)
       keynav-failed (GtkDirectionType) -> gboolean
@@ -12266,6 +12743,7 @@ class ToastOverlay(Gtk.Widget, Gtk.Accessible, Gtk.Buildable, Gtk.ConstraintTarg
     props: Props = ...
     def __init__(
         self,
+        *,
         child: typing.Optional[Gtk.Widget] = ...,
         can_focus: bool = ...,
         can_target: bool = ...,
@@ -12334,6 +12812,7 @@ class Toggle(GObject.Object):
       use-underline -> gboolean: use-underline
       icon-name -> gchararray: icon-name
       tooltip -> gchararray: tooltip
+      description -> gchararray: description
       child -> GtkWidget: child
       enabled -> gboolean: enabled
 
@@ -12342,6 +12821,7 @@ class Toggle(GObject.Object):
     """
     class Props(GObject.Object.Props):
         child: typing.Optional[Gtk.Widget]
+        description: str
         enabled: bool
         icon_name: typing.Optional[str]
         label: typing.Optional[str]
@@ -12352,7 +12832,9 @@ class Toggle(GObject.Object):
     props: Props = ...
     def __init__(
         self,
+        *,
         child: typing.Optional[Gtk.Widget] = ...,
+        description: str = ...,
         enabled: bool = ...,
         icon_name: typing.Optional[str] = ...,
         label: typing.Optional[str] = ...,
@@ -12361,6 +12843,7 @@ class Toggle(GObject.Object):
         use_underline: bool = ...,
     ) -> None: ...
     def get_child(self) -> typing.Optional[Gtk.Widget]: ...
+    def get_description(self) -> str: ...
     def get_enabled(self) -> bool: ...
     def get_icon_name(self) -> typing.Optional[str]: ...
     def get_index(self) -> int: ...
@@ -12371,6 +12854,7 @@ class Toggle(GObject.Object):
     @classmethod
     def new(cls) -> Toggle: ...
     def set_child(self, child: typing.Optional[Gtk.Widget] = None) -> None: ...
+    def set_description(self, description: str) -> None: ...
     def set_enabled(self, enabled: bool) -> None: ...
     def set_icon_name(self, icon_name: typing.Optional[str] = None) -> None: ...
     def set_label(self, label: typing.Optional[str] = None) -> None: ...
@@ -12411,6 +12895,7 @@ class ToggleGroup(
       toggles -> GtkSelectionModel: toggles
 
     Signals from GtkWidget:
+      direction-changed (GtkTextDirection)
       destroy ()
       show ()
       hide ()
@@ -12419,7 +12904,6 @@ class ToggleGroup(
       realize ()
       unrealize ()
       state-flags-changed (GtkStateFlags)
-      direction-changed (GtkTextDirection)
       mnemonic-activate (gboolean) -> gboolean
       move-focus (GtkDirectionType)
       keynav-failed (GtkDirectionType) -> gboolean
@@ -12513,6 +12997,7 @@ class ToggleGroup(
     props: Props = ...
     def __init__(
         self,
+        *,
         active: int = ...,
         active_name: typing.Optional[str] = ...,
         can_shrink: bool = ...,
@@ -12602,6 +13087,7 @@ class ToolbarView(Gtk.Widget, Gtk.Accessible, Gtk.Buildable, Gtk.ConstraintTarge
       bottom-bar-height -> gint: bottom-bar-height
 
     Signals from GtkWidget:
+      direction-changed (GtkTextDirection)
       destroy ()
       show ()
       hide ()
@@ -12610,7 +13096,6 @@ class ToolbarView(Gtk.Widget, Gtk.Accessible, Gtk.Buildable, Gtk.ConstraintTarge
       realize ()
       unrealize ()
       state-flags-changed (GtkStateFlags)
-      direction-changed (GtkTextDirection)
       mnemonic-activate (gboolean) -> gboolean
       move-focus (GtkDirectionType)
       keynav-failed (GtkDirectionType) -> gboolean
@@ -12706,6 +13191,7 @@ class ToolbarView(Gtk.Widget, Gtk.Accessible, Gtk.Buildable, Gtk.ConstraintTarge
     props: Props = ...
     def __init__(
         self,
+        *,
         bottom_bar_style: ToolbarStyle = ...,
         content: typing.Optional[Gtk.Widget] = ...,
         extend_content_to_bottom_edge: bool = ...,
@@ -12800,6 +13286,7 @@ class ViewStack(Gtk.Widget, Gtk.Accessible, Gtk.Buildable, Gtk.ConstraintTarget)
       pages -> GtkSelectionModel: pages
 
     Signals from GtkWidget:
+      direction-changed (GtkTextDirection)
       destroy ()
       show ()
       hide ()
@@ -12808,7 +13295,6 @@ class ViewStack(Gtk.Widget, Gtk.Accessible, Gtk.Buildable, Gtk.ConstraintTarget)
       realize ()
       unrealize ()
       state-flags-changed (GtkStateFlags)
-      direction-changed (GtkTextDirection)
       mnemonic-activate (gboolean) -> gboolean
       move-focus (GtkDirectionType)
       keynav-failed (GtkDirectionType) -> gboolean
@@ -12903,6 +13389,7 @@ class ViewStack(Gtk.Widget, Gtk.Accessible, Gtk.Buildable, Gtk.ConstraintTarget)
     props: Props = ...
     def __init__(
         self,
+        *,
         enable_transitions: bool = ...,
         hhomogeneous: bool = ...,
         transition_duration: int = ...,
@@ -13001,6 +13488,8 @@ class ViewStackPage(GObject.Object, Gtk.Accessible):
       needs-attention -> gboolean: needs-attention
       badge-number -> guint: badge-number
       visible -> gboolean: visible
+      starts-section -> gboolean: starts-section
+      section-title -> gchararray: section-title
 
     Signals from GObject:
       notify (GParam)
@@ -13011,6 +13500,8 @@ class ViewStackPage(GObject.Object, Gtk.Accessible):
         icon_name: typing.Optional[str]
         name: typing.Optional[str]
         needs_attention: bool
+        section_title: typing.Optional[str]
+        starts_section: bool
         title: typing.Optional[str]
         use_underline: bool
         visible: bool
@@ -13019,11 +13510,14 @@ class ViewStackPage(GObject.Object, Gtk.Accessible):
     props: Props = ...
     def __init__(
         self,
+        *,
         badge_number: int = ...,
         child: Gtk.Widget = ...,
         icon_name: typing.Optional[str] = ...,
         name: typing.Optional[str] = ...,
         needs_attention: bool = ...,
+        section_title: typing.Optional[str] = ...,
+        starts_section: bool = ...,
         title: typing.Optional[str] = ...,
         use_underline: bool = ...,
         visible: bool = ...,
@@ -13034,6 +13528,8 @@ class ViewStackPage(GObject.Object, Gtk.Accessible):
     def get_icon_name(self) -> typing.Optional[str]: ...
     def get_name(self) -> typing.Optional[str]: ...
     def get_needs_attention(self) -> bool: ...
+    def get_section_title(self) -> typing.Optional[str]: ...
+    def get_starts_section(self) -> bool: ...
     def get_title(self) -> typing.Optional[str]: ...
     def get_use_underline(self) -> bool: ...
     def get_visible(self) -> bool: ...
@@ -13041,6 +13537,8 @@ class ViewStackPage(GObject.Object, Gtk.Accessible):
     def set_icon_name(self, icon_name: typing.Optional[str] = None) -> None: ...
     def set_name(self, name: typing.Optional[str] = None) -> None: ...
     def set_needs_attention(self, needs_attention: bool) -> None: ...
+    def set_section_title(self, section_title: typing.Optional[str] = None) -> None: ...
+    def set_starts_section(self, starts_section: bool) -> None: ...
     def set_title(self, title: typing.Optional[str] = None) -> None: ...
     def set_use_underline(self, use_underline: bool) -> None: ...
     def set_visible(self, visible: bool) -> None: ...
@@ -13056,7 +13554,9 @@ class ViewStackPageClass(GObject.GPointer):
 
     parent_class: GObject.ObjectClass = ...
 
-class ViewStackPages(GObject.Object, Gio.ListModel, Gtk.SelectionModel):
+class ViewStackPages(
+    GObject.Object, Gio.ListModel, Gtk.SectionModel, Gtk.SelectionModel
+):
     """
     :Constructors:
 
@@ -13067,10 +13567,15 @@ class ViewStackPages(GObject.Object, Gio.ListModel, Gtk.SelectionModel):
     Object AdwViewStackPages
 
     Properties from AdwViewStackPages:
+      item-type -> GType: item-type
+      n-items -> guint: n-items
       selected-page -> AdwViewStackPage: selected-page
 
     Signals from GListModel:
       items-changed (guint, guint, guint)
+
+    Signals from GtkSectionModel:
+      sections-changed (guint, guint)
 
     Signals from GtkSelectionModel:
       selection-changed (guint, guint)
@@ -13079,10 +13584,12 @@ class ViewStackPages(GObject.Object, Gio.ListModel, Gtk.SelectionModel):
       notify (GParam)
     """
     class Props(GObject.Object.Props):
+        item_type: typing.Type[typing.Any]
+        n_items: int
         selected_page: typing.Optional[ViewStackPage]
 
     props: Props = ...
-    def __init__(self, selected_page: ViewStackPage = ...) -> None: ...
+    def __init__(self, *, selected_page: ViewStackPage = ...) -> None: ...
     def get_selected_page(self) -> typing.Optional[ViewStackPage]: ...
     def set_selected_page(self, page: ViewStackPage) -> None: ...
 
@@ -13113,6 +13620,7 @@ class ViewSwitcher(Gtk.Widget, Gtk.Accessible, Gtk.Buildable, Gtk.ConstraintTarg
       stack -> AdwViewStack: stack
 
     Signals from GtkWidget:
+      direction-changed (GtkTextDirection)
       destroy ()
       show ()
       hide ()
@@ -13121,7 +13629,6 @@ class ViewSwitcher(Gtk.Widget, Gtk.Accessible, Gtk.Buildable, Gtk.ConstraintTarg
       realize ()
       unrealize ()
       state-flags-changed (GtkStateFlags)
-      direction-changed (GtkTextDirection)
       mnemonic-activate (gboolean) -> gboolean
       move-focus (GtkDirectionType)
       keynav-failed (GtkDirectionType) -> gboolean
@@ -13210,6 +13717,7 @@ class ViewSwitcher(Gtk.Widget, Gtk.Accessible, Gtk.Buildable, Gtk.ConstraintTarg
     props: Props = ...
     def __init__(
         self,
+        *,
         policy: ViewSwitcherPolicy = ...,
         stack: typing.Optional[ViewStack] = ...,
         can_focus: bool = ...,
@@ -13267,6 +13775,7 @@ class ViewSwitcherBar(Gtk.Widget, Gtk.Accessible, Gtk.Buildable, Gtk.ConstraintT
       reveal -> gboolean: reveal
 
     Signals from GtkWidget:
+      direction-changed (GtkTextDirection)
       destroy ()
       show ()
       hide ()
@@ -13275,7 +13784,6 @@ class ViewSwitcherBar(Gtk.Widget, Gtk.Accessible, Gtk.Buildable, Gtk.ConstraintT
       realize ()
       unrealize ()
       state-flags-changed (GtkStateFlags)
-      direction-changed (GtkTextDirection)
       mnemonic-activate (gboolean) -> gboolean
       move-focus (GtkDirectionType)
       keynav-failed (GtkDirectionType) -> gboolean
@@ -13364,6 +13872,7 @@ class ViewSwitcherBar(Gtk.Widget, Gtk.Accessible, Gtk.Buildable, Gtk.ConstraintT
     props: Props = ...
     def __init__(
         self,
+        *,
         reveal: bool = ...,
         stack: typing.Optional[ViewStack] = ...,
         can_focus: bool = ...,
@@ -13427,6 +13936,189 @@ class ViewSwitcherClass(GObject.GPointer):
 
     parent_class: Gtk.WidgetClass = ...
 
+class ViewSwitcherSidebar(
+    Gtk.Widget, Gtk.Accessible, Gtk.Buildable, Gtk.ConstraintTarget
+):
+    """
+    :Constructors:
+
+    ::
+
+        ViewSwitcherSidebar(**properties)
+        new() -> Gtk.Widget
+
+    Object AdwViewSwitcherSidebar
+
+    Signals from AdwViewSwitcherSidebar:
+      activated ()
+
+    Properties from AdwViewSwitcherSidebar:
+      stack -> AdwViewStack: stack
+      mode -> AdwSidebarMode: mode
+      filter -> GtkFilter: filter
+      placeholder -> GtkWidget: placeholder
+
+    Signals from GtkWidget:
+      direction-changed (GtkTextDirection)
+      destroy ()
+      show ()
+      hide ()
+      map ()
+      unmap ()
+      realize ()
+      unrealize ()
+      state-flags-changed (GtkStateFlags)
+      mnemonic-activate (gboolean) -> gboolean
+      move-focus (GtkDirectionType)
+      keynav-failed (GtkDirectionType) -> gboolean
+      query-tooltip (gint, gint, gboolean, GtkTooltip) -> gboolean
+
+    Properties from GtkWidget:
+      name -> gchararray: name
+      parent -> GtkWidget: parent
+      root -> GtkRoot: root
+      width-request -> gint: width-request
+      height-request -> gint: height-request
+      visible -> gboolean: visible
+      sensitive -> gboolean: sensitive
+      can-focus -> gboolean: can-focus
+      has-focus -> gboolean: has-focus
+      can-target -> gboolean: can-target
+      focus-on-click -> gboolean: focus-on-click
+      focusable -> gboolean: focusable
+      has-default -> gboolean: has-default
+      receives-default -> gboolean: receives-default
+      cursor -> GdkCursor: cursor
+      has-tooltip -> gboolean: has-tooltip
+      tooltip-markup -> gchararray: tooltip-markup
+      tooltip-text -> gchararray: tooltip-text
+      opacity -> gdouble: opacity
+      overflow -> GtkOverflow: overflow
+      halign -> GtkAlign: halign
+      valign -> GtkAlign: valign
+      margin-start -> gint: margin-start
+      margin-end -> gint: margin-end
+      margin-top -> gint: margin-top
+      margin-bottom -> gint: margin-bottom
+      hexpand -> gboolean: hexpand
+      vexpand -> gboolean: vexpand
+      hexpand-set -> gboolean: hexpand-set
+      vexpand-set -> gboolean: vexpand-set
+      scale-factor -> gint: scale-factor
+      css-name -> gchararray: css-name
+      css-classes -> GStrv: css-classes
+      layout-manager -> GtkLayoutManager: layout-manager
+      limit-events -> gboolean: limit-events
+
+    Signals from GObject:
+      notify (GParam)
+    """
+    class Props(Gtk.Widget.Props):
+        filter: typing.Optional[Gtk.Filter]
+        mode: SidebarMode
+        placeholder: typing.Optional[Gtk.Widget]
+        stack: typing.Optional[ViewStack]
+        can_focus: bool
+        can_target: bool
+        css_classes: list[str]
+        css_name: str
+        cursor: typing.Optional[Gdk.Cursor]
+        focus_on_click: bool
+        focusable: bool
+        halign: Gtk.Align
+        has_default: bool
+        has_focus: bool
+        has_tooltip: bool
+        height_request: int
+        hexpand: bool
+        hexpand_set: bool
+        layout_manager: typing.Optional[Gtk.LayoutManager]
+        limit_events: bool
+        margin_bottom: int
+        margin_end: int
+        margin_start: int
+        margin_top: int
+        name: str
+        opacity: float
+        overflow: Gtk.Overflow
+        parent: typing.Optional[Gtk.Widget]
+        receives_default: bool
+        root: typing.Optional[Gtk.Root]
+        scale_factor: int
+        sensitive: bool
+        tooltip_markup: typing.Optional[str]
+        tooltip_text: typing.Optional[str]
+        valign: Gtk.Align
+        vexpand: bool
+        vexpand_set: bool
+        visible: bool
+        width_request: int
+        accessible_role: Gtk.AccessibleRole
+
+    props: Props = ...
+    def __init__(
+        self,
+        *,
+        filter: typing.Optional[Gtk.Filter] = ...,
+        mode: SidebarMode = ...,
+        placeholder: typing.Optional[Gtk.Widget] = ...,
+        stack: typing.Optional[ViewStack] = ...,
+        can_focus: bool = ...,
+        can_target: bool = ...,
+        css_classes: typing.Sequence[str] = ...,
+        css_name: str = ...,
+        cursor: typing.Optional[Gdk.Cursor] = ...,
+        focus_on_click: bool = ...,
+        focusable: bool = ...,
+        halign: Gtk.Align = ...,
+        has_tooltip: bool = ...,
+        height_request: int = ...,
+        hexpand: bool = ...,
+        hexpand_set: bool = ...,
+        layout_manager: typing.Optional[Gtk.LayoutManager] = ...,
+        limit_events: bool = ...,
+        margin_bottom: int = ...,
+        margin_end: int = ...,
+        margin_start: int = ...,
+        margin_top: int = ...,
+        name: str = ...,
+        opacity: float = ...,
+        overflow: Gtk.Overflow = ...,
+        receives_default: bool = ...,
+        sensitive: bool = ...,
+        tooltip_markup: typing.Optional[str] = ...,
+        tooltip_text: typing.Optional[str] = ...,
+        valign: Gtk.Align = ...,
+        vexpand: bool = ...,
+        vexpand_set: bool = ...,
+        visible: bool = ...,
+        width_request: int = ...,
+        accessible_role: Gtk.AccessibleRole = ...,
+    ) -> None: ...
+    def get_filter(self) -> typing.Optional[Gtk.Filter]: ...
+    def get_mode(self) -> SidebarMode: ...
+    def get_placeholder(self) -> typing.Optional[Gtk.Widget]: ...
+    def get_stack(self) -> typing.Optional[ViewStack]: ...
+    @classmethod
+    def new(cls) -> ViewSwitcherSidebar: ...
+    def set_filter(self, filter: typing.Optional[Gtk.Filter] = None) -> None: ...
+    def set_mode(self, mode: SidebarMode) -> None: ...
+    def set_placeholder(
+        self, placeholder: typing.Optional[Gtk.Widget] = None
+    ) -> None: ...
+    def set_stack(self, stack: typing.Optional[ViewStack] = None) -> None: ...
+
+class ViewSwitcherSidebarClass(GObject.GPointer):
+    """
+    :Constructors:
+
+    ::
+
+        ViewSwitcherSidebarClass()
+    """
+
+    parent_class: Gtk.WidgetClass = ...
+
 class ViewSwitcherTitle(
     Gtk.Widget, Gtk.Accessible, Gtk.Buildable, Gtk.ConstraintTarget
 ):
@@ -13448,6 +14140,7 @@ class ViewSwitcherTitle(
       title-visible -> gboolean: title-visible
 
     Signals from GtkWidget:
+      direction-changed (GtkTextDirection)
       destroy ()
       show ()
       hide ()
@@ -13456,7 +14149,6 @@ class ViewSwitcherTitle(
       realize ()
       unrealize ()
       state-flags-changed (GtkStateFlags)
-      direction-changed (GtkTextDirection)
       mnemonic-activate (gboolean) -> gboolean
       move-focus (GtkDirectionType)
       keynav-failed (GtkDirectionType) -> gboolean
@@ -13548,6 +14240,7 @@ class ViewSwitcherTitle(
     props: Props = ...
     def __init__(
         self,
+        *,
         stack: typing.Optional[ViewStack] = ...,
         subtitle: str = ...,
         title: str = ...,
@@ -13634,9 +14327,9 @@ class Window(
       adaptive-preview -> gboolean: adaptive-preview
 
     Signals from GtkWindow:
+      keys-changed ()
       activate-focus ()
       activate-default ()
-      keys-changed ()
       enable-debugging (gboolean) -> gboolean
       close-request () -> gboolean
 
@@ -13669,6 +14362,7 @@ class Window(
       fullscreened -> gboolean: fullscreened
 
     Signals from GtkWidget:
+      direction-changed (GtkTextDirection)
       destroy ()
       show ()
       hide ()
@@ -13677,7 +14371,6 @@ class Window(
       realize ()
       unrealize ()
       state-flags-changed (GtkStateFlags)
-      direction-changed (GtkTextDirection)
       mnemonic-activate (gboolean) -> gboolean
       move-focus (GtkDirectionType)
       keynav-failed (GtkDirectionType) -> gboolean
@@ -13796,6 +14489,7 @@ class Window(
     parent_instance: Gtk.Window = ...
     def __init__(
         self,
+        *,
         adaptive_preview: bool = ...,
         content: typing.Optional[Gtk.Widget] = ...,
         application: typing.Optional[Gtk.Application] = ...,
@@ -13893,6 +14587,7 @@ class WindowTitle(Gtk.Widget, Gtk.Accessible, Gtk.Buildable, Gtk.ConstraintTarge
       subtitle -> gchararray: subtitle
 
     Signals from GtkWidget:
+      direction-changed (GtkTextDirection)
       destroy ()
       show ()
       hide ()
@@ -13901,7 +14596,6 @@ class WindowTitle(Gtk.Widget, Gtk.Accessible, Gtk.Buildable, Gtk.ConstraintTarge
       realize ()
       unrealize ()
       state-flags-changed (GtkStateFlags)
-      direction-changed (GtkTextDirection)
       mnemonic-activate (gboolean) -> gboolean
       move-focus (GtkDirectionType)
       keynav-failed (GtkDirectionType) -> gboolean
@@ -13990,6 +14684,7 @@ class WindowTitle(Gtk.Widget, Gtk.Accessible, Gtk.Buildable, Gtk.ConstraintTarge
     props: Props = ...
     def __init__(
         self,
+        *,
         subtitle: str = ...,
         title: str = ...,
         can_focus: bool = ...,
@@ -14071,6 +14766,7 @@ class WrapBox(
       wrap-policy -> AdwWrapPolicy: wrap-policy
 
     Signals from GtkWidget:
+      direction-changed (GtkTextDirection)
       destroy ()
       show ()
       hide ()
@@ -14079,7 +14775,6 @@ class WrapBox(
       realize ()
       unrealize ()
       state-flags-changed (GtkStateFlags)
-      direction-changed (GtkTextDirection)
       mnemonic-activate (gboolean) -> gboolean
       move-focus (GtkDirectionType)
       keynav-failed (GtkDirectionType) -> gboolean
@@ -14180,6 +14875,7 @@ class WrapBox(
     props: Props = ...
     def __init__(
         self,
+        *,
         align: float = ...,
         child_spacing: int = ...,
         child_spacing_unit: LengthUnit = ...,
@@ -14324,6 +15020,7 @@ class WrapLayout(Gtk.LayoutManager, Gtk.Orientable):
     props: Props = ...
     def __init__(
         self,
+        *,
         align: float = ...,
         child_spacing: int = ...,
         child_spacing_unit: LengthUnit = ...,
@@ -14398,7 +15095,6 @@ class TabViewShortcuts(GObject.GFlags):
 class AccentColor(GObject.GEnum):
     BLUE = 0
     GREEN = 2
-    MAIA = 108
     ORANGE = 4
     PINK = 6
     PURPLE = 7
@@ -14540,6 +15236,10 @@ class ResponseAppearance(GObject.GEnum):
     DEFAULT = 0
     DESTRUCTIVE = 2
     SUGGESTED = 1
+
+class SidebarMode(GObject.GEnum):
+    PAGE = 1
+    SIDEBAR = 0
 
 class SqueezerTransitionType(GObject.GEnum):
     CROSSFADE = 1

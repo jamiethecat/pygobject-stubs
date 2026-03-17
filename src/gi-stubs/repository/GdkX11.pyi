@@ -8,10 +8,6 @@ from typing_extensions import Self
 
 T = typing.TypeVar("T")
 
-_lock = ...  # FIXME Constant
-_namespace: str = "GdkX11"
-_version: str = "4.0"
-
 def x11_device_get_id(device: X11DeviceXI2) -> int: ...
 def x11_device_manager_lookup(
     device_manager: X11DeviceManagerXI2, device_id: int
@@ -49,7 +45,7 @@ class X11AppLaunchContext(Gdk.AppLaunchContext):
         display: Gdk.Display
 
     props: Props = ...
-    def __init__(self, display: Gdk.Display = ...) -> None: ...
+    def __init__(self, *, display: Gdk.Display = ...) -> None: ...
 
 class X11AppLaunchContextClass(GObject.GPointer): ...
 
@@ -81,6 +77,7 @@ class X11DeviceManagerXI2(GObject.Object):
     props: Props = ...
     def __init__(
         self,
+        *,
         display: Gdk.Display = ...,
         major: int = ...,
         minor: int = ...,
@@ -153,6 +150,7 @@ class X11DeviceXI2(Gdk.Device):
     props: Props = ...
     def __init__(
         self,
+        *,
         device_id: int = ...,
         display: Gdk.Display = ...,
         has_cursor: bool = ...,
@@ -281,6 +279,7 @@ class X11Drag(Gdk.Drag):
     props: Props = ...
     def __init__(
         self,
+        *,
         actions: Gdk.DragAction = ...,
         content: Gdk.ContentProvider = ...,
         device: Gdk.Device = ...,
@@ -323,6 +322,7 @@ class X11GLContext(Gdk.GLContext):
     props: Props = ...
     def __init__(
         self,
+        *,
         allowed_apis: Gdk.GLAPI = ...,
         shared_context: Gdk.GLContext = ...,
         display: Gdk.Display = ...,
@@ -378,7 +378,7 @@ class X11Monitor(Gdk.Monitor):
         width_mm: int
 
     props: Props = ...
-    def __init__(self, display: Gdk.Display = ...) -> None: ...
+    def __init__(self, *, display: Gdk.Display = ...) -> None: ...
     def get_output(self) -> int: ...
     def get_workarea(self) -> Gdk.Rectangle: ...
 
@@ -453,6 +453,7 @@ class X11Surface(Gdk.Surface):
     props: Props = ...
     def __init__(
         self,
+        *,
         cursor: typing.Optional[Gdk.Cursor] = ...,
         display: Gdk.Display = ...,
         frame_clock: Gdk.FrameClock = ...,

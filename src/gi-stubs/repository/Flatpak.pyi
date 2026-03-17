@@ -8,7 +8,7 @@ from typing_extensions import Self
 T = typing.TypeVar("T")
 
 MAJOR_VERSION: int = 1
-MICRO_VERSION: int = 1
+MICRO_VERSION: int = 3
 MINOR_VERSION: int = 16
 
 def error_quark() -> int: ...
@@ -65,6 +65,7 @@ class BundleRef(Ref):
     parent: Ref = ...
     def __init__(
         self,
+        *,
         file: Gio.File = ...,
         arch: str = ...,
         branch: str = ...,
@@ -505,6 +506,7 @@ class InstalledRef(Ref):
     parent: Ref = ...
     def __init__(
         self,
+        *,
         appdata_content_rating: dict[None, None] = ...,
         appdata_content_rating_type: str = ...,
         appdata_license: str = ...,
@@ -637,6 +639,7 @@ class Ref(GObject.Object):
     parent: GObject.Object = ...
     def __init__(
         self,
+        *,
         arch: str = ...,
         branch: str = ...,
         collection_id: str = ...,
@@ -719,6 +722,7 @@ class RelatedRef(Ref):
     parent: Ref = ...
     def __init__(
         self,
+        *,
         should_autoprune: bool = ...,
         should_delete: bool = ...,
         should_download: bool = ...,
@@ -773,7 +777,7 @@ class Remote(GObject.Object):
 
     props: Props = ...
     parent: GObject.Object = ...
-    def __init__(self, name: str = ..., type: RemoteType = ...) -> None: ...
+    def __init__(self, *, name: str = ..., type: RemoteType = ...) -> None: ...
     def get_appstream_dir(self, arch: typing.Optional[str] = None) -> Gio.File: ...
     def get_appstream_timestamp(
         self, arch: typing.Optional[str] = None
@@ -886,6 +890,7 @@ class RemoteRef(Ref):
     parent: Ref = ...
     def __init__(
         self,
+        *,
         download_size: int = ...,
         end_of_life: str = ...,
         end_of_life_rebase: str = ...,
@@ -959,7 +964,7 @@ class Transaction(GObject.Object, Gio.Initable):
     props: Props = ...
     parent_instance: GObject.Object = ...
     def __init__(
-        self, installation: Installation = ..., no_interaction: bool = ...
+        self, *, installation: Installation = ..., no_interaction: bool = ...
     ) -> None: ...
     def abort_webflow(self, id: int) -> None: ...
     def add_default_dependency_sources(self) -> None: ...

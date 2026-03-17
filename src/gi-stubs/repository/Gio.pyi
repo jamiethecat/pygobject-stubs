@@ -287,10 +287,8 @@ def dbus_error_register_error(
     error_domain: int, error_code: int, dbus_error_name: str
 ) -> bool: ...
 def dbus_error_register_error_domain(
-    error_domain_quark_name: str,
-    quark_volatile: int,
-    entries: typing.Sequence[DBusErrorEntry],
-) -> None: ...
+    error_domain_quark_name: str, entries: typing.Sequence[DBusErrorEntry]
+) -> int: ...
 def dbus_error_strip_remote_error(error: GLib.Error) -> bool: ...
 def dbus_error_unregister_error(
     error_domain: int, error_code: int, dbus_error_name: str
@@ -754,7 +752,7 @@ class AppInfo(GObject.GInterface):
     def get_name(self) -> str: ...
     @staticmethod
     def get_recommended_for_type(content_type: str) -> list[AppInfo]: ...
-    def get_supported_types(self) -> list[str]: ...
+    def get_supported_types(self) -> typing.Optional[list[str]]: ...
     def launch(
         self,
         files: typing.Optional[list[File]] = None,
@@ -834,7 +832,7 @@ class AppInfoIface(GObject.GPointer):
     get_commandline: typing.Callable[[AppInfo], typing.Optional[str]] = ...
     get_display_name: typing.Callable[[AppInfo], str] = ...
     set_as_last_used_for_type: typing.Callable[[AppInfo, str], bool] = ...
-    get_supported_types: typing.Callable[[AppInfo], list[str]] = ...
+    get_supported_types: typing.Callable[[AppInfo], typing.Optional[list[str]]] = ...
     launch_uris_async: typing.Callable[..., None] = ...
     launch_uris_finish: typing.Callable[[AppInfo, AsyncResult], bool] = ...
 
@@ -1172,7 +1170,7 @@ class ApplicationCommandLine(GObject.Object):
     def done(self) -> None: ...
     def get_arguments(self) -> list[str]: ...
     def get_cwd(self) -> typing.Optional[str]: ...
-    def get_environ(self) -> list[str]: ...
+    def get_environ(self) -> typing.Optional[list[str]]: ...
     def get_exit_status(self) -> int: ...
     def get_is_remote(self) -> bool: ...
     def get_options_dict(self) -> GLib.VariantDict: ...
@@ -2103,7 +2101,7 @@ class DBusInterface(GObject.GInterface):
     Signals from GObject:
       notify (GParam)
     """
-    def get_info(self) -> DBusInterfaceInfo: ...
+    def get_info(self) -> typing.Optional[DBusInterfaceInfo]: ...
     def get_object(self) -> typing.Optional[DBusObject]: ...
     def set_object(self, object: typing.Optional[DBusObject] = None) -> None: ...
 
@@ -2117,7 +2115,7 @@ class DBusInterfaceIface(GObject.GPointer):
     """
 
     parent_iface: GObject.TypeInterface = ...
-    get_info: typing.Callable[[DBusInterface], DBusInterfaceInfo] = ...
+    get_info: typing.Callable[[DBusInterface], typing.Optional[DBusInterfaceInfo]] = ...
     get_object: typing.Callable[[DBusInterface], typing.Optional[DBusObject]] = ...
     set_object: typing.Callable[
         [DBusInterface, typing.Optional[DBusObject]], None
@@ -2210,6 +2208,7 @@ class DBusInterfaceSkeletonClass(GObject.GPointer):
     get_vtable: typing.Callable[[DBusInterfaceSkeleton], DBusInterfaceVTable] = ...
     get_properties: typing.Callable[[DBusInterfaceSkeleton], GLib.Variant] = ...
     flush: typing.Callable[[DBusInterfaceSkeleton], None] = ...
+    method_dispatch: None = ...
     vfunc_padding: list[None] = ...
     g_authorize_method: typing.Callable[
         [DBusInterfaceSkeleton, DBusMethodInvocation], bool
@@ -3584,13 +3583,13 @@ class DesktopAppInfo(GObject.Object, AppInfo):
     @staticmethod
     def get_implementations(interface: str) -> list[GioUnix.DesktopAppInfo]: ...
     def get_is_hidden(self) -> bool: ...
-    def get_keywords(self) -> list[str]: ...
+    def get_keywords(self) -> typing.Optional[list[str]]: ...
     def get_locale_string(self, key: str) -> typing.Optional[str]: ...
     def get_nodisplay(self) -> bool: ...
     def get_show_in(self, desktop_env: typing.Optional[str] = None) -> bool: ...
     def get_startup_wm_class(self) -> typing.Optional[str]: ...
     def get_string(self, key: str) -> typing.Optional[str]: ...
-    def get_string_list(self, key: str) -> list[str]: ...
+    def get_string_list(self, key: str) -> typing.Optional[list[str]]: ...
     def has_key(self, key: str) -> bool: ...
     def launch_action(
         self, action_name: str, launch_context: typing.Optional[AppLaunchContext] = None
@@ -5591,6 +5590,66 @@ class IOStreamClass(GObject.GPointer):
 
 class IOStreamPrivate(GObject.GPointer): ...
 
+class IPTosMessage(SocketControlMessage):
+    """
+    :Constructors:
+
+    ::
+
+        IPTosMessage(**properties)
+        new(dscp:int, ecn:Gio.EcnCodePoint) -> Gio.SocketControlMessage
+
+    Object GIPTosMessage
+
+    Signals from GObject:
+      notify (GParam)
+    """
+    def get_dscp(self) -> int: ...
+    def get_ecn(self) -> EcnCodePoint: ...
+    @classmethod
+    def new(cls, dscp: int, ecn: EcnCodePoint) -> IPTosMessage: ...
+
+class IPTosMessageClass(GObject.GPointer):
+    """
+    :Constructors:
+
+    ::
+
+        IPTosMessageClass()
+    """
+
+    parent_class: SocketControlMessageClass = ...
+
+class IPv6TclassMessage(SocketControlMessage):
+    """
+    :Constructors:
+
+    ::
+
+        IPv6TclassMessage(**properties)
+        new(dscp:int, ecn:Gio.EcnCodePoint) -> Gio.SocketControlMessage
+
+    Object GIPv6TclassMessage
+
+    Signals from GObject:
+      notify (GParam)
+    """
+    def get_dscp(self) -> int: ...
+    def get_ecn(self) -> EcnCodePoint: ...
+    @classmethod
+    def new(cls, dscp: int, ecn: EcnCodePoint) -> IPv6TclassMessage: ...
+
+class IPv6TclassMessageClass(GObject.GPointer):
+    """
+    :Constructors:
+
+    ::
+
+        IPv6TclassMessageClass()
+    """
+
+    parent_class: SocketControlMessageClass = ...
+
 class Icon(GObject.GInterface):
     """
     Interface GIcon
@@ -6098,11 +6157,13 @@ class ListStore(
     Signals from GObject:
       notify (GParam)
     """
+
     class Props(GObject.Object.Props):
         item_type: typing.Type[ObjectItemType]
         n_items: int
 
     props: Props = ...
+
     def __init__(self, *, item_type: typing.Type[ObjectItemType] = ...) -> None: ...
     def __delitem__(self, key: typing.Union[int, slice]) -> None: ...
     @typing.overload
@@ -11877,6 +11938,10 @@ class FileQueryInfoFlags(GObject.GFlags):
     NOFOLLOW_SYMLINKS = 1
     NONE = 0
 
+class IOModuleScopeFlags(GObject.GFlags):
+    BLOCK_DUPLICATES = 1
+    NONE = 0
+
 class IOStreamSpliceFlags(GObject.GFlags):
     CLOSE_STREAM1 = 1
     CLOSE_STREAM2 = 2
@@ -11946,6 +12011,13 @@ class TlsCertificateFlags(GObject.GFlags):
     REVOKED = 16
     UNKNOWN_CA = 1
     VALIDATE_ALL = 127
+
+class TlsCertificateRequestFlags(GObject.GFlags):
+    NONE = 0
+
+class TlsDatabaseLookupFlags(GObject.GFlags):
+    KEYPAIR = 1
+    NONE = 0
 
 class TlsDatabaseVerifyFlags(GObject.GFlags):
     NONE = 0
@@ -12045,10 +12117,8 @@ class DBusError(GObject.GEnum):
     ) -> bool: ...
     @staticmethod
     def register_error_domain(
-        error_domain_quark_name: str,
-        quark_volatile: int,
-        entries: typing.Sequence[DBusErrorEntry],
-    ) -> None: ...
+        error_domain_quark_name: str, entries: typing.Sequence[DBusErrorEntry]
+    ) -> int: ...
     @staticmethod
     def strip_remote_error(error: GLib.Error) -> bool: ...
     @staticmethod
@@ -12096,6 +12166,12 @@ class DriveStartStopType(GObject.GEnum):
     PASSWORD = 4
     SHUTDOWN = 1
     UNKNOWN = 0
+
+class EcnCodePoint(GObject.GEnum):
+    ECT_0 = 2
+    ECT_1 = 1
+    ECT_CE = 3
+    NO_ECN = 0
 
 class EmblemOrigin(GObject.GEnum):
     DEVICE = 1
@@ -12199,10 +12275,6 @@ class IOErrorEnum(GObject.GEnum):
     WOULD_RECURSE = 25
     WRONG_ETAG = 23
 
-class IOModuleScopeFlags(GObject.GEnum):
-    BLOCK_DUPLICATES = 1
-    NONE = 0
-
 class MemoryMonitorWarningLevel(GObject.GEnum):
     CRITICAL = 255
     LOW = 50
@@ -12296,9 +12368,6 @@ class TlsAuthenticationMode(GObject.GEnum):
     REQUESTED = 1
     REQUIRED = 2
 
-class TlsCertificateRequestFlags(GObject.GEnum):
-    NONE = 0
-
 class TlsChannelBindingError(GObject.GEnum):
     GENERAL_ERROR = 4
     INVALID_STATE = 1
@@ -12312,10 +12381,6 @@ class TlsChannelBindingType(GObject.GEnum):
     EXPORTER = 2
     SERVER_END_POINT = 1
     UNIQUE = 0
-
-class TlsDatabaseLookupFlags(GObject.GEnum):
-    KEYPAIR = 1
-    NONE = 0
 
 class TlsError(GObject.GEnum):
     BAD_CERTIFICATE = 2

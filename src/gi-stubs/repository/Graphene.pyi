@@ -1,6 +1,7 @@
 import typing
 
 from gi.repository import GObject
+from typing_extensions import Self
 
 T = typing.TypeVar("T")
 
@@ -9,9 +10,6 @@ PI_2: float = 1.570796
 VEC2_LEN: int = 2
 VEC3_LEN: int = 3
 VEC4_LEN: int = 4
-_lock = ...  # FIXME Constant
-_namespace: str = "Graphene"
-_version: str = "1.0"
 
 def box_empty() -> Box: ...
 def box_infinite() -> Box: ...
