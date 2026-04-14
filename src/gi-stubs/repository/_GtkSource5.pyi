@@ -107,7 +107,6 @@ class AnnotationProvider(GObject.Object):
     Signals from GObject:
       notify (GParam)
     """
-
     @property
     def parent_instance(self) -> GObject.Object: ...
     def add_annotation(self, annotation: Annotation) -> None: ...
@@ -263,6 +262,7 @@ class Buffer(_Gtk4.TextBuffer):
     def parent_instance(self) -> _Gtk4.TextBuffer: ...
     def __init__(
         self,
+        *,
         highlight_matching_brackets: bool = ...,
         highlight_syntax: bool = ...,
         implicit_trailing_newline: bool = ...,
@@ -317,10 +317,7 @@ class Buffer(_Gtk4.TextBuffer):
     @classmethod
     def new_with_language(cls, language: Language) -> Buffer: ...
     def remove_source_marks(
-        self,
-        start: _Gtk4.TextIter,
-        end: _Gtk4.TextIter,
-        category: str | None = None,
+        self, start: _Gtk4.TextIter, end: _Gtk4.TextIter, category: str | None = None
     ) -> None: ...
     def set_highlight_matching_brackets(self, highlight: bool) -> None: ...
     def set_highlight_syntax(self, highlight: bool) -> None: ...
@@ -393,6 +390,7 @@ class Completion(GObject.Object):
     def props(self) -> Props: ...
     def __init__(
         self,
+        *,
         page_size: int = ...,
         remember_info_visibility: bool = ...,
         select_on_show: bool = ...,
@@ -542,6 +540,7 @@ class CompletionCell(
     def props(self) -> Props: ...
     def __init__(
         self,
+        *,
         column: CompletionColumn = ...,
         markup: str = ...,
         paintable: _Gdk4.Paintable = ...,
@@ -645,7 +644,7 @@ class CompletionContext(GObject.Object, Gio.ListModel):
 
     @property
     def props(self) -> Props: ...
-    def __init__(self, completion: Completion = ...) -> None: ...
+    def __init__(self, *, completion: Completion = ...) -> None: ...
     def get_activation(self) -> CompletionActivation: ...
     def get_bounds(self) -> tuple[bool, _Gtk4.TextIter, _Gtk4.TextIter]: ...
     def get_buffer(self) -> Buffer | None: ...
@@ -660,9 +659,7 @@ class CompletionContext(GObject.Object, Gio.ListModel):
     def get_word(self) -> str: ...
     def list_providers(self) -> Gio.ListModel: ...
     def set_proposals_for_provider(
-        self,
-        provider: CompletionProvider,
-        results: Gio.ListModel | None = None,
+        self, provider: CompletionProvider, results: Gio.ListModel | None = None
     ) -> None: ...
 
 class CompletionContextClass(GObject.GPointer):
@@ -831,7 +828,7 @@ class CompletionSnippets(GObject.Object, CompletionProvider):
     def props(self) -> Props: ...
     @property
     def parent_instance(self) -> GObject.Object: ...
-    def __init__(self, priority: int = ..., title: str = ...) -> None: ...
+    def __init__(self, *, priority: int = ..., title: str = ...) -> None: ...
     @classmethod
     def new(cls) -> CompletionSnippets: ...
 
@@ -885,6 +882,7 @@ class CompletionWords(GObject.Object, CompletionProvider):
     def parent_instance(self) -> GObject.Object: ...
     def __init__(
         self,
+        *,
         minimum_word_size: int = ...,
         priority: int = ...,
         proposals_batch_size: int = ...,
@@ -953,7 +951,7 @@ class File(GObject.Object):
     class Props(GObject.Object.Props):
         compression_type: CompressionType
         encoding: Encoding
-        location: Gio.File
+        location: Gio.File | None
         newline_type: NewlineType
         read_only: bool
 
@@ -961,11 +959,11 @@ class File(GObject.Object):
     def props(self) -> Props: ...
     @property
     def parent_instance(self) -> GObject.Object: ...
-    def __init__(self, location: Gio.File | None = ...) -> None: ...
+    def __init__(self, *, location: Gio.File | None = ...) -> None: ...
     def check_file_on_disk(self) -> None: ...
     def get_compression_type(self) -> CompressionType: ...
     def get_encoding(self) -> Encoding: ...
-    def get_location(self) -> Gio.File: ...
+    def get_location(self) -> Gio.File | None: ...
     def get_newline_type(self) -> NewlineType: ...
     def is_deleted(self) -> bool: ...
     def is_externally_modified(self) -> bool: ...
@@ -1021,6 +1019,7 @@ class FileLoader(GObject.Object):
     def props(self) -> Props: ...
     def __init__(
         self,
+        *,
         buffer: Buffer = ...,
         file: File = ...,
         input_stream: Gio.InputStream = ...,
@@ -1105,6 +1104,7 @@ class FileSaver(GObject.Object):
     def props(self) -> Props: ...
     def __init__(
         self,
+        *,
         buffer: Buffer = ...,
         compression_type: CompressionType = ...,
         encoding: Encoding | None = ...,
@@ -1266,6 +1266,7 @@ class Gutter(_Gtk4.Widget, _Gtk4.Accessible, _Gtk4.Buildable, _Gtk4.ConstraintTa
     def props(self) -> Props: ...
     def __init__(
         self,
+        *,
         view: View = ...,
         window_type: _Gtk4.TextWindowType = ...,
         can_focus: bool = ...,
@@ -1450,7 +1451,6 @@ class GutterRenderer(
     Signals from GObject:
       notify (GParam)
     """
-
     class Props(_Gtk4.Widget.Props):
         alignment_mode: GutterRendererAlignmentMode
         lines: GutterLines
@@ -1502,6 +1502,7 @@ class GutterRenderer(
     def parent_instance(self) -> _Gtk4.Widget: ...
     def __init__(
         self,
+        *,
         alignment_mode: GutterRendererAlignmentMode = ...,
         xalign: float = ...,
         xpad: int = ...,
@@ -1775,6 +1776,7 @@ class GutterRendererPixbuf(
     def parent_instance(self) -> GutterRenderer: ...
     def __init__(
         self,
+        *,
         gicon: Gio.Icon | None = ...,
         icon_name: str | None = ...,
         paintable: _Gdk4.Paintable | None = ...,
@@ -1987,6 +1989,7 @@ class GutterRendererText(
     def parent_instance(self) -> GutterRenderer: ...
     def __init__(
         self,
+        *,
         markup: str = ...,
         text: str = ...,
         alignment_mode: GutterRendererAlignmentMode = ...,
@@ -2066,7 +2069,7 @@ class Hover(GObject.Object):
 
     @property
     def props(self) -> Props: ...
-    def __init__(self, hover_delay: int = ...) -> None: ...
+    def __init__(self, *, hover_delay: int = ...) -> None: ...
     def add_provider(self, provider: HoverProvider) -> None: ...
     def remove_provider(self, provider: HoverProvider) -> None: ...
 
@@ -2219,6 +2222,7 @@ class HoverDisplay(
     def props(self) -> Props: ...
     def __init__(
         self,
+        *,
         can_focus: bool = ...,
         can_target: bool = ...,
         css_classes: Sequence[str] = ...,
@@ -2415,7 +2419,7 @@ class LanguageManager(GObject.Object):
 
     @property
     def props(self) -> Props: ...
-    def __init__(self, search_path: Sequence[str] | None = ...) -> None: ...
+    def __init__(self, *, search_path: Sequence[str] | None = ...) -> None: ...
     def append_search_path(self, path: str) -> None: ...
     @staticmethod
     def get_default() -> LanguageManager: ...
@@ -2423,9 +2427,7 @@ class LanguageManager(GObject.Object):
     def get_language_ids(self) -> list[str] | None: ...
     def get_search_path(self) -> list[str]: ...
     def guess_language(
-        self,
-        filename: str | None = None,
-        content_type: str | None = None,
+        self, filename: str | None = None, content_type: str | None = None
     ) -> Language | None: ...
     @classmethod
     def new(cls) -> LanguageManager: ...
@@ -2637,7 +2639,7 @@ class Map(
         buffer: _Gtk4.TextBuffer
         cursor_visible: bool
         editable: bool
-        extra_menu: Gio.MenuModel
+        extra_menu: Gio.MenuModel | None
         im_module: str
         indent: int
         input_hints: _Gtk4.InputHints
@@ -2700,6 +2702,7 @@ class Map(
     def parent_instance(self) -> View: ...
     def __init__(
         self,
+        *,
         font_desc: Pango.FontDescription = ...,
         view: View = ...,
         auto_indent: bool = ...,
@@ -2822,7 +2825,7 @@ class Mark(_Gtk4.TextMark):
     @property
     def parent_instance(self) -> _Gtk4.TextMark: ...
     def __init__(
-        self, category: str = ..., left_gravity: bool = ..., name: str = ...
+        self, *, category: str = ..., left_gravity: bool = ..., name: str = ...
     ) -> None: ...
     def get_category(self) -> str: ...
     @classmethod
@@ -2868,6 +2871,7 @@ class MarkAttributes(GObject.Object):
     def props(self) -> Props: ...
     def __init__(
         self,
+        *,
         background: _Gdk4.RGBA = ...,
         gicon: Gio.Icon = ...,
         icon_name: str = ...,
@@ -2970,6 +2974,7 @@ class PrintCompositor(GObject.Object):
     def parent_instance(self) -> GObject.Object: ...
     def __init__(
         self,
+        *,
         body_font_name: str = ...,
         buffer: Buffer = ...,
         footer_font_name: str | None = ...,
@@ -3071,7 +3076,7 @@ class Region(GObject.Object):
     def props(self) -> Props: ...
     @property
     def parent_instance(self) -> GObject.Object: ...
-    def __init__(self, buffer: _Gtk4.TextBuffer = ...) -> None: ...
+    def __init__(self, *, buffer: _Gtk4.TextBuffer = ...) -> None: ...
     def add_region(self, region_to_add: Region | None = None) -> None: ...
     def add_subregion(self, _start: _Gtk4.TextIter, _end: _Gtk4.TextIter) -> None: ...
     def get_bounds(self) -> tuple[bool, _Gtk4.TextIter, _Gtk4.TextIter]: ...
@@ -3150,7 +3155,7 @@ class SearchContext(GObject.Object):
     class Props(GObject.Object.Props):
         buffer: Buffer
         highlight: bool
-        match_style: Style
+        match_style: Style | None
         occurrences_count: int
         regex_error: GLib.Error | None
         settings: SearchSettings
@@ -3159,6 +3164,7 @@ class SearchContext(GObject.Object):
     def props(self) -> Props: ...
     def __init__(
         self,
+        *,
         buffer: Buffer = ...,
         highlight: bool = ...,
         match_style: Style | None = ...,
@@ -3192,7 +3198,7 @@ class SearchContext(GObject.Object):
     ) -> tuple[bool, _Gtk4.TextIter, _Gtk4.TextIter, bool]: ...
     def get_buffer(self) -> Buffer: ...
     def get_highlight(self) -> bool: ...
-    def get_match_style(self) -> Style: ...
+    def get_match_style(self) -> Style | None: ...
     def get_occurrence_position(
         self, match_start: _Gtk4.TextIter, match_end: _Gtk4.TextIter
     ) -> int: ...
@@ -3267,6 +3273,7 @@ class SearchSettings(GObject.Object):
     def parent_instance(self) -> GObject.Object: ...
     def __init__(
         self,
+        *,
         at_word_boundaries: bool = ...,
         case_sensitive: bool = ...,
         regex_enabled: bool = ...,
@@ -3341,6 +3348,7 @@ class Snippet(GObject.Object):
     def props(self) -> Props: ...
     def __init__(
         self,
+        *,
         description: str = ...,
         language_id: str = ...,
         name: str = ...,
@@ -3358,9 +3366,7 @@ class Snippet(GObject.Object):
     def get_trigger(self) -> str | None: ...
     @classmethod
     def new(
-        cls,
-        trigger: str | None = None,
-        language_id: str | None = None,
+        cls, trigger: str | None = None, language_id: str | None = None
     ) -> Snippet: ...
     @classmethod
     def new_parsed(cls, text: str) -> Snippet: ...
@@ -3409,6 +3415,7 @@ class SnippetChunk(GObject.InitiallyUnowned):
     def props(self) -> Props: ...
     def __init__(
         self,
+        *,
         context: SnippetContext = ...,
         focus_position: int = ...,
         spec: str = ...,
@@ -3515,15 +3522,12 @@ class SnippetManager(GObject.Object):
 
     @property
     def props(self) -> Props: ...
-    def __init__(self, search_path: Sequence[str] | None = ...) -> None: ...
+    def __init__(self, *, search_path: Sequence[str] | None = ...) -> None: ...
     @staticmethod
     def get_default() -> SnippetManager: ...
     def get_search_path(self) -> list[str]: ...
     def get_snippet(
-        self,
-        group: str | None,
-        language_id: str | None,
-        trigger: str,
+        self, group: str | None, language_id: str | None, trigger: str
     ) -> Snippet | None: ...
     def list_all(self) -> Gio.ListModel: ...
     def list_groups(self) -> list[str]: ...
@@ -3573,7 +3577,7 @@ class SpaceDrawer(GObject.Object):
     @property
     def props(self) -> Props: ...
     def __init__(
-        self, enable_matrix: bool = ..., matrix: GLib.Variant | None = ...
+        self, *, enable_matrix: bool = ..., matrix: GLib.Variant | None = ...
     ) -> None: ...
     def bind_matrix_setting(
         self, settings: Gio.Settings, key: str, flags: Gio.SettingsBindFlags
@@ -3683,6 +3687,7 @@ class Style(GObject.Object):
     def props(self) -> Props: ...
     def __init__(
         self,
+        *,
         background: str = ...,
         background_set: bool = ...,
         bold: bool = ...,
@@ -3749,7 +3754,7 @@ class StyleScheme(GObject.Object):
 
     @property
     def props(self) -> Props: ...
-    def __init__(self, id: str = ...) -> None: ...
+    def __init__(self, *, id: str = ...) -> None: ...
     def get_authors(self) -> list[str] | None: ...
     def get_description(self) -> str | None: ...
     def get_filename(self) -> str | None: ...
@@ -3906,6 +3911,7 @@ class StyleSchemeChooserButton(
     def parent_instance(self) -> _Gtk4.Button: ...
     def __init__(
         self,
+        *,
         can_shrink: bool = ...,
         child: _Gtk4.Widget | None = ...,
         has_frame: bool = ...,
@@ -4093,6 +4099,7 @@ class StyleSchemeChooserWidget(
     def parent_instance(self) -> _Gtk4.Widget: ...
     def __init__(
         self,
+        *,
         can_focus: bool = ...,
         can_target: bool = ...,
         css_classes: Sequence[str] = ...,
@@ -4177,7 +4184,7 @@ class StyleSchemeManager(GObject.Object):
 
     @property
     def props(self) -> Props: ...
-    def __init__(self, search_path: Sequence[str] | None = ...) -> None: ...
+    def __init__(self, *, search_path: Sequence[str] | None = ...) -> None: ...
     def append_search_path(self, path: str) -> None: ...
     def force_rescan(self) -> None: ...
     @staticmethod
@@ -4328,6 +4335,7 @@ class StyleSchemePreview(
     def props(self) -> Props: ...
     def __init__(
         self,
+        *,
         scheme: StyleScheme = ...,
         selected: bool = ...,
         can_focus: bool = ...,
@@ -4591,6 +4599,7 @@ class Tag(_Gtk4.TextTag):
     def parent_instance(self) -> _Gtk4.TextTag: ...
     def __init__(
         self,
+        *,
         draw_spaces: bool = ...,
         draw_spaces_set: bool = ...,
         accumulative_margin: bool = ...,
@@ -4713,7 +4722,7 @@ class View(
 
         View(**properties)
         new() -> Gtk.Widget
-        new_with_buffer(buffer:GtkSource.Buffer) -> Gtk.Widget
+        new_with_buffer(buffer:Buffer) -> Gtk.Widget
 
     Object GtkSourceView
 
@@ -4861,6 +4870,7 @@ class View(
     Signals from GObject:
       notify (GParam)
     """
+
     class Props(_Gtk4.TextView.Props):
         annotations: Annotations
         auto_indent: bool
@@ -5141,6 +5151,7 @@ class VimIMContext(_Gtk4.IMContext):
       commit (gchararray)
       retrieve-surrounding () -> gboolean
       delete-surrounding (gint, gint) -> gboolean
+      invalid-composition (gchararray) -> gboolean
 
     Properties from GtkIMContext:
       input-purpose -> GtkInputPurpose: input-purpose
@@ -5159,6 +5170,7 @@ class VimIMContext(_Gtk4.IMContext):
     def props(self) -> Props: ...
     def __init__(
         self,
+        *,
         input_hints: _Gtk4.InputHints = ...,
         input_purpose: _Gtk4.InputPurpose = ...,
     ) -> None: ...

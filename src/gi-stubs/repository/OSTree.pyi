@@ -1,6 +1,8 @@
 from typing import Any
 from typing import Final
 from typing import Protocol
+from typing import TypeVar
+from typing_extensions import Self
 
 from collections.abc import Callable
 from collections.abc import Sequence
@@ -10,6 +12,8 @@ from enum import IntFlag
 from gi.repository import Gio
 from gi.repository import GLib
 from gi.repository import GObject
+
+T = TypeVar("T")
 
 COMMIT_GVARIANT_STRING: Final = "(a{sv}aya(say)sstayay)"
 COMMIT_META_KEY_ARCHITECTURE: Final = "ostree.architecture"
@@ -34,6 +38,7 @@ REPO_METADATA_REF: Final = "ostree-metadata"
 SHA256_DIGEST_LEN: Final[int]
 SHA256_STRING_LEN: Final[int]
 SIGN_NAME_ED25519: Final = "ed25519"
+SIGN_NAME_SPKI: Final = "spki"
 SUMMARY_GVARIANT_STRING: Final = "(a(s(taya{sv}))a{sv})"
 SUMMARY_SIG_GVARIANT_STRING: Final = "a{sv}"
 TIMESTAMP: Final[int]
@@ -43,10 +48,7 @@ VERSION_S: Final = "2025.7"
 YEAR_VERSION: Final[int]
 
 def break_hardlink(
-    dfd: int,
-    path: str,
-    skip_xattrs: bool,
-    cancellable: Gio.Cancellable | None = None,
+    dfd: int, path: str, skip_xattrs: bool, cancellable: Gio.Cancellable | None = None
 ) -> bool: ...
 def check_version(required_year: int, required_release: int) -> bool: ...
 def checksum_b64_from_bytes(csum: Sequence[int]) -> str: ...
@@ -98,9 +100,7 @@ def commit_get_object_sizes(
 def commit_get_parent(commit_variant: GLib.Variant) -> str | None: ...
 def commit_get_timestamp(commit_variant: GLib.Variant) -> int: ...
 def commit_metadata_for_bootable(
-    root: Gio.File,
-    dict: GLib.VariantDict,
-    cancellable: Gio.Cancellable | None = None,
+    root: Gio.File, dict: GLib.VariantDict, cancellable: Gio.Cancellable | None = None
 ) -> bool: ...
 def content_file_parse(
     compressed: bool,
@@ -231,7 +231,6 @@ class AsyncProgress(GObject.Object):
     Signals from GObject:
       notify (GParam)
     """
-
     def copy_state(self, dest: AsyncProgress) -> None: ...
     def do_changed(self, *user_data: Any) -> None: ...
     def finish(self) -> None: ...
@@ -259,6 +258,32 @@ class AsyncProgressClass(GObject.GPointer):
     @property
     def changed(self) -> Callable[..., None]: ...
 
+class BlobReader(GObject.GInterface, Protocol):
+    """
+    Interface OstreeBlobReader
+
+    Signals from GObject:
+      notify (GParam)
+    """
+    def read_blob(
+        self, cancellable: Gio.Cancellable | None = None
+    ) -> GLib.Bytes | None: ...
+
+class BlobReaderInterface(GObject.GPointer):
+    """
+    :Constructors:
+
+    ::
+
+        BlobReaderInterface()
+    """
+    @property
+    def g_iface(self) -> GObject.TypeInterface: ...
+    @property
+    def read_blob(
+        self,
+    ) -> Callable[[BlobReader, Gio.Cancellable | None], GLib.Bytes | None]: ...
+
 class BootconfigParser(GObject.Object):
     """
     :Constructors:
@@ -273,10 +298,11 @@ class BootconfigParser(GObject.Object):
     Signals from GObject:
       notify (GParam)
     """
-
     def clone(self) -> BootconfigParser: ...
     def get(self, key: str) -> str | None: ...
     def get_overlay_initrds(self) -> list[str] | None: ...
+    def get_tries_done(self) -> int: ...
+    def get_tries_left(self) -> int: ...
     @classmethod
     def new(cls) -> BootconfigParser: ...
     def parse(
@@ -351,7 +377,6 @@ class ContentWriter(Gio.OutputStream):
     Signals from GObject:
       notify (GParam)
     """
-
     def finish(self, cancellable: Gio.Cancellable | None = None) -> str: ...
 
 class ContentWriterClass(GObject.GPointer):
@@ -379,7 +404,6 @@ class Deployment(GObject.Object):
     Signals from GObject:
       notify (GParam)
     """
-
     def clone(self) -> Deployment: ...
     def equal(self, bp: Deployment) -> bool: ...
     def get_bootconfig(self) -> BootconfigParser | None: ...
@@ -393,7 +417,9 @@ class Deployment(GObject.Object):
     def get_osname(self) -> str: ...
     def get_unlocked(self) -> DeploymentUnlockedState: ...
     def hash(self) -> int: ...
+    def is_finalization_locked(self) -> bool: ...
     def is_pinned(self) -> bool: ...
+    def is_soft_reboot_target(self) -> bool: ...
     def is_staged(self) -> bool: ...
     @classmethod
     def new(
@@ -462,7 +488,6 @@ class GpgVerifyResult(GObject.Object, Gio.Initable):
     Signals from GObject:
       notify (GParam)
     """
-
     def count_all(self) -> int: ...
     def count_valid(self) -> int: ...
     def describe(
@@ -512,8 +537,6 @@ class KernelArgs(GObject.GPointer):
     def to_string(self) -> str: ...
     def to_strv(self) -> list[str]: ...
 
-class KernelArgsEntry(GObject.GPointer): ...
-
 class MutableTree(GObject.Object):
     """
     :Constructors:
@@ -530,7 +553,6 @@ class MutableTree(GObject.Object):
     Signals from GObject:
       notify (GParam)
     """
-
     def check_error(self) -> bool: ...
     def ensure_dir(self, name: str) -> tuple[bool, MutableTree]: ...
     def ensure_parent_dirs(
@@ -616,7 +638,6 @@ class Repo(GObject.Object):
     Signals from GObject:
       notify (GParam)
     """
-
     class Props(GObject.Object.Props):
         path: Gio.File
         remotes_config_dir: str
@@ -626,10 +647,11 @@ class Repo(GObject.Object):
     def props(self) -> Props: ...
     def __init__(
         self,
+        *,
         path: Gio.File = ...,
         remotes_config_dir: str = ...,
         sysroot_path: Gio.File = ...,
-    ): ...
+    ) -> None: ...
     def abort_transaction(self, cancellable: Gio.Cancellable | None = None) -> bool: ...
     def add_gpg_signature_summary(
         self,
@@ -649,6 +671,14 @@ class Repo(GObject.Object):
         destination_dfd: int,
         destination_path: str,
         commit: str,
+        cancellable: Gio.Cancellable | None = None,
+    ) -> bool: ...
+    def checkout_composefs(
+        self,
+        options: GLib.Variant | None,
+        destination_dfd: int,
+        destination_path: str,
+        checksum: str,
         cancellable: Gio.Cancellable | None = None,
     ) -> bool: ...
     def checkout_gc(self, cancellable: Gio.Cancellable | None = None) -> bool: ...
@@ -854,9 +884,7 @@ class Repo(GObject.Object):
         self, options: RepoPruneOptions, cancellable: Gio.Cancellable | None = None
     ) -> tuple[bool, int, int, int]: ...
     def prune_static_deltas(
-        self,
-        commit: str | None = None,
-        cancellable: Gio.Cancellable | None = None,
+        self, commit: str | None = None, cancellable: Gio.Cancellable | None = None
     ) -> bool: ...
     def pull(
         self,
@@ -1162,6 +1190,7 @@ class Repo(GObject.Object):
         cancellable: Gio.Cancellable | None = None,
     ) -> tuple[bool, str]: ...
     def write_config(self, new_config: GLib.KeyFile) -> bool: ...
+    def write_config_and_reload(self, new_config: GLib.KeyFile) -> bool: ...
     def write_content(
         self,
         expected_checksum: str | None,
@@ -1303,7 +1332,13 @@ class RepoCommitModifier(GObject.GBoxed):
 
         new(flags:OSTree.RepoCommitModifierFlags, commit_filter:OSTree.RepoCommitFilter=None, user_data=None) -> OSTree.RepoCommitModifier
     """
-
+    @staticmethod
+    def __new__(
+        cls: type[Self],
+        flags: RepoCommitModifierFlags,
+        commit_filter: Callable[..., RepoCommitFilterResult] | None = None,
+        *user_data: Any,
+    ) -> Self: ...
     @classmethod
     def new(
         cls,
@@ -1357,7 +1392,8 @@ class RepoDevInoCache(GObject.GBoxed):
 
         new() -> OSTree.RepoDevInoCache
     """
-
+    @staticmethod
+    def __new__(cls: type[Self]) -> Self: ...
     @classmethod
     def new(cls) -> RepoDevInoCache: ...
     def ref(self) -> RepoDevInoCache: ...
@@ -1376,7 +1412,6 @@ class RepoFile(GObject.Object, Gio.File):
     Signals from GObject:
       notify (GParam)
     """
-
     def ensure_resolved(self) -> bool: ...
     def get_checksum(self) -> str: ...
     def get_repo(self) -> Repo: ...
@@ -1416,7 +1451,6 @@ class RepoFinder(GObject.GInterface, Protocol):
     Signals from GObject:
       notify (GParam)
     """
-
     @staticmethod
     def resolve_all_async(
         finders: Sequence[RepoFinder],
@@ -1452,7 +1486,6 @@ class RepoFinderAvahi(GObject.Object, RepoFinder):
     Signals from GObject:
       notify (GParam)
     """
-
     @classmethod
     def new(cls, context: GLib.MainContext | None = None) -> RepoFinderAvahi: ...
     def start(self) -> None: ...
@@ -1483,7 +1516,6 @@ class RepoFinderConfig(GObject.Object, RepoFinder):
     Signals from GObject:
       notify (GParam)
     """
-
     @classmethod
     def new(cls) -> RepoFinderConfig: ...
 
@@ -1533,13 +1565,12 @@ class RepoFinderMount(GObject.Object, RepoFinder):
     Signals from GObject:
       notify (GParam)
     """
-
     class Props(GObject.Object.Props):
         monitor: Gio.VolumeMonitor
 
     @property
     def props(self) -> Props: ...
-    def __init__(self, monitor: Gio.VolumeMonitor = ...): ...
+    def __init__(self, *, monitor: Gio.VolumeMonitor = ...) -> None: ...
     @classmethod
     def new(cls, monitor: Gio.VolumeMonitor | None = None) -> RepoFinderMount: ...
 
@@ -1568,7 +1599,6 @@ class RepoFinderOverride(GObject.Object, RepoFinder):
     Signals from GObject:
       notify (GParam)
     """
-
     def add_uri(self, uri: str) -> None: ...
     @classmethod
     def new(cls) -> RepoFinderOverride: ...
@@ -1675,24 +1705,20 @@ class SePolicy(GObject.Object, Gio.Initable):
     Signals from GObject:
       notify (GParam)
     """
-
     class Props(GObject.Object.Props):
         path: Gio.File | None
         rootfs_dfd: int
 
     @property
     def props(self) -> Props: ...
-    def __init__(self, path: Gio.File = ..., rootfs_dfd: int = ...): ...
+    def __init__(self, *, path: Gio.File = ..., rootfs_dfd: int = ...) -> None: ...
     @staticmethod
     def fscreatecon_cleanup(unused: None) -> None: ...
     def get_csum(self) -> str | None: ...
     def get_label(
-        self,
-        relpath: str,
-        unix_mode: int,
-        cancellable: Gio.Cancellable | None = None,
+        self, relpath: str, unix_mode: int, cancellable: Gio.Cancellable | None = None
     ) -> tuple[bool, str]: ...
-    def get_name(self) -> str: ...
+    def get_name(self) -> str | None: ...
     def get_path(self) -> Gio.File | None: ...
     @classmethod
     def new(
@@ -1714,6 +1740,8 @@ class SePolicy(GObject.Object, Gio.Initable):
         flags: SePolicyRestoreconFlags,
         cancellable: Gio.Cancellable | None = None,
     ) -> tuple[bool, str]: ...
+    @staticmethod
+    def set_null_log() -> None: ...
     def setfscreatecon(self, path: str, mode: int) -> bool: ...
 
 class Sign(GObject.GInterface, Protocol):
@@ -1723,7 +1751,6 @@ class Sign(GObject.GInterface, Protocol):
     Signals from GObject:
       notify (GParam)
     """
-
     def add_pk(self, public_key: GLib.Variant) -> bool: ...
     def clear_keys(self) -> bool: ...
     def commit(
@@ -1769,13 +1796,12 @@ class Sign(GObject.GInterface, Protocol):
     def load_pk(self, options: GLib.Variant) -> bool: ...
     def metadata_format(self) -> str: ...
     def metadata_key(self) -> str: ...
+    def read_pk(self, stream: Gio.InputStream) -> BlobReader: ...
+    def read_sk(self, stream: Gio.InputStream) -> BlobReader: ...
     def set_pk(self, public_key: GLib.Variant) -> bool: ...
     def set_sk(self, secret_key: GLib.Variant) -> bool: ...
     def summary(
-        self,
-        repo: Repo,
-        keys: GLib.Variant,
-        cancellable: Gio.Cancellable | None = None,
+        self, repo: Repo, keys: GLib.Variant, cancellable: Gio.Cancellable | None = None
     ) -> bool: ...
 
 class SignEd25519(GObject.GPointer): ...
@@ -1850,17 +1876,18 @@ class Sysroot(GObject.Object):
     Signals from GObject:
       notify (GParam)
     """
-
     class Props(GObject.Object.Props):
         path: Gio.File
 
     @property
     def props(self) -> Props: ...
-    def __init__(self, path: Gio.File = ...): ...
+    def __init__(self, *, path: Gio.File = ...) -> None: ...
+    def change_finalization(self, deployment: Deployment) -> bool: ...
     def cleanup(self, cancellable: Gio.Cancellable | None = None) -> bool: ...
     def cleanup_prune_repo(
         self, options: RepoPruneOptions, cancellable: Gio.Cancellable | None = None
     ) -> tuple[bool, int, int, int]: ...
+    def clear_soft_reboot(self, cancellable: Gio.Cancellable | None = None) -> bool: ...
     def deploy_tree(
         self,
         osname: str | None,
@@ -1879,6 +1906,10 @@ class Sysroot(GObject.Object):
         opts: SysrootDeployTreeOpts | None = None,
         cancellable: Gio.Cancellable | None = None,
     ) -> tuple[bool, Deployment]: ...
+    def deployment_can_soft_reboot(self, deployment: Deployment) -> bool: ...
+    def deployment_kexec_load(
+        self, deployment: Deployment, cancellable: Gio.Cancellable | None = None
+    ) -> bool: ...
     def deployment_set_kargs(
         self,
         deployment: Deployment,
@@ -1899,6 +1930,12 @@ class Sysroot(GObject.Object):
     ) -> bool: ...
     def deployment_set_pinned(
         self, deployment: Deployment, is_pinned: bool
+    ) -> bool: ...
+    def deployment_set_soft_reboot(
+        self,
+        deployment: Deployment,
+        allow_kernel_skew: bool,
+        cancellable: Gio.Cancellable | None = None,
     ) -> bool: ...
     def deployment_unlock(
         self,
@@ -1988,6 +2025,7 @@ class Sysroot(GObject.Object):
     def try_lock(self) -> tuple[bool, bool]: ...
     def unload(self) -> None: ...
     def unlock(self) -> None: ...
+    def update_post_copy(self, cancellable: Gio.Cancellable | None = None) -> bool: ...
     def write_deployments(
         self,
         new_deployments: Sequence[Deployment],
@@ -2015,6 +2053,7 @@ class SysrootDeployTreeOpts(GObject.GPointer):
         SysrootDeployTreeOpts()
     """
 
+    locked: bool
     unused_bools: list[bool]
     unused_ints: list[int]
     override_kernel_argv: str
@@ -2045,7 +2084,6 @@ class SysrootUpgrader(GObject.Object, Gio.Initable):
     Signals from GObject:
       notify (GParam)
     """
-
     class Props(GObject.Object.Props):
         flags: SysrootUpgraderFlags
         osname: str
@@ -2055,10 +2093,11 @@ class SysrootUpgrader(GObject.Object, Gio.Initable):
     def props(self) -> Props: ...
     def __init__(
         self,
+        *,
         flags: SysrootUpgraderFlags = ...,
         osname: str = ...,
         sysroot: Sysroot = ...,
-    ): ...
+    ) -> None: ...
     @staticmethod
     def check_timestamps(repo: Repo, from_rev: str, to_rev: str) -> bool: ...
     def deploy(self, cancellable: Gio.Cancellable | None = None) -> bool: ...
@@ -2139,6 +2178,7 @@ class RepoCommitModifierFlags(IntFlag):
     ERROR_ON_UNLABELED = 8
     GENERATE_SIZES = 2
     NONE = 0
+    SELINUX_LABEL_V1 = 64
     SKIP_XATTRS = 1
 
 class RepoCommitState(IntFlag):
@@ -2200,6 +2240,7 @@ class SysrootSimpleWriteDeploymentFlags(IntFlag):
 
 class SysrootUpgraderFlags(GObject.GFlags):
     IGNORE_UNCONFIGURED = 2
+    KEXEC = 8
     STAGE = 4
 
 class SysrootUpgraderPullFlags(IntFlag):

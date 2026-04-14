@@ -1,6 +1,8 @@
 from typing import Any
 from typing import Final
 from typing import Protocol
+from typing import TypeVar
+from typing_extensions import Self
 
 from collections.abc import Callable
 from collections.abc import Sequence
@@ -12,6 +14,8 @@ from gi.repository import _Soup3
 from gi.repository import Gio
 from gi.repository import GLib
 from gi.repository import GObject
+
+T = TypeVar("T")
 
 EDITING_COMMAND_COPY: Final = "Copy"
 EDITING_COMMAND_CREATE_LINK: Final = "CreateLink"
@@ -52,6 +56,10 @@ def user_media_permission_is_for_video_device(
     request: UserMediaPermissionRequest,
 ) -> bool: ...
 def user_message_error_quark() -> int: ...
+def web_extension_error_quark() -> int: ...
+def web_extension_match_pattern_error_quark() -> int: ...
+def web_extension_match_pattern_register_custom_URL_scheme(urlScheme: str) -> None: ...
+def web_extension_match_pattern_register_custom_url_scheme(urlScheme: str) -> None: ...
 
 class ApplicationInfo(GObject.GBoxed):
     """
@@ -61,7 +69,8 @@ class ApplicationInfo(GObject.GBoxed):
 
         new() -> WebKit.ApplicationInfo
     """
-
+    @staticmethod
+    def __new__(cls: type[Self]) -> Self: ...
     def get_name(self) -> str: ...
     def get_version(self) -> tuple[int, int, int]: ...
     @classmethod
@@ -88,7 +97,6 @@ class AuthenticationRequest(GObject.Object):
     Signals from GObject:
       notify (GParam)
     """
-
     def authenticate(self, credential: Credential | None = None) -> None: ...
     def can_save_credentials(self) -> bool: ...
     def cancel(self) -> None: ...
@@ -127,6 +135,7 @@ class AutomationSession(GObject.Object):
 
     Signals from WebKitAutomationSession:
       create-web-view () -> WebKitWebView
+      will-close ()
 
     Properties from WebKitAutomationSession:
       id -> gchararray: id
@@ -134,13 +143,12 @@ class AutomationSession(GObject.Object):
     Signals from GObject:
       notify (GParam)
     """
-
     class Props(GObject.Object.Props):
         id: str
 
     @property
     def props(self) -> Props: ...
-    def __init__(self, id: str = ...): ...
+    def __init__(self, *, id: str = ...) -> None: ...
     def get_application_info(self) -> ApplicationInfo: ...
     def get_id(self) -> str: ...
     def set_application_info(self, info: ApplicationInfo) -> None: ...
@@ -172,7 +180,6 @@ class BackForwardList(GObject.Object):
     Signals from GObject:
       notify (GParam)
     """
-
     def get_back_item(self) -> BackForwardListItem | None: ...
     def get_back_list(self) -> list[BackForwardListItem]: ...
     def get_back_list_with_limit(self, limit: int) -> list[BackForwardListItem]: ...
@@ -207,7 +214,6 @@ class BackForwardListItem(GObject.InitiallyUnowned):
     Signals from GObject:
       notify (GParam)
     """
-
     def get_original_uri(self) -> str: ...
     def get_title(self) -> str: ...
     def get_uri(self) -> str: ...
@@ -255,13 +261,12 @@ class ColorChooserRequest(GObject.Object):
     Signals from GObject:
       notify (GParam)
     """
-
     class Props(GObject.Object.Props):
         rgba: _Gdk4.RGBA
 
     @property
     def props(self) -> Props: ...
-    def __init__(self, rgba: _Gdk4.RGBA = ...): ...
+    def __init__(self, *, rgba: _Gdk4.RGBA = ...) -> None: ...
     def cancel(self) -> None: ...
     def finish(self) -> None: ...
     def get_element_rectangle(self) -> _Gdk4.Rectangle: ...
@@ -294,13 +299,13 @@ class ContextMenu(GObject.Object):
     Signals from GObject:
       notify (GParam)
     """
-
     def append(self, item: ContextMenuItem) -> None: ...
     def first(self) -> ContextMenuItem: ...
     def get_event(self) -> _Gdk4.Event: ...
     def get_item_at_position(self, position: int) -> ContextMenuItem: ...
     def get_items(self) -> list[ContextMenuItem]: ...
     def get_n_items(self) -> int: ...
+    def get_position(self) -> tuple[bool, int, int]: ...
     def get_user_data(self) -> GLib.Variant: ...
     def insert(self, item: ContextMenuItem, position: int) -> None: ...
     def last(self) -> ContextMenuItem: ...
@@ -343,10 +348,11 @@ class ContextMenuItem(GObject.InitiallyUnowned):
     Signals from GObject:
       notify (GParam)
     """
-
     def get_gaction(self) -> Gio.Action: ...
+    def get_gaction_target(self) -> GLib.Variant | None: ...
     def get_stock_action(self) -> ContextMenuAction: ...
     def get_submenu(self) -> ContextMenu: ...
+    def get_title(self) -> str: ...
     def is_separator(self) -> bool: ...
     @classmethod
     def new_from_gaction(
@@ -391,7 +397,6 @@ class CookieManager(GObject.Object):
     Signals from GObject:
       notify (GParam)
     """
-
     def add_cookie(
         self,
         cookie: _Soup3.Cookie,
@@ -468,7 +473,13 @@ class Credential(GObject.GBoxed):
         new_for_certificate(certificate:Gio.TlsCertificate=None, persistence:WebKit.CredentialPersistence) -> WebKit.Credential
         new_for_certificate_pin(pin:str, persistence:WebKit.CredentialPersistence) -> WebKit.Credential
     """
-
+    @staticmethod
+    def __new__(
+        cls: type[Self],
+        username: str,
+        password: str,
+        persistence: CredentialPersistence,
+    ) -> Self: ...
     def copy(self) -> Credential: ...
     def free(self) -> None: ...
     def get_certificate(self) -> Gio.TlsCertificate: ...
@@ -482,9 +493,7 @@ class Credential(GObject.GBoxed):
     ) -> Credential: ...
     @classmethod
     def new_for_certificate(
-        cls,
-        certificate: Gio.TlsCertificate | None,
-        persistence: CredentialPersistence,
+        cls, certificate: Gio.TlsCertificate | None, persistence: CredentialPersistence
     ) -> Credential: ...
     @classmethod
     def new_for_certificate_pin(
@@ -530,7 +539,6 @@ class Download(GObject.Object):
     Signals from GObject:
       notify (GParam)
     """
-
     class Props(GObject.Object.Props):
         allow_overwrite: bool
         destination: str | None
@@ -539,7 +547,7 @@ class Download(GObject.Object):
 
     @property
     def props(self) -> Props: ...
-    def __init__(self, allow_overwrite: bool = ...): ...
+    def __init__(self, *, allow_overwrite: bool = ...) -> None: ...
     def cancel(self) -> None: ...
     def get_allow_overwrite(self) -> bool: ...
     def get_destination(self) -> str | None: ...
@@ -573,13 +581,15 @@ class EditorState(GObject.Object):
 
     Object WebKitEditorState
 
+    Signals from WebKitEditorState:
+      changed ()
+
     Properties from WebKitEditorState:
       typing-attributes -> guint: typing-attributes
 
     Signals from GObject:
       notify (GParam)
     """
-
     class Props(GObject.Object.Props):
         typing_attributes: int
 
@@ -619,7 +629,6 @@ class FaviconDatabase(GObject.Object):
     Signals from GObject:
       notify (GParam)
     """
-
     def clear(self) -> None: ...
     def get_favicon(
         self,
@@ -677,7 +686,6 @@ class FileChooserRequest(GObject.Object):
     Signals from GObject:
       notify (GParam)
     """
-
     class Props(GObject.Object.Props):
         filter: _Gtk4.FileFilter
         mime_types: list[str]
@@ -728,7 +736,6 @@ class FindController(GObject.Object):
     Signals from GObject:
       notify (GParam)
     """
-
     class Props(GObject.Object.Props):
         max_match_count: int
         options: FindOptions
@@ -737,7 +744,7 @@ class FindController(GObject.Object):
 
     @property
     def props(self) -> Props: ...
-    def __init__(self, web_view: WebView = ...): ...
+    def __init__(self, *, web_view: WebView = ...) -> None: ...
     def count_matches(
         self, search_text: str, find_options: int, max_match_count: int
     ) -> None: ...
@@ -776,7 +783,6 @@ class FormSubmissionRequest(GObject.Object):
     Signals from GObject:
       notify (GParam)
     """
-
     def list_text_fields(self) -> tuple[bool, list[str], list[str]]: ...
     def submit(self) -> None: ...
 
@@ -811,7 +817,6 @@ class GeolocationManager(GObject.Object):
     Signals from GObject:
       notify (GParam)
     """
-
     class Props(GObject.Object.Props):
         enable_high_accuracy: bool
 
@@ -853,7 +858,10 @@ class GeolocationPosition(GObject.GBoxed):
 
         new(latitude:float, longitude:float, accuracy:float) -> WebKit.GeolocationPosition
     """
-
+    @staticmethod
+    def __new__(
+        cls: type[Self], latitude: float, longitude: float, accuracy: float
+    ) -> Self: ...
     def copy(self) -> GeolocationPosition: ...
     def free(self) -> None: ...
     @classmethod
@@ -887,7 +895,6 @@ class HitTestResult(GObject.Object):
     Signals from GObject:
       notify (GParam)
     """
-
     class Props(GObject.Object.Props):
         context: int
         image_uri: str
@@ -900,13 +907,14 @@ class HitTestResult(GObject.Object):
     def props(self) -> Props: ...
     def __init__(
         self,
+        *,
         context: int = ...,
         image_uri: str = ...,
         link_label: str = ...,
         link_title: str = ...,
         link_uri: str = ...,
         media_uri: str = ...,
-    ): ...
+    ) -> None: ...
     def context_is_editable(self) -> bool: ...
     def context_is_image(self) -> bool: ...
     def context_is_link(self) -> bool: ...
@@ -968,7 +976,6 @@ class InputMethodContext(GObject.Object):
     Signals from GObject:
       notify (GParam)
     """
-
     class Props(GObject.Object.Props):
         input_hints: InputHints
         input_purpose: InputPurpose
@@ -980,8 +987,8 @@ class InputMethodContext(GObject.Object):
     @property
     def priv(self) -> InputMethodContextPrivate: ...
     def __init__(
-        self, input_hints: InputHints = ..., input_purpose: InputPurpose = ...
-    ): ...
+        self, *, input_hints: InputHints = ..., input_purpose: InputPurpose = ...
+    ) -> None: ...
     def do_committed(self, text: str) -> None: ...
     def do_delete_surrounding(self, offset: int, n_chars: int) -> None: ...
     def do_filter_key_event(self, key_event: _Gdk4.Event) -> bool: ...
@@ -1069,7 +1076,8 @@ class InputMethodUnderline(GObject.GBoxed):
 
         new(start_offset:int, end_offset:int) -> WebKit.InputMethodUnderline
     """
-
+    @staticmethod
+    def __new__(cls: type[Self], start_offset: int, end_offset: int) -> Self: ...
     def copy(self) -> InputMethodUnderline: ...
     def free(self) -> None: ...
     @classmethod
@@ -1097,7 +1105,8 @@ class MemoryPressureSettings(GObject.GBoxed):
 
         new() -> WebKit.MemoryPressureSettings
     """
-
+    @staticmethod
+    def __new__(cls: type[Self]) -> Self: ...
     def copy(self) -> MemoryPressureSettings: ...
     def free(self) -> None: ...
     def get_conservative_threshold(self) -> float: ...
@@ -1140,7 +1149,6 @@ class NavigationPolicyDecision(PolicyDecision):
     Signals from GObject:
       notify (GParam)
     """
-
     class Props(PolicyDecision.Props):
         navigation_action: NavigationAction
 
@@ -1167,7 +1175,12 @@ class NetworkProxySettings(GObject.GBoxed):
 
         new(default_proxy_uri:str=None, ignore_hosts:list=None) -> WebKit.NetworkProxySettings
     """
-
+    @staticmethod
+    def __new__(
+        cls: type[Self],
+        default_proxy_uri: str | None = None,
+        ignore_hosts: Sequence[str] | None = None,
+    ) -> Self: ...
     def add_proxy_for_scheme(self, scheme: str, proxy_uri: str) -> None: ...
     def copy(self) -> NetworkProxySettings: ...
     def free(self) -> None: ...
@@ -1201,7 +1214,6 @@ class NetworkSession(GObject.Object):
     Signals from GObject:
       notify (GParam)
     """
-
     class Props(GObject.Object.Props):
         is_ephemeral: bool
         cache_directory: str
@@ -1211,10 +1223,11 @@ class NetworkSession(GObject.Object):
     def props(self) -> Props: ...
     def __init__(
         self,
+        *,
         cache_directory: str = ...,
         data_directory: str = ...,
         is_ephemeral: bool = ...,
-    ): ...
+    ) -> None: ...
     def allow_tls_certificate_for_host(
         self, certificate: Gio.TlsCertificate, host: str
     ) -> None: ...
@@ -1288,7 +1301,6 @@ class Notification(GObject.Object):
     Signals from GObject:
       notify (GParam)
     """
-
     class Props(GObject.Object.Props):
         body: str
         id: int
@@ -1344,7 +1356,6 @@ class OptionMenu(GObject.Object):
     Signals from GObject:
       notify (GParam)
     """
-
     def activate_item(self, index: int) -> None: ...
     def close(self) -> None: ...
     def get_event(self) -> _Gdk4.Event: ...
@@ -1380,7 +1391,6 @@ class PermissionRequest(GObject.GInterface, Protocol):
     Signals from GObject:
       notify (GParam)
     """
-
     def allow(self) -> None: ...
     def deny(self) -> None: ...
 
@@ -1432,7 +1442,6 @@ class PolicyDecision(GObject.Object):
     Signals from GObject:
       notify (GParam)
     """
-
     @property
     def parent_instance(self) -> GObject.Object: ...
     @property
@@ -1478,7 +1487,6 @@ class PrintOperation(GObject.Object):
     Signals from GObject:
       notify (GParam)
     """
-
     class Props(GObject.Object.Props):
         page_setup: _Gtk4.PageSetup
         print_settings: _Gtk4.PrintSettings
@@ -1488,10 +1496,11 @@ class PrintOperation(GObject.Object):
     def props(self) -> Props: ...
     def __init__(
         self,
+        *,
         page_setup: _Gtk4.PageSetup = ...,
         print_settings: _Gtk4.PrintSettings = ...,
         web_view: WebView = ...,
-    ): ...
+    ) -> None: ...
     def get_page_setup(self) -> _Gtk4.PageSetup: ...
     def get_print_settings(self) -> _Gtk4.PrintSettings: ...
     @classmethod
@@ -1531,7 +1540,6 @@ class ResponsePolicyDecision(PolicyDecision):
     Signals from GObject:
       notify (GParam)
     """
-
     class Props(PolicyDecision.Props):
         request: URIRequest
         response: URIResponse
@@ -1583,7 +1591,6 @@ class SecurityManager(GObject.Object):
     Signals from GObject:
       notify (GParam)
     """
-
     def register_uri_scheme_as_cors_enabled(self, scheme: str) -> None: ...
     def register_uri_scheme_as_display_isolated(self, scheme: str) -> None: ...
     def register_uri_scheme_as_empty_document(self, scheme: str) -> None: ...
@@ -1617,7 +1624,8 @@ class SecurityOrigin(GObject.GBoxed):
         new(protocol:str, host:str, port:int) -> WebKit.SecurityOrigin
         new_for_uri(uri:str) -> WebKit.SecurityOrigin
     """
-
+    @staticmethod
+    def __new__(cls: type[Self], protocol: str, host: str, port: int) -> Self: ...
     def get_host(self) -> str | None: ...
     def get_port(self) -> int: ...
     def get_protocol(self) -> str | None: ...
@@ -1671,6 +1679,8 @@ class Settings(GObject.Object):
         The font family used as the default for content using fantasy font.
       pictograph-font-family -> gchararray: Pictograph font family
         The font family used as the default for content using pictograph font.
+      math-font-family -> gchararray: Math font family
+        The font family used as the default for content using math font.
       default-font-size -> guint: Default font size
         The default font size used to display text.
       default-monospace-font-size -> guint: Default monospace font size
@@ -1717,6 +1727,8 @@ class Settings(GObject.Object):
         The user agent string
       enable-smooth-scrolling -> gboolean: Enable smooth scrolling
         Whether to enable smooth scrolling
+      enable-2d-canvas-acceleration -> gboolean: Enable 2D canvas acceleration
+        Whether to enable 2D canvas acceleration
       enable-write-console-messages-to-stdout -> gboolean: Write console messages on stdout
         Whether to write console messages on stdout
       enable-media-stream -> gboolean: Enable MediaStream
@@ -1751,11 +1763,12 @@ class Settings(GObject.Object):
         Whether WebRTC content should be handled
       disable-web-security -> gboolean: Disable web security
         Whether web security should be disabled.
+      webrtc-udp-ports-range -> gchararray: WebRTC UDP ports range
+        WebRTC UDP ports range, the format is min-port:max-port
 
     Signals from GObject:
       notify (GParam)
     """
-
     class Props(GObject.Object.Props):
         allow_file_access_from_file_urls: bool
         allow_modal_dialogs: bool
@@ -1769,6 +1782,7 @@ class Settings(GObject.Object):
         default_monospace_font_size: int
         disable_web_security: bool
         draw_compositing_indicators: bool
+        enable_2d_canvas_acceleration: bool
         enable_back_forward_navigation_gestures: bool
         enable_caret_browsing: bool
         enable_developer_extras: bool
@@ -1801,6 +1815,7 @@ class Settings(GObject.Object):
         javascript_can_access_clipboard: bool
         javascript_can_open_windows_automatically: bool
         load_icons_ignoring_image_load_setting: bool
+        math_font_family: str | None
         media_content_types_requiring_hardware_support: str
         media_playback_allows_inline: bool
         media_playback_requires_user_gesture: bool
@@ -1811,12 +1826,14 @@ class Settings(GObject.Object):
         sans_serif_font_family: str
         serif_font_family: str
         user_agent: str
+        webrtc_udp_ports_range: str
         zoom_text_only: bool
 
     @property
     def props(self) -> Props: ...
     def __init__(
         self,
+        *,
         allow_file_access_from_file_urls: bool = ...,
         allow_modal_dialogs: bool = ...,
         allow_top_navigation_to_data_urls: bool = ...,
@@ -1829,6 +1846,7 @@ class Settings(GObject.Object):
         default_monospace_font_size: int = ...,
         disable_web_security: bool = ...,
         draw_compositing_indicators: bool = ...,
+        enable_2d_canvas_acceleration: bool = ...,
         enable_back_forward_navigation_gestures: bool = ...,
         enable_caret_browsing: bool = ...,
         enable_developer_extras: bool = ...,
@@ -1861,6 +1879,7 @@ class Settings(GObject.Object):
         javascript_can_access_clipboard: bool = ...,
         javascript_can_open_windows_automatically: bool = ...,
         load_icons_ignoring_image_load_setting: bool = ...,
+        math_font_family: str | None = ...,
         media_content_types_requiring_hardware_support: str | None = ...,
         media_playback_allows_inline: bool = ...,
         media_playback_requires_user_gesture: bool = ...,
@@ -1871,8 +1890,10 @@ class Settings(GObject.Object):
         sans_serif_font_family: str = ...,
         serif_font_family: str = ...,
         user_agent: str | None = ...,
+        webrtc_udp_ports_range: str = ...,
         zoom_text_only: bool = ...,
-    ): ...
+    ) -> None: ...
+    def apply_from_key_file(self, key_file: GLib.KeyFile, group_name: str) -> bool: ...
     @staticmethod
     def font_size_to_pixels(points: int) -> int: ...
     @staticmethod
@@ -1893,6 +1914,7 @@ class Settings(GObject.Object):
     def get_development_features() -> FeatureList: ...
     def get_disable_web_security(self) -> bool: ...
     def get_draw_compositing_indicators(self) -> bool: ...
+    def get_enable_2d_canvas_acceleration(self) -> bool: ...
     def get_enable_back_forward_navigation_gestures(self) -> bool: ...
     def get_enable_caret_browsing(self) -> bool: ...
     def get_enable_developer_extras(self) -> bool: ...
@@ -1928,6 +1950,7 @@ class Settings(GObject.Object):
     def get_javascript_can_access_clipboard(self) -> bool: ...
     def get_javascript_can_open_windows_automatically(self) -> bool: ...
     def get_load_icons_ignoring_image_load_setting(self) -> bool: ...
+    def get_math_font_family(self) -> str | None: ...
     def get_media_content_types_requiring_hardware_support(self) -> str: ...
     def get_media_playback_allows_inline(self) -> bool: ...
     def get_media_playback_requires_user_gesture(self) -> bool: ...
@@ -1938,6 +1961,7 @@ class Settings(GObject.Object):
     def get_sans_serif_font_family(self) -> str: ...
     def get_serif_font_family(self) -> str: ...
     def get_user_agent(self) -> str: ...
+    def get_webrtc_udp_ports_range(self) -> str: ...
     def get_zoom_text_only(self) -> bool: ...
     @classmethod
     def new(cls) -> Settings: ...
@@ -1953,6 +1977,7 @@ class Settings(GObject.Object):
     def set_default_monospace_font_size(self, font_size: int) -> None: ...
     def set_disable_web_security(self, disabled: bool) -> None: ...
     def set_draw_compositing_indicators(self, enabled: bool) -> None: ...
+    def set_enable_2d_canvas_acceleration(self, enabled: bool) -> None: ...
     def set_enable_back_forward_navigation_gestures(self, enabled: bool) -> None: ...
     def set_enable_caret_browsing(self, enabled: bool) -> None: ...
     def set_enable_developer_extras(self, enabled: bool) -> None: ...
@@ -1988,6 +2013,7 @@ class Settings(GObject.Object):
     def set_javascript_can_access_clipboard(self, enabled: bool) -> None: ...
     def set_javascript_can_open_windows_automatically(self, enabled: bool) -> None: ...
     def set_load_icons_ignoring_image_load_setting(self, enabled: bool) -> None: ...
+    def set_math_font_family(self, math_font_family: str | None = None) -> None: ...
     def set_media_content_types_requiring_hardware_support(
         self, content_types: str | None = None
     ) -> None: ...
@@ -2005,6 +2031,7 @@ class Settings(GObject.Object):
         application_name: str | None = None,
         application_version: str | None = None,
     ) -> None: ...
+    def set_webrtc_udp_ports_range(self, udp_port_range: str) -> None: ...
     def set_zoom_text_only(self, zoom_text_only: bool) -> None: ...
 
 class SettingsClass(GObject.GPointer):
@@ -2035,13 +2062,12 @@ class URIRequest(GObject.Object):
     Signals from GObject:
       notify (GParam)
     """
-
     class Props(GObject.Object.Props):
         uri: str
 
     @property
     def props(self) -> Props: ...
-    def __init__(self, uri: str = ...): ...
+    def __init__(self, *, uri: str = ...) -> None: ...
     def get_http_headers(self) -> _Soup3.MessageHeaders: ...
     def get_http_method(self) -> str: ...
     def get_uri(self) -> str: ...
@@ -2081,7 +2107,6 @@ class URIResponse(GObject.Object):
     Signals from GObject:
       notify (GParam)
     """
-
     class Props(GObject.Object.Props):
         content_length: int
         http_headers: _Soup3.MessageHeaders
@@ -2123,7 +2148,6 @@ class URISchemeRequest(GObject.Object):
     Signals from GObject:
       notify (GParam)
     """
-
     def finish(
         self,
         stream: Gio.InputStream,
@@ -2169,14 +2193,15 @@ class URISchemeResponse(GObject.Object):
     Signals from GObject:
       notify (GParam)
     """
-
     class Props(GObject.Object.Props):
         stream: Gio.InputStream
         stream_length: int
 
     @property
     def props(self) -> Props: ...
-    def __init__(self, stream: Gio.InputStream = ..., stream_length: int = ...): ...
+    def __init__(
+        self, *, stream: Gio.InputStream = ..., stream_length: int = ...
+    ) -> None: ...
     @classmethod
     def new(
         cls, input_stream: Gio.InputStream, stream_length: int
@@ -2220,13 +2245,12 @@ class UserContentFilterStore(GObject.Object):
     Signals from GObject:
       notify (GParam)
     """
-
     class Props(GObject.Object.Props):
         path: str
 
     @property
     def props(self) -> Props: ...
-    def __init__(self, path: str = ...): ...
+    def __init__(self, *, path: str = ...) -> None: ...
     def fetch_identifiers(
         self,
         cancellable: Gio.Cancellable | None = None,
@@ -2301,7 +2325,6 @@ class UserContentManager(GObject.Object):
     Signals from GObject:
       notify (GParam)
     """
-
     def add_filter(self, filter: UserContentFilter) -> None: ...
     def add_script(self, script: UserScript) -> None: ...
     def add_style_sheet(self, stylesheet: UserStyleSheet) -> None: ...
@@ -2311,7 +2334,7 @@ class UserContentManager(GObject.Object):
         self, name: str, world_name: str | None = None
     ) -> bool: ...
     def register_script_message_handler_with_reply(
-        self, name: str, world_name: str
+        self, name: str, world_name: str | None = None
     ) -> bool: ...
     def remove_all_filters(self) -> None: ...
     def remove_all_scripts(self) -> None: ...
@@ -2352,7 +2375,6 @@ class UserMediaPermissionRequest(GObject.Object, PermissionRequest):
     Signals from GObject:
       notify (GParam)
     """
-
     class Props(GObject.Object.Props):
         is_for_audio_device: bool
         is_for_video_device: bool
@@ -2391,7 +2413,6 @@ class UserMessage(GObject.InitiallyUnowned):
     Signals from GObject:
       notify (GParam)
     """
-
     class Props(GObject.InitiallyUnowned.Props):
         fd_list: Gio.UnixFDList | None
         name: str
@@ -2401,10 +2422,11 @@ class UserMessage(GObject.InitiallyUnowned):
     def props(self) -> Props: ...
     def __init__(
         self,
+        *,
         fd_list: Gio.UnixFDList = ...,
         name: str = ...,
         parameters: GLib.Variant = ...,
-    ): ...
+    ) -> None: ...
     def get_fd_list(self) -> Gio.UnixFDList | None: ...
     def get_name(self) -> str: ...
     def get_parameters(self) -> GLib.Variant | None: ...
@@ -2439,7 +2461,15 @@ class UserScript(GObject.GBoxed):
         new(source:str, injected_frames:WebKit.UserContentInjectedFrames, injection_time:WebKit.UserScriptInjectionTime, allow_list:list=None, block_list:list=None) -> WebKit.UserScript
         new_for_world(source:str, injected_frames:WebKit.UserContentInjectedFrames, injection_time:WebKit.UserScriptInjectionTime, world_name:str, allow_list:list=None, block_list:list=None) -> WebKit.UserScript
     """
-
+    @staticmethod
+    def __new__(
+        cls: type[Self],
+        source: str,
+        injected_frames: UserContentInjectedFrames,
+        injection_time: UserScriptInjectionTime,
+        allow_list: Sequence[str] | None = None,
+        block_list: Sequence[str] | None = None,
+    ) -> Self: ...
     @classmethod
     def new(
         cls,
@@ -2471,7 +2501,15 @@ class UserStyleSheet(GObject.GBoxed):
         new(source:str, injected_frames:WebKit.UserContentInjectedFrames, level:WebKit.UserStyleLevel, allow_list:list=None, block_list:list=None) -> WebKit.UserStyleSheet
         new_for_world(source:str, injected_frames:WebKit.UserContentInjectedFrames, level:WebKit.UserStyleLevel, world_name:str, allow_list:list=None, block_list:list=None) -> WebKit.UserStyleSheet
     """
-
+    @staticmethod
+    def __new__(
+        cls: type[Self],
+        source: str,
+        injected_frames: UserContentInjectedFrames,
+        level: UserStyleLevel,
+        allow_list: Sequence[str] | None = None,
+        block_list: Sequence[str] | None = None,
+    ) -> Self: ...
     @classmethod
     def new(
         cls,
@@ -2518,7 +2556,6 @@ class WebContext(GObject.Object):
     Signals from GObject:
       notify (GParam)
     """
-
     class Props(GObject.Object.Props):
         time_zone_override: str
         memory_pressure_settings: MemoryPressureSettings
@@ -2527,9 +2564,10 @@ class WebContext(GObject.Object):
     def props(self) -> Props: ...
     def __init__(
         self,
+        *,
         memory_pressure_settings: MemoryPressureSettings = ...,
         time_zone_override: str = ...,
-    ): ...
+    ) -> None: ...
     def add_path_to_sandbox(self, path: str, read_only: bool) -> None: ...
     def get_cache_model(self) -> CacheModel: ...
     @staticmethod
@@ -2575,6 +2613,147 @@ class WebContextClass(GObject.GPointer):
     @property
     def parent_class(self) -> GObject.ObjectClass: ...
 
+class WebExtension(GObject.Object, Gio.Initable):
+    """
+    :Constructors:
+
+    ::
+
+        WebExtension(**properties)
+        new(extension_path:str) -> WebKit.WebExtension or None
+
+    Object WebKitWebExtension
+
+    Properties from WebKitWebExtension:
+      path -> gchararray: path
+      manifest-version -> gchararray: manifest-version
+      default-locale -> gchararray: default-locale
+      display-name -> gchararray: display-name
+      display-short-name -> gchararray: display-short-name
+      display-version -> gchararray: display-version
+      display-description -> gchararray: display-description
+      display-action-label -> gchararray: display-action-label
+      version -> gchararray: version
+      requested-permissions -> GStrv: requested-permissions
+      optional-permissions -> GStrv: optional-permissions
+      has-background-content -> gboolean: has-background-content
+      has-persistent-background-content -> gboolean: has-persistent-background-content
+      has-injected-content -> gboolean: has-injected-content
+      has-options-page -> gboolean: has-options-page
+      has-override-new-tab-page -> gboolean: has-override-new-tab-page
+      has-commands -> gboolean: has-commands
+      has-content-modification-rules -> gboolean: has-content-modification-rules
+
+    Signals from GObject:
+      notify (GParam)
+    """
+    class Props(GObject.Object.Props):
+        default_locale: str | None
+        display_action_label: str | None
+        display_description: str | None
+        display_name: str | None
+        display_short_name: str | None
+        display_version: str | None
+        has_background_content: bool
+        has_commands: bool
+        has_content_modification_rules: bool
+        has_injected_content: bool
+        has_options_page: bool
+        has_override_new_tab_page: bool
+        has_persistent_background_content: bool
+        manifest_version: str
+        optional_permissions: list[str] | None
+        path: str
+        requested_permissions: list[str] | None
+        version: str | None
+
+    @property
+    def props(self) -> Props: ...
+    def __init__(self, *, path: str = ...) -> None: ...
+    def get_action_icon(self, width: float, height: float) -> Gio.Icon | None: ...
+    def get_all_requested_match_patterns(self) -> list[WebExtensionMatchPattern]: ...
+    def get_default_locale(self) -> str | None: ...
+    def get_display_action_label(self) -> str | None: ...
+    def get_display_description(self) -> str | None: ...
+    def get_display_name(self) -> str | None: ...
+    def get_display_short_name(self) -> str | None: ...
+    def get_display_version(self) -> str | None: ...
+    def get_has_background_content(self) -> bool: ...
+    def get_has_commands(self) -> bool: ...
+    def get_has_content_modification_rules(self) -> bool: ...
+    def get_has_injected_content(self) -> bool: ...
+    def get_has_options_page(self) -> bool: ...
+    def get_has_override_new_tab_page(self) -> bool: ...
+    def get_has_persistent_background_content(self) -> bool: ...
+    def get_icon(self, width: float, height: float) -> Gio.Icon | None: ...
+    def get_manifest_version(self) -> float: ...
+    def get_optional_permission_match_patterns(
+        self,
+    ) -> list[WebExtensionMatchPattern]: ...
+    def get_optional_permissions(self) -> list[str] | None: ...
+    def get_path(self) -> str: ...
+    def get_requested_permission_match_patterns(
+        self,
+    ) -> list[WebExtensionMatchPattern]: ...
+    def get_requested_permissions(self) -> list[str] | None: ...
+    def get_version(self) -> str | None: ...
+    @classmethod
+    def new(cls, extension_path: str) -> WebExtension | None: ...
+    def supports_manifest_version(self, manifest_version: float) -> bool: ...
+
+class WebExtensionClass(GObject.GPointer):
+    """
+    :Constructors:
+
+    ::
+
+        WebExtensionClass()
+    """
+    @property
+    def parent_class(self) -> GObject.ObjectClass: ...
+
+class WebExtensionMatchPattern(GObject.GBoxed):
+    """
+    :Constructors:
+
+    ::
+
+        new_all_hosts_and_schemes() -> WebKit.WebExtensionMatchPattern
+        new_all_urls() -> WebKit.WebExtensionMatchPattern
+        new_with_scheme(scheme:str, host:str, path:str) -> WebKit.WebExtensionMatchPattern or None
+        new_with_string(string:str) -> WebKit.WebExtensionMatchPattern or None
+    """
+    def get_host(self) -> str: ...
+    def get_matches_all_hosts(self) -> bool: ...
+    def get_matches_all_urls(self) -> bool: ...
+    def get_path(self) -> str: ...
+    def get_scheme(self) -> str: ...
+    def get_string(self) -> str: ...
+    def matches_pattern(
+        self,
+        pattern: WebExtensionMatchPattern,
+        options: WebExtensionMatchPatternOptions,
+    ) -> bool: ...
+    def matches_url(
+        self, url: str, options: WebExtensionMatchPatternOptions
+    ) -> bool: ...
+    @classmethod
+    def new_all_hosts_and_schemes(cls) -> WebExtensionMatchPattern: ...
+    @classmethod
+    def new_all_urls(cls) -> WebExtensionMatchPattern: ...
+    @classmethod
+    def new_with_scheme(
+        cls, scheme: str, host: str, path: str
+    ) -> WebExtensionMatchPattern | None: ...
+    @classmethod
+    def new_with_string(cls, string: str) -> WebExtensionMatchPattern | None: ...
+    def ref(self) -> WebExtensionMatchPattern: ...
+    @staticmethod
+    def register_custom_URL_scheme(urlScheme: str) -> None: ...
+    @staticmethod
+    def register_custom_url_scheme(urlScheme: str) -> None: ...
+    def unref(self) -> None: ...
+
 class WebInspector(GObject.Object):
     """
     :Constructors:
@@ -2600,7 +2779,6 @@ class WebInspector(GObject.Object):
     Signals from GObject:
       notify (GParam)
     """
-
     class Props(GObject.Object.Props):
         attached_height: int
         can_attach: bool
@@ -2652,7 +2830,6 @@ class WebResource(GObject.Object):
     Signals from GObject:
       notify (GParam)
     """
-
     class Props(GObject.Object.Props):
         response: URIResponse
         uri: str
@@ -2745,6 +2922,8 @@ class WebView(WebViewBase, _Gtk4.Accessible, _Gtk4.Buildable, _Gtk4.ConstraintTa
       display-capture-state -> WebKitMediaCaptureState: display-capture-state
       web-extension-mode -> WebKitWebExtensionMode: web-extension-mode
       default-content-security-policy -> gchararray: default-content-security-policy
+      theme-color -> GdkRGBA: theme-color
+      is-immersive-mode-enabled -> gboolean: is-immersive-mode-enabled
 
     Signals from GtkWidget:
       direction-changed (GtkTextDirection)
@@ -2796,11 +2975,11 @@ class WebView(WebViewBase, _Gtk4.Accessible, _Gtk4.Buildable, _Gtk4.ConstraintTa
       css-name -> gchararray: css-name
       css-classes -> GStrv: css-classes
       layout-manager -> GtkLayoutManager: layout-manager
+      limit-events -> gboolean: limit-events
 
     Signals from GObject:
       notify (GParam)
     """
-
     class Props(WebViewBase.Props):
         automation_presentation_type: AutomationBrowsingContextPresentation
         camera_capture_state: MediaCaptureState
@@ -2810,6 +2989,7 @@ class WebView(WebViewBase, _Gtk4.Accessible, _Gtk4.Buildable, _Gtk4.ConstraintTa
         estimated_load_progress: float
         favicon: _Gdk4.Texture
         is_controlled_by_automation: bool
+        is_immersive_mode_enabled: bool
         is_loading: bool
         is_muted: bool
         is_playing_audio: bool
@@ -2817,6 +2997,7 @@ class WebView(WebViewBase, _Gtk4.Accessible, _Gtk4.Buildable, _Gtk4.ConstraintTa
         microphone_capture_state: MediaCaptureState
         network_session: NetworkSession
         page_id: int
+        theme_color: _Gdk4.RGBA
         title: str
         uri: str
         user_content_manager: UserContentManager
@@ -2839,6 +3020,7 @@ class WebView(WebViewBase, _Gtk4.Accessible, _Gtk4.Buildable, _Gtk4.ConstraintTa
         hexpand: bool
         hexpand_set: bool
         layout_manager: _Gtk4.LayoutManager | None
+        limit_events: bool
         margin_bottom: int
         margin_end: int
         margin_start: int
@@ -2870,6 +3052,7 @@ class WebView(WebViewBase, _Gtk4.Accessible, _Gtk4.Buildable, _Gtk4.ConstraintTa
     def priv(self) -> WebViewPrivate: ...
     def __init__(
         self,
+        *,
         automation_presentation_type: AutomationBrowsingContextPresentation = ...,
         camera_capture_state: MediaCaptureState = ...,
         default_content_security_policy: str = ...,
@@ -2899,6 +3082,7 @@ class WebView(WebViewBase, _Gtk4.Accessible, _Gtk4.Buildable, _Gtk4.ConstraintTa
         hexpand: bool = ...,
         hexpand_set: bool = ...,
         layout_manager: _Gtk4.LayoutManager | None = ...,
+        limit_events: bool = ...,
         margin_bottom: int = ...,
         margin_end: int = ...,
         margin_start: int = ...,
@@ -2916,7 +3100,7 @@ class WebView(WebViewBase, _Gtk4.Accessible, _Gtk4.Buildable, _Gtk4.ConstraintTa
         visible: bool = ...,
         width_request: int = ...,
         accessible_role: _Gtk4.AccessibleRole = ...,
-    ): ...
+    ) -> None: ...
     def call_async_javascript_function(
         self,
         body: str,
@@ -3039,6 +3223,7 @@ class WebView(WebViewBase, _Gtk4.Accessible, _Gtk4.Buildable, _Gtk4.ConstraintTa
         *user_data: Any,
     ) -> None: ...
     def get_snapshot_finish(self, result: Gio.AsyncResult) -> _Gdk4.Texture: ...
+    def get_theme_color(self) -> tuple[bool, _Gdk4.RGBA]: ...
     def get_title(self) -> str: ...
     def get_tls_info(
         self,
@@ -3054,8 +3239,10 @@ class WebView(WebViewBase, _Gtk4.Accessible, _Gtk4.Buildable, _Gtk4.ConstraintTa
     def go_to_back_forward_list_item(self, list_item: BackForwardListItem) -> None: ...
     def is_controlled_by_automation(self) -> bool: ...
     def is_editable(self) -> bool: ...
+    def is_immersive_mode_enabled(self) -> bool: ...
     def is_loading(self) -> bool: ...
     def is_playing_audio(self) -> bool: ...
+    def leave_immersive_mode(self) -> None: ...
     def load_alternate_html(
         self, content: str, content_uri: str, base_uri: str | None = None
     ) -> None: ...
@@ -3179,11 +3366,11 @@ class WebViewBase(
       css-name -> gchararray: css-name
       css-classes -> GStrv: css-classes
       layout-manager -> GtkLayoutManager: layout-manager
+      limit-events -> gboolean: limit-events
 
     Signals from GObject:
       notify (GParam)
     """
-
     class Props(_Gtk4.Widget.Props):
         can_focus: bool
         can_target: bool
@@ -3200,6 +3387,7 @@ class WebViewBase(
         hexpand: bool
         hexpand_set: bool
         layout_manager: _Gtk4.LayoutManager | None
+        limit_events: bool
         margin_bottom: int
         margin_end: int
         margin_start: int
@@ -3229,6 +3417,7 @@ class WebViewBase(
     def priv(self) -> WebViewBasePrivate: ...
     def __init__(
         self,
+        *,
         can_focus: bool = ...,
         can_target: bool = ...,
         css_classes: Sequence[str] = ...,
@@ -3242,6 +3431,7 @@ class WebViewBase(
         hexpand: bool = ...,
         hexpand_set: bool = ...,
         layout_manager: _Gtk4.LayoutManager | None = ...,
+        limit_events: bool = ...,
         margin_bottom: int = ...,
         margin_end: int = ...,
         margin_start: int = ...,
@@ -3259,7 +3449,7 @@ class WebViewBase(
         visible: bool = ...,
         width_request: int = ...,
         accessible_role: _Gtk4.AccessibleRole = ...,
-    ): ...
+    ) -> None: ...
 
 class WebViewBaseClass(GObject.GPointer):
     """
@@ -3367,7 +3557,8 @@ class WebViewSessionState(GObject.GBoxed):
 
         new(data:GLib.Bytes) -> WebKit.WebViewSessionState
     """
-
+    @staticmethod
+    def __new__(cls: type[Self], data: GLib.Bytes) -> Self: ...
     @classmethod
     def new(cls, data: GLib.Bytes) -> WebViewSessionState: ...
     def ref(self) -> WebViewSessionState: ...
@@ -3394,7 +3585,6 @@ class WebsiteDataAccessPermissionRequest(GObject.Object, PermissionRequest):
     Signals from GObject:
       notify (GParam)
     """
-
     def get_current_domain(self) -> str: ...
     def get_requesting_domain(self) -> str: ...
 
@@ -3429,7 +3619,6 @@ class WebsiteDataManager(GObject.Object):
     Signals from GObject:
       notify (GParam)
     """
-
     class Props(GObject.Object.Props):
         base_cache_directory: str | None
         base_data_directory: str | None
@@ -3441,12 +3630,13 @@ class WebsiteDataManager(GObject.Object):
     def props(self) -> Props: ...
     def __init__(
         self,
+        *,
         base_cache_directory: str = ...,
         base_data_directory: str = ...,
         is_ephemeral: bool = ...,
         origin_storage_ratio: float = ...,
         total_storage_ratio: float = ...,
-    ): ...
+    ) -> None: ...
     def clear(
         self,
         types: WebsiteDataTypes,
@@ -3517,13 +3707,12 @@ class WebsitePolicies(GObject.Object):
     Signals from GObject:
       notify (GParam)
     """
-
     class Props(GObject.Object.Props):
         autoplay: AutoplayPolicy
 
     @property
     def props(self) -> Props: ...
-    def __init__(self, autoplay: AutoplayPolicy = ...): ...
+    def __init__(self, *, autoplay: AutoplayPolicy = ...) -> None: ...
     def get_autoplay_policy(self) -> AutoplayPolicy: ...
     @classmethod
     def new(cls) -> WebsitePolicies: ...
@@ -3562,7 +3751,6 @@ class WindowProperties(GObject.Object):
     Signals from GObject:
       notify (GParam)
     """
-
     class Props(GObject.Object.Props):
         fullscreen: bool
         geometry: _Gdk4.Rectangle
@@ -3577,6 +3765,7 @@ class WindowProperties(GObject.Object):
     def props(self) -> Props: ...
     def __init__(
         self,
+        *,
         fullscreen: bool = ...,
         geometry: _Gdk4.Rectangle = ...,
         locationbar_visible: bool = ...,
@@ -3585,7 +3774,7 @@ class WindowProperties(GObject.Object):
         scrollbars_visible: bool = ...,
         statusbar_visible: bool = ...,
         toolbar_visible: bool = ...,
-    ): ...
+    ) -> None: ...
     def get_fullscreen(self) -> bool: ...
     def get_geometry(self) -> _Gdk4.Rectangle: ...
     def get_locationbar_visible(self) -> bool: ...
@@ -3602,6 +3791,39 @@ class WindowPropertiesClass(GObject.GPointer):
     ::
 
         WindowPropertiesClass()
+    """
+    @property
+    def parent_class(self) -> GObject.ObjectClass: ...
+
+class XRPermissionRequest(GObject.Object, PermissionRequest):
+    """
+    :Constructors:
+
+    ::
+
+        XRPermissionRequest(**properties)
+
+    Object WebKitXRPermissionRequest
+
+    Signals from GObject:
+      notify (GParam)
+    """
+    def get_consent_optional_features(self) -> XRSessionFeatures: ...
+    def get_consent_required_features(self) -> XRSessionFeatures: ...
+    def get_granted_features(self) -> XRSessionFeatures: ...
+    def get_optional_features_requested(self) -> XRSessionFeatures: ...
+    def get_required_features_requested(self) -> XRSessionFeatures: ...
+    def get_security_origin(self) -> SecurityOrigin: ...
+    def get_session_mode(self) -> XRSessionMode: ...
+    def set_granted_optional_features(self, granted: XRSessionFeatures) -> None: ...
+
+class XRPermissionRequestClass(GObject.GPointer):
+    """
+    :Constructors:
+
+    ::
+
+        XRPermissionRequestClass()
     """
     @property
     def parent_class(self) -> GObject.ObjectClass: ...
@@ -3644,6 +3866,12 @@ class SnapshotOptions(GObject.GFlags):
     NONE = 0
     TRANSPARENT_BACKGROUND = 2
 
+class WebExtensionMatchPatternOptions(GObject.GFlags):
+    IGNORE_PATHS = 4
+    IGNORE_SCHEMES = 2
+    MATCH_BIDIRECTIONALLY = 8
+    NONE = 1
+
 class WebsiteDataTypes(GObject.GFlags):
     ALL = 4095
     COOKIES = 64
@@ -3658,6 +3886,16 @@ class WebsiteDataTypes(GObject.GFlags):
     OFFLINE_APPLICATION_CACHE = 4
     SERVICE_WORKER_REGISTRATIONS = 1024
     SESSION_STORAGE = 8
+
+class XRSessionFeatures(GObject.GFlags):
+    BOUNDED_FLOOR = 8
+    HAND_TRACKING = 32
+    HIT_TEST = 64
+    LAYERS = 128
+    LOCAL = 2
+    LOCAL_FLOOR = 4
+    UNBOUNDED = 16
+    VIEWER = 1
 
 class AuthenticationScheme(GObject.GEnum):
     CLIENT_CERTIFICATE_PIN_REQUESTED = 9
@@ -3909,6 +4147,27 @@ class UserStyleLevel(GObject.GEnum):
     AUTHOR = 1
     USER = 0
 
+class WebExtensionError(GObject.GEnum):
+    INVALID_ARCHIVE = 807
+    INVALID_BACKGROUND_PERSISTENCE = 806
+    INVALID_DECLARATIVE_NET_REQUEST_ENTRY = 805
+    INVALID_MANIFEST = 802
+    INVALID_MANIFEST_ENTRY = 804
+    INVALID_RESOURCE_CODE_SIGNATURE = 801
+    RESOURCE_NOT_FOUND = 800
+    UNKNOWN = 899
+    UNSUPPORTED_MANIFEST_VERSION = 803
+    @staticmethod
+    def quark() -> int: ...
+
+class WebExtensionMatchPatternError(GObject.GEnum):
+    INVALID_HOST = 809
+    INVALID_PATH = 810
+    INVALID_SCHEME = 808
+    UNKNOWN = 899
+    @staticmethod
+    def quark() -> int: ...
+
 class WebExtensionMode(GObject.GEnum):
     MANIFESTV2 = 1
     MANIFESTV3 = 2
@@ -3918,3 +4177,8 @@ class WebProcessTerminationReason(GObject.GEnum):
     CRASHED = 0
     EXCEEDED_MEMORY_LIMIT = 1
     TERMINATED_BY_API = 2
+
+class XRSessionMode(GObject.GEnum):
+    IMMERSIVE_AR = 2
+    IMMERSIVE_VR = 1
+    INLINE = 0

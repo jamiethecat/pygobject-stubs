@@ -47,7 +47,7 @@ class X11AppLaunchContext(_Gdk4.AppLaunchContext):
 
     @property
     def props(self) -> Props: ...
-    def __init__(self, display: _Gdk4.Display = ...) -> None: ...
+    def __init__(self, *, display: _Gdk4.Display = ...) -> None: ...
 
 class X11AppLaunchContextClass(GObject.GPointer): ...
 
@@ -80,6 +80,7 @@ class X11DeviceManagerXI2(GObject.Object):
     def props(self) -> Props: ...
     def __init__(
         self,
+        *,
         display: _Gdk4.Display = ...,
         major: int = ...,
         minor: int = ...,
@@ -153,6 +154,7 @@ class X11DeviceXI2(_Gdk4.Device):
     def props(self) -> Props: ...
     def __init__(
         self,
+        *,
         device_id: int = ...,
         display: _Gdk4.Display = ...,
         has_cursor: bool = ...,
@@ -222,9 +224,7 @@ class X11Display(_Gdk4.Display):
     def get_xscreen(self) -> xlib.Screen: ...
     def grab(self) -> None: ...
     @staticmethod
-    def open(
-        display_name: str | None = None,
-    ) -> _Gdk4.Display | None: ...
+    def open(display_name: str | None = None) -> _Gdk4.Display | None: ...
     def set_cursor_theme(self, theme: str | None, size: int) -> None: ...
     @staticmethod
     def set_program_class(display: _Gdk4.Display, program_class: str) -> None: ...
@@ -279,6 +279,7 @@ class X11Drag(_Gdk4.Drag):
     def props(self) -> Props: ...
     def __init__(
         self,
+        *,
         actions: _Gdk4.DragAction = ...,
         content: _Gdk4.ContentProvider = ...,
         device: _Gdk4.Device = ...,
@@ -322,6 +323,7 @@ class X11GLContext(_Gdk4.GLContext):
     def props(self) -> Props: ...
     def __init__(
         self,
+        *,
         allowed_apis: _Gdk4.GLAPI = ...,
         shared_context: _Gdk4.GLContext = ...,
         display: _Gdk4.Display = ...,
@@ -378,7 +380,7 @@ class X11Monitor(_Gdk4.Monitor):
 
     @property
     def props(self) -> Props: ...
-    def __init__(self, display: _Gdk4.Display = ...) -> None: ...
+    def __init__(self, *, display: _Gdk4.Display = ...) -> None: ...
     def get_output(self) -> int: ...
     def get_workarea(self) -> _Gdk4.Rectangle: ...
 
@@ -454,6 +456,7 @@ class X11Surface(_Gdk4.Surface):
     def props(self) -> Props: ...
     def __init__(
         self,
+        *,
         cursor: _Gdk4.Cursor | None = ...,
         display: _Gdk4.Display = ...,
         frame_clock: _Gdk4.FrameClock = ...,

@@ -445,15 +445,11 @@ class Ray(GObject.GBoxed):
     def get_origin(self) -> Point3D: ...
     def get_position_at(self, t: float) -> Point3D: ...
     def init(
-        self,
-        origin: Point3D | None = None,
-        direction: Vec3 | None = None,
+        self, origin: Point3D | None = None, direction: Vec3 | None = None
     ) -> Ray: ...
     def init_from_ray(self, src: Ray) -> Ray: ...
     def init_from_vec3(
-        self,
-        origin: Vec3 | None = None,
-        direction: Vec3 | None = None,
+        self, origin: Vec3 | None = None, direction: Vec3 | None = None
     ) -> Ray: ...
     def intersect_box(self, b: Box) -> tuple[RayIntersectionKind, float]: ...
     def intersect_sphere(self, s: Sphere) -> tuple[RayIntersectionKind, float]: ...
@@ -630,10 +626,7 @@ class Triangle(GObject.GBoxed):
     ) -> tuple[bool, Vec2]: ...
     def get_vertices(self) -> tuple[Vec3, Vec3, Vec3]: ...
     def init_from_float(
-        self,
-        a: Sequence[float],
-        b: Sequence[float],
-        c: Sequence[float],
+        self, a: Sequence[float], b: Sequence[float], c: Sequence[float]
     ) -> Triangle: ...
     def init_from_point3d(
         self,
@@ -642,10 +635,7 @@ class Triangle(GObject.GBoxed):
         c: Point3D | None = None,
     ) -> Triangle: ...
     def init_from_vec3(
-        self,
-        a: Vec3 | None = None,
-        b: Vec3 | None = None,
-        c: Vec3 | None = None,
+        self, a: Vec3 | None = None, b: Vec3 | None = None, c: Vec3 | None = None
     ) -> Triangle: ...
 
 class Vec2(GObject.GBoxed):

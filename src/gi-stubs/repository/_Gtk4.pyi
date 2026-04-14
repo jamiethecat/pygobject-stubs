@@ -336,6 +336,7 @@ def show_uri_full_finish(parent: Window, result: Gio.AsyncResult) -> bool: ...
 def svg_error_get_attribute(error: GLib.Error) -> str | None: ...
 def svg_error_get_element(error: GLib.Error) -> str | None: ...
 def svg_error_get_end(error: GLib.Error) -> SvgLocation | None: ...
+def svg_error_get_input(error: GLib.Error) -> str | None: ...
 def svg_error_get_start(error: GLib.Error) -> SvgLocation | None: ...
 def svg_error_quark() -> int: ...
 def test_accessible_assertion_message_role(
@@ -390,6 +391,7 @@ class ATContext(GObject.Object):
       accessible-role -> GtkAccessibleRole: accessible-role
       accessible -> GtkAccessible: accessible
       display -> GdkDisplay: display
+      realized -> gboolean: realized
 
     Signals from GObject:
       notify (GParam)
@@ -398,6 +400,7 @@ class ATContext(GObject.Object):
         accessible: Accessible
         accessible_role: AccessibleRole
         display: _Gdk4.Display
+        realized: bool
 
     @property
     def props(self) -> Props: ...
@@ -2083,12 +2086,17 @@ class Application(Gio.Application, Gio.ActionGroup, Gio.ActionMap):
       window-added (GtkWindow)
       window-removed (GtkWindow)
       query-end ()
+      restore-window (GtkRestoreReason, GVariant)
+      save-state (GVariantDict) -> gboolean
+      restore-state (GtkRestoreReason, GVariant) -> gboolean
 
     Properties from GtkApplication:
       register-session -> gboolean: register-session
       screensaver-active -> gboolean: screensaver-active
       menubar -> GMenuModel: menubar
       active-window -> GtkWindow: active-window
+      support-save -> gboolean: support-save
+      autosave-interval -> guint: autosave-interval
 
     Signals from GActionGroup:
       action-added (gchararray)
@@ -2127,9 +2135,11 @@ class Application(Gio.Application, Gio.ActionGroup, Gio.ActionMap):
     """
     class Props(Gio.Application.Props):
         active_window: Window | None
+        autosave_interval: int
         menubar: Gio.MenuModel | None
         register_session: bool
         screensaver_active: bool
+        support_save: bool
         application_id: str | None
         flags: Gio.ApplicationFlags
         inactivity_timeout: int
@@ -2147,8 +2157,10 @@ class Application(Gio.Application, Gio.ActionGroup, Gio.ActionMap):
     def __init__(
         self,
         *,
+        autosave_interval: int = ...,
         menubar: Gio.MenuModel | None = ...,
         register_session: bool = ...,
+        support_save: bool = ...,
         action_group: Gio.ActionGroup | None = ...,
         application_id: str | None = ...,
         flags: Gio.ApplicationFlags = ...,
@@ -2157,8 +2169,14 @@ class Application(Gio.Application, Gio.ActionGroup, Gio.ActionMap):
         version: str = ...,
     ) -> None: ...
     def add_window(self, window: Window) -> None: ...
+    def do_restore_state(self, reason: RestoreReason, state: GLib.Variant) -> bool: ...
+    def do_restore_window(
+        self, reason: RestoreReason, state: GLib.Variant | None = None
+    ) -> None: ...
+    def do_save_state(self, state: GLib.VariantDict) -> bool: ...
     def do_window_added(self, window: Window) -> None: ...
     def do_window_removed(self, window: Window) -> None: ...
+    def forget(self) -> None: ...
     def get_accels_for_action(self, detailed_action_name: str) -> list[str]: ...
     def get_actions_for_accel(self, accel: str) -> list[str]: ...
     def get_active_window(self) -> Window | None: ...
@@ -2178,6 +2196,7 @@ class Application(Gio.Application, Gio.ActionGroup, Gio.ActionMap):
         cls, application_id: str | None, flags: Gio.ApplicationFlags
     ) -> Application: ...
     def remove_window(self, window: Window) -> None: ...
+    def save(self) -> None: ...
     def set_accels_for_action(
         self, detailed_action_name: str, accels: Sequence[str]
     ) -> None: ...
@@ -2198,6 +2217,16 @@ class ApplicationClass(GObject.GPointer):
     def window_added(self) -> Callable[[Application, Window], None]: ...
     @property
     def window_removed(self) -> Callable[[Application, Window], None]: ...
+    @property
+    def save_state(self) -> Callable[[Application, GLib.VariantDict], bool]: ...
+    @property
+    def restore_state(
+        self,
+    ) -> Callable[[Application, RestoreReason, GLib.Variant], bool]: ...
+    @property
+    def restore_window(
+        self,
+    ) -> Callable[[Application, RestoreReason, GLib.Variant | None], None]: ...
     @property
     def padding(self) -> list[None]: ...
 
@@ -2221,6 +2250,9 @@ class ApplicationWindow(
         new(application:Gtk.Application) -> Gtk.Widget
 
     Object GtkApplicationWindow
+
+    Signals from GtkApplicationWindow:
+      save-state (GVariantDict) -> gboolean
 
     Properties from GtkApplicationWindow:
       show-menubar -> gboolean: show-menubar
@@ -2450,6 +2482,7 @@ class ApplicationWindow(
         width_request: int = ...,
         accessible_role: AccessibleRole = ...,
     ) -> None: ...
+    def do_save_state(self, dict: GLib.VariantDict) -> bool: ...
     def get_help_overlay(self) -> ShortcutsWindow | None: ...
     def get_id(self) -> int: ...
     def get_show_menubar(self) -> bool: ...
@@ -2468,6 +2501,8 @@ class ApplicationWindowClass(GObject.GPointer):
     """
     @property
     def parent_class(self) -> WindowClass: ...
+    @property
+    def save_state(self) -> Callable[[ApplicationWindow, GLib.VariantDict], bool]: ...
     @property
     def padding(self) -> list[None]: ...
 
@@ -3541,10 +3576,7 @@ class Builder(GObject.Object):
     @property
     def props(self) -> Props: ...
     # override
-    def __init__(
-        self,
-        scope_object_or_map: GObject.Object | None = ...,
-    ) -> None: ...
+    def __init__(self, scope_object_or_map: GObject.Object | None = ...) -> None: ...
     def add_from_file(self, filename: str) -> bool: ...
     def add_from_resource(self, resource_path: str) -> bool: ...
     # override
@@ -10426,6 +10458,7 @@ class Editable(GObject.GInterface, Protocol):
     def finish_delegate(self) -> None: ...
     def get_alignment(self) -> float: ...
     def get_chars(self, start_pos: int, end_pos: int) -> str: ...
+    def get_complete_text(self) -> str: ...
     def get_delegate(self) -> Editable | None: ...
     def get_editable(self) -> bool: ...
     def get_enable_undo(self) -> bool: ...
@@ -10481,6 +10514,8 @@ class EditableInterface(GObject.GPointer):
     def set_selection_bounds(self) -> Callable[[Editable, int, int], None]: ...
     @property
     def get_delegate(self) -> Callable[[Editable], Editable | None]: ...
+    @property
+    def get_complete_text(self) -> Callable[[Editable], str]: ...
 
 class EditableLabel(Widget, Accessible, Buildable, ConstraintTarget, Editable):
     """
@@ -10594,6 +10629,7 @@ class EditableLabel(Widget, Accessible, Buildable, ConstraintTarget, Editable):
         visible: bool
         width_request: int
         accessible_role: AccessibleRole
+        complete_text: str
         cursor_position: int
         editable: bool
         enable_undo: bool
@@ -11048,6 +11084,7 @@ class Entry(Widget, Accessible, Buildable, CellEditable, ConstraintTarget, Edita
         width_request: int
         accessible_role: AccessibleRole
         editing_canceled: bool
+        complete_text: str
         cursor_position: int
         editable: bool
         enable_undo: bool
@@ -11403,6 +11440,92 @@ class EntryCompletion(GObject.Object, Buildable, CellLayout):
     def set_popup_set_width(self, popup_set_width: bool) -> None: ...
     def set_popup_single_match(self, popup_single_match: bool) -> None: ...
     def set_text_column(self, column: int) -> None: ...
+
+class EnumList(GObject.Object, Gio.ListModel):
+    """
+    :Constructors:
+
+    ::
+
+        EnumList(**properties)
+        new(enum_type:GType) -> Gtk.EnumList
+
+    Object GtkEnumList
+
+    Properties from GtkEnumList:
+      enum-type -> GType: enum-type
+      item-type -> GType: item-type
+      n-items -> guint: n-items
+
+    Signals from GListModel:
+      items-changed (guint, guint, guint)
+
+    Signals from GObject:
+      notify (GParam)
+    """
+    class Props(GObject.Object.Props):
+        enum_type: type[Any]
+        item_type: type[Any]
+        n_items: int
+
+    @property
+    def props(self) -> Props: ...
+    def __init__(self, *, enum_type: type[Any] = ...) -> None: ...
+    def find(self, value: int) -> int: ...
+    def get_enum_type(self) -> type[Any]: ...
+    @classmethod
+    def new(cls, enum_type: type[Any]) -> EnumList: ...
+
+class EnumListClass(GObject.GPointer):
+    """
+    :Constructors:
+
+    ::
+
+        EnumListClass()
+    """
+    @property
+    def parent_class(self) -> GObject.ObjectClass: ...
+
+class EnumListItem(GObject.Object):
+    """
+    :Constructors:
+
+    ::
+
+        EnumListItem(**properties)
+
+    Object GtkEnumListItem
+
+    Properties from GtkEnumListItem:
+      value -> gint: value
+      name -> gchararray: name
+      nick -> gchararray: nick
+
+    Signals from GObject:
+      notify (GParam)
+    """
+    class Props(GObject.Object.Props):
+        name: str
+        nick: str
+        value: int
+
+    @property
+    def props(self) -> Props: ...
+    def get_name(self) -> str: ...
+    def get_nick(self) -> str: ...
+    def get_value(self) -> int: ...
+
+class EnumListItemClass(GObject.GPointer):
+    """
+    :Constructors:
+
+    ::
+
+        EnumListItemClass()
+    """
+    @property
+    def parent_class(self) -> GObject.ObjectClass: ...
 
 class EventController(GObject.Object):
     """
@@ -15178,8 +15301,8 @@ class GestureLongPress(GestureSingle):
     Object GtkGestureLongPress
 
     Signals from GtkGestureLongPress:
-      pressed (gdouble, gdouble)
       cancelled ()
+      pressed (gdouble, gdouble)
 
     Properties from GtkGestureLongPress:
       delay-factor -> gdouble: delay-factor
@@ -22563,6 +22686,7 @@ class PasswordEntry(Widget, Accessible, Buildable, ConstraintTarget, Editable):
         visible: bool
         width_request: int
         accessible_role: AccessibleRole
+        complete_text: str
         cursor_position: int
         editable: bool
         enable_undo: bool
@@ -26440,6 +26564,7 @@ class SearchEntry(Widget, Accessible, Buildable, ConstraintTarget, Editable):
         visible: bool
         width_request: int
         accessible_role: AccessibleRole
+        complete_text: str
         cursor_position: int
         editable: bool
         enable_undo: bool
@@ -28758,6 +28883,7 @@ class SpinButton(
         width_request: int
         accessible_role: AccessibleRole
         editing_canceled: bool
+        complete_text: str
         cursor_position: int
         editable: bool
         enable_undo: bool
@@ -30019,6 +30145,8 @@ class Svg(GObject.Object, _Gdk4.Paintable, SymbolicPaintable):
       playing -> gboolean: playing
       weight -> gdouble: weight
       state -> guint: state
+      overflow -> GtkOverflow: overflow
+      stylesheet -> GBytes: stylesheet
 
     Signals from GdkPaintable:
       invalidate-contents ()
@@ -30029,9 +30157,11 @@ class Svg(GObject.Object, _Gdk4.Paintable, SymbolicPaintable):
     """
     class Props(GObject.Object.Props):
         features: SvgFeatures
+        overflow: Overflow
         playing: bool
         resource: str
         state: int
+        stylesheet: GLib.Bytes | None
         weight: float
 
     @property
@@ -30040,14 +30170,18 @@ class Svg(GObject.Object, _Gdk4.Paintable, SymbolicPaintable):
         self,
         *,
         features: SvgFeatures = ...,
+        overflow: Overflow = ...,
         playing: bool = ...,
         resource: str = ...,
         state: int = ...,
+        stylesheet: GLib.Bytes | None = ...,
         weight: float = ...,
     ) -> None: ...
     def get_features(self) -> SvgFeatures: ...
+    def get_overflow(self) -> Overflow: ...
     def get_state(self) -> int: ...
     def get_state_names(self) -> tuple[list[str] | None, int]: ...
+    def get_stylesheet(self) -> GLib.Bytes | None: ...
     def get_weight(self) -> float: ...
     def load_from_bytes(self, bytes: GLib.Bytes) -> None: ...
     def load_from_resource(self, path: str) -> None: ...
@@ -30062,7 +30196,9 @@ class Svg(GObject.Object, _Gdk4.Paintable, SymbolicPaintable):
     def serialize(self) -> GLib.Bytes: ...
     def set_features(self, features: SvgFeatures) -> None: ...
     def set_frame_clock(self, clock: _Gdk4.FrameClock) -> None: ...
+    def set_overflow(self, overflow: Overflow) -> None: ...
     def set_state(self, state: int) -> None: ...
+    def set_stylesheet(self, bytes: GLib.Bytes | None = None) -> None: ...
     def set_weight(self, weight: float) -> None: ...
     def write_to_file(self, filename: str) -> bool: ...
 
@@ -30089,6 +30225,181 @@ class SvgLocation(GObject.GPointer):
     bytes: int
     lines: int
     line_chars: int
+
+class SvgWidget(Widget, Accessible, Buildable, ConstraintTarget):
+    """
+    :Constructors:
+
+    ::
+
+        SvgWidget(**properties)
+        new() -> Gtk.SvgWidget
+
+    Object GtkSvgWidget
+
+    Signals from GtkSvgWidget:
+      activate (gchararray)
+      error (GError)
+
+    Properties from GtkSvgWidget:
+      resource -> gchararray: resource
+      state -> guint: state
+      stylesheet -> GBytes: stylesheet
+
+    Signals from GtkWidget:
+      direction-changed (GtkTextDirection)
+      destroy ()
+      show ()
+      hide ()
+      map ()
+      unmap ()
+      realize ()
+      unrealize ()
+      state-flags-changed (GtkStateFlags)
+      mnemonic-activate (gboolean) -> gboolean
+      move-focus (GtkDirectionType)
+      keynav-failed (GtkDirectionType) -> gboolean
+      query-tooltip (gint, gint, gboolean, GtkTooltip) -> gboolean
+
+    Properties from GtkWidget:
+      name -> gchararray: name
+      parent -> GtkWidget: parent
+      root -> GtkRoot: root
+      width-request -> gint: width-request
+      height-request -> gint: height-request
+      visible -> gboolean: visible
+      sensitive -> gboolean: sensitive
+      can-focus -> gboolean: can-focus
+      has-focus -> gboolean: has-focus
+      can-target -> gboolean: can-target
+      focus-on-click -> gboolean: focus-on-click
+      focusable -> gboolean: focusable
+      has-default -> gboolean: has-default
+      receives-default -> gboolean: receives-default
+      cursor -> GdkCursor: cursor
+      has-tooltip -> gboolean: has-tooltip
+      tooltip-markup -> gchararray: tooltip-markup
+      tooltip-text -> gchararray: tooltip-text
+      opacity -> gdouble: opacity
+      overflow -> GtkOverflow: overflow
+      halign -> GtkAlign: halign
+      valign -> GtkAlign: valign
+      margin-start -> gint: margin-start
+      margin-end -> gint: margin-end
+      margin-top -> gint: margin-top
+      margin-bottom -> gint: margin-bottom
+      hexpand -> gboolean: hexpand
+      vexpand -> gboolean: vexpand
+      hexpand-set -> gboolean: hexpand-set
+      vexpand-set -> gboolean: vexpand-set
+      scale-factor -> gint: scale-factor
+      css-name -> gchararray: css-name
+      css-classes -> GStrv: css-classes
+      layout-manager -> GtkLayoutManager: layout-manager
+      limit-events -> gboolean: limit-events
+
+    Signals from GObject:
+      notify (GParam)
+    """
+    class Props(Widget.Props):
+        resource: str
+        state: int
+        stylesheet: GLib.Bytes | None
+        can_focus: bool
+        can_target: bool
+        css_classes: list[str]
+        css_name: str
+        cursor: _Gdk4.Cursor | None
+        focus_on_click: bool
+        focusable: bool
+        halign: Align
+        has_default: bool
+        has_focus: bool
+        has_tooltip: bool
+        height_request: int
+        hexpand: bool
+        hexpand_set: bool
+        layout_manager: LayoutManager | None
+        limit_events: bool
+        margin_bottom: int
+        margin_end: int
+        margin_start: int
+        margin_top: int
+        name: str
+        opacity: float
+        overflow: Overflow
+        parent: Widget | None
+        receives_default: bool
+        root: Root | None
+        scale_factor: int
+        sensitive: bool
+        tooltip_markup: str | None
+        tooltip_text: str | None
+        valign: Align
+        vexpand: bool
+        vexpand_set: bool
+        visible: bool
+        width_request: int
+        accessible_role: AccessibleRole
+
+    @property
+    def props(self) -> Props: ...
+    def __init__(
+        self,
+        *,
+        resource: str = ...,
+        state: int = ...,
+        stylesheet: GLib.Bytes | None = ...,
+        can_focus: bool = ...,
+        can_target: bool = ...,
+        css_classes: Sequence[str] = ...,
+        css_name: str = ...,
+        cursor: _Gdk4.Cursor | None = ...,
+        focus_on_click: bool = ...,
+        focusable: bool = ...,
+        halign: Align = ...,
+        has_tooltip: bool = ...,
+        height_request: int = ...,
+        hexpand: bool = ...,
+        hexpand_set: bool = ...,
+        layout_manager: LayoutManager | None = ...,
+        limit_events: bool = ...,
+        margin_bottom: int = ...,
+        margin_end: int = ...,
+        margin_start: int = ...,
+        margin_top: int = ...,
+        name: str = ...,
+        opacity: float = ...,
+        overflow: Overflow = ...,
+        receives_default: bool = ...,
+        sensitive: bool = ...,
+        tooltip_markup: str | None = ...,
+        tooltip_text: str | None = ...,
+        valign: Align = ...,
+        vexpand: bool = ...,
+        vexpand_set: bool = ...,
+        visible: bool = ...,
+        width_request: int = ...,
+        accessible_role: AccessibleRole = ...,
+    ) -> None: ...
+    def get_state(self) -> int: ...
+    def get_stylesheet(self) -> GLib.Bytes | None: ...
+    def load_from_bytes(self, bytes: GLib.Bytes) -> None: ...
+    @classmethod
+    def new(cls) -> SvgWidget: ...
+    def set_state(self, state: int) -> None: ...
+    def set_stylesheet(self, bytes: GLib.Bytes | None = None) -> None: ...
+
+class SvgWidgetClass(GObject.GPointer):
+    """
+    :Constructors:
+
+    ::
+
+        SvgWidgetClass()
+    """
+    @property
+    def parent_class(self) -> WidgetClass: ...
 
 class Switch(Widget, Accessible, Actionable, Buildable, ConstraintTarget):
     """
@@ -30484,6 +30795,7 @@ class Text(Widget, Accessible, AccessibleText, Buildable, ConstraintTarget, Edit
         visible: bool
         width_request: int
         accessible_role: AccessibleRole
+        complete_text: str
         cursor_position: int
         editable: bool
         enable_undo: bool
@@ -35976,7 +36288,8 @@ class DirectionType(GObject.GEnum):
     UP = 2
 
 class EditableProperties(GObject.GEnum):
-    NUM_PROPERTIES = 8
+    NUM_PROPERTIES = 9
+    PROP_COMPLETE_TEXT = 8
     PROP_CURSOR_POSITION = 1
     PROP_EDITABLE = 3
     PROP_ENABLE_UNDO = 7
@@ -36302,6 +36615,12 @@ class ResponseType(GObject.GEnum):
     REJECT = -2
     YES = -8
 
+class RestoreReason(GObject.GEnum):
+    LAUNCH = 1
+    PRISTINE = 0
+    RECOVER = 2
+    RESTORE = 3
+
 class RevealerTransitionType(GObject.GEnum):
     CROSSFADE = 1
     FADE_SLIDE_DOWN = 13
@@ -36448,6 +36767,7 @@ class StringFilterMatchMode(GObject.GEnum):
 class SvgError(GObject.GEnum):
     FAILED_RENDERING = 6
     FAILED_UPDATE = 5
+    FEATURE_DISABLED = 10
     IGNORED_ELEMENT = 7
     INVALID_ATTRIBUTE = 2
     INVALID_ELEMENT = 1
@@ -36462,6 +36782,8 @@ class SvgError(GObject.GEnum):
     def get_element(error: GLib.Error) -> str | None: ...
     @staticmethod
     def get_end(error: GLib.Error) -> SvgLocation | None: ...
+    @staticmethod
+    def get_input(error: GLib.Error) -> str | None: ...
     @staticmethod
     def get_start(error: GLib.Error) -> SvgLocation | None: ...
     @staticmethod

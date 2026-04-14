@@ -2,6 +2,7 @@ from typing import Any
 from typing import Final
 from typing import Protocol
 from typing import TypeVar
+from typing_extensions import Self
 
 from collections.abc import Callable
 
@@ -115,7 +116,6 @@ class Backend(GObject.GInterface, Protocol):
     Signals from GObject:
       notify (GParam)
     """
-
     @staticmethod
     def get(
         flags: BackendFlags,
@@ -201,7 +201,6 @@ class Collection(Gio.DBusProxy, Gio.AsyncInitable, Gio.DBusInterface, Gio.Initab
     Signals from GObject:
       notify (GParam)
     """
-
     class Props(Gio.DBusProxy.Props):
         created: int
         flags: CollectionFlags
@@ -212,10 +211,10 @@ class Collection(Gio.DBusProxy, Gio.AsyncInitable, Gio.DBusInterface, Gio.Initab
         g_connection: Gio.DBusConnection
         g_default_timeout: int
         g_flags: Gio.DBusProxyFlags
-        g_interface_info: Gio.DBusInterfaceInfo
+        g_interface_info: Gio.DBusInterfaceInfo | None
         g_interface_name: str
-        g_name: str
-        g_name_owner: str
+        g_name: str | None
+        g_name_owner: str | None
         g_object_path: str
         g_bus_type: Gio.BusType
 
@@ -227,6 +226,7 @@ class Collection(Gio.DBusProxy, Gio.AsyncInitable, Gio.DBusInterface, Gio.Initab
     def pv(self) -> CollectionPrivate: ...
     def __init__(
         self,
+        *,
         created: int = ...,
         flags: CollectionFlags = ...,
         label: str = ...,
@@ -236,7 +236,7 @@ class Collection(Gio.DBusProxy, Gio.AsyncInitable, Gio.DBusInterface, Gio.Initab
         g_connection: Gio.DBusConnection = ...,
         g_default_timeout: int = ...,
         g_flags: Gio.DBusProxyFlags = ...,
-        g_interface_info: Gio.DBusInterfaceInfo = ...,
+        g_interface_info: Gio.DBusInterfaceInfo | None = ...,
         g_interface_name: str = ...,
         g_name: str = ...,
         g_object_path: str = ...,
@@ -385,7 +385,6 @@ class Item(
     Signals from GObject:
       notify (GParam)
     """
-
     class Props(Gio.DBusProxy.Props):
         flags: ItemFlags
         locked: bool
@@ -393,10 +392,10 @@ class Item(
         g_connection: Gio.DBusConnection
         g_default_timeout: int
         g_flags: Gio.DBusProxyFlags
-        g_interface_info: Gio.DBusInterfaceInfo
+        g_interface_info: Gio.DBusInterfaceInfo | None
         g_interface_name: str
-        g_name: str
-        g_name_owner: str
+        g_name: str | None
+        g_name_owner: str | None
         g_object_path: str
         attributes: dict[str, str]
         created: int
@@ -412,13 +411,14 @@ class Item(
     def pv(self) -> ItemPrivate: ...
     def __init__(
         self,
+        *,
         flags: ItemFlags = ...,
         service: Service = ...,
         g_bus_type: Gio.BusType = ...,
         g_connection: Gio.DBusConnection = ...,
         g_default_timeout: int = ...,
         g_flags: Gio.DBusProxyFlags = ...,
-        g_interface_info: Gio.DBusInterfaceInfo = ...,
+        g_interface_info: Gio.DBusInterfaceInfo | None = ...,
         g_interface_name: str = ...,
         g_name: str = ...,
         g_object_path: str = ...,
@@ -571,15 +571,14 @@ class Prompt(Gio.DBusProxy, Gio.AsyncInitable, Gio.DBusInterface, Gio.Initable):
     Signals from GObject:
       notify (GParam)
     """
-
     class Props(Gio.DBusProxy.Props):
         g_connection: Gio.DBusConnection
         g_default_timeout: int
         g_flags: Gio.DBusProxyFlags
-        g_interface_info: Gio.DBusInterfaceInfo
+        g_interface_info: Gio.DBusInterfaceInfo | None
         g_interface_name: str
-        g_name: str
-        g_name_owner: str
+        g_name: str | None
+        g_name_owner: str | None
         g_object_path: str
         g_bus_type: Gio.BusType
 
@@ -591,11 +590,12 @@ class Prompt(Gio.DBusProxy, Gio.AsyncInitable, Gio.DBusInterface, Gio.Initable):
     def pv(self) -> PromptPrivate: ...
     def __init__(
         self,
+        *,
         g_bus_type: Gio.BusType = ...,
         g_connection: Gio.DBusConnection = ...,
         g_default_timeout: int = ...,
         g_flags: Gio.DBusProxyFlags = ...,
-        g_interface_info: Gio.DBusInterfaceInfo = ...,
+        g_interface_info: Gio.DBusInterfaceInfo | None = ...,
         g_interface_name: str = ...,
         g_name: str = ...,
         g_object_path: str = ...,
@@ -644,7 +644,6 @@ class Retrievable(GObject.GInterface, Protocol):
     Signals from GObject:
       notify (GParam)
     """
-
     def get_attributes(self) -> dict[str, str]: ...
     def get_created(self) -> int: ...
     def get_label(self) -> str: ...
@@ -762,15 +761,14 @@ class Service(
     Signals from GObject:
       notify (GParam)
     """
-
     class Props(Gio.DBusProxy.Props):
         g_connection: Gio.DBusConnection
         g_default_timeout: int
         g_flags: Gio.DBusProxyFlags
-        g_interface_info: Gio.DBusInterfaceInfo
+        g_interface_info: Gio.DBusInterfaceInfo | None
         g_interface_name: str
-        g_name: str
-        g_name_owner: str
+        g_name: str | None
+        g_name_owner: str | None
         g_object_path: str
         flags: ServiceFlags
         g_bus_type: Gio.BusType
@@ -783,11 +781,12 @@ class Service(
     def pv(self) -> ServicePrivate: ...
     def __init__(
         self,
+        *,
         g_bus_type: Gio.BusType = ...,
         g_connection: Gio.DBusConnection = ...,
         g_default_timeout: int = ...,
         g_flags: Gio.DBusProxyFlags = ...,
-        g_interface_info: Gio.DBusInterfaceInfo = ...,
+        g_interface_info: Gio.DBusInterfaceInfo | None = ...,
         g_interface_name: str = ...,
         g_name: str = ...,
         g_object_path: str = ...,
@@ -887,9 +886,7 @@ class Service(
         self, result: Gio.AsyncResult
     ) -> tuple[int, list[Gio.DBusProxy]]: ...
     def lock_sync(
-        self,
-        objects: list[Gio.DBusProxy],
-        cancellable: Gio.Cancellable | None = None,
+        self, objects: list[Gio.DBusProxy], cancellable: Gio.Cancellable | None = None
     ) -> tuple[int, list[Gio.DBusProxy]]: ...
     def lookup(
         self,
@@ -1003,9 +1000,7 @@ class Service(
         self, result: Gio.AsyncResult
     ) -> tuple[int, list[Gio.DBusProxy]]: ...
     def unlock_sync(
-        self,
-        objects: list[Gio.DBusProxy],
-        cancellable: Gio.Cancellable | None = None,
+        self, objects: list[Gio.DBusProxy], cancellable: Gio.Cancellable | None = None
     ) -> tuple[int, list[Gio.DBusProxy]]: ...
 
 class ServiceClass(GObject.GPointer):
@@ -1050,7 +1045,10 @@ class Value(GObject.GBoxed):
         new(secret:str, length:int, content_type:str) -> Secret.Value
         new_full(secret:str, length:int, content_type:str, destroy:GLib.DestroyNotify) -> Secret.Value
     """
-
+    @staticmethod
+    def __new__(
+        cls: type[Self], secret: str, length: int, content_type: str
+    ) -> Self: ...
     def get(self) -> bytes: ...
     def get_content_type(self) -> str: ...
     def get_text(self) -> str | None: ...

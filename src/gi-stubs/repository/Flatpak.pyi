@@ -71,6 +71,7 @@ class BundleRef(Ref):
     def parent(self) -> Ref: ...
     def __init__(
         self,
+        *,
         file: Gio.File = ...,
         arch: str = ...,
         branch: str = ...,
@@ -133,10 +134,7 @@ class Installation(GObject.Object):
     ) -> Gio.FileMonitor: ...
     def drop_caches(self, cancellable: Gio.Cancellable | None = None) -> bool: ...
     def fetch_remote_metadata_sync(
-        self,
-        remote_name: str,
-        ref: Ref,
-        cancellable: Gio.Cancellable | None = None,
+        self, remote_name: str, ref: Ref, cancellable: Gio.Cancellable | None = None
     ) -> GLib.Bytes: ...
     def fetch_remote_ref_sync(
         self,
@@ -158,10 +156,7 @@ class Installation(GObject.Object):
         cancellable: Gio.Cancellable | None = None,
     ) -> RemoteRef: ...
     def fetch_remote_size_sync(
-        self,
-        remote_name: str,
-        ref: Ref,
-        cancellable: Gio.Cancellable | None = None,
+        self, remote_name: str, ref: Ref, cancellable: Gio.Cancellable | None = None
     ) -> tuple[bool, int, int]: ...
     def get_config(
         self, key: str, cancellable: Gio.Cancellable | None = None
@@ -222,9 +217,7 @@ class Installation(GObject.Object):
         *progress_data: Any,
     ) -> InstalledRef: ...
     def install_ref_file(
-        self,
-        ref_file_data: GLib.Bytes,
-        cancellable: Gio.Cancellable | None = None,
+        self, ref_file_data: GLib.Bytes, cancellable: Gio.Cancellable | None = None
     ) -> RemoteRef: ...
     def launch(
         self,
@@ -254,15 +247,10 @@ class Installation(GObject.Object):
         self, cancellable: Gio.Cancellable | None = None
     ) -> list[InstalledRef]: ...
     def list_installed_related_refs_sync(
-        self,
-        remote_name: str,
-        ref: str,
-        cancellable: Gio.Cancellable | None = None,
+        self, remote_name: str, ref: str, cancellable: Gio.Cancellable | None = None
     ) -> list[RelatedRef]: ...
     def list_pinned_refs(
-        self,
-        arch: str | None = None,
-        cancellable: Gio.Cancellable | None = None,
+        self, arch: str | None = None, cancellable: Gio.Cancellable | None = None
     ) -> list[InstalledRef]: ...
     def list_remote_refs_sync(
         self, remote_or_uri: str, cancellable: Gio.Cancellable | None = None
@@ -274,29 +262,19 @@ class Installation(GObject.Object):
         cancellable: Gio.Cancellable | None = None,
     ) -> list[RemoteRef]: ...
     def list_remote_related_refs_for_installed_sync(
-        self,
-        remote_name: str,
-        ref: str,
-        cancellable: Gio.Cancellable | None = None,
+        self, remote_name: str, ref: str, cancellable: Gio.Cancellable | None = None
     ) -> list[RelatedRef]: ...
     def list_remote_related_refs_sync(
-        self,
-        remote_name: str,
-        ref: str,
-        cancellable: Gio.Cancellable | None = None,
+        self, remote_name: str, ref: str, cancellable: Gio.Cancellable | None = None
     ) -> list[RelatedRef]: ...
     def list_remotes(
         self, cancellable: Gio.Cancellable | None = None
     ) -> list[Remote]: ...
     def list_remotes_by_type(
-        self,
-        types: Sequence[RemoteType],
-        cancellable: Gio.Cancellable | None = None,
+        self, types: Sequence[RemoteType], cancellable: Gio.Cancellable | None = None
     ) -> list[Remote]: ...
     def list_unused_refs(
-        self,
-        arch: str | None = None,
-        cancellable: Gio.Cancellable | None = None,
+        self, arch: str | None = None, cancellable: Gio.Cancellable | None = None
     ) -> list[InstalledRef]: ...
     def list_unused_refs_with_options(
         self,
@@ -313,27 +291,19 @@ class Installation(GObject.Object):
     ) -> bool: ...
     @classmethod
     def new_for_path(
-        cls,
-        path: Gio.File,
-        user: bool,
-        cancellable: Gio.Cancellable | None = None,
+        cls, path: Gio.File, user: bool, cancellable: Gio.Cancellable | None = None
     ) -> Installation: ...
     @classmethod
     def new_system(cls, cancellable: Gio.Cancellable | None = None) -> Installation: ...
     @classmethod
     def new_system_with_id(
-        cls,
-        id: str | None = None,
-        cancellable: Gio.Cancellable | None = None,
+        cls, id: str | None = None, cancellable: Gio.Cancellable | None = None
     ) -> Installation: ...
     @classmethod
     def new_user(cls, cancellable: Gio.Cancellable | None = None) -> Installation: ...
     def prune_local_repo(self, cancellable: Gio.Cancellable | None = None) -> bool: ...
     def remove_local_ref_sync(
-        self,
-        remote_name: str,
-        ref: str,
-        cancellable: Gio.Cancellable | None = None,
+        self, remote_name: str, ref: str, cancellable: Gio.Cancellable | None = None
     ) -> bool: ...
     def remove_remote(
         self, name: str, cancellable: Gio.Cancellable | None = None
@@ -503,6 +473,7 @@ class InstalledRef(Ref):
     def parent(self) -> Ref: ...
     def __init__(
         self,
+        *,
         appdata_content_rating: dict[None, None] = ...,
         appdata_content_rating_type: str = ...,
         appdata_license: str = ...,
@@ -637,6 +608,7 @@ class Ref(GObject.Object):
     def parent(self) -> GObject.Object: ...
     def __init__(
         self,
+        *,
         arch: str = ...,
         branch: str = ...,
         collection_id: str = ...,
@@ -721,6 +693,7 @@ class RelatedRef(Ref):
     def parent(self) -> Ref: ...
     def __init__(
         self,
+        *,
         should_autoprune: bool = ...,
         should_delete: bool = ...,
         should_download: bool = ...,
@@ -777,7 +750,7 @@ class Remote(GObject.Object):
     def props(self) -> Props: ...
     @property
     def parent(self) -> GObject.Object: ...
-    def __init__(self, name: str = ..., type: RemoteType = ...) -> None: ...
+    def __init__(self, *, name: str = ..., type: RemoteType = ...) -> None: ...
     def get_appstream_dir(self, arch: str | None = None) -> Gio.File: ...
     def get_appstream_timestamp(self, arch: str | None = None) -> Gio.File: ...
     def get_collection_id(self) -> str | None: ...
@@ -890,6 +863,7 @@ class RemoteRef(Ref):
     def parent(self) -> Ref: ...
     def __init__(
         self,
+        *,
         download_size: int = ...,
         end_of_life: str = ...,
         end_of_life_rebase: str = ...,
@@ -965,16 +939,13 @@ class Transaction(GObject.Object, Gio.Initable):
     @property
     def parent_instance(self) -> GObject.Object: ...
     def __init__(
-        self, installation: Installation = ..., no_interaction: bool = ...
+        self, *, installation: Installation = ..., no_interaction: bool = ...
     ) -> None: ...
     def abort_webflow(self, id: int) -> None: ...
     def add_default_dependency_sources(self) -> None: ...
     def add_dependency_source(self, installation: Installation) -> None: ...
     def add_install(
-        self,
-        remote: str,
-        ref: str,
-        subpaths: Sequence[str] | None = None,
+        self, remote: str, ref: str, subpaths: Sequence[str] | None = None
     ) -> bool: ...
     def add_install_bundle(
         self, file: Gio.File, gpg_data: GLib.Bytes | None = None
@@ -998,10 +969,7 @@ class Transaction(GObject.Object, Gio.Initable):
     def add_sideload_repo(self, path: str) -> None: ...
     def add_uninstall(self, ref: str) -> bool: ...
     def add_update(
-        self,
-        ref: str,
-        subpaths: Sequence[str] | None = None,
-        commit: str | None = None,
+        self, ref: str, subpaths: Sequence[str] | None = None, commit: str | None = None
     ) -> bool: ...
     def complete_basic_auth(
         self, id: int, user: str, password: str, options: GLib.Variant
@@ -1055,9 +1023,7 @@ class Transaction(GObject.Object, Gio.Initable):
     def is_empty(self) -> bool: ...
     @classmethod
     def new_for_installation(
-        cls,
-        installation: Installation,
-        cancellable: Gio.Cancellable | None = None,
+        cls, installation: Installation, cancellable: Gio.Cancellable | None = None
     ) -> Transaction: ...
     def run(self, cancellable: Gio.Cancellable | None = None) -> bool: ...
     def set_auto_install_debug(self, auto_install_debug: bool) -> None: ...

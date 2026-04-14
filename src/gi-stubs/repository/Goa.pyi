@@ -108,7 +108,6 @@ class Account(GObject.GInterface, Protocol):
     Signals from GObject:
       notify (GParam)
     """
-
     def call_ensure_credentials(
         self,
         cancellable: Gio.Cancellable | None = None,
@@ -227,36 +226,26 @@ class AccountProxy(
 
     Properties from GDBusProxy:
       g-connection -> GDBusConnection: g-connection
-        The connection the proxy is for
-      g-bus-type -> GBusType: Bus Type
-        The bus to connect to, if any
+      g-bus-type -> GBusType: g-bus-type
       g-name -> gchararray: g-name
-        The well-known or unique name that the proxy is for
       g-name-owner -> gchararray: g-name-owner
-        The unique name for the owner
       g-flags -> GDBusProxyFlags: g-flags
-        Flags for the proxy
       g-object-path -> gchararray: g-object-path
-        The object path the proxy is for
       g-interface-name -> gchararray: g-interface-name
-        The D-Bus interface name the proxy is for
-      g-default-timeout -> gint: Default Timeout
-        Timeout for remote method invocation
-      g-interface-info -> GDBusInterfaceInfo: Interface Information
-        Interface Information
+      g-default-timeout -> gint: g-default-timeout
+      g-interface-info -> GDBusInterfaceInfo: g-interface-info
 
     Signals from GObject:
       notify (GParam)
     """
-
     class Props(Gio.DBusProxy.Props):
         g_connection: Gio.DBusConnection
         g_default_timeout: int
         g_flags: Gio.DBusProxyFlags
-        g_interface_info: Gio.DBusInterfaceInfo
+        g_interface_info: Gio.DBusInterfaceInfo | None
         g_interface_name: str
-        g_name: str
-        g_name_owner: str
+        g_name: str | None
+        g_name_owner: str | None
         g_object_path: str
         attention_needed: bool
         calendar_disabled: bool
@@ -290,11 +279,12 @@ class AccountProxy(
     def priv(self) -> AccountProxyPrivate: ...
     def __init__(
         self,
+        *,
         g_bus_type: Gio.BusType = ...,
         g_connection: Gio.DBusConnection = ...,
         g_default_timeout: int = ...,
         g_flags: Gio.DBusProxyFlags = ...,
-        g_interface_info: Gio.DBusInterfaceInfo = ...,
+        g_interface_info: Gio.DBusInterfaceInfo | None = ...,
         g_interface_name: str = ...,
         g_name: str = ...,
         g_object_path: str = ...,
@@ -320,7 +310,7 @@ class AccountProxy(
         read_later_disabled: bool = ...,
         ticketing_disabled: bool = ...,
         todo_disabled: bool = ...,
-    ): ...
+    ) -> None: ...
     @staticmethod
     def new(
         connection: Gio.DBusConnection,
@@ -397,12 +387,10 @@ class AccountSkeleton(Gio.DBusInterfaceSkeleton, Gio.DBusInterface, Account):
 
     Properties from GDBusInterfaceSkeleton:
       g-flags -> GDBusInterfaceSkeletonFlags: g-flags
-        Flags for the interface skeleton
 
     Signals from GObject:
       notify (GParam)
     """
-
     class Props(Gio.DBusInterfaceSkeleton.Props):
         g_flags: Gio.DBusInterfaceSkeletonFlags
         attention_needed: bool
@@ -436,6 +424,7 @@ class AccountSkeleton(Gio.DBusInterfaceSkeleton, Gio.DBusInterface, Account):
     def priv(self) -> AccountSkeletonPrivate: ...
     def __init__(
         self,
+        *,
         g_flags: Gio.DBusInterfaceSkeletonFlags = ...,
         attention_needed: bool = ...,
         calendar_disabled: bool = ...,
@@ -459,7 +448,7 @@ class AccountSkeleton(Gio.DBusInterfaceSkeleton, Gio.DBusInterface, Account):
         read_later_disabled: bool = ...,
         ticketing_disabled: bool = ...,
         todo_disabled: bool = ...,
-    ): ...
+    ) -> None: ...
     @classmethod
     def new(cls) -> AccountSkeleton: ...
 
@@ -483,7 +472,6 @@ class Calendar(GObject.GInterface, Protocol):
     Signals from GObject:
       notify (GParam)
     """
-
     @staticmethod
     def interface_info() -> Gio.DBusInterfaceInfo: ...
     @staticmethod
@@ -528,36 +516,26 @@ class CalendarProxy(
 
     Properties from GDBusProxy:
       g-connection -> GDBusConnection: g-connection
-        The connection the proxy is for
-      g-bus-type -> GBusType: Bus Type
-        The bus to connect to, if any
+      g-bus-type -> GBusType: g-bus-type
       g-name -> gchararray: g-name
-        The well-known or unique name that the proxy is for
       g-name-owner -> gchararray: g-name-owner
-        The unique name for the owner
       g-flags -> GDBusProxyFlags: g-flags
-        Flags for the proxy
       g-object-path -> gchararray: g-object-path
-        The object path the proxy is for
       g-interface-name -> gchararray: g-interface-name
-        The D-Bus interface name the proxy is for
-      g-default-timeout -> gint: Default Timeout
-        Timeout for remote method invocation
-      g-interface-info -> GDBusInterfaceInfo: Interface Information
-        Interface Information
+      g-default-timeout -> gint: g-default-timeout
+      g-interface-info -> GDBusInterfaceInfo: g-interface-info
 
     Signals from GObject:
       notify (GParam)
     """
-
     class Props(Gio.DBusProxy.Props):
         g_connection: Gio.DBusConnection
         g_default_timeout: int
         g_flags: Gio.DBusProxyFlags
-        g_interface_info: Gio.DBusInterfaceInfo
+        g_interface_info: Gio.DBusInterfaceInfo | None
         g_interface_name: str
-        g_name: str
-        g_name_owner: str
+        g_name: str | None
+        g_name_owner: str | None
         g_object_path: str
         accept_ssl_errors: bool
         uri: str
@@ -571,17 +549,18 @@ class CalendarProxy(
     def priv(self) -> CalendarProxyPrivate: ...
     def __init__(
         self,
+        *,
         g_bus_type: Gio.BusType = ...,
         g_connection: Gio.DBusConnection = ...,
         g_default_timeout: int = ...,
         g_flags: Gio.DBusProxyFlags = ...,
-        g_interface_info: Gio.DBusInterfaceInfo = ...,
+        g_interface_info: Gio.DBusInterfaceInfo | None = ...,
         g_interface_name: str = ...,
         g_name: str = ...,
         g_object_path: str = ...,
         accept_ssl_errors: bool = ...,
         uri: str = ...,
-    ): ...
+    ) -> None: ...
     @staticmethod
     def new(
         connection: Gio.DBusConnection,
@@ -654,12 +633,10 @@ class CalendarSkeleton(Gio.DBusInterfaceSkeleton, Gio.DBusInterface, Calendar):
 
     Properties from GDBusInterfaceSkeleton:
       g-flags -> GDBusInterfaceSkeletonFlags: g-flags
-        Flags for the interface skeleton
 
     Signals from GObject:
       notify (GParam)
     """
-
     class Props(Gio.DBusInterfaceSkeleton.Props):
         g_flags: Gio.DBusInterfaceSkeletonFlags
         accept_ssl_errors: bool
@@ -673,10 +650,11 @@ class CalendarSkeleton(Gio.DBusInterfaceSkeleton, Gio.DBusInterface, Calendar):
     def priv(self) -> CalendarSkeletonPrivate: ...
     def __init__(
         self,
+        *,
         g_flags: Gio.DBusInterfaceSkeletonFlags = ...,
         accept_ssl_errors: bool = ...,
         uri: str = ...,
-    ): ...
+    ) -> None: ...
     @classmethod
     def new(cls) -> CalendarSkeleton: ...
 
@@ -700,7 +678,6 @@ class Chat(GObject.GInterface, Protocol):
     Signals from GObject:
       notify (GParam)
     """
-
     @staticmethod
     def interface_info() -> Gio.DBusInterfaceInfo: ...
     @staticmethod
@@ -741,36 +718,26 @@ class ChatProxy(
 
     Properties from GDBusProxy:
       g-connection -> GDBusConnection: g-connection
-        The connection the proxy is for
-      g-bus-type -> GBusType: Bus Type
-        The bus to connect to, if any
+      g-bus-type -> GBusType: g-bus-type
       g-name -> gchararray: g-name
-        The well-known or unique name that the proxy is for
       g-name-owner -> gchararray: g-name-owner
-        The unique name for the owner
       g-flags -> GDBusProxyFlags: g-flags
-        Flags for the proxy
       g-object-path -> gchararray: g-object-path
-        The object path the proxy is for
       g-interface-name -> gchararray: g-interface-name
-        The D-Bus interface name the proxy is for
-      g-default-timeout -> gint: Default Timeout
-        Timeout for remote method invocation
-      g-interface-info -> GDBusInterfaceInfo: Interface Information
-        Interface Information
+      g-default-timeout -> gint: g-default-timeout
+      g-interface-info -> GDBusInterfaceInfo: g-interface-info
 
     Signals from GObject:
       notify (GParam)
     """
-
     class Props(Gio.DBusProxy.Props):
         g_connection: Gio.DBusConnection
         g_default_timeout: int
         g_flags: Gio.DBusProxyFlags
-        g_interface_info: Gio.DBusInterfaceInfo
+        g_interface_info: Gio.DBusInterfaceInfo | None
         g_interface_name: str
-        g_name: str
-        g_name_owner: str
+        g_name: str | None
+        g_name_owner: str | None
         g_object_path: str
         g_bus_type: Gio.BusType
 
@@ -782,15 +749,16 @@ class ChatProxy(
     def priv(self) -> ChatProxyPrivate: ...
     def __init__(
         self,
+        *,
         g_bus_type: Gio.BusType = ...,
         g_connection: Gio.DBusConnection = ...,
         g_default_timeout: int = ...,
         g_flags: Gio.DBusProxyFlags = ...,
-        g_interface_info: Gio.DBusInterfaceInfo = ...,
+        g_interface_info: Gio.DBusInterfaceInfo | None = ...,
         g_interface_name: str = ...,
         g_name: str = ...,
         g_object_path: str = ...,
-    ): ...
+    ) -> None: ...
     @staticmethod
     def new(
         connection: Gio.DBusConnection,
@@ -863,12 +831,10 @@ class ChatSkeleton(Gio.DBusInterfaceSkeleton, Gio.DBusInterface, Chat):
 
     Properties from GDBusInterfaceSkeleton:
       g-flags -> GDBusInterfaceSkeletonFlags: g-flags
-        Flags for the interface skeleton
 
     Signals from GObject:
       notify (GParam)
     """
-
     class Props(Gio.DBusInterfaceSkeleton.Props):
         g_flags: Gio.DBusInterfaceSkeletonFlags
 
@@ -878,7 +844,7 @@ class ChatSkeleton(Gio.DBusInterfaceSkeleton, Gio.DBusInterface, Chat):
     def parent_instance(self) -> Gio.DBusInterfaceSkeleton: ...
     @property
     def priv(self) -> ChatSkeletonPrivate: ...
-    def __init__(self, g_flags: Gio.DBusInterfaceSkeletonFlags = ...): ...
+    def __init__(self, *, g_flags: Gio.DBusInterfaceSkeletonFlags = ...) -> None: ...
     @classmethod
     def new(cls) -> ChatSkeleton: ...
 
@@ -919,7 +885,6 @@ class Client(GObject.Object, Gio.AsyncInitable, Gio.Initable):
     Signals from GObject:
       notify (GParam)
     """
-
     class Props(GObject.Object.Props):
         object_manager: Gio.DBusObjectManager
 
@@ -958,7 +923,6 @@ class Contacts(GObject.GInterface, Protocol):
     Signals from GObject:
       notify (GParam)
     """
-
     @staticmethod
     def interface_info() -> Gio.DBusInterfaceInfo: ...
     @staticmethod
@@ -1003,36 +967,26 @@ class ContactsProxy(
 
     Properties from GDBusProxy:
       g-connection -> GDBusConnection: g-connection
-        The connection the proxy is for
-      g-bus-type -> GBusType: Bus Type
-        The bus to connect to, if any
+      g-bus-type -> GBusType: g-bus-type
       g-name -> gchararray: g-name
-        The well-known or unique name that the proxy is for
       g-name-owner -> gchararray: g-name-owner
-        The unique name for the owner
       g-flags -> GDBusProxyFlags: g-flags
-        Flags for the proxy
       g-object-path -> gchararray: g-object-path
-        The object path the proxy is for
       g-interface-name -> gchararray: g-interface-name
-        The D-Bus interface name the proxy is for
-      g-default-timeout -> gint: Default Timeout
-        Timeout for remote method invocation
-      g-interface-info -> GDBusInterfaceInfo: Interface Information
-        Interface Information
+      g-default-timeout -> gint: g-default-timeout
+      g-interface-info -> GDBusInterfaceInfo: g-interface-info
 
     Signals from GObject:
       notify (GParam)
     """
-
     class Props(Gio.DBusProxy.Props):
         g_connection: Gio.DBusConnection
         g_default_timeout: int
         g_flags: Gio.DBusProxyFlags
-        g_interface_info: Gio.DBusInterfaceInfo
+        g_interface_info: Gio.DBusInterfaceInfo | None
         g_interface_name: str
-        g_name: str
-        g_name_owner: str
+        g_name: str | None
+        g_name_owner: str | None
         g_object_path: str
         accept_ssl_errors: bool
         uri: str
@@ -1046,17 +1000,18 @@ class ContactsProxy(
     def priv(self) -> ContactsProxyPrivate: ...
     def __init__(
         self,
+        *,
         g_bus_type: Gio.BusType = ...,
         g_connection: Gio.DBusConnection = ...,
         g_default_timeout: int = ...,
         g_flags: Gio.DBusProxyFlags = ...,
-        g_interface_info: Gio.DBusInterfaceInfo = ...,
+        g_interface_info: Gio.DBusInterfaceInfo | None = ...,
         g_interface_name: str = ...,
         g_name: str = ...,
         g_object_path: str = ...,
         accept_ssl_errors: bool = ...,
         uri: str = ...,
-    ): ...
+    ) -> None: ...
     @staticmethod
     def new(
         connection: Gio.DBusConnection,
@@ -1129,12 +1084,10 @@ class ContactsSkeleton(Gio.DBusInterfaceSkeleton, Gio.DBusInterface, Contacts):
 
     Properties from GDBusInterfaceSkeleton:
       g-flags -> GDBusInterfaceSkeletonFlags: g-flags
-        Flags for the interface skeleton
 
     Signals from GObject:
       notify (GParam)
     """
-
     class Props(Gio.DBusInterfaceSkeleton.Props):
         g_flags: Gio.DBusInterfaceSkeletonFlags
         accept_ssl_errors: bool
@@ -1148,10 +1101,11 @@ class ContactsSkeleton(Gio.DBusInterfaceSkeleton, Gio.DBusInterface, Contacts):
     def priv(self) -> ContactsSkeletonPrivate: ...
     def __init__(
         self,
+        *,
         g_flags: Gio.DBusInterfaceSkeletonFlags = ...,
         accept_ssl_errors: bool = ...,
         uri: str = ...,
-    ): ...
+    ) -> None: ...
     @classmethod
     def new(cls) -> ContactsSkeleton: ...
 
@@ -1175,7 +1129,6 @@ class Documents(GObject.GInterface, Protocol):
     Signals from GObject:
       notify (GParam)
     """
-
     @staticmethod
     def interface_info() -> Gio.DBusInterfaceInfo: ...
     @staticmethod
@@ -1216,36 +1169,26 @@ class DocumentsProxy(
 
     Properties from GDBusProxy:
       g-connection -> GDBusConnection: g-connection
-        The connection the proxy is for
-      g-bus-type -> GBusType: Bus Type
-        The bus to connect to, if any
+      g-bus-type -> GBusType: g-bus-type
       g-name -> gchararray: g-name
-        The well-known or unique name that the proxy is for
       g-name-owner -> gchararray: g-name-owner
-        The unique name for the owner
       g-flags -> GDBusProxyFlags: g-flags
-        Flags for the proxy
       g-object-path -> gchararray: g-object-path
-        The object path the proxy is for
       g-interface-name -> gchararray: g-interface-name
-        The D-Bus interface name the proxy is for
-      g-default-timeout -> gint: Default Timeout
-        Timeout for remote method invocation
-      g-interface-info -> GDBusInterfaceInfo: Interface Information
-        Interface Information
+      g-default-timeout -> gint: g-default-timeout
+      g-interface-info -> GDBusInterfaceInfo: g-interface-info
 
     Signals from GObject:
       notify (GParam)
     """
-
     class Props(Gio.DBusProxy.Props):
         g_connection: Gio.DBusConnection
         g_default_timeout: int
         g_flags: Gio.DBusProxyFlags
-        g_interface_info: Gio.DBusInterfaceInfo
+        g_interface_info: Gio.DBusInterfaceInfo | None
         g_interface_name: str
-        g_name: str
-        g_name_owner: str
+        g_name: str | None
+        g_name_owner: str | None
         g_object_path: str
         g_bus_type: Gio.BusType
 
@@ -1257,15 +1200,16 @@ class DocumentsProxy(
     def priv(self) -> DocumentsProxyPrivate: ...
     def __init__(
         self,
+        *,
         g_bus_type: Gio.BusType = ...,
         g_connection: Gio.DBusConnection = ...,
         g_default_timeout: int = ...,
         g_flags: Gio.DBusProxyFlags = ...,
-        g_interface_info: Gio.DBusInterfaceInfo = ...,
+        g_interface_info: Gio.DBusInterfaceInfo | None = ...,
         g_interface_name: str = ...,
         g_name: str = ...,
         g_object_path: str = ...,
-    ): ...
+    ) -> None: ...
     @staticmethod
     def new(
         connection: Gio.DBusConnection,
@@ -1338,12 +1282,10 @@ class DocumentsSkeleton(Gio.DBusInterfaceSkeleton, Gio.DBusInterface, Documents)
 
     Properties from GDBusInterfaceSkeleton:
       g-flags -> GDBusInterfaceSkeletonFlags: g-flags
-        Flags for the interface skeleton
 
     Signals from GObject:
       notify (GParam)
     """
-
     class Props(Gio.DBusInterfaceSkeleton.Props):
         g_flags: Gio.DBusInterfaceSkeletonFlags
 
@@ -1353,7 +1295,7 @@ class DocumentsSkeleton(Gio.DBusInterfaceSkeleton, Gio.DBusInterface, Documents)
     def parent_instance(self) -> Gio.DBusInterfaceSkeleton: ...
     @property
     def priv(self) -> DocumentsSkeletonPrivate: ...
-    def __init__(self, g_flags: Gio.DBusInterfaceSkeletonFlags = ...): ...
+    def __init__(self, *, g_flags: Gio.DBusInterfaceSkeletonFlags = ...) -> None: ...
     @classmethod
     def new(cls) -> DocumentsSkeleton: ...
 
@@ -1377,7 +1319,6 @@ class Exchange(GObject.GInterface, Protocol):
     Signals from GObject:
       notify (GParam)
     """
-
     @staticmethod
     def interface_info() -> Gio.DBusInterfaceInfo: ...
     @staticmethod
@@ -1422,36 +1363,26 @@ class ExchangeProxy(
 
     Properties from GDBusProxy:
       g-connection -> GDBusConnection: g-connection
-        The connection the proxy is for
-      g-bus-type -> GBusType: Bus Type
-        The bus to connect to, if any
+      g-bus-type -> GBusType: g-bus-type
       g-name -> gchararray: g-name
-        The well-known or unique name that the proxy is for
       g-name-owner -> gchararray: g-name-owner
-        The unique name for the owner
       g-flags -> GDBusProxyFlags: g-flags
-        Flags for the proxy
       g-object-path -> gchararray: g-object-path
-        The object path the proxy is for
       g-interface-name -> gchararray: g-interface-name
-        The D-Bus interface name the proxy is for
-      g-default-timeout -> gint: Default Timeout
-        Timeout for remote method invocation
-      g-interface-info -> GDBusInterfaceInfo: Interface Information
-        Interface Information
+      g-default-timeout -> gint: g-default-timeout
+      g-interface-info -> GDBusInterfaceInfo: g-interface-info
 
     Signals from GObject:
       notify (GParam)
     """
-
     class Props(Gio.DBusProxy.Props):
         g_connection: Gio.DBusConnection
         g_default_timeout: int
         g_flags: Gio.DBusProxyFlags
-        g_interface_info: Gio.DBusInterfaceInfo
+        g_interface_info: Gio.DBusInterfaceInfo | None
         g_interface_name: str
-        g_name: str
-        g_name_owner: str
+        g_name: str | None
+        g_name_owner: str | None
         g_object_path: str
         accept_ssl_errors: bool
         host: str
@@ -1465,17 +1396,18 @@ class ExchangeProxy(
     def priv(self) -> ExchangeProxyPrivate: ...
     def __init__(
         self,
+        *,
         g_bus_type: Gio.BusType = ...,
         g_connection: Gio.DBusConnection = ...,
         g_default_timeout: int = ...,
         g_flags: Gio.DBusProxyFlags = ...,
-        g_interface_info: Gio.DBusInterfaceInfo = ...,
+        g_interface_info: Gio.DBusInterfaceInfo | None = ...,
         g_interface_name: str = ...,
         g_name: str = ...,
         g_object_path: str = ...,
         accept_ssl_errors: bool = ...,
         host: str = ...,
-    ): ...
+    ) -> None: ...
     @staticmethod
     def new(
         connection: Gio.DBusConnection,
@@ -1548,12 +1480,10 @@ class ExchangeSkeleton(Gio.DBusInterfaceSkeleton, Gio.DBusInterface, Exchange):
 
     Properties from GDBusInterfaceSkeleton:
       g-flags -> GDBusInterfaceSkeletonFlags: g-flags
-        Flags for the interface skeleton
 
     Signals from GObject:
       notify (GParam)
     """
-
     class Props(Gio.DBusInterfaceSkeleton.Props):
         g_flags: Gio.DBusInterfaceSkeletonFlags
         accept_ssl_errors: bool
@@ -1567,10 +1497,11 @@ class ExchangeSkeleton(Gio.DBusInterfaceSkeleton, Gio.DBusInterface, Exchange):
     def priv(self) -> ExchangeSkeletonPrivate: ...
     def __init__(
         self,
+        *,
         g_flags: Gio.DBusInterfaceSkeletonFlags = ...,
         accept_ssl_errors: bool = ...,
         host: str = ...,
-    ): ...
+    ) -> None: ...
     @classmethod
     def new(cls) -> ExchangeSkeleton: ...
 
@@ -1594,7 +1525,6 @@ class Files(GObject.GInterface, Protocol):
     Signals from GObject:
       notify (GParam)
     """
-
     @staticmethod
     def interface_info() -> Gio.DBusInterfaceInfo: ...
     @staticmethod
@@ -1639,36 +1569,26 @@ class FilesProxy(
 
     Properties from GDBusProxy:
       g-connection -> GDBusConnection: g-connection
-        The connection the proxy is for
-      g-bus-type -> GBusType: Bus Type
-        The bus to connect to, if any
+      g-bus-type -> GBusType: g-bus-type
       g-name -> gchararray: g-name
-        The well-known or unique name that the proxy is for
       g-name-owner -> gchararray: g-name-owner
-        The unique name for the owner
       g-flags -> GDBusProxyFlags: g-flags
-        Flags for the proxy
       g-object-path -> gchararray: g-object-path
-        The object path the proxy is for
       g-interface-name -> gchararray: g-interface-name
-        The D-Bus interface name the proxy is for
-      g-default-timeout -> gint: Default Timeout
-        Timeout for remote method invocation
-      g-interface-info -> GDBusInterfaceInfo: Interface Information
-        Interface Information
+      g-default-timeout -> gint: g-default-timeout
+      g-interface-info -> GDBusInterfaceInfo: g-interface-info
 
     Signals from GObject:
       notify (GParam)
     """
-
     class Props(Gio.DBusProxy.Props):
         g_connection: Gio.DBusConnection
         g_default_timeout: int
         g_flags: Gio.DBusProxyFlags
-        g_interface_info: Gio.DBusInterfaceInfo
+        g_interface_info: Gio.DBusInterfaceInfo | None
         g_interface_name: str
-        g_name: str
-        g_name_owner: str
+        g_name: str | None
+        g_name_owner: str | None
         g_object_path: str
         accept_ssl_errors: bool
         uri: str
@@ -1682,17 +1602,18 @@ class FilesProxy(
     def priv(self) -> FilesProxyPrivate: ...
     def __init__(
         self,
+        *,
         g_bus_type: Gio.BusType = ...,
         g_connection: Gio.DBusConnection = ...,
         g_default_timeout: int = ...,
         g_flags: Gio.DBusProxyFlags = ...,
-        g_interface_info: Gio.DBusInterfaceInfo = ...,
+        g_interface_info: Gio.DBusInterfaceInfo | None = ...,
         g_interface_name: str = ...,
         g_name: str = ...,
         g_object_path: str = ...,
         accept_ssl_errors: bool = ...,
         uri: str = ...,
-    ): ...
+    ) -> None: ...
     @staticmethod
     def new(
         connection: Gio.DBusConnection,
@@ -1765,12 +1686,10 @@ class FilesSkeleton(Gio.DBusInterfaceSkeleton, Gio.DBusInterface, Files):
 
     Properties from GDBusInterfaceSkeleton:
       g-flags -> GDBusInterfaceSkeletonFlags: g-flags
-        Flags for the interface skeleton
 
     Signals from GObject:
       notify (GParam)
     """
-
     class Props(Gio.DBusInterfaceSkeleton.Props):
         g_flags: Gio.DBusInterfaceSkeletonFlags
         accept_ssl_errors: bool
@@ -1784,10 +1703,11 @@ class FilesSkeleton(Gio.DBusInterfaceSkeleton, Gio.DBusInterface, Files):
     def priv(self) -> FilesSkeletonPrivate: ...
     def __init__(
         self,
+        *,
         g_flags: Gio.DBusInterfaceSkeletonFlags = ...,
         accept_ssl_errors: bool = ...,
         uri: str = ...,
-    ): ...
+    ) -> None: ...
     @classmethod
     def new(cls) -> FilesSkeleton: ...
 
@@ -1811,7 +1731,6 @@ class Mail(GObject.GInterface, Protocol):
     Signals from GObject:
       notify (GParam)
     """
-
     @staticmethod
     def interface_info() -> Gio.DBusInterfaceInfo: ...
     @staticmethod
@@ -1853,6 +1772,18 @@ class MailIface(GObject.GPointer):
     def get_smtp_auth_plain(self) -> Callable[[Mail], bool]: ...
     @property
     def get_smtp_auth_xoauth2(self) -> Callable[[Mail], bool]: ...
+    @property
+    def get_smtp_host(self) -> Callable[[Mail], str | None]: ...
+    @property
+    def get_smtp_supported(self) -> Callable[[Mail], bool]: ...
+    @property
+    def get_smtp_use_auth(self) -> Callable[[Mail], bool]: ...
+    @property
+    def get_smtp_use_ssl(self) -> Callable[[Mail], bool]: ...
+    @property
+    def get_smtp_use_tls(self) -> Callable[[Mail], bool]: ...
+    @property
+    def get_smtp_user_name(self) -> Callable[[Mail], str | None]: ...
 
 class MailProxy(
     Gio.DBusProxy, Gio.AsyncInitable, Gio.DBusInterface, Gio.Initable, Mail
@@ -1876,36 +1807,26 @@ class MailProxy(
 
     Properties from GDBusProxy:
       g-connection -> GDBusConnection: g-connection
-        The connection the proxy is for
-      g-bus-type -> GBusType: Bus Type
-        The bus to connect to, if any
+      g-bus-type -> GBusType: g-bus-type
       g-name -> gchararray: g-name
-        The well-known or unique name that the proxy is for
       g-name-owner -> gchararray: g-name-owner
-        The unique name for the owner
       g-flags -> GDBusProxyFlags: g-flags
-        Flags for the proxy
       g-object-path -> gchararray: g-object-path
-        The object path the proxy is for
       g-interface-name -> gchararray: g-interface-name
-        The D-Bus interface name the proxy is for
-      g-default-timeout -> gint: Default Timeout
-        Timeout for remote method invocation
-      g-interface-info -> GDBusInterfaceInfo: Interface Information
-        Interface Information
+      g-default-timeout -> gint: g-default-timeout
+      g-interface-info -> GDBusInterfaceInfo: g-interface-info
 
     Signals from GObject:
       notify (GParam)
     """
-
     class Props(Gio.DBusProxy.Props):
         g_connection: Gio.DBusConnection
         g_default_timeout: int
         g_flags: Gio.DBusProxyFlags
-        g_interface_info: Gio.DBusInterfaceInfo
+        g_interface_info: Gio.DBusInterfaceInfo | None
         g_interface_name: str
-        g_name: str
-        g_name_owner: str
+        g_name: str | None
+        g_name_owner: str | None
         g_object_path: str
         email_address: str
         imap_accept_ssl_errors: bool
@@ -1935,11 +1856,12 @@ class MailProxy(
     def priv(self) -> MailProxyPrivate: ...
     def __init__(
         self,
+        *,
         g_bus_type: Gio.BusType = ...,
         g_connection: Gio.DBusConnection = ...,
         g_default_timeout: int = ...,
         g_flags: Gio.DBusProxyFlags = ...,
-        g_interface_info: Gio.DBusInterfaceInfo = ...,
+        g_interface_info: Gio.DBusInterfaceInfo | None = ...,
         g_interface_name: str = ...,
         g_name: str = ...,
         g_object_path: str = ...,
@@ -1961,7 +1883,7 @@ class MailProxy(
         smtp_use_ssl: bool = ...,
         smtp_use_tls: bool = ...,
         smtp_user_name: str = ...,
-    ): ...
+    ) -> None: ...
     @staticmethod
     def new(
         connection: Gio.DBusConnection,
@@ -2034,12 +1956,10 @@ class MailSkeleton(Gio.DBusInterfaceSkeleton, Gio.DBusInterface, Mail):
 
     Properties from GDBusInterfaceSkeleton:
       g-flags -> GDBusInterfaceSkeletonFlags: g-flags
-        Flags for the interface skeleton
 
     Signals from GObject:
       notify (GParam)
     """
-
     class Props(Gio.DBusInterfaceSkeleton.Props):
         g_flags: Gio.DBusInterfaceSkeletonFlags
         email_address: str
@@ -2069,6 +1989,7 @@ class MailSkeleton(Gio.DBusInterfaceSkeleton, Gio.DBusInterface, Mail):
     def priv(self) -> MailSkeletonPrivate: ...
     def __init__(
         self,
+        *,
         g_flags: Gio.DBusInterfaceSkeletonFlags = ...,
         email_address: str = ...,
         imap_accept_ssl_errors: bool = ...,
@@ -2088,7 +2009,7 @@ class MailSkeleton(Gio.DBusInterfaceSkeleton, Gio.DBusInterface, Mail):
         smtp_use_ssl: bool = ...,
         smtp_use_tls: bool = ...,
         smtp_user_name: str = ...,
-    ): ...
+    ) -> None: ...
     @classmethod
     def new(cls) -> MailSkeleton: ...
 
@@ -2112,7 +2033,6 @@ class Manager(GObject.GInterface, Protocol):
     Signals from GObject:
       notify (GParam)
     """
-
     def call_add_account(
         self,
         arg_provider: str,
@@ -2208,36 +2128,26 @@ class ManagerProxy(
 
     Properties from GDBusProxy:
       g-connection -> GDBusConnection: g-connection
-        The connection the proxy is for
-      g-bus-type -> GBusType: Bus Type
-        The bus to connect to, if any
+      g-bus-type -> GBusType: g-bus-type
       g-name -> gchararray: g-name
-        The well-known or unique name that the proxy is for
       g-name-owner -> gchararray: g-name-owner
-        The unique name for the owner
       g-flags -> GDBusProxyFlags: g-flags
-        Flags for the proxy
       g-object-path -> gchararray: g-object-path
-        The object path the proxy is for
       g-interface-name -> gchararray: g-interface-name
-        The D-Bus interface name the proxy is for
-      g-default-timeout -> gint: Default Timeout
-        Timeout for remote method invocation
-      g-interface-info -> GDBusInterfaceInfo: Interface Information
-        Interface Information
+      g-default-timeout -> gint: g-default-timeout
+      g-interface-info -> GDBusInterfaceInfo: g-interface-info
 
     Signals from GObject:
       notify (GParam)
     """
-
     class Props(Gio.DBusProxy.Props):
         g_connection: Gio.DBusConnection
         g_default_timeout: int
         g_flags: Gio.DBusProxyFlags
-        g_interface_info: Gio.DBusInterfaceInfo
+        g_interface_info: Gio.DBusInterfaceInfo | None
         g_interface_name: str
-        g_name: str
-        g_name_owner: str
+        g_name: str | None
+        g_name_owner: str | None
         g_object_path: str
         g_bus_type: Gio.BusType
 
@@ -2249,15 +2159,16 @@ class ManagerProxy(
     def priv(self) -> ManagerProxyPrivate: ...
     def __init__(
         self,
+        *,
         g_bus_type: Gio.BusType = ...,
         g_connection: Gio.DBusConnection = ...,
         g_default_timeout: int = ...,
         g_flags: Gio.DBusProxyFlags = ...,
-        g_interface_info: Gio.DBusInterfaceInfo = ...,
+        g_interface_info: Gio.DBusInterfaceInfo | None = ...,
         g_interface_name: str = ...,
         g_name: str = ...,
         g_object_path: str = ...,
-    ): ...
+    ) -> None: ...
     @staticmethod
     def new(
         connection: Gio.DBusConnection,
@@ -2334,12 +2245,10 @@ class ManagerSkeleton(Gio.DBusInterfaceSkeleton, Gio.DBusInterface, Manager):
 
     Properties from GDBusInterfaceSkeleton:
       g-flags -> GDBusInterfaceSkeletonFlags: g-flags
-        Flags for the interface skeleton
 
     Signals from GObject:
       notify (GParam)
     """
-
     class Props(Gio.DBusInterfaceSkeleton.Props):
         g_flags: Gio.DBusInterfaceSkeletonFlags
 
@@ -2349,7 +2258,7 @@ class ManagerSkeleton(Gio.DBusInterfaceSkeleton, Gio.DBusInterface, Manager):
     def parent_instance(self) -> Gio.DBusInterfaceSkeleton: ...
     @property
     def priv(self) -> ManagerSkeletonPrivate: ...
-    def __init__(self, g_flags: Gio.DBusInterfaceSkeletonFlags = ...): ...
+    def __init__(self, *, g_flags: Gio.DBusInterfaceSkeletonFlags = ...) -> None: ...
     @classmethod
     def new(cls) -> ManagerSkeleton: ...
 
@@ -2373,7 +2282,6 @@ class Maps(GObject.GInterface, Protocol):
     Signals from GObject:
       notify (GParam)
     """
-
     @staticmethod
     def interface_info() -> Gio.DBusInterfaceInfo: ...
     @staticmethod
@@ -2414,36 +2322,26 @@ class MapsProxy(
 
     Properties from GDBusProxy:
       g-connection -> GDBusConnection: g-connection
-        The connection the proxy is for
-      g-bus-type -> GBusType: Bus Type
-        The bus to connect to, if any
+      g-bus-type -> GBusType: g-bus-type
       g-name -> gchararray: g-name
-        The well-known or unique name that the proxy is for
       g-name-owner -> gchararray: g-name-owner
-        The unique name for the owner
       g-flags -> GDBusProxyFlags: g-flags
-        Flags for the proxy
       g-object-path -> gchararray: g-object-path
-        The object path the proxy is for
       g-interface-name -> gchararray: g-interface-name
-        The D-Bus interface name the proxy is for
-      g-default-timeout -> gint: Default Timeout
-        Timeout for remote method invocation
-      g-interface-info -> GDBusInterfaceInfo: Interface Information
-        Interface Information
+      g-default-timeout -> gint: g-default-timeout
+      g-interface-info -> GDBusInterfaceInfo: g-interface-info
 
     Signals from GObject:
       notify (GParam)
     """
-
     class Props(Gio.DBusProxy.Props):
         g_connection: Gio.DBusConnection
         g_default_timeout: int
         g_flags: Gio.DBusProxyFlags
-        g_interface_info: Gio.DBusInterfaceInfo
+        g_interface_info: Gio.DBusInterfaceInfo | None
         g_interface_name: str
-        g_name: str
-        g_name_owner: str
+        g_name: str | None
+        g_name_owner: str | None
         g_object_path: str
         g_bus_type: Gio.BusType
 
@@ -2455,15 +2353,16 @@ class MapsProxy(
     def priv(self) -> MapsProxyPrivate: ...
     def __init__(
         self,
+        *,
         g_bus_type: Gio.BusType = ...,
         g_connection: Gio.DBusConnection = ...,
         g_default_timeout: int = ...,
         g_flags: Gio.DBusProxyFlags = ...,
-        g_interface_info: Gio.DBusInterfaceInfo = ...,
+        g_interface_info: Gio.DBusInterfaceInfo | None = ...,
         g_interface_name: str = ...,
         g_name: str = ...,
         g_object_path: str = ...,
-    ): ...
+    ) -> None: ...
     @staticmethod
     def new(
         connection: Gio.DBusConnection,
@@ -2536,12 +2435,10 @@ class MapsSkeleton(Gio.DBusInterfaceSkeleton, Gio.DBusInterface, Maps):
 
     Properties from GDBusInterfaceSkeleton:
       g-flags -> GDBusInterfaceSkeletonFlags: g-flags
-        Flags for the interface skeleton
 
     Signals from GObject:
       notify (GParam)
     """
-
     class Props(Gio.DBusInterfaceSkeleton.Props):
         g_flags: Gio.DBusInterfaceSkeletonFlags
 
@@ -2551,7 +2448,7 @@ class MapsSkeleton(Gio.DBusInterfaceSkeleton, Gio.DBusInterface, Maps):
     def parent_instance(self) -> Gio.DBusInterfaceSkeleton: ...
     @property
     def priv(self) -> MapsSkeletonPrivate: ...
-    def __init__(self, g_flags: Gio.DBusInterfaceSkeletonFlags = ...): ...
+    def __init__(self, *, g_flags: Gio.DBusInterfaceSkeletonFlags = ...) -> None: ...
     @classmethod
     def new(cls) -> MapsSkeleton: ...
 
@@ -2575,7 +2472,6 @@ class MediaServer(GObject.GInterface, Protocol):
     Signals from GObject:
       notify (GParam)
     """
-
     @staticmethod
     def interface_info() -> Gio.DBusInterfaceInfo: ...
     @staticmethod
@@ -2620,36 +2516,26 @@ class MediaServerProxy(
 
     Properties from GDBusProxy:
       g-connection -> GDBusConnection: g-connection
-        The connection the proxy is for
-      g-bus-type -> GBusType: Bus Type
-        The bus to connect to, if any
+      g-bus-type -> GBusType: g-bus-type
       g-name -> gchararray: g-name
-        The well-known or unique name that the proxy is for
       g-name-owner -> gchararray: g-name-owner
-        The unique name for the owner
       g-flags -> GDBusProxyFlags: g-flags
-        Flags for the proxy
       g-object-path -> gchararray: g-object-path
-        The object path the proxy is for
       g-interface-name -> gchararray: g-interface-name
-        The D-Bus interface name the proxy is for
-      g-default-timeout -> gint: Default Timeout
-        Timeout for remote method invocation
-      g-interface-info -> GDBusInterfaceInfo: Interface Information
-        Interface Information
+      g-default-timeout -> gint: g-default-timeout
+      g-interface-info -> GDBusInterfaceInfo: g-interface-info
 
     Signals from GObject:
       notify (GParam)
     """
-
     class Props(Gio.DBusProxy.Props):
         g_connection: Gio.DBusConnection
         g_default_timeout: int
         g_flags: Gio.DBusProxyFlags
-        g_interface_info: Gio.DBusInterfaceInfo
+        g_interface_info: Gio.DBusInterfaceInfo | None
         g_interface_name: str
-        g_name: str
-        g_name_owner: str
+        g_name: str | None
+        g_name_owner: str | None
         g_object_path: str
         dlna_supported: bool
         udn: str
@@ -2663,17 +2549,18 @@ class MediaServerProxy(
     def priv(self) -> MediaServerProxyPrivate: ...
     def __init__(
         self,
+        *,
         g_bus_type: Gio.BusType = ...,
         g_connection: Gio.DBusConnection = ...,
         g_default_timeout: int = ...,
         g_flags: Gio.DBusProxyFlags = ...,
-        g_interface_info: Gio.DBusInterfaceInfo = ...,
+        g_interface_info: Gio.DBusInterfaceInfo | None = ...,
         g_interface_name: str = ...,
         g_name: str = ...,
         g_object_path: str = ...,
         dlna_supported: bool = ...,
         udn: str = ...,
-    ): ...
+    ) -> None: ...
     @staticmethod
     def new(
         connection: Gio.DBusConnection,
@@ -2746,12 +2633,10 @@ class MediaServerSkeleton(Gio.DBusInterfaceSkeleton, Gio.DBusInterface, MediaSer
 
     Properties from GDBusInterfaceSkeleton:
       g-flags -> GDBusInterfaceSkeletonFlags: g-flags
-        Flags for the interface skeleton
 
     Signals from GObject:
       notify (GParam)
     """
-
     class Props(Gio.DBusInterfaceSkeleton.Props):
         g_flags: Gio.DBusInterfaceSkeletonFlags
         dlna_supported: bool
@@ -2765,10 +2650,11 @@ class MediaServerSkeleton(Gio.DBusInterfaceSkeleton, Gio.DBusInterface, MediaSer
     def priv(self) -> MediaServerSkeletonPrivate: ...
     def __init__(
         self,
+        *,
         g_flags: Gio.DBusInterfaceSkeletonFlags = ...,
         dlna_supported: bool = ...,
         udn: str = ...,
-    ): ...
+    ) -> None: ...
     @classmethod
     def new(cls) -> MediaServerSkeleton: ...
 
@@ -2792,7 +2678,6 @@ class Music(GObject.GInterface, Protocol):
     Signals from GObject:
       notify (GParam)
     """
-
     @staticmethod
     def interface_info() -> Gio.DBusInterfaceInfo: ...
     @staticmethod
@@ -2833,36 +2718,26 @@ class MusicProxy(
 
     Properties from GDBusProxy:
       g-connection -> GDBusConnection: g-connection
-        The connection the proxy is for
-      g-bus-type -> GBusType: Bus Type
-        The bus to connect to, if any
+      g-bus-type -> GBusType: g-bus-type
       g-name -> gchararray: g-name
-        The well-known or unique name that the proxy is for
       g-name-owner -> gchararray: g-name-owner
-        The unique name for the owner
       g-flags -> GDBusProxyFlags: g-flags
-        Flags for the proxy
       g-object-path -> gchararray: g-object-path
-        The object path the proxy is for
       g-interface-name -> gchararray: g-interface-name
-        The D-Bus interface name the proxy is for
-      g-default-timeout -> gint: Default Timeout
-        Timeout for remote method invocation
-      g-interface-info -> GDBusInterfaceInfo: Interface Information
-        Interface Information
+      g-default-timeout -> gint: g-default-timeout
+      g-interface-info -> GDBusInterfaceInfo: g-interface-info
 
     Signals from GObject:
       notify (GParam)
     """
-
     class Props(Gio.DBusProxy.Props):
         g_connection: Gio.DBusConnection
         g_default_timeout: int
         g_flags: Gio.DBusProxyFlags
-        g_interface_info: Gio.DBusInterfaceInfo
+        g_interface_info: Gio.DBusInterfaceInfo | None
         g_interface_name: str
-        g_name: str
-        g_name_owner: str
+        g_name: str | None
+        g_name_owner: str | None
         g_object_path: str
         g_bus_type: Gio.BusType
 
@@ -2874,15 +2749,16 @@ class MusicProxy(
     def priv(self) -> MusicProxyPrivate: ...
     def __init__(
         self,
+        *,
         g_bus_type: Gio.BusType = ...,
         g_connection: Gio.DBusConnection = ...,
         g_default_timeout: int = ...,
         g_flags: Gio.DBusProxyFlags = ...,
-        g_interface_info: Gio.DBusInterfaceInfo = ...,
+        g_interface_info: Gio.DBusInterfaceInfo | None = ...,
         g_interface_name: str = ...,
         g_name: str = ...,
         g_object_path: str = ...,
-    ): ...
+    ) -> None: ...
     @staticmethod
     def new(
         connection: Gio.DBusConnection,
@@ -2955,12 +2831,10 @@ class MusicSkeleton(Gio.DBusInterfaceSkeleton, Gio.DBusInterface, Music):
 
     Properties from GDBusInterfaceSkeleton:
       g-flags -> GDBusInterfaceSkeletonFlags: g-flags
-        Flags for the interface skeleton
 
     Signals from GObject:
       notify (GParam)
     """
-
     class Props(Gio.DBusInterfaceSkeleton.Props):
         g_flags: Gio.DBusInterfaceSkeletonFlags
 
@@ -2970,7 +2844,7 @@ class MusicSkeleton(Gio.DBusInterfaceSkeleton, Gio.DBusInterface, Music):
     def parent_instance(self) -> Gio.DBusInterfaceSkeleton: ...
     @property
     def priv(self) -> MusicSkeletonPrivate: ...
-    def __init__(self, g_flags: Gio.DBusInterfaceSkeletonFlags = ...): ...
+    def __init__(self, *, g_flags: Gio.DBusInterfaceSkeletonFlags = ...) -> None: ...
     @classmethod
     def new(cls) -> MusicSkeleton: ...
 
@@ -2994,7 +2868,6 @@ class OAuth2Based(GObject.GInterface, Protocol):
     Signals from GObject:
       notify (GParam)
     """
-
     def call_get_access_token(
         self,
         cancellable: Gio.Cancellable | None = None,
@@ -3061,36 +2934,26 @@ class OAuth2BasedProxy(
 
     Properties from GDBusProxy:
       g-connection -> GDBusConnection: g-connection
-        The connection the proxy is for
-      g-bus-type -> GBusType: Bus Type
-        The bus to connect to, if any
+      g-bus-type -> GBusType: g-bus-type
       g-name -> gchararray: g-name
-        The well-known or unique name that the proxy is for
       g-name-owner -> gchararray: g-name-owner
-        The unique name for the owner
       g-flags -> GDBusProxyFlags: g-flags
-        Flags for the proxy
       g-object-path -> gchararray: g-object-path
-        The object path the proxy is for
       g-interface-name -> gchararray: g-interface-name
-        The D-Bus interface name the proxy is for
-      g-default-timeout -> gint: Default Timeout
-        Timeout for remote method invocation
-      g-interface-info -> GDBusInterfaceInfo: Interface Information
-        Interface Information
+      g-default-timeout -> gint: g-default-timeout
+      g-interface-info -> GDBusInterfaceInfo: g-interface-info
 
     Signals from GObject:
       notify (GParam)
     """
-
     class Props(Gio.DBusProxy.Props):
         g_connection: Gio.DBusConnection
         g_default_timeout: int
         g_flags: Gio.DBusProxyFlags
-        g_interface_info: Gio.DBusInterfaceInfo
+        g_interface_info: Gio.DBusInterfaceInfo | None
         g_interface_name: str
-        g_name: str
-        g_name_owner: str
+        g_name: str | None
+        g_name_owner: str | None
         g_object_path: str
         client_id: str
         client_secret: str
@@ -3104,17 +2967,18 @@ class OAuth2BasedProxy(
     def priv(self) -> OAuth2BasedProxyPrivate: ...
     def __init__(
         self,
+        *,
         g_bus_type: Gio.BusType = ...,
         g_connection: Gio.DBusConnection = ...,
         g_default_timeout: int = ...,
         g_flags: Gio.DBusProxyFlags = ...,
-        g_interface_info: Gio.DBusInterfaceInfo = ...,
+        g_interface_info: Gio.DBusInterfaceInfo | None = ...,
         g_interface_name: str = ...,
         g_name: str = ...,
         g_object_path: str = ...,
         client_id: str = ...,
         client_secret: str = ...,
-    ): ...
+    ) -> None: ...
     @staticmethod
     def new(
         connection: Gio.DBusConnection,
@@ -3190,12 +3054,10 @@ class OAuth2BasedSkeleton(Gio.DBusInterfaceSkeleton, Gio.DBusInterface, OAuth2Ba
 
     Properties from GDBusInterfaceSkeleton:
       g-flags -> GDBusInterfaceSkeletonFlags: g-flags
-        Flags for the interface skeleton
 
     Signals from GObject:
       notify (GParam)
     """
-
     class Props(Gio.DBusInterfaceSkeleton.Props):
         g_flags: Gio.DBusInterfaceSkeletonFlags
         client_id: str
@@ -3209,10 +3071,11 @@ class OAuth2BasedSkeleton(Gio.DBusInterfaceSkeleton, Gio.DBusInterface, OAuth2Ba
     def priv(self) -> OAuth2BasedSkeletonPrivate: ...
     def __init__(
         self,
+        *,
         g_flags: Gio.DBusInterfaceSkeletonFlags = ...,
         client_id: str = ...,
         client_secret: str = ...,
-    ): ...
+    ) -> None: ...
     @classmethod
     def new(cls) -> OAuth2BasedSkeleton: ...
 
@@ -3236,7 +3099,6 @@ class OAuthBased(GObject.GInterface, Protocol):
     Signals from GObject:
       notify (GParam)
     """
-
     def call_get_access_token(
         self,
         cancellable: Gio.Cancellable | None = None,
@@ -3307,23 +3169,14 @@ class OAuthBasedProxy(
 
     Properties from GDBusProxy:
       g-connection -> GDBusConnection: g-connection
-        The connection the proxy is for
-      g-bus-type -> GBusType: Bus Type
-        The bus to connect to, if any
+      g-bus-type -> GBusType: g-bus-type
       g-name -> gchararray: g-name
-        The well-known or unique name that the proxy is for
       g-name-owner -> gchararray: g-name-owner
-        The unique name for the owner
       g-flags -> GDBusProxyFlags: g-flags
-        Flags for the proxy
       g-object-path -> gchararray: g-object-path
-        The object path the proxy is for
       g-interface-name -> gchararray: g-interface-name
-        The D-Bus interface name the proxy is for
-      g-default-timeout -> gint: Default Timeout
-        Timeout for remote method invocation
-      g-interface-info -> GDBusInterfaceInfo: Interface Information
-        Interface Information
+      g-default-timeout -> gint: g-default-timeout
+      g-interface-info -> GDBusInterfaceInfo: g-interface-info
 
     Signals from GObject:
       notify (GParam)
@@ -3332,10 +3185,10 @@ class OAuthBasedProxy(
         g_connection: Gio.DBusConnection
         g_default_timeout: int
         g_flags: Gio.DBusProxyFlags
-        g_interface_info: Gio.DBusInterfaceInfo
+        g_interface_info: Gio.DBusInterfaceInfo | None
         g_interface_name: str
-        g_name: str
-        g_name_owner: str
+        g_name: str | None
+        g_name_owner: str | None
         g_object_path: str
         consumer_key: str
         consumer_secret: str
@@ -3349,17 +3202,18 @@ class OAuthBasedProxy(
     def priv(self) -> OAuthBasedProxyPrivate: ...
     def __init__(
         self,
+        *,
         g_bus_type: Gio.BusType = ...,
         g_connection: Gio.DBusConnection = ...,
         g_default_timeout: int = ...,
         g_flags: Gio.DBusProxyFlags = ...,
-        g_interface_info: Gio.DBusInterfaceInfo = ...,
+        g_interface_info: Gio.DBusInterfaceInfo | None = ...,
         g_interface_name: str = ...,
         g_name: str = ...,
         g_object_path: str = ...,
         consumer_key: str = ...,
         consumer_secret: str = ...,
-    ): ...
+    ) -> None: ...
     @staticmethod
     def new(
         connection: Gio.DBusConnection,
@@ -3435,7 +3289,6 @@ class OAuthBasedSkeleton(Gio.DBusInterfaceSkeleton, Gio.DBusInterface, OAuthBase
 
     Properties from GDBusInterfaceSkeleton:
       g-flags -> GDBusInterfaceSkeletonFlags: g-flags
-        Flags for the interface skeleton
 
     Signals from GObject:
       notify (GParam)
@@ -3453,10 +3306,11 @@ class OAuthBasedSkeleton(Gio.DBusInterfaceSkeleton, Gio.DBusInterface, OAuthBase
     def priv(self) -> OAuthBasedSkeletonPrivate: ...
     def __init__(
         self,
+        *,
         g_flags: Gio.DBusInterfaceSkeletonFlags = ...,
         consumer_key: str = ...,
         consumer_secret: str = ...,
-    ): ...
+    ) -> None: ...
     @classmethod
     def new(cls) -> OAuthBasedSkeleton: ...
 
@@ -3480,7 +3334,6 @@ class Object(GObject.GInterface, Protocol):
     Signals from GObject:
       notify (GParam)
     """
-
     def get_account(self) -> Account | None: ...
     def get_calendar(self) -> Calendar | None: ...
     def get_chat(self) -> Chat | None: ...
@@ -3540,24 +3393,15 @@ class ObjectManagerClient(
       interface-proxy-properties-changed (GDBusObjectProxy, GDBusProxy, GVariant, GStrv)
 
     Properties from GDBusObjectManagerClient:
-      bus-type -> GBusType: Bus Type
-        The bus to connect to, if any
-      connection -> GDBusConnection: Connection
-        The connection to use
-      flags -> GDBusObjectManagerClientFlags: Flags
-        Flags for the proxy manager
-      object-path -> gchararray: Object Path
-        The object path of the control object
-      name -> gchararray: Name
-        Name that the manager is for
-      name-owner -> gchararray: Name Owner
-        The owner of the name we are watching
-      get-proxy-type-func -> gpointer: GDBusProxyTypeFunc Function Pointer
-        The GDBusProxyTypeFunc pointer to use
-      get-proxy-type-user-data -> gpointer: GDBusProxyTypeFunc User Data
-        The GDBusProxyTypeFunc user_data
-      get-proxy-type-destroy-notify -> gpointer: GDBusProxyTypeFunc user data free function
-        The GDBusProxyTypeFunc user data free function
+      bus-type -> GBusType: bus-type
+      connection -> GDBusConnection: connection
+      flags -> GDBusObjectManagerClientFlags: flags
+      object-path -> gchararray: object-path
+      name -> gchararray: name
+      name-owner -> gchararray: name-owner
+      get-proxy-type-func -> gpointer: get-proxy-type-func
+      get-proxy-type-user-data -> gpointer: get-proxy-type-user-data
+      get-proxy-type-destroy-notify -> gpointer: get-proxy-type-destroy-notify
 
     Signals from GDBusObjectManager:
       object-added (GDBusObject)
@@ -3587,6 +3431,7 @@ class ObjectManagerClient(
     def priv(self) -> ObjectManagerClientPrivate: ...
     def __init__(
         self,
+        *,
         bus_type: Gio.BusType = ...,
         connection: Gio.DBusConnection = ...,
         flags: Gio.DBusObjectManagerClientFlags = ...,
@@ -3595,14 +3440,14 @@ class ObjectManagerClient(
         get_proxy_type_user_data: None = ...,
         name: str = ...,
         object_path: str = ...,
-    ): ...
+    ) -> None: ...
     @staticmethod
     def get_proxy_type(
         manager: Gio.DBusObjectManagerClient,
         object_path: str,
         interface_name: str | None,
         user_data: None,
-    ) -> type: ...
+    ) -> type[Any]: ...
     @staticmethod
     def new(
         connection: Gio.DBusConnection,
@@ -3675,10 +3520,8 @@ class ObjectProxy(Gio.DBusObjectProxy, Gio.DBusObject, Object):
       interface-removed (GDBusInterface)
 
     Properties from GDBusObjectProxy:
-      g-object-path -> gchararray: Object Path
-        The object path of the proxy
-      g-connection -> GDBusConnection: Connection
-        The connection of the proxy
+      g-object-path -> gchararray: g-object-path
+      g-connection -> GDBusConnection: g-connection
 
     Signals from GDBusObject:
       interface-added (GDBusInterface)
@@ -3687,7 +3530,6 @@ class ObjectProxy(Gio.DBusObjectProxy, Gio.DBusObject, Object):
     Signals from GObject:
       notify (GParam)
     """
-
     class Props(Gio.DBusObjectProxy.Props):
         g_connection: Gio.DBusConnection
         g_object_path: str
@@ -3720,6 +3562,7 @@ class ObjectProxy(Gio.DBusObjectProxy, Gio.DBusObject, Object):
     def priv(self) -> ObjectProxyPrivate: ...
     def __init__(
         self,
+        *,
         g_connection: Gio.DBusConnection = ...,
         g_object_path: str = ...,
         account: Account = ...,
@@ -3742,7 +3585,7 @@ class ObjectProxy(Gio.DBusObjectProxy, Gio.DBusObject, Object):
         read_later: ReadLater = ...,
         ticketing: Ticketing = ...,
         todo: Todo = ...,
-    ): ...
+    ) -> None: ...
     @classmethod
     def new(cls, connection: Gio.DBusConnection, object_path: str) -> ObjectProxy: ...
 
@@ -3778,8 +3621,7 @@ class ObjectSkeleton(Gio.DBusObjectSkeleton, Gio.DBusObject, Object):
       authorize-method (GDBusInterfaceSkeleton, GDBusMethodInvocation) -> gboolean
 
     Properties from GDBusObjectSkeleton:
-      g-object-path -> gchararray: Object Path
-        The object path where the object is exported
+      g-object-path -> gchararray: g-object-path
 
     Signals from GDBusObject:
       interface-added (GDBusInterface)
@@ -3788,7 +3630,6 @@ class ObjectSkeleton(Gio.DBusObjectSkeleton, Gio.DBusObject, Object):
     Signals from GObject:
       notify (GParam)
     """
-
     class Props(Gio.DBusObjectSkeleton.Props):
         g_object_path: str
         account: Account | None
@@ -3820,6 +3661,7 @@ class ObjectSkeleton(Gio.DBusObjectSkeleton, Gio.DBusObject, Object):
     def priv(self) -> ObjectSkeletonPrivate: ...
     def __init__(
         self,
+        *,
         g_object_path: str = ...,
         account: Account = ...,
         calendar: Calendar = ...,
@@ -3841,7 +3683,7 @@ class ObjectSkeleton(Gio.DBusObjectSkeleton, Gio.DBusObject, Object):
         read_later: ReadLater = ...,
         ticketing: Ticketing = ...,
         todo: Todo = ...,
-    ): ...
+    ) -> None: ...
     @classmethod
     def new(cls, object_path: str) -> ObjectSkeleton: ...
     def set_account(self, interface_: Account | None = None) -> None: ...
@@ -3885,7 +3727,6 @@ class PasswordBased(GObject.GInterface, Protocol):
     Signals from GObject:
       notify (GParam)
     """
-
     def call_get_password(
         self,
         arg_id: str,
@@ -3947,36 +3788,26 @@ class PasswordBasedProxy(
 
     Properties from GDBusProxy:
       g-connection -> GDBusConnection: g-connection
-        The connection the proxy is for
-      g-bus-type -> GBusType: Bus Type
-        The bus to connect to, if any
+      g-bus-type -> GBusType: g-bus-type
       g-name -> gchararray: g-name
-        The well-known or unique name that the proxy is for
       g-name-owner -> gchararray: g-name-owner
-        The unique name for the owner
       g-flags -> GDBusProxyFlags: g-flags
-        Flags for the proxy
       g-object-path -> gchararray: g-object-path
-        The object path the proxy is for
       g-interface-name -> gchararray: g-interface-name
-        The D-Bus interface name the proxy is for
-      g-default-timeout -> gint: Default Timeout
-        Timeout for remote method invocation
-      g-interface-info -> GDBusInterfaceInfo: Interface Information
-        Interface Information
+      g-default-timeout -> gint: g-default-timeout
+      g-interface-info -> GDBusInterfaceInfo: g-interface-info
 
     Signals from GObject:
       notify (GParam)
     """
-
     class Props(Gio.DBusProxy.Props):
         g_connection: Gio.DBusConnection
         g_default_timeout: int
         g_flags: Gio.DBusProxyFlags
-        g_interface_info: Gio.DBusInterfaceInfo
+        g_interface_info: Gio.DBusInterfaceInfo | None
         g_interface_name: str
-        g_name: str
-        g_name_owner: str
+        g_name: str | None
+        g_name_owner: str | None
         g_object_path: str
         g_bus_type: Gio.BusType
 
@@ -3988,15 +3819,16 @@ class PasswordBasedProxy(
     def priv(self) -> PasswordBasedProxyPrivate: ...
     def __init__(
         self,
+        *,
         g_bus_type: Gio.BusType = ...,
         g_connection: Gio.DBusConnection = ...,
         g_default_timeout: int = ...,
         g_flags: Gio.DBusProxyFlags = ...,
-        g_interface_info: Gio.DBusInterfaceInfo = ...,
+        g_interface_info: Gio.DBusInterfaceInfo | None = ...,
         g_interface_name: str = ...,
         g_name: str = ...,
         g_object_path: str = ...,
-    ): ...
+    ) -> None: ...
     @staticmethod
     def new(
         connection: Gio.DBusConnection,
@@ -4074,12 +3906,10 @@ class PasswordBasedSkeleton(
 
     Properties from GDBusInterfaceSkeleton:
       g-flags -> GDBusInterfaceSkeletonFlags: g-flags
-        Flags for the interface skeleton
 
     Signals from GObject:
       notify (GParam)
     """
-
     class Props(Gio.DBusInterfaceSkeleton.Props):
         g_flags: Gio.DBusInterfaceSkeletonFlags
 
@@ -4089,7 +3919,7 @@ class PasswordBasedSkeleton(
     def parent_instance(self) -> Gio.DBusInterfaceSkeleton: ...
     @property
     def priv(self) -> PasswordBasedSkeletonPrivate: ...
-    def __init__(self, g_flags: Gio.DBusInterfaceSkeletonFlags = ...): ...
+    def __init__(self, *, g_flags: Gio.DBusInterfaceSkeletonFlags = ...) -> None: ...
     @classmethod
     def new(cls) -> PasswordBasedSkeleton: ...
 
@@ -4113,7 +3943,6 @@ class Photos(GObject.GInterface, Protocol):
     Signals from GObject:
       notify (GParam)
     """
-
     @staticmethod
     def interface_info() -> Gio.DBusInterfaceInfo: ...
     @staticmethod
@@ -4154,36 +3983,26 @@ class PhotosProxy(
 
     Properties from GDBusProxy:
       g-connection -> GDBusConnection: g-connection
-        The connection the proxy is for
-      g-bus-type -> GBusType: Bus Type
-        The bus to connect to, if any
+      g-bus-type -> GBusType: g-bus-type
       g-name -> gchararray: g-name
-        The well-known or unique name that the proxy is for
       g-name-owner -> gchararray: g-name-owner
-        The unique name for the owner
       g-flags -> GDBusProxyFlags: g-flags
-        Flags for the proxy
       g-object-path -> gchararray: g-object-path
-        The object path the proxy is for
       g-interface-name -> gchararray: g-interface-name
-        The D-Bus interface name the proxy is for
-      g-default-timeout -> gint: Default Timeout
-        Timeout for remote method invocation
-      g-interface-info -> GDBusInterfaceInfo: Interface Information
-        Interface Information
+      g-default-timeout -> gint: g-default-timeout
+      g-interface-info -> GDBusInterfaceInfo: g-interface-info
 
     Signals from GObject:
       notify (GParam)
     """
-
     class Props(Gio.DBusProxy.Props):
         g_connection: Gio.DBusConnection
         g_default_timeout: int
         g_flags: Gio.DBusProxyFlags
-        g_interface_info: Gio.DBusInterfaceInfo
+        g_interface_info: Gio.DBusInterfaceInfo | None
         g_interface_name: str
-        g_name: str
-        g_name_owner: str
+        g_name: str | None
+        g_name_owner: str | None
         g_object_path: str
         g_bus_type: Gio.BusType
 
@@ -4195,15 +4014,16 @@ class PhotosProxy(
     def priv(self) -> PhotosProxyPrivate: ...
     def __init__(
         self,
+        *,
         g_bus_type: Gio.BusType = ...,
         g_connection: Gio.DBusConnection = ...,
         g_default_timeout: int = ...,
         g_flags: Gio.DBusProxyFlags = ...,
-        g_interface_info: Gio.DBusInterfaceInfo = ...,
+        g_interface_info: Gio.DBusInterfaceInfo | None = ...,
         g_interface_name: str = ...,
         g_name: str = ...,
         g_object_path: str = ...,
-    ): ...
+    ) -> None: ...
     @staticmethod
     def new(
         connection: Gio.DBusConnection,
@@ -4276,12 +4096,10 @@ class PhotosSkeleton(Gio.DBusInterfaceSkeleton, Gio.DBusInterface, Photos):
 
     Properties from GDBusInterfaceSkeleton:
       g-flags -> GDBusInterfaceSkeletonFlags: g-flags
-        Flags for the interface skeleton
 
     Signals from GObject:
       notify (GParam)
     """
-
     class Props(Gio.DBusInterfaceSkeleton.Props):
         g_flags: Gio.DBusInterfaceSkeletonFlags
 
@@ -4291,7 +4109,7 @@ class PhotosSkeleton(Gio.DBusInterfaceSkeleton, Gio.DBusInterface, Photos):
     def parent_instance(self) -> Gio.DBusInterfaceSkeleton: ...
     @property
     def priv(self) -> PhotosSkeletonPrivate: ...
-    def __init__(self, g_flags: Gio.DBusInterfaceSkeletonFlags = ...): ...
+    def __init__(self, *, g_flags: Gio.DBusInterfaceSkeletonFlags = ...) -> None: ...
     @classmethod
     def new(cls) -> PhotosSkeleton: ...
 
@@ -4315,7 +4133,6 @@ class Printers(GObject.GInterface, Protocol):
     Signals from GObject:
       notify (GParam)
     """
-
     @staticmethod
     def interface_info() -> Gio.DBusInterfaceInfo: ...
     @staticmethod
@@ -4356,36 +4173,26 @@ class PrintersProxy(
 
     Properties from GDBusProxy:
       g-connection -> GDBusConnection: g-connection
-        The connection the proxy is for
-      g-bus-type -> GBusType: Bus Type
-        The bus to connect to, if any
+      g-bus-type -> GBusType: g-bus-type
       g-name -> gchararray: g-name
-        The well-known or unique name that the proxy is for
       g-name-owner -> gchararray: g-name-owner
-        The unique name for the owner
       g-flags -> GDBusProxyFlags: g-flags
-        Flags for the proxy
       g-object-path -> gchararray: g-object-path
-        The object path the proxy is for
       g-interface-name -> gchararray: g-interface-name
-        The D-Bus interface name the proxy is for
-      g-default-timeout -> gint: Default Timeout
-        Timeout for remote method invocation
-      g-interface-info -> GDBusInterfaceInfo: Interface Information
-        Interface Information
+      g-default-timeout -> gint: g-default-timeout
+      g-interface-info -> GDBusInterfaceInfo: g-interface-info
 
     Signals from GObject:
       notify (GParam)
     """
-
     class Props(Gio.DBusProxy.Props):
         g_connection: Gio.DBusConnection
         g_default_timeout: int
         g_flags: Gio.DBusProxyFlags
-        g_interface_info: Gio.DBusInterfaceInfo
+        g_interface_info: Gio.DBusInterfaceInfo | None
         g_interface_name: str
-        g_name: str
-        g_name_owner: str
+        g_name: str | None
+        g_name_owner: str | None
         g_object_path: str
         g_bus_type: Gio.BusType
 
@@ -4397,15 +4204,16 @@ class PrintersProxy(
     def priv(self) -> PrintersProxyPrivate: ...
     def __init__(
         self,
+        *,
         g_bus_type: Gio.BusType = ...,
         g_connection: Gio.DBusConnection = ...,
         g_default_timeout: int = ...,
         g_flags: Gio.DBusProxyFlags = ...,
-        g_interface_info: Gio.DBusInterfaceInfo = ...,
+        g_interface_info: Gio.DBusInterfaceInfo | None = ...,
         g_interface_name: str = ...,
         g_name: str = ...,
         g_object_path: str = ...,
-    ): ...
+    ) -> None: ...
     @staticmethod
     def new(
         connection: Gio.DBusConnection,
@@ -4478,12 +4286,10 @@ class PrintersSkeleton(Gio.DBusInterfaceSkeleton, Gio.DBusInterface, Printers):
 
     Properties from GDBusInterfaceSkeleton:
       g-flags -> GDBusInterfaceSkeletonFlags: g-flags
-        Flags for the interface skeleton
 
     Signals from GObject:
       notify (GParam)
     """
-
     class Props(Gio.DBusInterfaceSkeleton.Props):
         g_flags: Gio.DBusInterfaceSkeletonFlags
 
@@ -4493,7 +4299,7 @@ class PrintersSkeleton(Gio.DBusInterfaceSkeleton, Gio.DBusInterface, Printers):
     def parent_instance(self) -> Gio.DBusInterfaceSkeleton: ...
     @property
     def priv(self) -> PrintersSkeletonPrivate: ...
-    def __init__(self, g_flags: Gio.DBusInterfaceSkeletonFlags = ...): ...
+    def __init__(self, *, g_flags: Gio.DBusInterfaceSkeletonFlags = ...) -> None: ...
     @classmethod
     def new(cls) -> PrintersSkeleton: ...
 
@@ -4517,7 +4323,6 @@ class ReadLater(GObject.GInterface, Protocol):
     Signals from GObject:
       notify (GParam)
     """
-
     @staticmethod
     def interface_info() -> Gio.DBusInterfaceInfo: ...
     @staticmethod
@@ -4558,36 +4363,26 @@ class ReadLaterProxy(
 
     Properties from GDBusProxy:
       g-connection -> GDBusConnection: g-connection
-        The connection the proxy is for
-      g-bus-type -> GBusType: Bus Type
-        The bus to connect to, if any
+      g-bus-type -> GBusType: g-bus-type
       g-name -> gchararray: g-name
-        The well-known or unique name that the proxy is for
       g-name-owner -> gchararray: g-name-owner
-        The unique name for the owner
       g-flags -> GDBusProxyFlags: g-flags
-        Flags for the proxy
       g-object-path -> gchararray: g-object-path
-        The object path the proxy is for
       g-interface-name -> gchararray: g-interface-name
-        The D-Bus interface name the proxy is for
-      g-default-timeout -> gint: Default Timeout
-        Timeout for remote method invocation
-      g-interface-info -> GDBusInterfaceInfo: Interface Information
-        Interface Information
+      g-default-timeout -> gint: g-default-timeout
+      g-interface-info -> GDBusInterfaceInfo: g-interface-info
 
     Signals from GObject:
       notify (GParam)
     """
-
     class Props(Gio.DBusProxy.Props):
         g_connection: Gio.DBusConnection
         g_default_timeout: int
         g_flags: Gio.DBusProxyFlags
-        g_interface_info: Gio.DBusInterfaceInfo
+        g_interface_info: Gio.DBusInterfaceInfo | None
         g_interface_name: str
-        g_name: str
-        g_name_owner: str
+        g_name: str | None
+        g_name_owner: str | None
         g_object_path: str
         g_bus_type: Gio.BusType
 
@@ -4599,15 +4394,16 @@ class ReadLaterProxy(
     def priv(self) -> ReadLaterProxyPrivate: ...
     def __init__(
         self,
+        *,
         g_bus_type: Gio.BusType = ...,
         g_connection: Gio.DBusConnection = ...,
         g_default_timeout: int = ...,
         g_flags: Gio.DBusProxyFlags = ...,
-        g_interface_info: Gio.DBusInterfaceInfo = ...,
+        g_interface_info: Gio.DBusInterfaceInfo | None = ...,
         g_interface_name: str = ...,
         g_name: str = ...,
         g_object_path: str = ...,
-    ): ...
+    ) -> None: ...
     @staticmethod
     def new(
         connection: Gio.DBusConnection,
@@ -4680,12 +4476,10 @@ class ReadLaterSkeleton(Gio.DBusInterfaceSkeleton, Gio.DBusInterface, ReadLater)
 
     Properties from GDBusInterfaceSkeleton:
       g-flags -> GDBusInterfaceSkeletonFlags: g-flags
-        Flags for the interface skeleton
 
     Signals from GObject:
       notify (GParam)
     """
-
     class Props(Gio.DBusInterfaceSkeleton.Props):
         g_flags: Gio.DBusInterfaceSkeletonFlags
 
@@ -4695,7 +4489,7 @@ class ReadLaterSkeleton(Gio.DBusInterfaceSkeleton, Gio.DBusInterface, ReadLater)
     def parent_instance(self) -> Gio.DBusInterfaceSkeleton: ...
     @property
     def priv(self) -> ReadLaterSkeletonPrivate: ...
-    def __init__(self, g_flags: Gio.DBusInterfaceSkeletonFlags = ...): ...
+    def __init__(self, *, g_flags: Gio.DBusInterfaceSkeletonFlags = ...) -> None: ...
     @classmethod
     def new(cls) -> ReadLaterSkeleton: ...
 
@@ -4719,7 +4513,6 @@ class Ticketing(GObject.GInterface, Protocol):
     Signals from GObject:
       notify (GParam)
     """
-
     def call_get_ticket(
         self,
         cancellable: Gio.Cancellable | None = None,
@@ -4780,36 +4573,26 @@ class TicketingProxy(
 
     Properties from GDBusProxy:
       g-connection -> GDBusConnection: g-connection
-        The connection the proxy is for
-      g-bus-type -> GBusType: Bus Type
-        The bus to connect to, if any
+      g-bus-type -> GBusType: g-bus-type
       g-name -> gchararray: g-name
-        The well-known or unique name that the proxy is for
       g-name-owner -> gchararray: g-name-owner
-        The unique name for the owner
       g-flags -> GDBusProxyFlags: g-flags
-        Flags for the proxy
       g-object-path -> gchararray: g-object-path
-        The object path the proxy is for
       g-interface-name -> gchararray: g-interface-name
-        The D-Bus interface name the proxy is for
-      g-default-timeout -> gint: Default Timeout
-        Timeout for remote method invocation
-      g-interface-info -> GDBusInterfaceInfo: Interface Information
-        Interface Information
+      g-default-timeout -> gint: g-default-timeout
+      g-interface-info -> GDBusInterfaceInfo: g-interface-info
 
     Signals from GObject:
       notify (GParam)
     """
-
     class Props(Gio.DBusProxy.Props):
         g_connection: Gio.DBusConnection
         g_default_timeout: int
         g_flags: Gio.DBusProxyFlags
-        g_interface_info: Gio.DBusInterfaceInfo
+        g_interface_info: Gio.DBusInterfaceInfo | None
         g_interface_name: str
-        g_name: str
-        g_name_owner: str
+        g_name: str | None
+        g_name_owner: str | None
         g_object_path: str
         details: GLib.Variant
         g_bus_type: Gio.BusType
@@ -4822,16 +4605,17 @@ class TicketingProxy(
     def priv(self) -> TicketingProxyPrivate: ...
     def __init__(
         self,
+        *,
         g_bus_type: Gio.BusType = ...,
         g_connection: Gio.DBusConnection = ...,
         g_default_timeout: int = ...,
         g_flags: Gio.DBusProxyFlags = ...,
-        g_interface_info: Gio.DBusInterfaceInfo = ...,
+        g_interface_info: Gio.DBusInterfaceInfo | None = ...,
         g_interface_name: str = ...,
         g_name: str = ...,
         g_object_path: str = ...,
         details: GLib.Variant = ...,
-    ): ...
+    ) -> None: ...
     @staticmethod
     def new(
         connection: Gio.DBusConnection,
@@ -4907,12 +4691,10 @@ class TicketingSkeleton(Gio.DBusInterfaceSkeleton, Gio.DBusInterface, Ticketing)
 
     Properties from GDBusInterfaceSkeleton:
       g-flags -> GDBusInterfaceSkeletonFlags: g-flags
-        Flags for the interface skeleton
 
     Signals from GObject:
       notify (GParam)
     """
-
     class Props(Gio.DBusInterfaceSkeleton.Props):
         g_flags: Gio.DBusInterfaceSkeletonFlags
         details: GLib.Variant
@@ -4924,8 +4706,11 @@ class TicketingSkeleton(Gio.DBusInterfaceSkeleton, Gio.DBusInterface, Ticketing)
     @property
     def priv(self) -> TicketingSkeletonPrivate: ...
     def __init__(
-        self, g_flags: Gio.DBusInterfaceSkeletonFlags = ..., details: GLib.Variant = ...
-    ): ...
+        self,
+        *,
+        g_flags: Gio.DBusInterfaceSkeletonFlags = ...,
+        details: GLib.Variant = ...,
+    ) -> None: ...
     @classmethod
     def new(cls) -> TicketingSkeleton: ...
 
@@ -4949,7 +4734,6 @@ class Todo(GObject.GInterface, Protocol):
     Signals from GObject:
       notify (GParam)
     """
-
     @staticmethod
     def interface_info() -> Gio.DBusInterfaceInfo: ...
     @staticmethod
@@ -4990,36 +4774,26 @@ class TodoProxy(
 
     Properties from GDBusProxy:
       g-connection -> GDBusConnection: g-connection
-        The connection the proxy is for
-      g-bus-type -> GBusType: Bus Type
-        The bus to connect to, if any
+      g-bus-type -> GBusType: g-bus-type
       g-name -> gchararray: g-name
-        The well-known or unique name that the proxy is for
       g-name-owner -> gchararray: g-name-owner
-        The unique name for the owner
       g-flags -> GDBusProxyFlags: g-flags
-        Flags for the proxy
       g-object-path -> gchararray: g-object-path
-        The object path the proxy is for
       g-interface-name -> gchararray: g-interface-name
-        The D-Bus interface name the proxy is for
-      g-default-timeout -> gint: Default Timeout
-        Timeout for remote method invocation
-      g-interface-info -> GDBusInterfaceInfo: Interface Information
-        Interface Information
+      g-default-timeout -> gint: g-default-timeout
+      g-interface-info -> GDBusInterfaceInfo: g-interface-info
 
     Signals from GObject:
       notify (GParam)
     """
-
     class Props(Gio.DBusProxy.Props):
         g_connection: Gio.DBusConnection
         g_default_timeout: int
         g_flags: Gio.DBusProxyFlags
-        g_interface_info: Gio.DBusInterfaceInfo
+        g_interface_info: Gio.DBusInterfaceInfo | None
         g_interface_name: str
-        g_name: str
-        g_name_owner: str
+        g_name: str | None
+        g_name_owner: str | None
         g_object_path: str
         g_bus_type: Gio.BusType
 
@@ -5031,15 +4805,16 @@ class TodoProxy(
     def priv(self) -> TodoProxyPrivate: ...
     def __init__(
         self,
+        *,
         g_bus_type: Gio.BusType = ...,
         g_connection: Gio.DBusConnection = ...,
         g_default_timeout: int = ...,
         g_flags: Gio.DBusProxyFlags = ...,
-        g_interface_info: Gio.DBusInterfaceInfo = ...,
+        g_interface_info: Gio.DBusInterfaceInfo | None = ...,
         g_interface_name: str = ...,
         g_name: str = ...,
         g_object_path: str = ...,
-    ): ...
+    ) -> None: ...
     @staticmethod
     def new(
         connection: Gio.DBusConnection,
@@ -5112,12 +4887,10 @@ class TodoSkeleton(Gio.DBusInterfaceSkeleton, Gio.DBusInterface, Todo):
 
     Properties from GDBusInterfaceSkeleton:
       g-flags -> GDBusInterfaceSkeletonFlags: g-flags
-        Flags for the interface skeleton
 
     Signals from GObject:
       notify (GParam)
     """
-
     class Props(Gio.DBusInterfaceSkeleton.Props):
         g_flags: Gio.DBusInterfaceSkeletonFlags
 
@@ -5127,7 +4900,7 @@ class TodoSkeleton(Gio.DBusInterfaceSkeleton, Gio.DBusInterface, Todo):
     def parent_instance(self) -> Gio.DBusInterfaceSkeleton: ...
     @property
     def priv(self) -> TodoSkeletonPrivate: ...
-    def __init__(self, g_flags: Gio.DBusInterfaceSkeletonFlags = ...): ...
+    def __init__(self, *, g_flags: Gio.DBusInterfaceSkeletonFlags = ...) -> None: ...
     @classmethod
     def new(cls) -> TodoSkeleton: ...
 

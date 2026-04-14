@@ -66,13 +66,9 @@ RTP_SOURCE_META_MAX_CSRC_COUNT: Final[int]
 RTP_VERSION: Final[int]
 
 def buffer_add_rtp_source_meta(
-    buffer: Gst.Buffer,
-    ssrc: int | None = None,
-    csrc: Sequence[int] | None = None,
+    buffer: Gst.Buffer, ssrc: int | None = None, csrc: Sequence[int] | None = None
 ) -> RTPSourceMeta: ...
-def buffer_get_rtp_source_meta(
-    buffer: Gst.Buffer,
-) -> RTPSourceMeta | None: ...
+def buffer_get_rtp_source_meta(buffer: Gst.Buffer) -> RTPSourceMeta | None: ...
 def rtcp_buffer_map(
     buffer: Gst.Buffer, flags: Gst.MapFlags, rtcp: RTCPBuffer
 ) -> bool: ...

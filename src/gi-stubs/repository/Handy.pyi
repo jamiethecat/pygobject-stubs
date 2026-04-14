@@ -1,5 +1,6 @@
 from typing import Any
 from typing import Protocol
+from typing import TypeVar
 
 from collections.abc import Callable
 
@@ -11,6 +12,8 @@ from gi.repository import Gio
 from gi.repository import GLib
 from gi.repository import GObject
 from gi.repository import Pango
+
+T = TypeVar("T")
 
 def ease_out_cubic(t: float) -> float: ...
 def enum_value_row_name(value: EnumValueObject, user_data: None) -> str: ...
@@ -79,6 +82,8 @@ class ActionRow(
     Signals from GtkWidget:
       composited-changed ()
       event (GdkEvent) -> gboolean
+      direction-changed (GtkTextDirection)
+      state-changed (GtkStateType)
       destroy ()
       show ()
       hide ()
@@ -87,13 +92,11 @@ class ActionRow(
       realize ()
       unrealize ()
       size-allocate (GdkRectangle)
-      state-changed (GtkStateType)
       state-flags-changed (GtkStateFlags)
       parent-set (GtkWidget)
       hierarchy-changed (GtkWidget)
       style-set (GtkStyle)
       style-updated ()
-      direction-changed (GtkTextDirection)
       grab-notify (gboolean)
       child-notify (GParam)
       draw (CairoContext) -> gboolean
@@ -230,7 +233,6 @@ class ActionRow(
     Signals from GObject:
       notify (GParam)
     """
-
     class Props(PreferencesRow.Props):
         activatable_widget: _Gtk3.Widget | None
         icon_name: str
@@ -292,6 +294,7 @@ class ActionRow(
     def parent_instance(self) -> PreferencesRow: ...
     def __init__(
         self,
+        *,
         activatable_widget: _Gtk3.Widget | None = ...,
         icon_name: str = ...,
         subtitle: str | None = ...,
@@ -342,9 +345,10 @@ class ActionRow(
         width_request: int = ...,
         action_name: str | None = ...,
         action_target: GLib.Variant = ...,
-    ): ...
+    ) -> None: ...
     def activate(self) -> None: ...
     def add_prefix(self, widget: _Gtk3.Widget) -> None: ...
+    def do_activate(self) -> None: ...
     def get_activatable_widget(self) -> _Gtk3.Widget | None: ...
     def get_icon_name(self) -> str: ...
     def get_subtitle(self) -> str | None: ...
@@ -500,6 +504,8 @@ class ApplicationWindow(
     Signals from GtkWidget:
       composited-changed ()
       event (GdkEvent) -> gboolean
+      direction-changed (GtkTextDirection)
+      state-changed (GtkStateType)
       destroy ()
       show ()
       hide ()
@@ -508,13 +514,11 @@ class ApplicationWindow(
       realize ()
       unrealize ()
       size-allocate (GdkRectangle)
-      state-changed (GtkStateType)
       state-flags-changed (GtkStateFlags)
       parent-set (GtkWidget)
       hierarchy-changed (GtkWidget)
       style-set (GtkStyle)
       style-updated ()
-      direction-changed (GtkTextDirection)
       grab-notify (gboolean)
       child-notify (GParam)
       draw (CairoContext) -> gboolean
@@ -651,7 +655,6 @@ class ApplicationWindow(
     Signals from GObject:
       notify (GParam)
     """
-
     class Props(_Gtk3.ApplicationWindow.Props):
         show_menubar: bool
         accept_focus: bool
@@ -736,6 +739,7 @@ class ApplicationWindow(
     def parent_instance(self) -> _Gtk3.ApplicationWindow: ...
     def __init__(
         self,
+        *,
         show_menubar: bool = ...,
         accept_focus: bool = ...,
         application: _Gtk3.Application | None = ...,
@@ -805,7 +809,7 @@ class ApplicationWindow(
         vexpand_set: bool = ...,
         visible: bool = ...,
         width_request: int = ...,
-    ): ...
+    ) -> None: ...
     @classmethod
     def new(cls) -> ApplicationWindow: ...
 
@@ -848,6 +852,8 @@ class Avatar(_Gtk3.DrawingArea, Atk.ImplementorIface, _Gtk3.Buildable):
     Signals from GtkWidget:
       composited-changed ()
       event (GdkEvent) -> gboolean
+      direction-changed (GtkTextDirection)
+      state-changed (GtkStateType)
       destroy ()
       show ()
       hide ()
@@ -856,13 +862,11 @@ class Avatar(_Gtk3.DrawingArea, Atk.ImplementorIface, _Gtk3.Buildable):
       realize ()
       unrealize ()
       size-allocate (GdkRectangle)
-      state-changed (GtkStateType)
       state-flags-changed (GtkStateFlags)
       parent-set (GtkWidget)
       hierarchy-changed (GtkWidget)
       style-set (GtkStyle)
       style-updated ()
-      direction-changed (GtkTextDirection)
       grab-notify (gboolean)
       child-notify (GParam)
       draw (CairoContext) -> gboolean
@@ -999,7 +1003,6 @@ class Avatar(_Gtk3.DrawingArea, Atk.ImplementorIface, _Gtk3.Buildable):
     Signals from GObject:
       notify (GParam)
     """
-
     class Props(_Gtk3.DrawingArea.Props):
         icon_name: str | None
         loadable_icon: Gio.LoadableIcon | None
@@ -1050,6 +1053,7 @@ class Avatar(_Gtk3.DrawingArea, Atk.ImplementorIface, _Gtk3.Buildable):
     def props(self) -> Props: ...
     def __init__(
         self,
+        *,
         icon_name: str | None = ...,
         loadable_icon: Gio.LoadableIcon | None = ...,
         show_initials: bool = ...,
@@ -1091,7 +1095,7 @@ class Avatar(_Gtk3.DrawingArea, Atk.ImplementorIface, _Gtk3.Buildable):
         vexpand_set: bool = ...,
         visible: bool = ...,
         width_request: int = ...,
-    ): ...
+    ) -> None: ...
     def draw_to_pixbuf(self, size: int, scale_factor: int) -> GdkPixbuf.Pixbuf: ...
     def draw_to_pixbuf_async(
         self,
@@ -1195,6 +1199,8 @@ class Carousel(
     Signals from GtkWidget:
       composited-changed ()
       event (GdkEvent) -> gboolean
+      direction-changed (GtkTextDirection)
+      state-changed (GtkStateType)
       destroy ()
       show ()
       hide ()
@@ -1203,13 +1209,11 @@ class Carousel(
       realize ()
       unrealize ()
       size-allocate (GdkRectangle)
-      state-changed (GtkStateType)
       state-flags-changed (GtkStateFlags)
       parent-set (GtkWidget)
       hierarchy-changed (GtkWidget)
       style-set (GtkStyle)
       style-updated ()
-      direction-changed (GtkTextDirection)
       grab-notify (gboolean)
       child-notify (GParam)
       draw (CairoContext) -> gboolean
@@ -1346,7 +1350,6 @@ class Carousel(
     Signals from GObject:
       notify (GParam)
     """
-
     class Props(_Gtk3.EventBox.Props):
         allow_long_swipes: bool
         allow_mouse_drag: bool
@@ -1407,6 +1410,7 @@ class Carousel(
     def props(self) -> Props: ...
     def __init__(
         self,
+        *,
         allow_long_swipes: bool = ...,
         allow_mouse_drag: bool = ...,
         allow_scroll_wheel: bool = ...,
@@ -1456,7 +1460,7 @@ class Carousel(
         visible: bool = ...,
         width_request: int = ...,
         orientation: _Gtk3.Orientation = ...,
-    ): ...
+    ) -> None: ...
     def get_allow_long_swipes(self) -> bool: ...
     def get_allow_mouse_drag(self) -> bool: ...
     def get_allow_scroll_wheel(self) -> bool: ...
@@ -1512,6 +1516,8 @@ class CarouselIndicatorDots(
     Signals from GtkWidget:
       composited-changed ()
       event (GdkEvent) -> gboolean
+      direction-changed (GtkTextDirection)
+      state-changed (GtkStateType)
       destroy ()
       show ()
       hide ()
@@ -1520,13 +1526,11 @@ class CarouselIndicatorDots(
       realize ()
       unrealize ()
       size-allocate (GdkRectangle)
-      state-changed (GtkStateType)
       state-flags-changed (GtkStateFlags)
       parent-set (GtkWidget)
       hierarchy-changed (GtkWidget)
       style-set (GtkStyle)
       style-updated ()
-      direction-changed (GtkTextDirection)
       grab-notify (gboolean)
       child-notify (GParam)
       draw (CairoContext) -> gboolean
@@ -1663,7 +1667,6 @@ class CarouselIndicatorDots(
     Signals from GObject:
       notify (GParam)
     """
-
     class Props(_Gtk3.DrawingArea.Props):
         carousel: Carousel | None
         app_paintable: bool
@@ -1711,6 +1714,7 @@ class CarouselIndicatorDots(
     def props(self) -> Props: ...
     def __init__(
         self,
+        *,
         carousel: Carousel | None = ...,
         app_paintable: bool = ...,
         can_default: bool = ...,
@@ -1749,7 +1753,7 @@ class CarouselIndicatorDots(
         visible: bool = ...,
         width_request: int = ...,
         orientation: _Gtk3.Orientation = ...,
-    ): ...
+    ) -> None: ...
     def get_carousel(self) -> Carousel | None: ...
     @classmethod
     def new(cls) -> CarouselIndicatorDots: ...
@@ -1786,6 +1790,8 @@ class CarouselIndicatorLines(
     Signals from GtkWidget:
       composited-changed ()
       event (GdkEvent) -> gboolean
+      direction-changed (GtkTextDirection)
+      state-changed (GtkStateType)
       destroy ()
       show ()
       hide ()
@@ -1794,13 +1800,11 @@ class CarouselIndicatorLines(
       realize ()
       unrealize ()
       size-allocate (GdkRectangle)
-      state-changed (GtkStateType)
       state-flags-changed (GtkStateFlags)
       parent-set (GtkWidget)
       hierarchy-changed (GtkWidget)
       style-set (GtkStyle)
       style-updated ()
-      direction-changed (GtkTextDirection)
       grab-notify (gboolean)
       child-notify (GParam)
       draw (CairoContext) -> gboolean
@@ -1937,7 +1941,6 @@ class CarouselIndicatorLines(
     Signals from GObject:
       notify (GParam)
     """
-
     class Props(_Gtk3.DrawingArea.Props):
         carousel: Carousel | None
         app_paintable: bool
@@ -1985,6 +1988,7 @@ class CarouselIndicatorLines(
     def props(self) -> Props: ...
     def __init__(
         self,
+        *,
         carousel: Carousel | None = ...,
         app_paintable: bool = ...,
         can_default: bool = ...,
@@ -2023,7 +2027,7 @@ class CarouselIndicatorLines(
         visible: bool = ...,
         width_request: int = ...,
         orientation: _Gtk3.Orientation = ...,
-    ): ...
+    ) -> None: ...
     def get_carousel(self) -> Carousel | None: ...
     @classmethod
     def new(cls) -> CarouselIndicatorLines: ...
@@ -2074,6 +2078,8 @@ class Clamp(_Gtk3.Bin, Atk.ImplementorIface, _Gtk3.Buildable, _Gtk3.Orientable):
     Signals from GtkWidget:
       composited-changed ()
       event (GdkEvent) -> gboolean
+      direction-changed (GtkTextDirection)
+      state-changed (GtkStateType)
       destroy ()
       show ()
       hide ()
@@ -2082,13 +2088,11 @@ class Clamp(_Gtk3.Bin, Atk.ImplementorIface, _Gtk3.Buildable, _Gtk3.Orientable):
       realize ()
       unrealize ()
       size-allocate (GdkRectangle)
-      state-changed (GtkStateType)
       state-flags-changed (GtkStateFlags)
       parent-set (GtkWidget)
       hierarchy-changed (GtkWidget)
       style-set (GtkStyle)
       style-updated ()
-      direction-changed (GtkTextDirection)
       grab-notify (gboolean)
       child-notify (GParam)
       draw (CairoContext) -> gboolean
@@ -2225,7 +2229,6 @@ class Clamp(_Gtk3.Bin, Atk.ImplementorIface, _Gtk3.Buildable, _Gtk3.Orientable):
     Signals from GObject:
       notify (GParam)
     """
-
     class Props(_Gtk3.Bin.Props):
         maximum_size: int
         tightening_threshold: int
@@ -2277,6 +2280,7 @@ class Clamp(_Gtk3.Bin, Atk.ImplementorIface, _Gtk3.Buildable, _Gtk3.Orientable):
     def props(self) -> Props: ...
     def __init__(
         self,
+        *,
         maximum_size: int = ...,
         tightening_threshold: int = ...,
         border_width: int = ...,
@@ -2319,7 +2323,7 @@ class Clamp(_Gtk3.Bin, Atk.ImplementorIface, _Gtk3.Buildable, _Gtk3.Orientable):
         visible: bool = ...,
         width_request: int = ...,
         orientation: _Gtk3.Orientation = ...,
-    ): ...
+    ) -> None: ...
     def get_maximum_size(self) -> int: ...
     def get_tightening_threshold(self) -> int: ...
     @classmethod
@@ -2404,6 +2408,8 @@ class ComboRow(ActionRow, Atk.ImplementorIface, _Gtk3.Actionable, _Gtk3.Buildabl
     Signals from GtkWidget:
       composited-changed ()
       event (GdkEvent) -> gboolean
+      direction-changed (GtkTextDirection)
+      state-changed (GtkStateType)
       destroy ()
       show ()
       hide ()
@@ -2412,13 +2418,11 @@ class ComboRow(ActionRow, Atk.ImplementorIface, _Gtk3.Actionable, _Gtk3.Buildabl
       realize ()
       unrealize ()
       size-allocate (GdkRectangle)
-      state-changed (GtkStateType)
       state-flags-changed (GtkStateFlags)
       parent-set (GtkWidget)
       hierarchy-changed (GtkWidget)
       style-set (GtkStyle)
       style-updated ()
-      direction-changed (GtkTextDirection)
       grab-notify (gboolean)
       child-notify (GParam)
       draw (CairoContext) -> gboolean
@@ -2555,7 +2559,6 @@ class ComboRow(ActionRow, Atk.ImplementorIface, _Gtk3.Actionable, _Gtk3.Buildabl
     Signals from GObject:
       notify (GParam)
     """
-
     class Props(ActionRow.Props):
         selected_index: int
         use_subtitle: bool
@@ -2619,6 +2622,7 @@ class ComboRow(ActionRow, Atk.ImplementorIface, _Gtk3.Actionable, _Gtk3.Buildabl
     def parent_instance(self) -> ActionRow: ...
     def __init__(
         self,
+        *,
         selected_index: int = ...,
         use_subtitle: bool = ...,
         activatable_widget: _Gtk3.Widget | None = ...,
@@ -2671,7 +2675,7 @@ class ComboRow(ActionRow, Atk.ImplementorIface, _Gtk3.Actionable, _Gtk3.Buildabl
         width_request: int = ...,
         action_name: str | None = ...,
         action_target: GLib.Variant = ...,
-    ): ...
+    ) -> None: ...
     def bind_model(
         self,
         model: Gio.ListModel | None = None,
@@ -2692,7 +2696,7 @@ class ComboRow(ActionRow, Atk.ImplementorIface, _Gtk3.Actionable, _Gtk3.Buildabl
     def new(cls) -> ComboRow: ...
     def set_for_enum(
         self,
-        enum_type: type,
+        enum_type: type[Any],
         get_name_func: Callable[..., str] | None = None,
         *user_data: Any,
     ) -> None: ...
@@ -2770,6 +2774,8 @@ class Deck(
     Signals from GtkWidget:
       composited-changed ()
       event (GdkEvent) -> gboolean
+      direction-changed (GtkTextDirection)
+      state-changed (GtkStateType)
       destroy ()
       show ()
       hide ()
@@ -2778,13 +2784,11 @@ class Deck(
       realize ()
       unrealize ()
       size-allocate (GdkRectangle)
-      state-changed (GtkStateType)
       state-flags-changed (GtkStateFlags)
       parent-set (GtkWidget)
       hierarchy-changed (GtkWidget)
       style-set (GtkStyle)
       style-updated ()
-      direction-changed (GtkTextDirection)
       grab-notify (gboolean)
       child-notify (GParam)
       draw (CairoContext) -> gboolean
@@ -2921,7 +2925,6 @@ class Deck(
     Signals from GObject:
       notify (GParam)
     """
-
     class Props(_Gtk3.Container.Props):
         can_swipe_back: bool
         can_swipe_forward: bool
@@ -2983,6 +2986,7 @@ class Deck(
     def parent_instance(self) -> _Gtk3.Container: ...
     def __init__(
         self,
+        *,
         can_swipe_back: bool = ...,
         can_swipe_forward: bool = ...,
         hhomogeneous: bool = ...,
@@ -3032,7 +3036,7 @@ class Deck(
         visible: bool = ...,
         width_request: int = ...,
         orientation: _Gtk3.Orientation = ...,
-    ): ...
+    ) -> None: ...
     def get_adjacent_child(
         self, direction: NavigationDirection
     ) -> _Gtk3.Widget | None: ...
@@ -3094,7 +3098,6 @@ class EnumValueObject(GObject.Object):
     Signals from GObject:
       notify (GParam)
     """
-
     def get_name(self) -> str: ...
     def get_nick(self) -> str: ...
     def get_value(self) -> int: ...
@@ -3171,6 +3174,8 @@ class ExpanderRow(
     Signals from GtkWidget:
       composited-changed ()
       event (GdkEvent) -> gboolean
+      direction-changed (GtkTextDirection)
+      state-changed (GtkStateType)
       destroy ()
       show ()
       hide ()
@@ -3179,13 +3184,11 @@ class ExpanderRow(
       realize ()
       unrealize ()
       size-allocate (GdkRectangle)
-      state-changed (GtkStateType)
       state-flags-changed (GtkStateFlags)
       parent-set (GtkWidget)
       hierarchy-changed (GtkWidget)
       style-set (GtkStyle)
       style-updated ()
-      direction-changed (GtkTextDirection)
       grab-notify (gboolean)
       child-notify (GParam)
       draw (CairoContext) -> gboolean
@@ -3322,7 +3325,6 @@ class ExpanderRow(
     Signals from GObject:
       notify (GParam)
     """
-
     class Props(PreferencesRow.Props):
         enable_expansion: bool
         expanded: bool
@@ -3384,6 +3386,7 @@ class ExpanderRow(
     def parent_instance(self) -> PreferencesRow: ...
     def __init__(
         self,
+        *,
         enable_expansion: bool = ...,
         expanded: bool = ...,
         icon_name: str = ...,
@@ -3434,7 +3437,7 @@ class ExpanderRow(
         width_request: int = ...,
         action_name: str | None = ...,
         action_target: GLib.Variant = ...,
-    ): ...
+    ) -> None: ...
     def add_action(self, widget: _Gtk3.Widget) -> None: ...
     def add_prefix(self, widget: _Gtk3.Widget) -> None: ...
     def get_enable_expansion(self) -> bool: ...
@@ -3530,6 +3533,8 @@ class Flap(
     Signals from GtkWidget:
       composited-changed ()
       event (GdkEvent) -> gboolean
+      direction-changed (GtkTextDirection)
+      state-changed (GtkStateType)
       destroy ()
       show ()
       hide ()
@@ -3538,13 +3543,11 @@ class Flap(
       realize ()
       unrealize ()
       size-allocate (GdkRectangle)
-      state-changed (GtkStateType)
       state-flags-changed (GtkStateFlags)
       parent-set (GtkWidget)
       hierarchy-changed (GtkWidget)
       style-set (GtkStyle)
       style-updated ()
-      direction-changed (GtkTextDirection)
       grab-notify (gboolean)
       child-notify (GParam)
       draw (CairoContext) -> gboolean
@@ -3681,7 +3684,6 @@ class Flap(
     Signals from GObject:
       notify (GParam)
     """
-
     class Props(_Gtk3.Container.Props):
         content: _Gtk3.Widget | None
         flap: _Gtk3.Widget | None
@@ -3746,6 +3748,7 @@ class Flap(
     def props(self) -> Props: ...
     def __init__(
         self,
+        *,
         content: _Gtk3.Widget | None = ...,
         flap: _Gtk3.Widget | None = ...,
         flap_position: _Gtk3.PackType = ...,
@@ -3799,7 +3802,7 @@ class Flap(
         visible: bool = ...,
         width_request: int = ...,
         orientation: _Gtk3.Orientation = ...,
-    ): ...
+    ) -> None: ...
     def get_content(self) -> _Gtk3.Widget | None: ...
     def get_flap(self) -> _Gtk3.Widget | None: ...
     def get_flap_position(self) -> _Gtk3.PackType: ...
@@ -3896,6 +3899,8 @@ class HeaderBar(_Gtk3.Container, Atk.ImplementorIface, _Gtk3.Buildable):
     Signals from GtkWidget:
       composited-changed ()
       event (GdkEvent) -> gboolean
+      direction-changed (GtkTextDirection)
+      state-changed (GtkStateType)
       destroy ()
       show ()
       hide ()
@@ -3904,13 +3909,11 @@ class HeaderBar(_Gtk3.Container, Atk.ImplementorIface, _Gtk3.Buildable):
       realize ()
       unrealize ()
       size-allocate (GdkRectangle)
-      state-changed (GtkStateType)
       state-flags-changed (GtkStateFlags)
       parent-set (GtkWidget)
       hierarchy-changed (GtkWidget)
       style-set (GtkStyle)
       style-updated ()
-      direction-changed (GtkTextDirection)
       grab-notify (gboolean)
       child-notify (GParam)
       draw (CairoContext) -> gboolean
@@ -4047,7 +4050,6 @@ class HeaderBar(_Gtk3.Container, Atk.ImplementorIface, _Gtk3.Buildable):
     Signals from GObject:
       notify (GParam)
     """
-
     class Props(_Gtk3.Container.Props):
         centering_policy: CenteringPolicy
         custom_title: _Gtk3.Widget | None
@@ -4110,6 +4112,7 @@ class HeaderBar(_Gtk3.Container, Atk.ImplementorIface, _Gtk3.Buildable):
     def parent_instance(self) -> _Gtk3.Container: ...
     def __init__(
         self,
+        *,
         centering_policy: CenteringPolicy = ...,
         custom_title: _Gtk3.Widget | None = ...,
         decoration_layout: str | None = ...,
@@ -4160,7 +4163,7 @@ class HeaderBar(_Gtk3.Container, Atk.ImplementorIface, _Gtk3.Buildable):
         vexpand_set: bool = ...,
         visible: bool = ...,
         width_request: int = ...,
-    ): ...
+    ) -> None: ...
     def get_centering_policy(self) -> CenteringPolicy: ...
     def get_custom_title(self) -> _Gtk3.Widget | None: ...
     def get_decoration_layout(self) -> str: ...
@@ -4219,13 +4222,12 @@ class HeaderGroup(GObject.Object, _Gtk3.Buildable):
     Signals from GObject:
       notify (GParam)
     """
-
     class Props(GObject.Object.Props):
         decorate_all: bool
 
     @property
     def props(self) -> Props: ...
-    def __init__(self, decorate_all: bool = ...): ...
+    def __init__(self, *, decorate_all: bool = ...) -> None: ...
     def add_gtk_header_bar(self, header_bar: _Gtk3.HeaderBar) -> None: ...
     def add_header_bar(self, header_bar: HeaderBar) -> None: ...
     def add_header_group(self, header_group: HeaderGroup) -> None: ...
@@ -4252,7 +4254,6 @@ class HeaderGroupChild(GObject.Object):
     Signals from GObject:
       notify (GParam)
     """
-
     def get_child_type(self) -> HeaderGroupChildType: ...
     def get_gtk_header_bar(self) -> _Gtk3.HeaderBar: ...
     def get_header_bar(self) -> HeaderBar: ...
@@ -4324,6 +4325,8 @@ class Keypad(_Gtk3.Bin, Atk.ImplementorIface, _Gtk3.Buildable):
     Signals from GtkWidget:
       composited-changed ()
       event (GdkEvent) -> gboolean
+      direction-changed (GtkTextDirection)
+      state-changed (GtkStateType)
       destroy ()
       show ()
       hide ()
@@ -4332,13 +4335,11 @@ class Keypad(_Gtk3.Bin, Atk.ImplementorIface, _Gtk3.Buildable):
       realize ()
       unrealize ()
       size-allocate (GdkRectangle)
-      state-changed (GtkStateType)
       state-flags-changed (GtkStateFlags)
       parent-set (GtkWidget)
       hierarchy-changed (GtkWidget)
       style-set (GtkStyle)
       style-updated ()
-      direction-changed (GtkTextDirection)
       grab-notify (gboolean)
       child-notify (GParam)
       draw (CairoContext) -> gboolean
@@ -4475,7 +4476,6 @@ class Keypad(_Gtk3.Bin, Atk.ImplementorIface, _Gtk3.Buildable):
     Signals from GObject:
       notify (GParam)
     """
-
     class Props(_Gtk3.Bin.Props):
         column_spacing: int
         end_action: _Gtk3.Widget | None
@@ -4533,6 +4533,7 @@ class Keypad(_Gtk3.Bin, Atk.ImplementorIface, _Gtk3.Buildable):
     def parent_instance(self) -> _Gtk3.Bin: ...
     def __init__(
         self,
+        *,
         column_spacing: int = ...,
         end_action: _Gtk3.Widget | None = ...,
         entry: _Gtk3.Entry | None = ...,
@@ -4579,7 +4580,7 @@ class Keypad(_Gtk3.Bin, Atk.ImplementorIface, _Gtk3.Buildable):
         vexpand_set: bool = ...,
         visible: bool = ...,
         width_request: int = ...,
-    ): ...
+    ) -> None: ...
     def get_column_spacing(self) -> int: ...
     def get_end_action(self) -> _Gtk3.Widget | None: ...
     def get_entry(self) -> _Gtk3.Entry: ...
@@ -4673,6 +4674,8 @@ class Leaflet(
     Signals from GtkWidget:
       composited-changed ()
       event (GdkEvent) -> gboolean
+      direction-changed (GtkTextDirection)
+      state-changed (GtkStateType)
       destroy ()
       show ()
       hide ()
@@ -4681,13 +4684,11 @@ class Leaflet(
       realize ()
       unrealize ()
       size-allocate (GdkRectangle)
-      state-changed (GtkStateType)
       state-flags-changed (GtkStateFlags)
       parent-set (GtkWidget)
       hierarchy-changed (GtkWidget)
       style-set (GtkStyle)
       style-updated ()
-      direction-changed (GtkTextDirection)
       grab-notify (gboolean)
       child-notify (GParam)
       draw (CairoContext) -> gboolean
@@ -4824,7 +4825,6 @@ class Leaflet(
     Signals from GObject:
       notify (GParam)
     """
-
     class Props(_Gtk3.Container.Props):
         can_swipe_back: bool
         can_swipe_forward: bool
@@ -4890,6 +4890,7 @@ class Leaflet(
     def parent_instance(self) -> _Gtk3.Container: ...
     def __init__(
         self,
+        *,
         can_swipe_back: bool = ...,
         can_swipe_forward: bool = ...,
         child_transition_duration: int = ...,
@@ -4942,7 +4943,7 @@ class Leaflet(
         visible: bool = ...,
         width_request: int = ...,
         orientation: _Gtk3.Orientation = ...,
-    ): ...
+    ) -> None: ...
     def get_adjacent_child(
         self, direction: NavigationDirection
     ) -> _Gtk3.Widget | None: ...
@@ -5029,6 +5030,8 @@ class PreferencesGroup(_Gtk3.Bin, Atk.ImplementorIface, _Gtk3.Buildable):
     Signals from GtkWidget:
       composited-changed ()
       event (GdkEvent) -> gboolean
+      direction-changed (GtkTextDirection)
+      state-changed (GtkStateType)
       destroy ()
       show ()
       hide ()
@@ -5037,13 +5040,11 @@ class PreferencesGroup(_Gtk3.Bin, Atk.ImplementorIface, _Gtk3.Buildable):
       realize ()
       unrealize ()
       size-allocate (GdkRectangle)
-      state-changed (GtkStateType)
       state-flags-changed (GtkStateFlags)
       parent-set (GtkWidget)
       hierarchy-changed (GtkWidget)
       style-set (GtkStyle)
       style-updated ()
-      direction-changed (GtkTextDirection)
       grab-notify (gboolean)
       child-notify (GParam)
       draw (CairoContext) -> gboolean
@@ -5180,7 +5181,6 @@ class PreferencesGroup(_Gtk3.Bin, Atk.ImplementorIface, _Gtk3.Buildable):
     Signals from GObject:
       notify (GParam)
     """
-
     class Props(_Gtk3.Bin.Props):
         description: str
         title: str
@@ -5234,6 +5234,7 @@ class PreferencesGroup(_Gtk3.Bin, Atk.ImplementorIface, _Gtk3.Buildable):
     def parent_instance(self) -> _Gtk3.Bin: ...
     def __init__(
         self,
+        *,
         description: str = ...,
         title: str = ...,
         use_markup: bool = ...,
@@ -5276,7 +5277,7 @@ class PreferencesGroup(_Gtk3.Bin, Atk.ImplementorIface, _Gtk3.Buildable):
         vexpand_set: bool = ...,
         visible: bool = ...,
         width_request: int = ...,
-    ): ...
+    ) -> None: ...
     def get_description(self) -> str: ...
     def get_title(self) -> str: ...
     def get_use_markup(self) -> bool: ...
@@ -5333,6 +5334,8 @@ class PreferencesPage(_Gtk3.Bin, Atk.ImplementorIface, _Gtk3.Buildable):
     Signals from GtkWidget:
       composited-changed ()
       event (GdkEvent) -> gboolean
+      direction-changed (GtkTextDirection)
+      state-changed (GtkStateType)
       destroy ()
       show ()
       hide ()
@@ -5341,13 +5344,11 @@ class PreferencesPage(_Gtk3.Bin, Atk.ImplementorIface, _Gtk3.Buildable):
       realize ()
       unrealize ()
       size-allocate (GdkRectangle)
-      state-changed (GtkStateType)
       state-flags-changed (GtkStateFlags)
       parent-set (GtkWidget)
       hierarchy-changed (GtkWidget)
       style-set (GtkStyle)
       style-updated ()
-      direction-changed (GtkTextDirection)
       grab-notify (gboolean)
       child-notify (GParam)
       draw (CairoContext) -> gboolean
@@ -5484,7 +5485,6 @@ class PreferencesPage(_Gtk3.Bin, Atk.ImplementorIface, _Gtk3.Buildable):
     Signals from GObject:
       notify (GParam)
     """
-
     class Props(_Gtk3.Bin.Props):
         icon_name: str | None
         title: str | None
@@ -5537,6 +5537,7 @@ class PreferencesPage(_Gtk3.Bin, Atk.ImplementorIface, _Gtk3.Buildable):
     def parent_instance(self) -> _Gtk3.Bin: ...
     def __init__(
         self,
+        *,
         icon_name: str | None = ...,
         title: str | None = ...,
         border_width: int = ...,
@@ -5578,7 +5579,7 @@ class PreferencesPage(_Gtk3.Bin, Atk.ImplementorIface, _Gtk3.Buildable):
         vexpand_set: bool = ...,
         visible: bool = ...,
         width_request: int = ...,
-    ): ...
+    ) -> None: ...
     def get_icon_name(self) -> str | None: ...
     def get_title(self) -> str | None: ...
     @classmethod
@@ -5644,6 +5645,8 @@ class PreferencesRow(
     Signals from GtkWidget:
       composited-changed ()
       event (GdkEvent) -> gboolean
+      direction-changed (GtkTextDirection)
+      state-changed (GtkStateType)
       destroy ()
       show ()
       hide ()
@@ -5652,13 +5655,11 @@ class PreferencesRow(
       realize ()
       unrealize ()
       size-allocate (GdkRectangle)
-      state-changed (GtkStateType)
       state-flags-changed (GtkStateFlags)
       parent-set (GtkWidget)
       hierarchy-changed (GtkWidget)
       style-set (GtkStyle)
       style-updated ()
-      direction-changed (GtkTextDirection)
       grab-notify (gboolean)
       child-notify (GParam)
       draw (CairoContext) -> gboolean
@@ -5795,7 +5796,6 @@ class PreferencesRow(
     Signals from GObject:
       notify (GParam)
     """
-
     class Props(_Gtk3.ListBoxRow.Props):
         title: str | None
         use_underline: bool
@@ -5852,6 +5852,7 @@ class PreferencesRow(
     def parent_instance(self) -> _Gtk3.ListBoxRow: ...
     def __init__(
         self,
+        *,
         title: str | None = ...,
         use_underline: bool = ...,
         activatable: bool = ...,
@@ -5897,7 +5898,7 @@ class PreferencesRow(
         width_request: int = ...,
         action_name: str | None = ...,
         action_target: GLib.Variant = ...,
-    ): ...
+    ) -> None: ...
     def get_title(self) -> str | None: ...
     def get_use_underline(self) -> bool: ...
     @classmethod
@@ -6027,6 +6028,8 @@ class PreferencesWindow(Window, Atk.ImplementorIface, _Gtk3.Buildable):
     Signals from GtkWidget:
       composited-changed ()
       event (GdkEvent) -> gboolean
+      direction-changed (GtkTextDirection)
+      state-changed (GtkStateType)
       destroy ()
       show ()
       hide ()
@@ -6035,13 +6038,11 @@ class PreferencesWindow(Window, Atk.ImplementorIface, _Gtk3.Buildable):
       realize ()
       unrealize ()
       size-allocate (GdkRectangle)
-      state-changed (GtkStateType)
       state-flags-changed (GtkStateFlags)
       parent-set (GtkWidget)
       hierarchy-changed (GtkWidget)
       style-set (GtkStyle)
       style-updated ()
-      direction-changed (GtkTextDirection)
       grab-notify (gboolean)
       child-notify (GParam)
       draw (CairoContext) -> gboolean
@@ -6178,7 +6179,6 @@ class PreferencesWindow(Window, Atk.ImplementorIface, _Gtk3.Buildable):
     Signals from GObject:
       notify (GParam)
     """
-
     class Props(Window.Props):
         can_swipe_back: bool
         search_enabled: bool
@@ -6264,6 +6264,7 @@ class PreferencesWindow(Window, Atk.ImplementorIface, _Gtk3.Buildable):
     def parent_instance(self) -> Window: ...
     def __init__(
         self,
+        *,
         can_swipe_back: bool = ...,
         search_enabled: bool = ...,
         accept_focus: bool = ...,
@@ -6334,7 +6335,7 @@ class PreferencesWindow(Window, Atk.ImplementorIface, _Gtk3.Buildable):
         vexpand_set: bool = ...,
         visible: bool = ...,
         width_request: int = ...,
-    ): ...
+    ) -> None: ...
     def close_subpage(self) -> None: ...
     def get_can_swipe_back(self) -> bool: ...
     def get_search_enabled(self) -> bool: ...
@@ -6391,6 +6392,8 @@ class SearchBar(_Gtk3.Bin, Atk.ImplementorIface, _Gtk3.Buildable):
     Signals from GtkWidget:
       composited-changed ()
       event (GdkEvent) -> gboolean
+      direction-changed (GtkTextDirection)
+      state-changed (GtkStateType)
       destroy ()
       show ()
       hide ()
@@ -6399,13 +6402,11 @@ class SearchBar(_Gtk3.Bin, Atk.ImplementorIface, _Gtk3.Buildable):
       realize ()
       unrealize ()
       size-allocate (GdkRectangle)
-      state-changed (GtkStateType)
       state-flags-changed (GtkStateFlags)
       parent-set (GtkWidget)
       hierarchy-changed (GtkWidget)
       style-set (GtkStyle)
       style-updated ()
-      direction-changed (GtkTextDirection)
       grab-notify (gboolean)
       child-notify (GParam)
       draw (CairoContext) -> gboolean
@@ -6542,7 +6543,6 @@ class SearchBar(_Gtk3.Bin, Atk.ImplementorIface, _Gtk3.Buildable):
     Signals from GObject:
       notify (GParam)
     """
-
     class Props(_Gtk3.Bin.Props):
         search_mode_enabled: bool
         show_close_button: bool
@@ -6595,6 +6595,7 @@ class SearchBar(_Gtk3.Bin, Atk.ImplementorIface, _Gtk3.Buildable):
     def parent_instance(self) -> _Gtk3.Bin: ...
     def __init__(
         self,
+        *,
         search_mode_enabled: bool = ...,
         show_close_button: bool = ...,
         border_width: int = ...,
@@ -6636,7 +6637,7 @@ class SearchBar(_Gtk3.Bin, Atk.ImplementorIface, _Gtk3.Buildable):
         vexpand_set: bool = ...,
         visible: bool = ...,
         width_request: int = ...,
-    ): ...
+    ) -> None: ...
     def connect_entry(self, entry: _Gtk3.Entry) -> None: ...
     def get_search_mode(self) -> bool: ...
     def get_show_close_button(self) -> bool: ...
@@ -6707,6 +6708,8 @@ class Squeezer(
     Signals from GtkWidget:
       composited-changed ()
       event (GdkEvent) -> gboolean
+      direction-changed (GtkTextDirection)
+      state-changed (GtkStateType)
       destroy ()
       show ()
       hide ()
@@ -6715,13 +6718,11 @@ class Squeezer(
       realize ()
       unrealize ()
       size-allocate (GdkRectangle)
-      state-changed (GtkStateType)
       state-flags-changed (GtkStateFlags)
       parent-set (GtkWidget)
       hierarchy-changed (GtkWidget)
       style-set (GtkStyle)
       style-updated ()
-      direction-changed (GtkTextDirection)
       grab-notify (gboolean)
       child-notify (GParam)
       draw (CairoContext) -> gboolean
@@ -6858,7 +6859,6 @@ class Squeezer(
     Signals from GObject:
       notify (GParam)
     """
-
     class Props(_Gtk3.Container.Props):
         homogeneous: bool
         interpolate_size: bool
@@ -6916,6 +6916,7 @@ class Squeezer(
     def props(self) -> Props: ...
     def __init__(
         self,
+        *,
         homogeneous: bool = ...,
         interpolate_size: bool = ...,
         transition_duration: int = ...,
@@ -6962,7 +6963,7 @@ class Squeezer(
         visible: bool = ...,
         width_request: int = ...,
         orientation: _Gtk3.Orientation = ...,
-    ): ...
+    ) -> None: ...
     def get_child_enabled(self, child: _Gtk3.Widget) -> bool: ...
     def get_homogeneous(self) -> bool: ...
     def get_interpolate_size(self) -> bool: ...
@@ -7029,6 +7030,8 @@ class StatusPage(_Gtk3.Bin, Atk.ImplementorIface, _Gtk3.Buildable):
     Signals from GtkWidget:
       composited-changed ()
       event (GdkEvent) -> gboolean
+      direction-changed (GtkTextDirection)
+      state-changed (GtkStateType)
       destroy ()
       show ()
       hide ()
@@ -7037,13 +7040,11 @@ class StatusPage(_Gtk3.Bin, Atk.ImplementorIface, _Gtk3.Buildable):
       realize ()
       unrealize ()
       size-allocate (GdkRectangle)
-      state-changed (GtkStateType)
       state-flags-changed (GtkStateFlags)
       parent-set (GtkWidget)
       hierarchy-changed (GtkWidget)
       style-set (GtkStyle)
       style-updated ()
-      direction-changed (GtkTextDirection)
       grab-notify (gboolean)
       child-notify (GParam)
       draw (CairoContext) -> gboolean
@@ -7180,7 +7181,6 @@ class StatusPage(_Gtk3.Bin, Atk.ImplementorIface, _Gtk3.Buildable):
     Signals from GObject:
       notify (GParam)
     """
-
     class Props(_Gtk3.Bin.Props):
         description: str | None
         icon_name: str | None
@@ -7232,6 +7232,7 @@ class StatusPage(_Gtk3.Bin, Atk.ImplementorIface, _Gtk3.Buildable):
     def props(self) -> Props: ...
     def __init__(
         self,
+        *,
         description: str | None = ...,
         icon_name: str | None = ...,
         title: str | None = ...,
@@ -7274,7 +7275,7 @@ class StatusPage(_Gtk3.Bin, Atk.ImplementorIface, _Gtk3.Buildable):
         vexpand_set: bool = ...,
         visible: bool = ...,
         width_request: int = ...,
-    ): ...
+    ) -> None: ...
     def get_description(self) -> str | None: ...
     def get_icon_name(self) -> str | None: ...
     def get_title(self) -> str | None: ...
@@ -7320,7 +7321,6 @@ class StyleManager(GObject.Object):
     Signals from GObject:
       notify (GParam)
     """
-
     class Props(GObject.Object.Props):
         color_scheme: ColorScheme
         dark: bool
@@ -7331,8 +7331,8 @@ class StyleManager(GObject.Object):
     @property
     def props(self) -> Props: ...
     def __init__(
-        self, color_scheme: ColorScheme = ..., display: _Gdk3.Display = ...
-    ): ...
+        self, *, color_scheme: ColorScheme = ..., display: _Gdk3.Display = ...
+    ) -> None: ...
     def get_color_scheme(self) -> ColorScheme: ...
     def get_dark(self) -> bool: ...
     @staticmethod
@@ -7369,7 +7369,6 @@ class SwipeGroup(GObject.Object, _Gtk3.Buildable):
     Signals from GObject:
       notify (GParam)
     """
-
     def add_swipeable(self, swipeable: Swipeable) -> None: ...
     def get_swipeables(self) -> list[Swipeable]: ...
     @classmethod
@@ -7418,7 +7417,6 @@ class SwipeTracker(GObject.Object, _Gtk3.Orientable):
     Signals from GObject:
       notify (GParam)
     """
-
     class Props(GObject.Object.Props):
         allow_long_swipes: bool
         allow_mouse_drag: bool
@@ -7431,13 +7429,14 @@ class SwipeTracker(GObject.Object, _Gtk3.Orientable):
     def props(self) -> Props: ...
     def __init__(
         self,
+        *,
         allow_long_swipes: bool = ...,
         allow_mouse_drag: bool = ...,
         enabled: bool = ...,
         reversed: bool = ...,
         swipeable: Swipeable = ...,
         orientation: _Gtk3.Orientation = ...,
-    ): ...
+    ) -> None: ...
     def get_allow_long_swipes(self) -> bool: ...
     def get_allow_mouse_drag(self) -> bool: ...
     def get_enabled(self) -> bool: ...
@@ -7469,7 +7468,6 @@ class Swipeable(GObject.GInterface, Protocol):
     Signals from GObject:
       notify (GParam)
     """
-
     def emit_child_switched(self, index: int, duration: int) -> None: ...
     def get_cancel_progress(self) -> float: ...
     def get_distance(self) -> float: ...
@@ -7561,6 +7559,8 @@ class TabBar(_Gtk3.Bin, Atk.ImplementorIface, _Gtk3.Buildable):
     Signals from GtkWidget:
       composited-changed ()
       event (GdkEvent) -> gboolean
+      direction-changed (GtkTextDirection)
+      state-changed (GtkStateType)
       destroy ()
       show ()
       hide ()
@@ -7569,13 +7569,11 @@ class TabBar(_Gtk3.Bin, Atk.ImplementorIface, _Gtk3.Buildable):
       realize ()
       unrealize ()
       size-allocate (GdkRectangle)
-      state-changed (GtkStateType)
       state-flags-changed (GtkStateFlags)
       parent-set (GtkWidget)
       hierarchy-changed (GtkWidget)
       style-set (GtkStyle)
       style-updated ()
-      direction-changed (GtkTextDirection)
       grab-notify (gboolean)
       child-notify (GParam)
       draw (CairoContext) -> gboolean
@@ -7712,7 +7710,6 @@ class TabBar(_Gtk3.Bin, Atk.ImplementorIface, _Gtk3.Buildable):
     Signals from GObject:
       notify (GParam)
     """
-
     class Props(_Gtk3.Bin.Props):
         autohide: bool
         end_action_widget: _Gtk3.Widget | None
@@ -7770,6 +7767,7 @@ class TabBar(_Gtk3.Bin, Atk.ImplementorIface, _Gtk3.Buildable):
     def props(self) -> Props: ...
     def __init__(
         self,
+        *,
         autohide: bool = ...,
         end_action_widget: _Gtk3.Widget | None = ...,
         expand_tabs: bool = ...,
@@ -7816,7 +7814,7 @@ class TabBar(_Gtk3.Bin, Atk.ImplementorIface, _Gtk3.Buildable):
         vexpand_set: bool = ...,
         visible: bool = ...,
         width_request: int = ...,
-    ): ...
+    ) -> None: ...
     def get_autohide(self) -> bool: ...
     def get_end_action_widget(self) -> _Gtk3.Widget | None: ...
     def get_expand_tabs(self) -> bool: ...
@@ -7886,7 +7884,6 @@ class TabPage(GObject.Object):
     Signals from GObject:
       notify (GParam)
     """
-
     class Props(GObject.Object.Props):
         child: _Gtk3.Widget
         icon: Gio.Icon | None
@@ -7904,6 +7901,7 @@ class TabPage(GObject.Object):
     def props(self) -> Props: ...
     def __init__(
         self,
+        *,
         child: _Gtk3.Widget = ...,
         icon: Gio.Icon | None = ...,
         indicator_activatable: bool = ...,
@@ -7913,7 +7911,7 @@ class TabPage(GObject.Object):
         parent: TabPage = ...,
         title: str | None = ...,
         tooltip: str | None = ...,
-    ): ...
+    ) -> None: ...
     def get_child(self) -> _Gtk3.Widget: ...
     def get_icon(self) -> Gio.Icon | None: ...
     def get_indicator_activatable(self) -> bool: ...
@@ -7997,6 +7995,8 @@ class TabView(_Gtk3.Bin, Atk.ImplementorIface, _Gtk3.Buildable):
     Signals from GtkWidget:
       composited-changed ()
       event (GdkEvent) -> gboolean
+      direction-changed (GtkTextDirection)
+      state-changed (GtkStateType)
       destroy ()
       show ()
       hide ()
@@ -8005,13 +8005,11 @@ class TabView(_Gtk3.Bin, Atk.ImplementorIface, _Gtk3.Buildable):
       realize ()
       unrealize ()
       size-allocate (GdkRectangle)
-      state-changed (GtkStateType)
       state-flags-changed (GtkStateFlags)
       parent-set (GtkWidget)
       hierarchy-changed (GtkWidget)
       style-set (GtkStyle)
       style-updated ()
-      direction-changed (GtkTextDirection)
       grab-notify (gboolean)
       child-notify (GParam)
       draw (CairoContext) -> gboolean
@@ -8148,7 +8146,6 @@ class TabView(_Gtk3.Bin, Atk.ImplementorIface, _Gtk3.Buildable):
     Signals from GObject:
       notify (GParam)
     """
-
     class Props(_Gtk3.Bin.Props):
         default_icon: Gio.Icon
         is_transferring_page: bool
@@ -8204,6 +8201,7 @@ class TabView(_Gtk3.Bin, Atk.ImplementorIface, _Gtk3.Buildable):
     def props(self) -> Props: ...
     def __init__(
         self,
+        *,
         default_icon: Gio.Icon = ...,
         menu_model: Gio.MenuModel | None = ...,
         selected_page: TabPage = ...,
@@ -8247,7 +8245,7 @@ class TabView(_Gtk3.Bin, Atk.ImplementorIface, _Gtk3.Buildable):
         vexpand_set: bool = ...,
         visible: bool = ...,
         width_request: int = ...,
-    ): ...
+    ) -> None: ...
     def add_page(
         self, child: _Gtk3.Widget, parent: TabPage | None = None
     ) -> TabPage: ...
@@ -8334,6 +8332,8 @@ class TitleBar(_Gtk3.Bin, Atk.ImplementorIface, _Gtk3.Buildable):
     Signals from GtkWidget:
       composited-changed ()
       event (GdkEvent) -> gboolean
+      direction-changed (GtkTextDirection)
+      state-changed (GtkStateType)
       destroy ()
       show ()
       hide ()
@@ -8342,13 +8342,11 @@ class TitleBar(_Gtk3.Bin, Atk.ImplementorIface, _Gtk3.Buildable):
       realize ()
       unrealize ()
       size-allocate (GdkRectangle)
-      state-changed (GtkStateType)
       state-flags-changed (GtkStateFlags)
       parent-set (GtkWidget)
       hierarchy-changed (GtkWidget)
       style-set (GtkStyle)
       style-updated ()
-      direction-changed (GtkTextDirection)
       grab-notify (gboolean)
       child-notify (GParam)
       draw (CairoContext) -> gboolean
@@ -8485,7 +8483,6 @@ class TitleBar(_Gtk3.Bin, Atk.ImplementorIface, _Gtk3.Buildable):
     Signals from GObject:
       notify (GParam)
     """
-
     class Props(_Gtk3.Bin.Props):
         selection_mode: bool
         border_width: int
@@ -8535,6 +8532,7 @@ class TitleBar(_Gtk3.Bin, Atk.ImplementorIface, _Gtk3.Buildable):
     def props(self) -> Props: ...
     def __init__(
         self,
+        *,
         selection_mode: bool = ...,
         border_width: int = ...,
         child: _Gtk3.Widget = ...,
@@ -8575,7 +8573,7 @@ class TitleBar(_Gtk3.Bin, Atk.ImplementorIface, _Gtk3.Buildable):
         vexpand_set: bool = ...,
         visible: bool = ...,
         width_request: int = ...,
-    ): ...
+    ) -> None: ...
     def get_selection_mode(self) -> bool: ...
     @classmethod
     def new(cls) -> TitleBar: ...
@@ -8610,13 +8608,12 @@ class ValueObject(GObject.Object):
     Signals from GObject:
       notify (GParam)
     """
-
     class Props(GObject.Object.Props):
         value: Any
 
     @property
     def props(self) -> Props: ...
-    def __init__(self, value: Any = ...): ...
+    def __init__(self, *, value: Any = ...) -> None: ...
     def copy_value(self, dest: Any) -> None: ...
     def dup_string(self) -> str: ...
     def get_string(self) -> str: ...
@@ -8671,6 +8668,8 @@ class ViewSwitcher(_Gtk3.Bin, Atk.ImplementorIface, _Gtk3.Buildable):
     Signals from GtkWidget:
       composited-changed ()
       event (GdkEvent) -> gboolean
+      direction-changed (GtkTextDirection)
+      state-changed (GtkStateType)
       destroy ()
       show ()
       hide ()
@@ -8679,13 +8678,11 @@ class ViewSwitcher(_Gtk3.Bin, Atk.ImplementorIface, _Gtk3.Buildable):
       realize ()
       unrealize ()
       size-allocate (GdkRectangle)
-      state-changed (GtkStateType)
       state-flags-changed (GtkStateFlags)
       parent-set (GtkWidget)
       hierarchy-changed (GtkWidget)
       style-set (GtkStyle)
       style-updated ()
-      direction-changed (GtkTextDirection)
       grab-notify (gboolean)
       child-notify (GParam)
       draw (CairoContext) -> gboolean
@@ -8822,7 +8819,6 @@ class ViewSwitcher(_Gtk3.Bin, Atk.ImplementorIface, _Gtk3.Buildable):
     Signals from GObject:
       notify (GParam)
     """
-
     class Props(_Gtk3.Bin.Props):
         narrow_ellipsize: Pango.EllipsizeMode
         policy: ViewSwitcherPolicy
@@ -8874,6 +8870,7 @@ class ViewSwitcher(_Gtk3.Bin, Atk.ImplementorIface, _Gtk3.Buildable):
     def props(self) -> Props: ...
     def __init__(
         self,
+        *,
         narrow_ellipsize: Pango.EllipsizeMode = ...,
         policy: ViewSwitcherPolicy = ...,
         stack: _Gtk3.Stack | None = ...,
@@ -8916,7 +8913,7 @@ class ViewSwitcher(_Gtk3.Bin, Atk.ImplementorIface, _Gtk3.Buildable):
         vexpand_set: bool = ...,
         visible: bool = ...,
         width_request: int = ...,
-    ): ...
+    ) -> None: ...
     def get_narrow_ellipsize(self) -> Pango.EllipsizeMode: ...
     def get_policy(self) -> ViewSwitcherPolicy: ...
     def get_stack(self) -> _Gtk3.Stack | None: ...
@@ -8962,6 +8959,8 @@ class ViewSwitcherBar(_Gtk3.Bin, Atk.ImplementorIface, _Gtk3.Buildable):
     Signals from GtkWidget:
       composited-changed ()
       event (GdkEvent) -> gboolean
+      direction-changed (GtkTextDirection)
+      state-changed (GtkStateType)
       destroy ()
       show ()
       hide ()
@@ -8970,13 +8969,11 @@ class ViewSwitcherBar(_Gtk3.Bin, Atk.ImplementorIface, _Gtk3.Buildable):
       realize ()
       unrealize ()
       size-allocate (GdkRectangle)
-      state-changed (GtkStateType)
       state-flags-changed (GtkStateFlags)
       parent-set (GtkWidget)
       hierarchy-changed (GtkWidget)
       style-set (GtkStyle)
       style-updated ()
-      direction-changed (GtkTextDirection)
       grab-notify (gboolean)
       child-notify (GParam)
       draw (CairoContext) -> gboolean
@@ -9113,7 +9110,6 @@ class ViewSwitcherBar(_Gtk3.Bin, Atk.ImplementorIface, _Gtk3.Buildable):
     Signals from GObject:
       notify (GParam)
     """
-
     class Props(_Gtk3.Bin.Props):
         policy: ViewSwitcherPolicy
         reveal: bool
@@ -9165,6 +9161,7 @@ class ViewSwitcherBar(_Gtk3.Bin, Atk.ImplementorIface, _Gtk3.Buildable):
     def props(self) -> Props: ...
     def __init__(
         self,
+        *,
         policy: ViewSwitcherPolicy = ...,
         reveal: bool = ...,
         stack: _Gtk3.Stack | None = ...,
@@ -9207,7 +9204,7 @@ class ViewSwitcherBar(_Gtk3.Bin, Atk.ImplementorIface, _Gtk3.Buildable):
         vexpand_set: bool = ...,
         visible: bool = ...,
         width_request: int = ...,
-    ): ...
+    ) -> None: ...
     def get_policy(self) -> ViewSwitcherPolicy: ...
     def get_reveal(self) -> bool: ...
     def get_stack(self) -> _Gtk3.Stack | None: ...
@@ -9281,6 +9278,8 @@ class ViewSwitcherTitle(_Gtk3.Bin, Atk.ImplementorIface, _Gtk3.Buildable):
     Signals from GtkWidget:
       composited-changed ()
       event (GdkEvent) -> gboolean
+      direction-changed (GtkTextDirection)
+      state-changed (GtkStateType)
       destroy ()
       show ()
       hide ()
@@ -9289,13 +9288,11 @@ class ViewSwitcherTitle(_Gtk3.Bin, Atk.ImplementorIface, _Gtk3.Buildable):
       realize ()
       unrealize ()
       size-allocate (GdkRectangle)
-      state-changed (GtkStateType)
       state-flags-changed (GtkStateFlags)
       parent-set (GtkWidget)
       hierarchy-changed (GtkWidget)
       style-set (GtkStyle)
       style-updated ()
-      direction-changed (GtkTextDirection)
       grab-notify (gboolean)
       child-notify (GParam)
       draw (CairoContext) -> gboolean
@@ -9432,7 +9429,6 @@ class ViewSwitcherTitle(_Gtk3.Bin, Atk.ImplementorIface, _Gtk3.Buildable):
     Signals from GObject:
       notify (GParam)
     """
-
     class Props(_Gtk3.Bin.Props):
         policy: ViewSwitcherPolicy
         stack: _Gtk3.Stack | None
@@ -9487,6 +9483,7 @@ class ViewSwitcherTitle(_Gtk3.Bin, Atk.ImplementorIface, _Gtk3.Buildable):
     def props(self) -> Props: ...
     def __init__(
         self,
+        *,
         policy: ViewSwitcherPolicy = ...,
         stack: _Gtk3.Stack | None = ...,
         subtitle: str | None = ...,
@@ -9531,7 +9528,7 @@ class ViewSwitcherTitle(_Gtk3.Bin, Atk.ImplementorIface, _Gtk3.Buildable):
         vexpand_set: bool = ...,
         visible: bool = ...,
         width_request: int = ...,
-    ): ...
+    ) -> None: ...
     def get_policy(self) -> ViewSwitcherPolicy: ...
     def get_stack(self) -> _Gtk3.Stack | None: ...
     def get_subtitle(self) -> str | None: ...
@@ -9660,6 +9657,8 @@ class Window(_Gtk3.Window, Atk.ImplementorIface, _Gtk3.Buildable):
     Signals from GtkWidget:
       composited-changed ()
       event (GdkEvent) -> gboolean
+      direction-changed (GtkTextDirection)
+      state-changed (GtkStateType)
       destroy ()
       show ()
       hide ()
@@ -9668,13 +9667,11 @@ class Window(_Gtk3.Window, Atk.ImplementorIface, _Gtk3.Buildable):
       realize ()
       unrealize ()
       size-allocate (GdkRectangle)
-      state-changed (GtkStateType)
       state-flags-changed (GtkStateFlags)
       parent-set (GtkWidget)
       hierarchy-changed (GtkWidget)
       style-set (GtkStyle)
       style-updated ()
-      direction-changed (GtkTextDirection)
       grab-notify (gboolean)
       child-notify (GParam)
       draw (CairoContext) -> gboolean
@@ -9811,7 +9808,6 @@ class Window(_Gtk3.Window, Atk.ImplementorIface, _Gtk3.Buildable):
     Signals from GObject:
       notify (GParam)
     """
-
     class Props(_Gtk3.Window.Props):
         accept_focus: bool
         application: _Gtk3.Application | None
@@ -9895,6 +9891,7 @@ class Window(_Gtk3.Window, Atk.ImplementorIface, _Gtk3.Buildable):
     def parent_instance(self) -> _Gtk3.Window: ...
     def __init__(
         self,
+        *,
         accept_focus: bool = ...,
         application: _Gtk3.Application | None = ...,
         attached_to: _Gtk3.Widget | None = ...,
@@ -9963,7 +9960,7 @@ class Window(_Gtk3.Window, Atk.ImplementorIface, _Gtk3.Buildable):
         vexpand_set: bool = ...,
         visible: bool = ...,
         width_request: int = ...,
-    ): ...
+    ) -> None: ...
     @classmethod
     def new(cls) -> Window: ...
 
@@ -10014,6 +10011,8 @@ class WindowHandle(_Gtk3.EventBox, Atk.ImplementorIface, _Gtk3.Buildable):
     Signals from GtkWidget:
       composited-changed ()
       event (GdkEvent) -> gboolean
+      direction-changed (GtkTextDirection)
+      state-changed (GtkStateType)
       destroy ()
       show ()
       hide ()
@@ -10022,13 +10021,11 @@ class WindowHandle(_Gtk3.EventBox, Atk.ImplementorIface, _Gtk3.Buildable):
       realize ()
       unrealize ()
       size-allocate (GdkRectangle)
-      state-changed (GtkStateType)
       state-flags-changed (GtkStateFlags)
       parent-set (GtkWidget)
       hierarchy-changed (GtkWidget)
       style-set (GtkStyle)
       style-updated ()
-      direction-changed (GtkTextDirection)
       grab-notify (gboolean)
       child-notify (GParam)
       draw (CairoContext) -> gboolean
@@ -10165,7 +10162,6 @@ class WindowHandle(_Gtk3.EventBox, Atk.ImplementorIface, _Gtk3.Buildable):
     Signals from GObject:
       notify (GParam)
     """
-
     class Props(_Gtk3.EventBox.Props):
         above_child: bool
         visible_window: bool
@@ -10216,6 +10212,7 @@ class WindowHandle(_Gtk3.EventBox, Atk.ImplementorIface, _Gtk3.Buildable):
     def props(self) -> Props: ...
     def __init__(
         self,
+        *,
         above_child: bool = ...,
         visible_window: bool = ...,
         border_width: int = ...,
@@ -10257,7 +10254,7 @@ class WindowHandle(_Gtk3.EventBox, Atk.ImplementorIface, _Gtk3.Buildable):
         vexpand_set: bool = ...,
         visible: bool = ...,
         width_request: int = ...,
-    ): ...
+    ) -> None: ...
     @classmethod
     def new(cls) -> WindowHandle: ...
 

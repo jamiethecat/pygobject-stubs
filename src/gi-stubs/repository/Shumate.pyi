@@ -2,6 +2,7 @@ from typing import Any
 from typing import Final
 from typing import Protocol
 from typing import TypeVar
+from typing_extensions import Self
 
 from collections.abc import Callable
 from collections.abc import Sequence
@@ -27,7 +28,6 @@ MAP_SOURCE_OWM_TEMPERATURE: Final = "owm-temperature"
 MAP_SOURCE_OWM_WIND: Final = "owm-wind"
 MAX_LATITUDE: Final[float]
 MAX_LONGITUDE: Final[float]
-MICRO_VERSION: Final[int]
 MINOR_VERSION: Final[int]
 MIN_LATITUDE: Final[float]
 MIN_LONGITUDE: Final[float]
@@ -103,11 +103,11 @@ class Compass(_Gtk4.Widget, _Gtk4.Accessible, _Gtk4.Buildable, _Gtk4.ConstraintT
       css-name -> gchararray: css-name
       css-classes -> GStrv: css-classes
       layout-manager -> GtkLayoutManager: layout-manager
+      limit-events -> gboolean: limit-events
 
     Signals from GObject:
       notify (GParam)
     """
-
     class Props(_Gtk4.Widget.Props):
         viewport: Viewport | None
         can_focus: bool
@@ -125,6 +125,7 @@ class Compass(_Gtk4.Widget, _Gtk4.Accessible, _Gtk4.Buildable, _Gtk4.ConstraintT
         hexpand: bool
         hexpand_set: bool
         layout_manager: _Gtk4.LayoutManager | None
+        limit_events: bool
         margin_bottom: int
         margin_end: int
         margin_start: int
@@ -150,6 +151,7 @@ class Compass(_Gtk4.Widget, _Gtk4.Accessible, _Gtk4.Buildable, _Gtk4.ConstraintT
     def props(self) -> Props: ...
     def __init__(
         self,
+        *,
         viewport: Viewport | None = ...,
         can_focus: bool = ...,
         can_target: bool = ...,
@@ -164,6 +166,7 @@ class Compass(_Gtk4.Widget, _Gtk4.Accessible, _Gtk4.Buildable, _Gtk4.ConstraintT
         hexpand: bool = ...,
         hexpand_set: bool = ...,
         layout_manager: _Gtk4.LayoutManager | None = ...,
+        limit_events: bool = ...,
         margin_bottom: int = ...,
         margin_end: int = ...,
         margin_start: int = ...,
@@ -213,7 +216,6 @@ class Coordinate(GObject.InitiallyUnowned, Location):
     Signals from GObject:
       notify (GParam)
     """
-
     class Props(GObject.InitiallyUnowned.Props):
         latitude: float
         longitude: float
@@ -222,7 +224,7 @@ class Coordinate(GObject.InitiallyUnowned, Location):
     def props(self) -> Props: ...
     @property
     def parent_instance(self) -> GObject.InitiallyUnowned: ...
-    def __init__(self, latitude: float = ..., longitude: float = ...) -> None: ...
+    def __init__(self, *, latitude: float = ..., longitude: float = ...) -> None: ...
     @classmethod
     def new(cls) -> Coordinate: ...
     @classmethod
@@ -263,7 +265,6 @@ class DataSource(GObject.Object):
     Signals from GObject:
       notify (GParam)
     """
-
     class Props(GObject.Object.Props):
         max_zoom_level: int
         min_zoom_level: int
@@ -273,7 +274,7 @@ class DataSource(GObject.Object):
     @property
     def parent_instance(self) -> GObject.Object: ...
     def __init__(
-        self, max_zoom_level: int = ..., min_zoom_level: int = ...
+        self, *, max_zoom_level: int = ..., min_zoom_level: int = ...
     ) -> None: ...
     def do_get_tile_data_async(
         self,
@@ -367,7 +368,6 @@ class DataSourceRequest(GObject.Object):
     Signals from GObject:
       notify (GParam)
     """
-
     class Props(GObject.Object.Props):
         completed: bool
         data: GLib.Bytes | None
@@ -380,7 +380,9 @@ class DataSourceRequest(GObject.Object):
     def props(self) -> Props: ...
     @property
     def parent_instance(self) -> GObject.Object: ...
-    def __init__(self, x: int = ..., y: int = ..., zoom_level: int = ...) -> None: ...
+    def __init__(
+        self, *, x: int = ..., y: int = ..., zoom_level: int = ...
+    ) -> None: ...
     def complete(self) -> None: ...
     def emit_data(self, data: GLib.Bytes, complete: bool) -> None: ...
     def emit_error(self, error: GLib.Error) -> None: ...
@@ -428,7 +430,6 @@ class FileCache(GObject.Object):
     Signals from GObject:
       notify (GParam)
     """
-
     class Props(GObject.Object.Props):
         cache_dir: str
         cache_key: str
@@ -437,7 +438,7 @@ class FileCache(GObject.Object):
     @property
     def props(self) -> Props: ...
     def __init__(
-        self, cache_dir: str = ..., cache_key: str = ..., size_limit: int = ...
+        self, *, cache_dir: str = ..., cache_key: str = ..., size_limit: int = ...
     ) -> None: ...
     def get_cache_dir(self) -> str: ...
     def get_cache_key(self) -> str: ...
@@ -555,11 +556,11 @@ class Layer(_Gtk4.Widget, _Gtk4.Accessible, _Gtk4.Buildable, _Gtk4.ConstraintTar
       css-name -> gchararray: css-name
       css-classes -> GStrv: css-classes
       layout-manager -> GtkLayoutManager: layout-manager
+      limit-events -> gboolean: limit-events
 
     Signals from GObject:
       notify (GParam)
     """
-
     class Props(_Gtk4.Widget.Props):
         viewport: Viewport
         can_focus: bool
@@ -577,6 +578,7 @@ class Layer(_Gtk4.Widget, _Gtk4.Accessible, _Gtk4.Buildable, _Gtk4.ConstraintTar
         hexpand: bool
         hexpand_set: bool
         layout_manager: _Gtk4.LayoutManager | None
+        limit_events: bool
         margin_bottom: int
         margin_end: int
         margin_start: int
@@ -604,6 +606,7 @@ class Layer(_Gtk4.Widget, _Gtk4.Accessible, _Gtk4.Buildable, _Gtk4.ConstraintTar
     def parent_instance(self) -> _Gtk4.Widget: ...
     def __init__(
         self,
+        *,
         viewport: Viewport = ...,
         can_focus: bool = ...,
         can_target: bool = ...,
@@ -618,6 +621,7 @@ class Layer(_Gtk4.Widget, _Gtk4.Accessible, _Gtk4.Buildable, _Gtk4.ConstraintTar
         hexpand: bool = ...,
         hexpand_set: bool = ...,
         layout_manager: _Gtk4.LayoutManager | None = ...,
+        limit_events: bool = ...,
         margin_bottom: int = ...,
         margin_end: int = ...,
         margin_start: int = ...,
@@ -721,11 +725,11 @@ class License(_Gtk4.Widget, _Gtk4.Accessible, _Gtk4.Buildable, _Gtk4.ConstraintT
       css-name -> gchararray: css-name
       css-classes -> GStrv: css-classes
       layout-manager -> GtkLayoutManager: layout-manager
+      limit-events -> gboolean: limit-events
 
     Signals from GObject:
       notify (GParam)
     """
-
     class Props(_Gtk4.Widget.Props):
         extra_text: str
         xalign: float
@@ -744,6 +748,7 @@ class License(_Gtk4.Widget, _Gtk4.Accessible, _Gtk4.Buildable, _Gtk4.ConstraintT
         hexpand: bool
         hexpand_set: bool
         layout_manager: _Gtk4.LayoutManager | None
+        limit_events: bool
         margin_bottom: int
         margin_end: int
         margin_start: int
@@ -769,6 +774,7 @@ class License(_Gtk4.Widget, _Gtk4.Accessible, _Gtk4.Buildable, _Gtk4.ConstraintT
     def props(self) -> Props: ...
     def __init__(
         self,
+        *,
         extra_text: str = ...,
         xalign: float = ...,
         can_focus: bool = ...,
@@ -784,6 +790,7 @@ class License(_Gtk4.Widget, _Gtk4.Accessible, _Gtk4.Buildable, _Gtk4.ConstraintT
         hexpand: bool = ...,
         hexpand_set: bool = ...,
         layout_manager: _Gtk4.LayoutManager | None = ...,
+        limit_events: bool = ...,
         margin_bottom: int = ...,
         margin_end: int = ...,
         margin_start: int = ...,
@@ -830,7 +837,6 @@ class Location(GObject.GInterface, Protocol):
     Signals from GObject:
       notify (GParam)
     """
-
     def distance(self, other: Location) -> float: ...
     def get_latitude(self) -> float: ...
     def get_longitude(self) -> float: ...
@@ -930,11 +936,11 @@ class Map(_Gtk4.Widget, _Gtk4.Accessible, _Gtk4.Buildable, _Gtk4.ConstraintTarge
       css-name -> gchararray: css-name
       css-classes -> GStrv: css-classes
       layout-manager -> GtkLayoutManager: layout-manager
+      limit-events -> gboolean: limit-events
 
     Signals from GObject:
       notify (GParam)
     """
-
     class Props(_Gtk4.Widget.Props):
         animate_zoom: bool
         go_to_duration: int
@@ -956,6 +962,7 @@ class Map(_Gtk4.Widget, _Gtk4.Accessible, _Gtk4.Buildable, _Gtk4.ConstraintTarge
         hexpand: bool
         hexpand_set: bool
         layout_manager: _Gtk4.LayoutManager | None
+        limit_events: bool
         margin_bottom: int
         margin_end: int
         margin_start: int
@@ -981,6 +988,7 @@ class Map(_Gtk4.Widget, _Gtk4.Accessible, _Gtk4.Buildable, _Gtk4.ConstraintTarge
     def props(self) -> Props: ...
     def __init__(
         self,
+        *,
         animate_zoom: bool = ...,
         go_to_duration: int = ...,
         zoom_on_double_click: bool = ...,
@@ -997,6 +1005,7 @@ class Map(_Gtk4.Widget, _Gtk4.Accessible, _Gtk4.Buildable, _Gtk4.ConstraintTarge
         hexpand: bool = ...,
         hexpand_set: bool = ...,
         layout_manager: _Gtk4.LayoutManager | None = ...,
+        limit_events: bool = ...,
         margin_bottom: int = ...,
         margin_end: int = ...,
         margin_start: int = ...,
@@ -1072,6 +1081,8 @@ class MapLayer(Layer, _Gtk4.Accessible, _Gtk4.Buildable, _Gtk4.ConstraintTarget)
 
     Signals from ShumateMapLayer:
       symbol-clicked (ShumateSymbolEvent)
+      map-loaded (gboolean)
+      tile-error (ShumateTile, GError)
 
     Properties from ShumateMapLayer:
       map-source -> ShumateMapSource: Map Source
@@ -1131,11 +1142,11 @@ class MapLayer(Layer, _Gtk4.Accessible, _Gtk4.Buildable, _Gtk4.ConstraintTarget)
       css-name -> gchararray: css-name
       css-classes -> GStrv: css-classes
       layout-manager -> GtkLayoutManager: layout-manager
+      limit-events -> gboolean: limit-events
 
     Signals from GObject:
       notify (GParam)
     """
-
     class Props(Layer.Props):
         map_source: MapSource
         viewport: Viewport
@@ -1154,6 +1165,7 @@ class MapLayer(Layer, _Gtk4.Accessible, _Gtk4.Buildable, _Gtk4.ConstraintTarget)
         hexpand: bool
         hexpand_set: bool
         layout_manager: _Gtk4.LayoutManager | None
+        limit_events: bool
         margin_bottom: int
         margin_end: int
         margin_start: int
@@ -1179,6 +1191,7 @@ class MapLayer(Layer, _Gtk4.Accessible, _Gtk4.Buildable, _Gtk4.ConstraintTarget)
     def props(self) -> Props: ...
     def __init__(
         self,
+        *,
         map_source: MapSource = ...,
         viewport: Viewport = ...,
         can_focus: bool = ...,
@@ -1194,6 +1207,7 @@ class MapLayer(Layer, _Gtk4.Accessible, _Gtk4.Buildable, _Gtk4.ConstraintTarget)
         hexpand: bool = ...,
         hexpand_set: bool = ...,
         layout_manager: _Gtk4.LayoutManager | None = ...,
+        limit_events: bool = ...,
         margin_bottom: int = ...,
         margin_end: int = ...,
         margin_start: int = ...,
@@ -1257,7 +1271,6 @@ class MapSource(GObject.Object):
     Signals from GObject:
       notify (GParam)
     """
-
     class Props(GObject.Object.Props):
         id: str
         license: str
@@ -1274,6 +1287,7 @@ class MapSource(GObject.Object):
     def parent_instance(self) -> GObject.Object: ...
     def __init__(
         self,
+        *,
         id: str = ...,
         license: str = ...,
         license_uri: str = ...,
@@ -1361,7 +1375,6 @@ class MapSourceRegistry(GObject.Object, Gio.ListModel):
     Signals from GObject:
       notify (GParam)
     """
-
     def add(self, map_source: MapSource) -> None: ...
     def get_by_id(self, id: str) -> MapSource | None: ...
     @classmethod
@@ -1400,6 +1413,8 @@ class Marker(
         The draggable state of the marker
       child -> GtkWidget: Child
         The child widget of the marker
+      x-hotspot -> gdouble: x-hotspot
+      y-hotspot -> gdouble: y-hotspot
 
     Signals from GtkWidget:
       direction-changed (GtkTextDirection)
@@ -1451,14 +1466,16 @@ class Marker(
       css-name -> gchararray: css-name
       css-classes -> GStrv: css-classes
       layout-manager -> GtkLayoutManager: layout-manager
+      limit-events -> gboolean: limit-events
 
     Signals from GObject:
       notify (GParam)
     """
-
     class Props(_Gtk4.Widget.Props):
         child: _Gtk4.Widget | None
         selectable: bool
+        x_hotspot: float
+        y_hotspot: float
         can_focus: bool
         can_target: bool
         css_classes: list[str]
@@ -1474,6 +1491,7 @@ class Marker(
         hexpand: bool
         hexpand_set: bool
         layout_manager: _Gtk4.LayoutManager | None
+        limit_events: bool
         margin_bottom: int
         margin_end: int
         margin_start: int
@@ -1503,8 +1521,11 @@ class Marker(
     def parent_instance(self) -> _Gtk4.Widget: ...
     def __init__(
         self,
+        *,
         child: _Gtk4.Widget | None = ...,
         selectable: bool = ...,
+        x_hotspot: float = ...,
+        y_hotspot: float = ...,
         can_focus: bool = ...,
         can_target: bool = ...,
         css_classes: Sequence[str] = ...,
@@ -1518,6 +1539,7 @@ class Marker(
         hexpand: bool = ...,
         hexpand_set: bool = ...,
         layout_manager: _Gtk4.LayoutManager | None = ...,
+        limit_events: bool = ...,
         margin_bottom: int = ...,
         margin_end: int = ...,
         margin_start: int = ...,
@@ -1544,12 +1566,14 @@ class Marker(
     def animate_out_with_delay(self, delay: int) -> None: ...
     def get_child(self) -> _Gtk4.Widget | None: ...
     def get_draggable(self) -> bool: ...
+    def get_hotspot(self) -> tuple[float, float]: ...
     def get_selectable(self) -> bool: ...
     def is_selected(self) -> bool: ...
     @classmethod
     def new(cls) -> Marker: ...
     def set_child(self, child: _Gtk4.Widget | None = None) -> None: ...
     def set_draggable(self, value: bool) -> None: ...
+    def set_hotspot(self, x_hotspot: float, y_hotspot: float) -> None: ...
     def set_selectable(self, value: bool) -> None: ...
 
 class MarkerClass(GObject.GPointer):
@@ -1639,11 +1663,11 @@ class MarkerLayer(Layer, _Gtk4.Accessible, _Gtk4.Buildable, _Gtk4.ConstraintTarg
       css-name -> gchararray: css-name
       css-classes -> GStrv: css-classes
       layout-manager -> GtkLayoutManager: layout-manager
+      limit-events -> gboolean: limit-events
 
     Signals from GObject:
       notify (GParam)
     """
-
     class Props(Layer.Props):
         selection_mode: _Gtk4.SelectionMode
         viewport: Viewport
@@ -1662,6 +1686,7 @@ class MarkerLayer(Layer, _Gtk4.Accessible, _Gtk4.Buildable, _Gtk4.ConstraintTarg
         hexpand: bool
         hexpand_set: bool
         layout_manager: _Gtk4.LayoutManager | None
+        limit_events: bool
         margin_bottom: int
         margin_end: int
         margin_start: int
@@ -1687,6 +1712,7 @@ class MarkerLayer(Layer, _Gtk4.Accessible, _Gtk4.Buildable, _Gtk4.ConstraintTarg
     def props(self) -> Props: ...
     def __init__(
         self,
+        *,
         selection_mode: _Gtk4.SelectionMode = ...,
         viewport: Viewport = ...,
         can_focus: bool = ...,
@@ -1702,6 +1728,7 @@ class MarkerLayer(Layer, _Gtk4.Accessible, _Gtk4.Buildable, _Gtk4.ConstraintTarg
         hexpand: bool = ...,
         hexpand_set: bool = ...,
         layout_manager: _Gtk4.LayoutManager | None = ...,
+        limit_events: bool = ...,
         margin_bottom: int = ...,
         margin_end: int = ...,
         margin_start: int = ...,
@@ -1830,11 +1857,11 @@ class PathLayer(Layer, _Gtk4.Accessible, _Gtk4.Buildable, _Gtk4.ConstraintTarget
       css-name -> gchararray: css-name
       css-classes -> GStrv: css-classes
       layout-manager -> GtkLayoutManager: layout-manager
+      limit-events -> gboolean: limit-events
 
     Signals from GObject:
       notify (GParam)
     """
-
     class Props(Layer.Props):
         closed: bool
         fill: bool
@@ -1860,6 +1887,7 @@ class PathLayer(Layer, _Gtk4.Accessible, _Gtk4.Buildable, _Gtk4.ConstraintTarget
         hexpand: bool
         hexpand_set: bool
         layout_manager: _Gtk4.LayoutManager | None
+        limit_events: bool
         margin_bottom: int
         margin_end: int
         margin_start: int
@@ -1885,6 +1913,7 @@ class PathLayer(Layer, _Gtk4.Accessible, _Gtk4.Buildable, _Gtk4.ConstraintTarget
     def props(self) -> Props: ...
     def __init__(
         self,
+        *,
         closed: bool = ...,
         fill: bool = ...,
         fill_color: _Gdk4.RGBA | None = ...,
@@ -1907,6 +1936,7 @@ class PathLayer(Layer, _Gtk4.Accessible, _Gtk4.Buildable, _Gtk4.ConstraintTarget
         hexpand: bool = ...,
         hexpand_set: bool = ...,
         layout_manager: _Gtk4.LayoutManager | None = ...,
+        limit_events: bool = ...,
         margin_bottom: int = ...,
         margin_end: int = ...,
         margin_start: int = ...,
@@ -1980,6 +2010,8 @@ class Point(
         The draggable state of the marker
       child -> GtkWidget: Child
         The child widget of the marker
+      x-hotspot -> gdouble: x-hotspot
+      y-hotspot -> gdouble: y-hotspot
 
     Signals from GtkWidget:
       direction-changed (GtkTextDirection)
@@ -2031,14 +2063,16 @@ class Point(
       css-name -> gchararray: css-name
       css-classes -> GStrv: css-classes
       layout-manager -> GtkLayoutManager: layout-manager
+      limit-events -> gboolean: limit-events
 
     Signals from GObject:
       notify (GParam)
     """
-
     class Props(Marker.Props):
         child: _Gtk4.Widget | None
         selectable: bool
+        x_hotspot: float
+        y_hotspot: float
         can_focus: bool
         can_target: bool
         css_classes: list[str]
@@ -2054,6 +2088,7 @@ class Point(
         hexpand: bool
         hexpand_set: bool
         layout_manager: _Gtk4.LayoutManager | None
+        limit_events: bool
         margin_bottom: int
         margin_end: int
         margin_start: int
@@ -2081,8 +2116,11 @@ class Point(
     def props(self) -> Props: ...
     def __init__(
         self,
+        *,
         child: _Gtk4.Widget | None = ...,
         selectable: bool = ...,
+        x_hotspot: float = ...,
+        y_hotspot: float = ...,
         can_focus: bool = ...,
         can_target: bool = ...,
         css_classes: Sequence[str] = ...,
@@ -2096,6 +2134,7 @@ class Point(
         hexpand: bool = ...,
         hexpand_set: bool = ...,
         layout_manager: _Gtk4.LayoutManager | None = ...,
+        limit_events: bool = ...,
         margin_bottom: int = ...,
         margin_end: int = ...,
         margin_start: int = ...,
@@ -2169,7 +2208,6 @@ class RasterRenderer(MapSource):
     Signals from GObject:
       notify (GParam)
     """
-
     class Props(MapSource.Props):
         data_source: DataSource
         id: str
@@ -2185,6 +2223,7 @@ class RasterRenderer(MapSource):
     def props(self) -> Props: ...
     def __init__(
         self,
+        *,
         data_source: DataSource = ...,
         id: str = ...,
         license: str = ...,
@@ -2306,11 +2345,11 @@ class Scale(_Gtk4.Widget, _Gtk4.Accessible, _Gtk4.Buildable, _Gtk4.ConstraintTar
       css-name -> gchararray: css-name
       css-classes -> GStrv: css-classes
       layout-manager -> GtkLayoutManager: layout-manager
+      limit-events -> gboolean: limit-events
 
     Signals from GObject:
       notify (GParam)
     """
-
     class Props(_Gtk4.Widget.Props):
         max_width: int
         unit: Unit
@@ -2330,6 +2369,7 @@ class Scale(_Gtk4.Widget, _Gtk4.Accessible, _Gtk4.Buildable, _Gtk4.ConstraintTar
         hexpand: bool
         hexpand_set: bool
         layout_manager: _Gtk4.LayoutManager | None
+        limit_events: bool
         margin_bottom: int
         margin_end: int
         margin_start: int
@@ -2355,6 +2395,7 @@ class Scale(_Gtk4.Widget, _Gtk4.Accessible, _Gtk4.Buildable, _Gtk4.ConstraintTar
     def props(self) -> Props: ...
     def __init__(
         self,
+        *,
         max_width: int = ...,
         unit: Unit = ...,
         viewport: Viewport | None = ...,
@@ -2371,6 +2412,7 @@ class Scale(_Gtk4.Widget, _Gtk4.Accessible, _Gtk4.Buildable, _Gtk4.ConstraintTar
         hexpand: bool = ...,
         hexpand_set: bool = ...,
         layout_manager: _Gtk4.LayoutManager | None = ...,
+        limit_events: bool = ...,
         margin_bottom: int = ...,
         margin_end: int = ...,
         margin_start: int = ...,
@@ -2440,6 +2482,8 @@ class SimpleMap(
         Show zoom buttons
       map -> ShumateMap: Map
         Map
+      base-map-layer -> ShumateMapLayer: Base map layer
+        Base map layer
 
     Signals from GtkWidget:
       direction-changed (GtkTextDirection)
@@ -2491,12 +2535,13 @@ class SimpleMap(
       css-name -> gchararray: css-name
       css-classes -> GStrv: css-classes
       layout-manager -> GtkLayoutManager: layout-manager
+      limit-events -> gboolean: limit-events
 
     Signals from GObject:
       notify (GParam)
     """
-
     class Props(_Gtk4.Widget.Props):
+        base_map_layer: MapLayer
         compass: Compass
         license: License
         map: Map
@@ -2519,6 +2564,7 @@ class SimpleMap(
         hexpand: bool
         hexpand_set: bool
         layout_manager: _Gtk4.LayoutManager | None
+        limit_events: bool
         margin_bottom: int
         margin_end: int
         margin_start: int
@@ -2544,6 +2590,7 @@ class SimpleMap(
     def props(self) -> Props: ...
     def __init__(
         self,
+        *,
         map_source: MapSource | None = ...,
         show_zoom_buttons: bool = ...,
         can_focus: bool = ...,
@@ -2559,6 +2606,7 @@ class SimpleMap(
         hexpand: bool = ...,
         hexpand_set: bool = ...,
         layout_manager: _Gtk4.LayoutManager | None = ...,
+        limit_events: bool = ...,
         margin_bottom: int = ...,
         margin_end: int = ...,
         margin_start: int = ...,
@@ -2578,6 +2626,7 @@ class SimpleMap(
         accessible_role: _Gtk4.AccessibleRole = ...,
     ) -> None: ...
     def add_overlay_layer(self, layer: Layer) -> None: ...
+    def get_base_map_layer(self) -> MapLayer: ...
     def get_compass(self) -> Compass: ...
     def get_license(self) -> License: ...
     def get_map(self) -> Map: ...
@@ -2585,7 +2634,8 @@ class SimpleMap(
     def get_scale(self) -> Scale: ...
     def get_show_zoom_buttons(self) -> bool: ...
     def get_viewport(self) -> Viewport: ...
-    def insert_overlay_layer(self, layer: Layer, idx: int) -> None: ...
+    def insert_overlay_layer_above(self, layer: Layer, sibling: Layer) -> None: ...
+    def insert_overlay_layer_behind(self, layer: Layer, sibling: Layer) -> None: ...
     @classmethod
     def new(cls) -> SimpleMap: ...
     def remove_overlay_layer(self, layer: Layer) -> None: ...
@@ -2620,24 +2670,29 @@ class SymbolEvent(GObject.Object, Location):
         source-layer
       feature-id -> gchararray: Feature ID
         Feature ID
+      n-press -> guint: Number of presses
+        Number of presses
 
     Signals from GObject:
       notify (GParam)
     """
-
     class Props(GObject.Object.Props):
         feature_id: str
         layer: str
+        n_press: int
         source_layer: str
         latitude: float
         longitude: float
 
     @property
     def props(self) -> Props: ...
-    def __init__(self, latitude: float = ..., longitude: float = ...) -> None: ...
+    def __init__(
+        self, *, n_press: int = ..., latitude: float = ..., longitude: float = ...
+    ) -> None: ...
     def get_feature_id(self) -> str: ...
     def get_keys(self) -> list[str]: ...
     def get_layer(self) -> str: ...
+    def get_n_press(self) -> int: ...
     def get_source_layer(self) -> str: ...
     def get_tag(self, tag_name: str) -> str: ...
 
@@ -2685,7 +2740,6 @@ class Tile(GObject.Object):
     Signals from GObject:
       notify (GParam)
     """
-
     class Props(GObject.Object.Props):
         fade_in: bool
         paintable: _Gdk4.Paintable | None
@@ -2700,6 +2754,7 @@ class Tile(GObject.Object):
     def props(self) -> Props: ...
     def __init__(
         self,
+        *,
         fade_in: bool = ...,
         paintable: _Gdk4.Paintable = ...,
         scale_factor: float = ...,
@@ -2768,7 +2823,6 @@ class TileDownloader(DataSource):
     Signals from GObject:
       notify (GParam)
     """
-
     class Props(DataSource.Props):
         url_template: str
         max_zoom_level: int
@@ -2778,6 +2832,7 @@ class TileDownloader(DataSource):
     def props(self) -> Props: ...
     def __init__(
         self,
+        *,
         url_template: str = ...,
         max_zoom_level: int = ...,
         min_zoom_level: int = ...,
@@ -2810,7 +2865,6 @@ class VectorReader(GObject.Object):
     Signals from GObject:
       notify (GParam)
     """
-
     def iterate(self) -> VectorReaderIter: ...
     @classmethod
     def new(cls, bytes: GLib.Bytes) -> VectorReader: ...
@@ -2843,13 +2897,12 @@ class VectorReaderIter(GObject.Object):
     Signals from GObject:
       notify (GParam)
     """
-
     class Props(GObject.Object.Props):
         reader: VectorReader
 
     @property
     def props(self) -> Props: ...
-    def __init__(self, reader: VectorReader = ...) -> None: ...
+    def __init__(self, *, reader: VectorReader = ...) -> None: ...
     def feature_contains_point(self, x: float, y: float) -> bool: ...
     def get_feature_geometry_type(self) -> GeometryType: ...
     def get_feature_id(self) -> int: ...
@@ -2915,7 +2968,6 @@ class VectorRenderer(MapSource, Gio.Initable):
     Signals from GObject:
       notify (GParam)
     """
-
     class Props(MapSource.Props):
         sprite_sheet: VectorSpriteSheet
         style_json: str
@@ -2932,6 +2984,7 @@ class VectorRenderer(MapSource, Gio.Initable):
     def props(self) -> Props: ...
     def __init__(
         self,
+        *,
         sprite_sheet: VectorSpriteSheet = ...,
         style_json: str = ...,
         id: str = ...,
@@ -2943,12 +2996,15 @@ class VectorRenderer(MapSource, Gio.Initable):
         projection: MapProjection = ...,
         tile_size: int = ...,
     ) -> None: ...
+    def get_global_state(self, key: str) -> VectorValue: ...
     def get_sprite_sheet(self) -> VectorSpriteSheet: ...
     @staticmethod
     def is_supported() -> bool: ...
     @classmethod
     def new(cls, id: str, style_json: str) -> VectorRenderer: ...
+    def reset_global_state(self, key: str) -> None: ...
     def set_data_source(self, name: str, data_source: DataSource) -> None: ...
+    def set_global_state(self, key: str, value: VectorValue) -> None: ...
     def set_sprite_sheet(self, sprites: VectorSpriteSheet) -> None: ...
     def set_sprite_sheet_data(
         self, sprites_pixbuf: GdkPixbuf.Pixbuf, sprites_json: str
@@ -2996,7 +3052,6 @@ class VectorSprite(GObject.Object, _Gdk4.Paintable, _Gtk4.SymbolicPaintable):
     Signals from GObject:
       notify (GParam)
     """
-
     class Props(GObject.Object.Props):
         height: int
         scale_factor: float
@@ -3008,6 +3063,7 @@ class VectorSprite(GObject.Object, _Gdk4.Paintable, _Gtk4.SymbolicPaintable):
     def props(self) -> Props: ...
     def __init__(
         self,
+        *,
         height: int = ...,
         scale_factor: float = ...,
         source_paintable: _Gdk4.Paintable = ...,
@@ -3056,7 +3112,6 @@ class VectorSpriteSheet(GObject.Object):
     Signals from GObject:
       notify (GParam)
     """
-
     def add_page(
         self, texture: _Gdk4.Texture, json: str, default_scale: float
     ) -> bool: ...
@@ -3081,6 +3136,51 @@ class VectorSpriteSheetClass(GObject.GPointer):
     @property
     def parent_class(self) -> GObject.ObjectClass: ...
 
+class VectorValue(GObject.GBoxed):
+    """
+    :Constructors:
+
+    ::
+
+        new() -> Shumate.VectorValue
+        new_boolean(boolean:bool) -> Shumate.VectorValue
+        new_color(color:Gdk.RGBA) -> Shumate.VectorValue
+        new_from_value(value:GObject.Value) -> Shumate.VectorValue
+        new_number(number:float) -> Shumate.VectorValue
+        new_string(string:str) -> Shumate.VectorValue
+    """
+    @staticmethod
+    def __new__(cls: type[Self]) -> Self: ...
+    def array_append(self, element: VectorValue) -> None: ...
+    def dup(self) -> VectorValue: ...
+    def equal(self, b: VectorValue) -> bool: ...
+    def free(self) -> None: ...
+    def get_boolean(self) -> tuple[bool, bool]: ...
+    def get_color(self) -> tuple[bool, _Gdk4.RGBA]: ...
+    def get_number(self) -> tuple[bool, float]: ...
+    def get_string(self) -> tuple[bool, str]: ...
+    def get_value_type(self) -> VectorValueType: ...
+    def hash(self) -> int: ...
+    def is_null(self) -> bool: ...
+    @classmethod
+    def new(cls) -> VectorValue: ...
+    @classmethod
+    def new_boolean(cls, boolean: bool) -> VectorValue: ...
+    @classmethod
+    def new_color(cls, color: _Gdk4.RGBA) -> VectorValue: ...
+    @classmethod
+    def new_from_value(cls, value: Any) -> VectorValue: ...
+    @classmethod
+    def new_number(cls, number: float) -> VectorValue: ...
+    @classmethod
+    def new_string(cls, string: str) -> VectorValue: ...
+    def set_boolean(self, boolean: bool) -> None: ...
+    def set_color(self, color: _Gdk4.RGBA) -> None: ...
+    def set_number(self, number: float) -> None: ...
+    def set_string(self, string: str) -> None: ...
+    def start_array(self) -> None: ...
+    def unset(self) -> None: ...
+
 class Viewport(GObject.Object, Location):
     """
     :Constructors:
@@ -3091,6 +3191,9 @@ class Viewport(GObject.Object, Location):
         new() -> Shumate.Viewport
 
     Object ShumateViewport
+
+    Signals from ShumateViewport:
+      changed ()
 
     Properties from ShumateViewport:
       zoom-level -> gdouble: Zoom level
@@ -3107,7 +3210,6 @@ class Viewport(GObject.Object, Location):
     Signals from GObject:
       notify (GParam)
     """
-
     class Props(GObject.Object.Props):
         max_zoom_level: int
         min_zoom_level: int
@@ -3121,6 +3223,7 @@ class Viewport(GObject.Object, Location):
     def props(self) -> Props: ...
     def __init__(
         self,
+        *,
         max_zoom_level: int = ...,
         min_zoom_level: int = ...,
         reference_map_source: MapSource | None = ...,
@@ -3205,3 +3308,14 @@ class Unit(GObject.GEnum):
     BOTH = 0
     IMPERIAL = 2
     METRIC = 1
+
+class VectorValueType(GObject.GEnum):
+    ARRAY = 5
+    BOOLEAN = 2
+    COLLATOR = 8
+    COLOR = 4
+    FORMATTED_STRING = 7
+    NULL = 0
+    NUMBER = 1
+    RESOLVED_IMAGE = 6
+    STRING = 3

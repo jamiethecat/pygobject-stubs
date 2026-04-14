@@ -77,6 +77,35 @@ class BorderNode(RenderNode):
         border_color: Sequence[_Gdk4.RGBA],
     ) -> BorderNode: ...
 
+class BroadwayRenderer(Renderer):
+    """
+    :Constructors:
+
+    ::
+
+        BroadwayRenderer(**properties)
+        new() -> Gsk.Renderer
+
+    Object GskBroadwayRenderer
+
+    Properties from GskRenderer:
+      realized -> gboolean: realized
+      surface -> GdkSurface: surface
+
+    Signals from GObject:
+      notify (GParam)
+    """
+    class Props(Renderer.Props):
+        realized: bool
+        surface: _Gdk4.Surface | None
+
+    @property
+    def props(self) -> Props: ...
+    @classmethod
+    def new(cls) -> BroadwayRenderer: ...
+
+class BroadwayRendererClass(GObject.GPointer): ...
+
 class CairoNode(RenderNode):
     """
     :Constructors:

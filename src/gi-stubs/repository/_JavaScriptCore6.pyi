@@ -1,5 +1,6 @@
 from typing import Any
 from typing import Final
+from typing import TypeVar
 
 from collections.abc import Callable
 from collections.abc import Sequence
@@ -8,6 +9,8 @@ from enum import IntFlag
 
 from gi.repository import GLib
 from gi.repository import GObject
+
+T = TypeVar("T")
 
 MAJOR_VERSION: Final[int]
 MICRO_VERSION: Final[int]
@@ -55,7 +58,6 @@ class Class(GObject.Object):
     Signals from GObject:
       notify (GParam)
     """
-
     class Props(GObject.Object.Props):
         name: str
         parent: Class
@@ -64,42 +66,42 @@ class Class(GObject.Object):
     @property
     def props(self) -> Props: ...
     def __init__(
-        self, context: Context = ..., name: str = ..., parent: Class = ...
-    ): ...
+        self, *, context: Context = ..., name: str = ..., parent: Class = ...
+    ) -> None: ...
     def add_constructor(
         self,
         name: str | None,
         callback: Callable[..., None],
-        return_type: type,
-        parameter_types: Sequence[type] | None = None,
+        return_type: type[Any],
+        parameter_types: Sequence[type[Any]] | None = None,
         *user_data: Any,
     ) -> Value: ...
     def add_constructor_variadic(
         self,
         name: str | None,
         callback: Callable[..., None],
-        return_type: type,
+        return_type: type[Any],
         *user_data: Any,
     ) -> Value: ...
     def add_method(
         self,
         name: str,
         callback: Callable[..., None],
-        return_type: type,
-        parameter_types: Sequence[type] | None = None,
+        return_type: type[Any],
+        parameter_types: Sequence[type[Any]] | None = None,
         *user_data: Any,
     ) -> None: ...
     def add_method_variadic(
         self,
         name: str,
         callback: Callable[..., None],
-        return_type: type,
+        return_type: type[Any],
         *user_data: Any,
     ) -> None: ...
     def add_property(
         self,
         name: str,
-        property_type: type,
+        property_type: type[Any],
         getter: Callable[[], None] | None = None,
         setter: Callable[..., None] | None = None,
         *user_data: Any,
@@ -151,13 +153,12 @@ class Context(GObject.Object):
     Signals from GObject:
       notify (GParam)
     """
-
     class Props(GObject.Object.Props):
         virtual_machine: VirtualMachine
 
     @property
     def props(self) -> Props: ...
-    def __init__(self, virtual_machine: VirtualMachine = ...): ...
+    def __init__(self, *, virtual_machine: VirtualMachine = ...) -> None: ...
     def check_syntax(
         self, code: str, length: int, mode: CheckSyntaxMode, uri: str, line_number: int
     ) -> tuple[CheckSyntaxResult, Exception]: ...
@@ -227,7 +228,6 @@ class Exception(GObject.Object):
     Signals from GObject:
       notify (GParam)
     """
-
     def get_backtrace_string(self) -> str | None: ...
     def get_column_number(self) -> int: ...
     def get_line_number(self) -> int: ...
@@ -269,6 +269,7 @@ class Value(GObject.Object):
         new_null(context:JavaScriptCore.Context) -> JavaScriptCore.Value
         new_number(context:JavaScriptCore.Context, number:float) -> JavaScriptCore.Value
         new_object(context:JavaScriptCore.Context, instance=None, jsc_class:JavaScriptCore.Class=None) -> JavaScriptCore.Value
+        new_promise(context:JavaScriptCore.Context, executor:JavaScriptCore.Executor, user_data=None) -> JavaScriptCore.Value
         new_string(context:JavaScriptCore.Context, string:str=None) -> JavaScriptCore.Value
         new_string_from_bytes(context:JavaScriptCore.Context, bytes:GLib.Bytes=None) -> JavaScriptCore.Value
         new_typed_array(context:JavaScriptCore.Context, type:JavaScriptCore.TypedArrayType, length:int) -> JavaScriptCore.Value
@@ -282,14 +283,13 @@ class Value(GObject.Object):
     Signals from GObject:
       notify (GParam)
     """
-
     class Props(GObject.Object.Props):
         context: Context
 
     @property
     def props(self) -> Props: ...
-    def __init__(self, context: Context = ...): ...
-    def array_buffer_get_data(self, size: int | None = None) -> None: ...
+    def __init__(self, *, context: Context = ...) -> None: ...
+    def array_buffer_get_data(self) -> bytes: ...
     def array_buffer_get_size(self) -> int: ...
     def constructor_call(self, parameters: Sequence[Value] | None = None) -> Value: ...
     def function_call(self, parameters: Sequence[Value] | None = None) -> Value: ...
@@ -330,8 +330,8 @@ class Value(GObject.Object):
         context: Context,
         name: str | None,
         callback: Callable[..., None],
-        return_type: type,
-        parameter_types: Sequence[type] | None = None,
+        return_type: type[Any],
+        parameter_types: Sequence[type[Any]] | None = None,
         *user_data: Any,
     ) -> Value: ...
     @classmethod
@@ -340,7 +340,7 @@ class Value(GObject.Object):
         context: Context,
         name: str | None,
         callback: Callable[..., None],
-        return_type: type,
+        return_type: type[Any],
         *user_data: Any,
     ) -> Value: ...
     @classmethod
@@ -350,6 +350,10 @@ class Value(GObject.Object):
     @classmethod
     def new_object(
         cls, context: Context, instance: None, jsc_class: Class | None = None
+    ) -> Value: ...
+    @classmethod
+    def new_promise(
+        cls, context: Context, executor: Callable[..., None], *user_data: Any
     ) -> Value: ...
     @classmethod
     def new_string(cls, context: Context, string: str | None = None) -> Value: ...
@@ -370,7 +374,7 @@ class Value(GObject.Object):
         self,
         property_name: str,
         flags: ValuePropertyFlags,
-        property_type: type,
+        property_type: type[Any],
         getter: Callable[..., None] | None = None,
         setter: Callable[..., None] | None = None,
         *user_data: Any,
@@ -430,7 +434,6 @@ class VirtualMachine(GObject.Object):
     Signals from GObject:
       notify (GParam)
     """
-
     @classmethod
     def new(cls) -> VirtualMachine: ...
 
@@ -465,13 +468,12 @@ class WeakValue(GObject.Object):
     Signals from GObject:
       notify (GParam)
     """
-
     class Props(GObject.Object.Props):
         value: Value
 
     @property
     def props(self) -> Props: ...
-    def __init__(self, value: Value = ...): ...
+    def __init__(self, *, value: Value = ...) -> None: ...
     def get_value(self) -> Value: ...
     @classmethod
     def new(cls, value: Value) -> WeakValue: ...

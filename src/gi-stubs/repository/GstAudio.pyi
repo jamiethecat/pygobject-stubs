@@ -113,10 +113,7 @@ def audio_get_channel_reorder_map(
 ) -> bool: ...
 def audio_iec61937_frame_size(spec: AudioRingBufferSpec) -> int: ...
 def audio_iec61937_payload(
-    src: Sequence[int],
-    dst: Sequence[int],
-    spec: AudioRingBufferSpec,
-    endianness: int,
+    src: Sequence[int], dst: Sequence[int], spec: AudioRingBufferSpec, endianness: int
 ) -> bool: ...
 def audio_info_from_caps(caps: Gst.Caps) -> tuple[bool, AudioInfo]: ...
 def audio_info_init() -> AudioInfo: ...
@@ -165,10 +162,7 @@ def buffer_add_audio_level_meta(
     buffer: Gst.Buffer, level: int, voice_activity: bool
 ) -> AudioLevelMeta | None: ...
 def buffer_add_audio_meta(
-    buffer: Gst.Buffer,
-    info: AudioInfo,
-    samples: int,
-    offsets: int | None = None,
+    buffer: Gst.Buffer, info: AudioInfo, samples: int, offsets: int | None = None
 ) -> AudioMeta: ...
 def buffer_add_dsd_plane_offset_meta(
     buffer: Gst.Buffer,
@@ -179,9 +173,7 @@ def buffer_add_dsd_plane_offset_meta(
 def buffer_get_audio_downmix_meta_for_channels(
     buffer: Gst.Buffer, to_position: Sequence[AudioChannelPosition]
 ) -> AudioDownmixMeta: ...
-def buffer_get_audio_level_meta(
-    buffer: Gst.Buffer,
-) -> AudioLevelMeta | None: ...
+def buffer_get_audio_level_meta(buffer: Gst.Buffer) -> AudioLevelMeta | None: ...
 def dsd_convert(
     input_data: int,
     output_data: int,
@@ -1257,9 +1249,7 @@ class AudioDecoder(Gst.Element):
     def merge_tags(self, tags: Gst.TagList | None, mode: Gst.TagMergeMode) -> None: ...
     def negotiate(self) -> bool: ...
     def proxy_getcaps(
-        self,
-        caps: Gst.Caps | None = None,
-        filter: Gst.Caps | None = None,
+        self, caps: Gst.Caps | None = None, filter: Gst.Caps | None = None
     ) -> Gst.Caps: ...
     def set_allocation_caps(self, allocation_caps: Gst.Caps | None = None) -> None: ...
     def set_drainable(self, enabled: bool) -> None: ...
@@ -1338,11 +1328,11 @@ class AudioDownmixMeta(GObject.GPointer):
     """
 
     meta: Gst.Meta
-    from_position: list[AudioChannelPosition]
-    to_position: list[AudioChannelPosition]
+    from_position: AudioChannelPosition
+    to_position: AudioChannelPosition
     from_channels: int
     to_channels: int
-    matrix: list[float]
+    matrix: float
     @staticmethod
     def get_info() -> Gst.MetaInfo: ...
 
@@ -1455,9 +1445,7 @@ class AudioEncoder(Gst.Element, Gst.Preset):
     def merge_tags(self, tags: Gst.TagList | None, mode: Gst.TagMergeMode) -> None: ...
     def negotiate(self) -> bool: ...
     def proxy_getcaps(
-        self,
-        caps: Gst.Caps | None = None,
-        filter: Gst.Caps | None = None,
+        self, caps: Gst.Caps | None = None, filter: Gst.Caps | None = None
     ) -> Gst.Caps: ...
     def set_allocation_caps(self, allocation_caps: Gst.Caps | None = None) -> None: ...
     def set_drainable(self, enabled: bool) -> None: ...
@@ -1566,11 +1554,7 @@ class AudioFilter(GstBase.BaseTransform):
     @property
     def info(self) -> AudioInfo: ...
     def __init__(
-        self,
-        *,
-        qos: bool = ...,
-        name: str | None = ...,
-        parent: Gst.Object = ...,
+        self, *, qos: bool = ..., name: str | None = ..., parent: Gst.Object = ...
     ) -> None: ...
     def add_pad_templates(self, allowed_caps: Gst.Caps) -> None: ...
     def do_setup(self, info: AudioInfo) -> bool: ...
@@ -1608,25 +1592,11 @@ class AudioFormatInfo(GObject.GPointer):
     silence: bytes
     unpack_format: AudioFormat
     unpack_func: Callable[
-        [
-            AudioFormatInfo,
-            AudioPackFlags,
-            Sequence[int],
-            Sequence[int],
-            int,
-        ],
-        None,
-    ] = ...
+        [AudioFormatInfo, AudioPackFlags, Sequence[int], Sequence[int], int], None
+    ]
     pack_func: Callable[
-        [
-            AudioFormatInfo,
-            AudioPackFlags,
-            Sequence[int],
-            Sequence[int],
-            int,
-        ],
-        None,
-    ] = ...
+        [AudioFormatInfo, AudioPackFlags, Sequence[int], Sequence[int], int], None
+    ]
     def fill_silence(self, dest: Sequence[int]) -> None: ...
 
 class AudioInfo(GObject.GBoxed):
@@ -1654,7 +1624,8 @@ class AudioInfo(GObject.GBoxed):
     ) -> tuple[bool, int]: ...
     def copy(self) -> AudioInfo: ...
     def free(self) -> None: ...
-    def from_caps(*args): ...  # FIXME: Override is missing typing annotation
+    @staticmethod
+    def from_caps(caps: Gst.Caps) -> tuple[bool, AudioInfo]: ...
     @staticmethod
     def init() -> AudioInfo: ...
     def is_equal(self, other: AudioInfo) -> bool: ...
@@ -1698,7 +1669,7 @@ class AudioMeta(GObject.GPointer):
     meta: Gst.Meta
     info: AudioInfo
     samples: int
-    offsets: list[int]
+    offsets: int
     @property
     def priv_offsets_arr(self) -> list[int]: ...
     @staticmethod
@@ -1857,9 +1828,7 @@ class AudioRingBuffer(Gst.Object):
     def release(self) -> bool: ...
     def samples_done(self) -> int: ...
     def set_callback(
-        self,
-        cb: Callable[..., None] | None = None,
-        *user_data: Any,
+        self, cb: Callable[..., None] | None = None, *user_data: Any
     ) -> None: ...
     def set_channel_positions(
         self, position: Sequence[AudioChannelPosition]

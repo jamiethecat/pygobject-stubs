@@ -16,7 +16,7 @@ T = TypeVar("T")
 PIXBUF_MAJOR: Final[int]
 PIXBUF_MICRO: Final[int]
 PIXBUF_MINOR: Final[int]
-PIXBUF_VERSION: Final = "2.44.4"
+PIXBUF_VERSION: Final = "2.44.6"
 
 def pixbuf_error_quark() -> int: ...
 
@@ -81,6 +81,7 @@ class Pixbuf(GObject.Object, Gio.Icon, Gio.LoadableIcon):
     def props(self) -> Props: ...
     def __init__(
         self,
+        *,
         bits_per_sample: int = ...,
         colorspace: Colorspace = ...,
         has_alpha: bool = ...,
@@ -164,9 +165,7 @@ class Pixbuf(GObject.Object, Gio.Icon, Gio.LoadableIcon):
     def get_byte_length(self) -> int: ...
     def get_colorspace(self) -> Colorspace: ...
     @staticmethod
-    def get_file_info(
-        filename: str,
-    ) -> tuple[PixbufFormat | None, int, int]: ...
+    def get_file_info(filename: str) -> tuple[PixbufFormat | None, int, int]: ...
     @staticmethod
     def get_file_info_async(
         filename: str,
@@ -244,9 +243,7 @@ class Pixbuf(GObject.Object, Gio.Icon, Gio.LoadableIcon):
     ) -> Pixbuf | None: ...
     @classmethod
     def new_from_stream(
-        cls,
-        stream: Gio.InputStream,
-        cancellable: Gio.Cancellable | None = None,
+        cls, stream: Gio.InputStream, cancellable: Gio.Cancellable | None = None
     ) -> Pixbuf | None: ...
     @staticmethod
     def new_from_stream_async(
@@ -385,9 +382,7 @@ class PixbufAnimation(GObject.Object):
     def new_from_resource(cls, resource_path: str) -> PixbufAnimation | None: ...
     @classmethod
     def new_from_stream(
-        cls,
-        stream: Gio.InputStream,
-        cancellable: Gio.Cancellable | None = None,
+        cls, stream: Gio.InputStream, cancellable: Gio.Cancellable | None = None
     ) -> PixbufAnimation | None: ...
     @staticmethod
     def new_from_stream_async(
@@ -635,7 +630,7 @@ class PixbufSimpleAnim(PixbufAnimation):
 
     @property
     def props(self) -> Props: ...
-    def __init__(self, loop: bool = ...) -> None: ...
+    def __init__(self, *, loop: bool = ...) -> None: ...
     def add_frame(self, pixbuf: Pixbuf) -> None: ...
     def get_loop(self) -> bool: ...
     @classmethod

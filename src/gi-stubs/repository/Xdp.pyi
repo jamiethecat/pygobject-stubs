@@ -1,5 +1,6 @@
 from typing import Any
 from typing import Final
+from typing import TypeVar
 
 from collections.abc import Callable
 from collections.abc import Sequence
@@ -8,7 +9,176 @@ from gi.repository import Gio
 from gi.repository import GLib
 from gi.repository import GObject
 
+T = TypeVar("T")
+
 WALLPAPER_TARGET_BOTH: Final[int]
+
+class InputCapturePointerBarrier(GObject.Object):
+    """
+    :Constructors:
+
+    ::
+
+        InputCapturePointerBarrier(**properties)
+
+    Object XdpInputCapturePointerBarrier
+
+    Properties from XdpInputCapturePointerBarrier:
+      x1 -> gint: Pointer barrier x offset
+        The pointer barrier x offset in logical pixels
+      x2 -> gint: Pointer barrier x offset
+        The pointer barrier x offset in logical pixels
+      y1 -> gint: Pointer barrier y offset
+        The pointer barrier y offset in logical pixels
+      y2 -> gint: Pointer barrier y offset
+        The pointer barrier y offset in logical pixels
+      id -> guint: Pointer barrier unique id
+        The id assigned to this barrier by the caller
+      is-active -> gboolean: true if active, false otherwise
+        true if active, false otherwise
+
+    Signals from GObject:
+      notify (GParam)
+    """
+    class Props(GObject.Object.Props):
+        id: int
+        is_active: bool
+        x1: int
+        x2: int
+        y1: int
+        y2: int
+
+    @property
+    def props(self) -> Props: ...
+    def __init__(
+        self,
+        *,
+        id: int = ...,
+        x1: int = ...,
+        x2: int = ...,
+        y1: int = ...,
+        y2: int = ...,
+    ) -> None: ...
+
+class InputCapturePointerBarrierClass(GObject.GPointer):
+    """
+    :Constructors:
+
+    ::
+
+        InputCapturePointerBarrierClass()
+    """
+    @property
+    def parent_class(self) -> GObject.ObjectClass: ...
+
+class InputCaptureSession(GObject.Object):
+    """
+    :Constructors:
+
+    ::
+
+        InputCaptureSession(**properties)
+
+    Object XdpInputCaptureSession
+
+    Signals from XdpInputCaptureSession:
+      zones-changed (GVariant)
+      activated (guint, GVariant)
+      deactivated (guint, GVariant)
+      disabled (GVariant)
+
+    Signals from GObject:
+      notify (GParam)
+    """
+    def connect_to_eis(self) -> int: ...
+    def disable(self) -> None: ...
+    def enable(self) -> None: ...
+    def get_session(self) -> Session: ...
+    def get_zones(self) -> list[InputCaptureZone]: ...
+    def release(self, activation_id: int) -> None: ...
+    def release_at(
+        self, activation_id: int, cursor_x_position: float, cursor_y_position: float
+    ) -> None: ...
+    def set_pointer_barriers(
+        self,
+        barriers: list[InputCapturePointerBarrier],
+        cancellable: Gio.Cancellable | None = None,
+        callback: Callable[..., None] | None = None,
+        *data: Any,
+    ) -> None: ...
+    def set_pointer_barriers_finish(
+        self, result: Gio.AsyncResult
+    ) -> list[InputCapturePointerBarrier]: ...
+
+class InputCaptureSessionClass(GObject.GPointer):
+    """
+    :Constructors:
+
+    ::
+
+        InputCaptureSessionClass()
+    """
+    @property
+    def parent_class(self) -> GObject.ObjectClass: ...
+
+class InputCaptureZone(GObject.Object):
+    """
+    :Constructors:
+
+    ::
+
+        InputCaptureZone(**properties)
+
+    Object XdpInputCaptureZone
+
+    Properties from XdpInputCaptureZone:
+      width -> guint: zone width
+        The zone width in logical pixels
+      height -> guint: zone height
+        The zone height in logical pixels
+      x -> gint: zone x offset
+        The zone x offset in logical pixels
+      y -> gint: zone y offset
+        The zone y offset in logical pixels
+      zone-set -> guint: zone set number
+        The zone_set number when this zone was retrieved
+      is-valid -> gboolean: validity check
+        True if this zone is currently valid
+
+    Signals from GObject:
+      notify (GParam)
+    """
+    class Props(GObject.Object.Props):
+        height: int
+        is_valid: bool
+        width: int
+        x: int
+        y: int
+        zone_set: int
+
+    @property
+    def props(self) -> Props: ...
+    def __init__(
+        self,
+        *,
+        height: int = ...,
+        is_valid: bool = ...,
+        width: int = ...,
+        x: int = ...,
+        y: int = ...,
+        zone_set: int = ...,
+    ) -> None: ...
+
+class InputCaptureZoneClass(GObject.GPointer):
+    """
+    :Constructors:
+
+    ::
+
+        InputCaptureZoneClass()
+    """
+    @property
+    def parent_class(self) -> GObject.ObjectClass: ...
 
 class Parent(GObject.GBoxed):
     def copy(self) -> Parent: ...
@@ -37,7 +207,6 @@ class Portal(GObject.Object, Gio.Initable):
     Signals from GObject:
       notify (GParam)
     """
-
     def access_camera(
         self,
         parent: Parent | None,
@@ -72,6 +241,17 @@ class Portal(GObject.Object, Gio.Initable):
         *data: Any,
     ) -> None: ...
     def compose_email_finish(self, result: Gio.AsyncResult) -> bool: ...
+    def create_input_capture_session(
+        self,
+        parent: Parent | None,
+        capabilities: InputCapability,
+        cancellable: Gio.Cancellable | None = None,
+        callback: Callable[..., None] | None = None,
+        *data: Any,
+    ) -> None: ...
+    def create_input_capture_session_finish(
+        self, result: Gio.AsyncResult
+    ) -> InputCaptureSession: ...
     def create_remote_desktop_session(
         self,
         devices: DeviceType,
@@ -85,6 +265,18 @@ class Portal(GObject.Object, Gio.Initable):
     def create_remote_desktop_session_finish(
         self, result: Gio.AsyncResult
     ) -> Session: ...
+    def create_remote_desktop_session_full(
+        self,
+        devices: DeviceType,
+        outputs: OutputType,
+        flags: RemoteDesktopFlags,
+        cursor_mode: CursorMode,
+        persist_mode: PersistMode,
+        restore_token: str | None = None,
+        cancellable: Gio.Cancellable | None = None,
+        callback: Callable[..., None] | None = None,
+        *data: Any,
+    ) -> None: ...
     def create_screencast_session(
         self,
         outputs: OutputType,
@@ -130,6 +322,8 @@ class Portal(GObject.Object, Gio.Initable):
         self, name: str, icon_v: GLib.Variant
     ) -> str: ...
     def dynamic_launcher_uninstall(self, desktop_file_id: str) -> bool: ...
+    def get_settings(self) -> Settings: ...
+    def get_supported_notification_options(self) -> GLib.Variant: ...
     def get_user_information(
         self,
         parent: Parent | None,
@@ -229,7 +423,7 @@ class Portal(GObject.Object, Gio.Initable):
         self,
         parent: Parent | None,
         reason: str | None,
-        commandline: Sequence[str],
+        commandline: Sequence[str] | None,
         flags: BackgroundFlags,
         cancellable: Gio.Cancellable | None = None,
         callback: Callable[..., None] | None = None,
@@ -336,7 +530,7 @@ class Portal(GObject.Object, Gio.Initable):
         callback: Callable[..., None] | None = None,
         *data: Any,
     ) -> None: ...
-    def take_screenshot_finish(self, result: Gio.AsyncResult) -> str | None: ...
+    def take_screenshot_finish(self, result: Gio.AsyncResult) -> str: ...
     def trash_file(
         self,
         path: str,
@@ -391,7 +585,6 @@ class Session(GObject.Object):
     Signals from GObject:
       notify (GParam)
     """
-
     def close(self) -> None: ...
     def connect_to_eis(self) -> int: ...
     def get_devices(self) -> DeviceType: ...
@@ -427,7 +620,46 @@ class SessionClass(GObject.GPointer):
 
         SessionClass()
     """
+    @property
+    def parent_class(self) -> GObject.ObjectClass: ...
 
+class Settings(GObject.Object):
+    """
+    :Constructors:
+
+    ::
+
+        Settings(**properties)
+
+    Object XdpSettings
+
+    Signals from XdpSettings:
+      changed (gchararray, gchararray, GVariant)
+
+    Signals from GObject:
+      notify (GParam)
+    """
+    def read_all_values(
+        self, namespaces: str, cancellable: Gio.Cancellable | None = None
+    ) -> GLib.Variant: ...
+    def read_string(
+        self, namespace: str, key: str, cancellable: Gio.Cancellable | None = None
+    ) -> str: ...
+    def read_uint(
+        self, namespace: str, key: str, cancellable: Gio.Cancellable | None = None
+    ) -> int: ...
+    def read_value(
+        self, namespace: str, key: str, cancellable: Gio.Cancellable | None = None
+    ) -> GLib.Variant: ...
+
+class SettingsClass(GObject.GPointer):
+    """
+    :Constructors:
+
+    ::
+
+        SettingsClass()
+    """
     @property
     def parent_class(self) -> GObject.ObjectClass: ...
 
@@ -452,6 +684,12 @@ class InhibitFlags(GObject.GFlags):
     LOGOUT = 1
     SUSPEND = 4
     USER_SWITCH = 2
+
+class InputCapability(GObject.GFlags):
+    KEYBOARD = 1
+    NONE = 0
+    POINTER = 2
+    TOUCHSCREEN = 4
 
 class LauncherType(GObject.GFlags):
     APPLICATION = 1
@@ -555,6 +793,7 @@ class SessionState(GObject.GEnum):
     INITIAL = 0
 
 class SessionType(GObject.GEnum):
+    INPUT_CAPTURE = 2
     REMOTE_DESKTOP = 1
     SCREENCAST = 0
 

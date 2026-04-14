@@ -425,11 +425,7 @@ class WebRTCICEStream(Gst.Object):
     @property
     def stream_id(self) -> int: ...
     def __init__(
-        self,
-        *,
-        stream_id: int = ...,
-        name: str | None = ...,
-        parent: Gst.Object = ...,
+        self, *, stream_id: int = ..., name: str | None = ..., parent: Gst.Object = ...
     ) -> None: ...
     def do_find_transport(
         self, component: WebRTCICEComponent

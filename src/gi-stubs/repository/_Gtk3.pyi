@@ -1,15 +1,16 @@
 from typing import Any
 from typing import Final
-from typing import Literal
 from typing import overload
 from typing import Protocol
 from typing import TypeVar
+from typing_extensions import Self
 
 from collections.abc import Callable
 from collections.abc import Iterator
 from collections.abc import Sequence
 
 import cairo
+from gi import _gi
 from gi.repository import _Gdk3
 from gi.repository import Atk
 from gi.repository import GdkPixbuf
@@ -18,7 +19,7 @@ from gi.repository import GLib
 from gi.repository import GObject
 from gi.repository import Pango
 
-_SomeSurface = TypeVar("_SomeSurface", bound=cairo.Surface)
+T = TypeVar("T")
 CellRendererT = TypeVar(
     "CellRendererT",
     CellRendererCombo,
@@ -29,6 +30,8 @@ CellRendererT = TypeVar(
     CellRendererText,
     CellRendererToggle,
 )
+WidgetT = TypeVar("WidgetT", bound=Widget)
+_SomeSurface = TypeVar("_SomeSurface", bound=cairo.Surface)
 
 BINARY_AGE: Final[int]
 INPUT_ERROR: Final[int]
@@ -434,8 +437,8 @@ def key_snooper_remove(snooper_handler_id: int) -> None: ...
 # override
 def main() -> None: ...
 def main_do_event(event: _Gdk3.Event) -> None: ...
-def main_iteration() -> bool: ...
-def main_iteration_do(blocking: bool) -> bool: ...
+def main_iteration(): ...  # FIXME: Override is missing typing annotation
+def main_iteration_do(blocking): ...  # FIXME: Override is missing typing annotation
 def main_level() -> int: ...
 
 # override
@@ -709,10 +712,7 @@ def rc_get_im_module_path() -> str: ...
 def rc_get_module_dir() -> str: ...
 def rc_get_style(widget: Widget) -> Style: ...
 def rc_get_style_by_paths(
-    settings: Settings,
-    widget_path: str | None,
-    class_path: str | None,
-    type: type,
+    settings: Settings, widget_path: str | None, class_path: str | None, type: type[Any]
 ) -> Style | None: ...
 def rc_get_theme_dir() -> str: ...
 def rc_parse(filename: str) -> None: ...
@@ -927,11 +927,11 @@ def targets_include_text(targets: Sequence[_Gdk3.Atom]) -> bool: ...
 def targets_include_uri(targets: Sequence[_Gdk3.Atom]) -> bool: ...
 def test_create_simple_window(window_title: str, dialog_text: str) -> Widget: ...
 def test_find_label(widget: Widget, label_pattern: str) -> Widget: ...
-def test_find_sibling(base_widget: Widget, widget_type: type) -> Widget: ...
+def test_find_sibling(base_widget: Widget, widget_type: type[Any]) -> Widget: ...
 def test_find_widget(
-    widget: Widget, label_pattern: str, widget_type: type
+    widget: Widget, label_pattern: str, widget_type: type[Any]
 ) -> Widget | None: ...
-def test_list_all_types() -> list[type]: ...
+def test_list_all_types() -> list[type[Any]]: ...
 def test_register_all_types() -> None: ...
 def test_slider_get_value(widget: Widget) -> float: ...
 def test_slider_set_perc(widget: Widget, percentage: float) -> None: ...
@@ -1252,7 +1252,6 @@ class AboutDialog(Dialog, Atk.ImplementorIface, Buildable):
     Signals from GObject:
       notify (GParam)
     """
-
     class Props(Dialog.Props):
         artists: list[str]
         authors: list[str]
@@ -1354,6 +1353,7 @@ class AboutDialog(Dialog, Atk.ImplementorIface, Buildable):
     def priv(self) -> AboutDialogPrivate: ...
     def __init__(
         self,
+        *,
         artists: Sequence[str] = ...,
         authors: Sequence[str] = ...,
         comments: str | None = ...,
@@ -1438,7 +1438,7 @@ class AboutDialog(Dialog, Atk.ImplementorIface, Buildable):
         vexpand_set: bool = ...,
         visible: bool = ...,
         width_request: int = ...,
-    ): ...
+    ) -> None: ...
     def add_credit_section(self, section_name: str, people: Sequence[str]) -> None: ...
     def do_activate_link(self, uri: str) -> bool: ...
     def get_artists(self) -> list[str]: ...
@@ -1513,14 +1513,14 @@ class AccelGroup(GObject.Object):
     Signals from GObject:
       notify (GParam)
     """
-
     class Props(GObject.Object.Props):
         is_locked: bool
         modifier_mask: _Gdk3.ModifierType
 
     @property
     def props(self) -> Props: ...
-    parent: GObject.Object
+    @property
+    def parent(self) -> GObject.Object: ...
     @property
     def priv(self) -> AccelGroupPrivate: ...
     def activate(
@@ -1838,7 +1838,6 @@ class AccelLabel(Label, Atk.ImplementorIface, Buildable):
     Signals from GObject:
       notify (GParam)
     """
-
     class Props(Label.Props):
         accel_closure: Callable[..., Any] | None
         accel_widget: Widget | None
@@ -1908,11 +1907,13 @@ class AccelLabel(Label, Atk.ImplementorIface, Buildable):
 
     @property
     def props(self) -> Props: ...
-    label: Label
+    @property
+    def label(self) -> Label: ...
     @property
     def priv(self) -> AccelLabelPrivate: ...
     def __init__(
         self,
+        *,
         accel_closure: Callable[..., Any] | None = ...,
         accel_widget: Widget | None = ...,
         angle: float = ...,
@@ -1972,7 +1973,7 @@ class AccelLabel(Label, Atk.ImplementorIface, Buildable):
         vexpand_set: bool = ...,
         visible: bool = ...,
         width_request: int = ...,
-    ): ...
+    ) -> None: ...
     def get_accel(self) -> tuple[int, _Gdk3.ModifierType]: ...
     def get_accel_widget(self) -> Widget | None: ...
     def get_accel_width(self) -> int: ...
@@ -2028,7 +2029,6 @@ class AccelMap(GObject.Object):
     Signals from GObject:
       notify (GParam)
     """
-
     @staticmethod
     def add_entry(
         accel_path: str, accel_key: int, accel_mods: _Gdk3.ModifierType
@@ -2093,6 +2093,7 @@ class Accessible(Atk.Object):
       active-descendant-changed (gpointer)
       announcement (gchararray)
       notification (gchararray, gint)
+      attribute-changed (gchararray, gchararray)
 
     Properties from AtkObject:
       accessible-name -> gchararray: Accessible Name
@@ -2125,17 +2126,22 @@ class Accessible(Atk.Object):
         Is used to notify that the table caption has changed
       accessible-hypertext-nlinks -> gint: Number of Accessible Hypertext Links
         The number of links which the current AtkHypertext has
+      accessible-id -> gchararray: Accessible ID
+        ID for the accessible; useful for automated testing
+      accessible-help-text -> gchararray: Help text
+        Help text associated with the accessible
 
     Signals from GObject:
       notify (GParam)
     """
-
     class Props(Atk.Object.Props):
         widget: Widget | None
         accessible_component_layer: int
         accessible_component_mdi_zorder: int
         accessible_description: str
+        accessible_help_text: str
         accessible_hypertext_nlinks: int
+        accessible_id: str
         accessible_name: str
         accessible_parent: Atk.Object
         accessible_role: Atk.Role
@@ -2150,13 +2156,17 @@ class Accessible(Atk.Object):
 
     @property
     def props(self) -> Props: ...
-    parent: Atk.Object
+    @property
+    def parent(self) -> Atk.Object: ...
     @property
     def priv(self) -> AccessiblePrivate: ...
     def __init__(
         self,
+        *,
         widget: Widget | None = ...,
         accessible_description: str = ...,
+        accessible_help_text: str = ...,
+        accessible_id: str = ...,
         accessible_name: str = ...,
         accessible_parent: Atk.Object = ...,
         accessible_role: Atk.Role = ...,
@@ -2168,7 +2178,7 @@ class Accessible(Atk.Object):
         accessible_table_row_header: Atk.Object = ...,
         accessible_table_summary: Atk.Object = ...,
         accessible_value: float = ...,
-    ): ...
+    ) -> None: ...
     def connect_widget_destroyed(self) -> None: ...
     def do_connect_widget_destroyed(self) -> None: ...
     def do_widget_set(self) -> None: ...
@@ -2246,7 +2256,6 @@ class Action(GObject.Object, Buildable):
     Signals from GObject:
       notify (GParam)
     """
-
     class Props(GObject.Object.Props):
         action_group: ActionGroup
         always_show_image: bool
@@ -2267,10 +2276,13 @@ class Action(GObject.Object, Buildable):
 
     @property
     def props(self) -> Props: ...
-    object: GObject.Object
-    private_data: ActionPrivate
+    @property
+    def object(self) -> GObject.Object: ...
+    @property
+    def private_data(self) -> ActionPrivate: ...
     def __init__(
         self,
+        *,
         action_group: ActionGroup = ...,
         always_show_image: bool = ...,
         gicon: Gio.Icon = ...,
@@ -2287,7 +2299,7 @@ class Action(GObject.Object, Buildable):
         visible_horizontal: bool = ...,
         visible_overflown: bool = ...,
         visible_vertical: bool = ...,
-    ): ...
+    ) -> None: ...
     def activate(self) -> None: ...
     def block_activate(self) -> None: ...
     def connect_accelerator(self) -> None: ...
@@ -2523,7 +2535,6 @@ class ActionBar(Bin, Atk.ImplementorIface, Buildable):
     Signals from GObject:
       notify (GParam)
     """
-
     class Props(Bin.Props):
         border_width: int
         resize_mode: ResizeMode
@@ -2570,9 +2581,11 @@ class ActionBar(Bin, Atk.ImplementorIface, Buildable):
 
     @property
     def props(self) -> Props: ...
-    bin: Bin
+    @property
+    def bin(self) -> Bin: ...
     def __init__(
         self,
+        *,
         border_width: int = ...,
         child: Widget = ...,
         resize_mode: ResizeMode = ...,
@@ -2612,7 +2625,7 @@ class ActionBar(Bin, Atk.ImplementorIface, Buildable):
         vexpand_set: bool = ...,
         visible: bool = ...,
         width_request: int = ...,
-    ): ...
+    ) -> None: ...
     def get_center_widget(self) -> Widget | None: ...
     @classmethod
     def new(cls) -> ActionBar: ...
@@ -2706,7 +2719,6 @@ class ActionGroup(GObject.Object, Buildable):
     Signals from GObject:
       notify (GParam)
     """
-
     class Props(GObject.Object.Props):
         accel_group: AccelGroup
         name: str
@@ -2721,20 +2733,98 @@ class ActionGroup(GObject.Object, Buildable):
     def priv(self) -> ActionGroupPrivate: ...
     def __init__(
         self,
+        *,
         accel_group: AccelGroup | None = ...,
         name: str = ...,
         sensitive: bool = ...,
         visible: bool = ...,
-    ): ...
+    ) -> None: ...
     def add_action(self, action: Action) -> None: ...
     def add_action_with_accel(
         self, action: Action, accelerator: str | None = None
     ) -> None: ...
-    def add_actions(self, entries, user_data=None): ...  # FIXME Function
-    def add_radio_actions(
-        self, entries, value=None, on_change=None, user_data=None
-    ): ...  # FIXME Function
-    def add_toggle_actions(self, entries, user_data=None): ...  # FIXME Function
+    def add_actions(self, entries, user_data=None):
+        """
+        The add_actions() method is a convenience method that creates a number
+        of gtk.Action  objects based on the information in the list of action
+        entry tuples contained in entries and adds them to the action group.
+        The entry tuples can vary in size from one to six items with the
+        following information:
+
+            * The name of the action. Must be specified.
+            * The stock id for the action. Optional with a default value of None
+              if a label is specified.
+            * The label for the action. This field should typically be marked
+              for translation, see the set_translation_domain() method. Optional
+              with a default value of None if a stock id is specified.
+            * The accelerator for the action, in the format understood by the
+              gtk.accelerator_parse() function. Optional with a default value of
+              None.
+            * The tooltip for the action. This field should typically be marked
+              for translation, see the set_translation_domain() method. Optional
+              with a default value of None.
+            * The callback function invoked when the action is activated.
+              Optional with a default value of None.
+
+        The "activate" signals of the actions are connected to the callbacks and
+        their accel paths are set to <Actions>/group-name/action-name.
+        """  # FIXME: Override is missing typing annotation
+    def add_radio_actions(self, entries, value=None, on_change=None, user_data=None):
+        """
+        The add_radio_actions() method is a convenience method that creates a
+        number of gtk.RadioAction objects based on the information in the list
+        of action entry tuples contained in entries and adds them to the action
+        group. The entry tuples can vary in size from one to six items with the
+        following information:
+
+            * The name of the action. Must be specified.
+            * The stock id for the action. Optional with a default value of None
+              if a label is specified.
+            * The label for the action. This field should typically be marked
+              for translation, see the set_translation_domain() method. Optional
+              with a default value of None if a stock id is specified.
+            * The accelerator for the action, in the format understood by the
+              gtk.accelerator_parse() function. Optional with a default value of
+              None.
+            * The tooltip for the action. This field should typically be marked
+              for translation, see the set_translation_domain() method. Optional
+              with a default value of None.
+            * The value to set on the radio action. Optional with a default
+              value of 0. Should be specified in applications.
+
+        The value parameter specifies the radio action that should be set
+        active. The "changed" signal of the first radio action is connected to
+        the on_change callback (if specified and not None) and the accel paths
+        of the actions are set to <Actions>/group-name/action-name.
+        """  # FIXME: Override is missing typing annotation
+    def add_toggle_actions(self, entries, user_data=None):
+        """
+        The add_toggle_actions() method is a convenience method that creates a
+        number of gtk.ToggleAction objects based on the information in the list
+        of action entry tuples contained in entries and adds them to the action
+        group. The toggle action entry tuples can vary in size from one to seven
+        items with the following information:
+
+            * The name of the action. Must be specified.
+            * The stock id for the action. Optional with a default value of None
+              if a label is specified.
+            * The label for the action. This field should typically be marked
+              for translation, see the set_translation_domain() method. Optional
+              with a default value of None if a stock id is specified.
+            * The accelerator for the action, in the format understood by the
+              gtk.accelerator_parse() function. Optional with a default value of
+              None.
+            * The tooltip for the action. This field should typically be marked
+              for translation, see the set_translation_domain() method. Optional
+              with a default value of None.
+            * The callback function invoked when the action is activated.
+              Optional with a default value of None.
+            * A flag indicating whether the toggle action is active. Optional
+              with a default value of False.
+
+        The "activate" signals of the actions are connected to the callbacks and
+        their accel paths are set to <Actions>/group-name/action-name.
+        """  # FIXME: Override is missing typing annotation
     def do_get_action(self, action_name: str) -> Action: ...
     def get_accel_group(self) -> AccelGroup: ...
     def get_action(self, action_name: str) -> Action: ...
@@ -2775,7 +2865,6 @@ class Actionable(GObject.GInterface, Protocol):
     Signals from GObject:
       notify (GParam)
     """
-
     def get_action_name(self) -> str | None: ...
     def get_action_target_value(self) -> GLib.Variant: ...
     def set_action_name(self, action_name: str | None = None) -> None: ...
@@ -2812,7 +2901,6 @@ class Activatable(GObject.GInterface, Protocol):
     Signals from GObject:
       notify (GParam)
     """
-
     def do_set_related_action(self, action: Action) -> None: ...
     def get_related_action(self) -> Action: ...
     def get_use_action_appearance(self) -> bool: ...
@@ -2828,10 +2916,14 @@ class ActivatableIface(GObject.GPointer):
 
         ActivatableIface()
     """
-
-    g_iface: GObject.TypeInterface
-    update: Callable[[Activatable, Action, str], None]
-    sync_action_properties: Callable[[Activatable, Action | None], None]
+    @property
+    def g_iface(self) -> GObject.TypeInterface: ...
+    @property
+    def update(self) -> Callable[[Activatable, Action, str], None]: ...
+    @property
+    def sync_action_properties(
+        self,
+    ) -> Callable[[Activatable, Action | None], None]: ...
 
 class Adjustment(GObject.InitiallyUnowned):
     """
@@ -2865,7 +2957,6 @@ class Adjustment(GObject.InitiallyUnowned):
     Signals from GObject:
       notify (GParam)
     """
-
     class Props(GObject.InitiallyUnowned.Props):
         lower: float
         page_increment: float
@@ -2882,13 +2973,14 @@ class Adjustment(GObject.InitiallyUnowned):
     def priv(self) -> AdjustmentPrivate: ...
     def __init__(
         self,
+        *,
         lower: float = ...,
         page_increment: float = ...,
         page_size: float = ...,
         step_increment: float = ...,
         upper: float = ...,
         value: float = ...,
-    ): ...
+    ) -> None: ...
     def changed(self) -> None: ...
     def clamp_page(self, lower: float, upper: float) -> None: ...
     def configure(
@@ -2935,14 +3027,12 @@ class AdjustmentClass(GObject.GPointer):
 
         AdjustmentClass()
     """
-
-    parent_class: GObject.InitiallyUnownedClass
-    changed: Callable[[Adjustment], None]
-    value_changed: Callable[[Adjustment], None]
-    _gtk_reserved1: None
-    _gtk_reserved2: None
-    _gtk_reserved3: None
-    _gtk_reserved4: None
+    @property
+    def parent_class(self) -> GObject.InitiallyUnownedClass: ...
+    @property
+    def changed(self) -> Callable[[Adjustment], None]: ...
+    @property
+    def value_changed(self) -> Callable[[Adjustment], None]: ...
 
 class AdjustmentPrivate(GObject.GPointer): ...
 
@@ -3143,7 +3233,6 @@ class Alignment(Bin, Atk.ImplementorIface, Buildable):
     Signals from GObject:
       notify (GParam)
     """
-
     class Props(Bin.Props):
         bottom_padding: int
         left_padding: int
@@ -3198,11 +3287,13 @@ class Alignment(Bin, Atk.ImplementorIface, Buildable):
 
     @property
     def props(self) -> Props: ...
-    bin: Bin
+    @property
+    def bin(self) -> Bin: ...
     @property
     def priv(self) -> AlignmentPrivate: ...
     def __init__(
         self,
+        *,
         bottom_padding: int = ...,
         left_padding: int = ...,
         right_padding: int = ...,
@@ -3250,7 +3341,7 @@ class Alignment(Bin, Atk.ImplementorIface, Buildable):
         vexpand_set: bool = ...,
         visible: bool = ...,
         width_request: int = ...,
-    ): ...
+    ) -> None: ...
     def get_padding(self) -> tuple[int, int, int, int]: ...
     @classmethod
     def new(
@@ -3275,12 +3366,8 @@ class AlignmentClass(GObject.GPointer):
 
         AlignmentClass()
     """
-
-    parent_class: BinClass
-    _gtk_reserved1: None
-    _gtk_reserved2: None
-    _gtk_reserved3: None
-    _gtk_reserved4: None
+    @property
+    def parent_class(self) -> BinClass: ...
 
 class AlignmentPrivate(GObject.GPointer): ...
 
@@ -3291,7 +3378,6 @@ class AppChooser(GObject.GInterface, Protocol):
     Signals from GObject:
       notify (GParam)
     """
-
     def get_app_info(self) -> Gio.AppInfo | None: ...
     def get_content_type(self) -> str: ...
     def refresh(self) -> None: ...
@@ -3537,7 +3623,6 @@ class AppChooserButton(
     Signals from GObject:
       notify (GParam)
     """
-
     class Props(ComboBox.Props):
         heading: str | None
         show_default_item: bool
@@ -3611,6 +3696,7 @@ class AppChooserButton(
     def priv(self) -> AppChooserButtonPrivate: ...
     def __init__(
         self,
+        *,
         heading: str = ...,
         show_default_item: bool = ...,
         show_dialog_item: bool = ...,
@@ -3670,7 +3756,7 @@ class AppChooserButton(
         width_request: int = ...,
         content_type: str = ...,
         editing_canceled: bool = ...,
-    ): ...
+    ) -> None: ...
     def append_custom_item(self, name: str, label: str, icon: Gio.Icon) -> None: ...
     def append_separator(self) -> None: ...
     def do_custom_item_activated(self, item_name: str) -> None: ...
@@ -3692,10 +3778,12 @@ class AppChooserButtonClass(GObject.GPointer):
 
         AppChooserButtonClass()
     """
-
-    parent_class: ComboBoxClass
-    custom_item_activated: Callable[[AppChooserButton, str], None]
-    padding: list[None]
+    @property
+    def parent_class(self) -> ComboBoxClass: ...
+    @property
+    def custom_item_activated(self) -> Callable[[AppChooserButton, str], None]: ...
+    @property
+    def padding(self) -> list[None]: ...
 
 class AppChooserButtonPrivate(GObject.GPointer): ...
 
@@ -3968,7 +4056,6 @@ class AppChooserDialog(Dialog, Atk.ImplementorIface, AppChooser, Buildable):
     Signals from GObject:
       notify (GParam)
     """
-
     class Props(Dialog.Props):
         gfile: Gio.File
         heading: str | None
@@ -4052,11 +4139,13 @@ class AppChooserDialog(Dialog, Atk.ImplementorIface, AppChooser, Buildable):
 
     @property
     def props(self) -> Props: ...
-    parent: Dialog
+    @property
+    def parent(self) -> Dialog: ...
     @property
     def priv(self) -> AppChooserDialogPrivate: ...
     def __init__(
         self,
+        *,
         gfile: Gio.File = ...,
         heading: str = ...,
         use_header_bar: int = ...,
@@ -4129,7 +4218,7 @@ class AppChooserDialog(Dialog, Atk.ImplementorIface, AppChooser, Buildable):
         visible: bool = ...,
         width_request: int = ...,
         content_type: str = ...,
-    ): ...
+    ) -> None: ...
     def get_heading(self) -> str | None: ...
     def get_widget(self) -> Widget: ...
     @classmethod
@@ -4150,9 +4239,10 @@ class AppChooserDialogClass(GObject.GPointer):
 
         AppChooserDialogClass()
     """
-
-    parent_class: DialogClass
-    padding: list[None]
+    @property
+    def parent_class(self) -> DialogClass: ...
+    @property
+    def padding(self) -> list[None]: ...
 
 class AppChooserDialogPrivate(GObject.GPointer): ...
 
@@ -4362,7 +4452,6 @@ class AppChooserWidget(Box, Atk.ImplementorIface, AppChooser, Buildable, Orienta
     Signals from GObject:
       notify (GParam)
     """
-
     class Props(Box.Props):
         default_text: str
         show_all: bool
@@ -4420,11 +4509,13 @@ class AppChooserWidget(Box, Atk.ImplementorIface, AppChooser, Buildable, Orienta
 
     @property
     def props(self) -> Props: ...
-    parent: Box
+    @property
+    def parent(self) -> Box: ...
     @property
     def priv(self) -> AppChooserWidgetPrivate: ...
     def __init__(
         self,
+        *,
         default_text: str = ...,
         show_all: bool = ...,
         show_default: bool = ...,
@@ -4475,7 +4566,7 @@ class AppChooserWidget(Box, Atk.ImplementorIface, AppChooser, Buildable, Orienta
         width_request: int = ...,
         content_type: str = ...,
         orientation: Orientation = ...,
-    ): ...
+    ) -> None: ...
     def do_application_activated(self, app_info: Gio.AppInfo) -> None: ...
     def do_application_selected(self, app_info: Gio.AppInfo) -> None: ...
     def do_populate_popup(self, menu: Menu, app_info: Gio.AppInfo) -> None: ...
@@ -4502,12 +4593,22 @@ class AppChooserWidgetClass(GObject.GPointer):
 
         AppChooserWidgetClass()
     """
-
-    parent_class: BoxClass
-    application_selected: Callable[[AppChooserWidget, Gio.AppInfo], None]
-    application_activated: Callable[[AppChooserWidget, Gio.AppInfo], None]
-    populate_popup: Callable[[AppChooserWidget, Menu, Gio.AppInfo], None]
-    padding: list[None]
+    @property
+    def parent_class(self) -> BoxClass: ...
+    @property
+    def application_selected(
+        self,
+    ) -> Callable[[AppChooserWidget, Gio.AppInfo], None]: ...
+    @property
+    def application_activated(
+        self,
+    ) -> Callable[[AppChooserWidget, Gio.AppInfo], None]: ...
+    @property
+    def populate_popup(
+        self,
+    ) -> Callable[[AppChooserWidget, Menu, Gio.AppInfo], None]: ...
+    @property
+    def padding(self) -> list[None]: ...
 
 class AppChooserWidgetPrivate(GObject.GPointer): ...
 
@@ -4555,22 +4656,15 @@ class Application(Gio.Application, Gio.ActionGroup, Gio.ActionMap):
       name-lost () -> gboolean
 
     Properties from GApplication:
-      application-id -> gchararray: Application identifier
-        The unique identifier for the application
-      flags -> GApplicationFlags: Application flags
-        Flags specifying the behaviour of the application
-      resource-base-path -> gchararray: Resource base path
-        The base resource path for the application
-      is-registered -> gboolean: Is registered
-        If g_application_register() has been called
-      is-remote -> gboolean: Is remote
-        If this application instance is remote
-      inactivity-timeout -> guint: Inactivity timeout
-        Time (ms) to stay alive after becoming idle
-      action-group -> GActionGroup: Action group
-        The group of actions that the application exports
-      is-busy -> gboolean: Is busy
-        If this application is currently marked busy
+      application-id -> gchararray: application-id
+      version -> gchararray: version
+      flags -> GApplicationFlags: flags
+      resource-base-path -> gchararray: resource-base-path
+      is-registered -> gboolean: is-registered
+      is-remote -> gboolean: is-remote
+      inactivity-timeout -> guint: inactivity-timeout
+      action-group -> GActionGroup: action-group
+      is-busy -> gboolean: is-busy
 
     Signals from GActionGroup:
       action-added (gchararray)
@@ -4581,7 +4675,6 @@ class Application(Gio.Application, Gio.ActionGroup, Gio.ActionMap):
     Signals from GObject:
       notify (GParam)
     """
-
     class Props(Gio.Application.Props):
         active_window: Window | None
         app_menu: Gio.MenuModel | None
@@ -4595,15 +4688,18 @@ class Application(Gio.Application, Gio.ActionGroup, Gio.ActionMap):
         is_registered: bool
         is_remote: bool
         resource_base_path: str | None
+        version: str | None
         action_group: Gio.ActionGroup | None
 
     @property
     def props(self) -> Props: ...
-    parent: Gio.Application
+    @property
+    def parent(self) -> Gio.Application: ...
     @property
     def priv(self) -> ApplicationPrivate: ...
     def __init__(
         self,
+        *,
         app_menu: Gio.MenuModel | None = ...,
         menubar: Gio.MenuModel | None = ...,
         register_session: bool = ...,
@@ -4612,12 +4708,10 @@ class Application(Gio.Application, Gio.ActionGroup, Gio.ActionMap):
         flags: Gio.ApplicationFlags = ...,
         inactivity_timeout: int = ...,
         resource_base_path: str | None = ...,
-    ): ...
+        version: str = ...,
+    ) -> None: ...
     def add_accelerator(
-        self,
-        accelerator: str,
-        action_name: str,
-        parameter: GLib.Variant | None = None,
+        self, accelerator: str, action_name: str, parameter: GLib.Variant | None = None
     ) -> None: ...
     def add_window(self, window: Window) -> None: ...
     def do_window_added(self, window: Window) -> None: ...
@@ -4662,11 +4756,14 @@ class ApplicationClass(GObject.GPointer):
 
         ApplicationClass()
     """
-
-    parent_class: Gio.ApplicationClass
-    window_added: Callable[[Application, Window], None]
-    window_removed: Callable[[Application, Window], None]
-    padding: list[None]
+    @property
+    def parent_class(self) -> Gio.ApplicationClass: ...
+    @property
+    def window_added(self) -> Callable[[Application, Window], None]: ...
+    @property
+    def window_removed(self) -> Callable[[Application, Window], None]: ...
+    @property
+    def padding(self) -> list[None]: ...
 
 class ApplicationPrivate(GObject.GPointer): ...
 
@@ -4936,7 +5033,6 @@ class ApplicationWindow(
     Signals from GObject:
       notify (GParam)
     """
-
     class Props(Window.Props):
         show_menubar: bool
         accept_focus: bool
@@ -5023,6 +5119,7 @@ class ApplicationWindow(
     def priv(self) -> ApplicationWindowPrivate: ...
     def __init__(
         self,
+        *,
         show_menubar: bool = ...,
         accept_focus: bool = ...,
         application: Application | None = ...,
@@ -5092,7 +5189,7 @@ class ApplicationWindow(
         vexpand_set: bool = ...,
         visible: bool = ...,
         width_request: int = ...,
-    ): ...
+    ) -> None: ...
     def get_help_overlay(self) -> ShortcutsWindow | None: ...
     def get_id(self) -> int: ...
     def get_show_menubar(self) -> bool: ...
@@ -5109,9 +5206,10 @@ class ApplicationWindowClass(GObject.GPointer):
 
         ApplicationWindowClass()
     """
-
-    parent_class: WindowClass
-    padding: list[None]
+    @property
+    def parent_class(self) -> WindowClass: ...
+    @property
+    def padding(self) -> list[None]: ...
 
 class ApplicationWindowPrivate(GObject.GPointer): ...
 
@@ -5296,7 +5394,6 @@ class Arrow(Misc, Atk.ImplementorIface, Buildable):
     Signals from GObject:
       notify (GParam)
     """
-
     class Props(Misc.Props):
         arrow_type: ArrowType
         shadow_type: ShadowType
@@ -5346,11 +5443,13 @@ class Arrow(Misc, Atk.ImplementorIface, Buildable):
 
     @property
     def props(self) -> Props: ...
-    misc: Misc
+    @property
+    def misc(self) -> Misc: ...
     @property
     def priv(self) -> ArrowPrivate: ...
     def __init__(
         self,
+        *,
         arrow_type: ArrowType = ...,
         shadow_type: ShadowType = ...,
         xalign: float = ...,
@@ -5393,7 +5492,7 @@ class Arrow(Misc, Atk.ImplementorIface, Buildable):
         vexpand_set: bool = ...,
         visible: bool = ...,
         width_request: int = ...,
-    ): ...
+    ) -> None: ...
     @classmethod
     def new(cls, arrow_type: ArrowType, shadow_type: ShadowType) -> Arrow: ...
     def set(self, arrow_type: ArrowType, shadow_type: ShadowType) -> None: ...
@@ -5427,6 +5526,7 @@ class ArrowAccessible(WidgetAccessible, Atk.Component, Atk.Image):
       active-descendant-changed (gpointer)
       announcement (gchararray)
       notification (gchararray, gint)
+      attribute-changed (gchararray, gchararray)
 
     Properties from AtkObject:
       accessible-name -> gchararray: Accessible Name
@@ -5459,17 +5559,22 @@ class ArrowAccessible(WidgetAccessible, Atk.Component, Atk.Image):
         Is used to notify that the table caption has changed
       accessible-hypertext-nlinks -> gint: Number of Accessible Hypertext Links
         The number of links which the current AtkHypertext has
+      accessible-id -> gchararray: Accessible ID
+        ID for the accessible; useful for automated testing
+      accessible-help-text -> gchararray: Help text
+        Help text associated with the accessible
 
     Signals from GObject:
       notify (GParam)
     """
-
     class Props(WidgetAccessible.Props):
         widget: Widget | None
         accessible_component_layer: int
         accessible_component_mdi_zorder: int
         accessible_description: str
+        accessible_help_text: str
         accessible_hypertext_nlinks: int
+        accessible_id: str
         accessible_name: str
         accessible_parent: Atk.Object
         accessible_role: Atk.Role
@@ -5484,13 +5589,17 @@ class ArrowAccessible(WidgetAccessible, Atk.Component, Atk.Image):
 
     @property
     def props(self) -> Props: ...
-    parent: WidgetAccessible
+    @property
+    def parent(self) -> WidgetAccessible: ...
     @property
     def priv(self) -> ArrowAccessiblePrivate: ...
     def __init__(
         self,
+        *,
         widget: Widget | None = ...,
         accessible_description: str = ...,
+        accessible_help_text: str = ...,
+        accessible_id: str = ...,
         accessible_name: str = ...,
         accessible_parent: Atk.Object = ...,
         accessible_role: Atk.Role = ...,
@@ -5502,7 +5611,7 @@ class ArrowAccessible(WidgetAccessible, Atk.Component, Atk.Image):
         accessible_table_row_header: Atk.Object = ...,
         accessible_table_summary: Atk.Object = ...,
         accessible_value: float = ...,
-    ): ...
+    ) -> None: ...
 
 class ArrowAccessibleClass(GObject.GPointer):
     """
@@ -5512,8 +5621,8 @@ class ArrowAccessibleClass(GObject.GPointer):
 
         ArrowAccessibleClass()
     """
-
-    parent_class: WidgetAccessibleClass
+    @property
+    def parent_class(self) -> WidgetAccessibleClass: ...
 
 class ArrowAccessiblePrivate(GObject.GPointer): ...
 
@@ -5525,12 +5634,8 @@ class ArrowClass(GObject.GPointer):
 
         ArrowClass()
     """
-
-    parent_class: MiscClass
-    _gtk_reserved1: None
-    _gtk_reserved2: None
-    _gtk_reserved3: None
-    _gtk_reserved4: None
+    @property
+    def parent_class(self) -> MiscClass: ...
 
 class ArrowPrivate(GObject.GPointer): ...
 
@@ -5735,7 +5840,6 @@ class AspectFrame(Frame, Atk.ImplementorIface, Buildable):
     Signals from GObject:
       notify (GParam)
     """
-
     class Props(Frame.Props):
         obey_child: bool
         ratio: float
@@ -5791,11 +5895,13 @@ class AspectFrame(Frame, Atk.ImplementorIface, Buildable):
 
     @property
     def props(self) -> Props: ...
-    frame: Frame
+    @property
+    def frame(self) -> Frame: ...
     @property
     def priv(self) -> AspectFramePrivate: ...
     def __init__(
         self,
+        *,
         obey_child: bool = ...,
         ratio: float = ...,
         xalign: float = ...,
@@ -5844,7 +5950,7 @@ class AspectFrame(Frame, Atk.ImplementorIface, Buildable):
         vexpand_set: bool = ...,
         visible: bool = ...,
         width_request: int = ...,
-    ): ...
+    ) -> None: ...
     @classmethod
     def new(
         cls,
@@ -5866,12 +5972,8 @@ class AspectFrameClass(GObject.GPointer):
 
         AspectFrameClass()
     """
-
-    parent_class: FrameClass
-    _gtk_reserved1: None
-    _gtk_reserved2: None
-    _gtk_reserved3: None
-    _gtk_reserved4: None
+    @property
+    def parent_class(self) -> FrameClass: ...
 
 class AspectFramePrivate(GObject.GPointer): ...
 
@@ -6140,7 +6242,6 @@ class Assistant(Window, Atk.ImplementorIface, Buildable):
     Signals from GObject:
       notify (GParam)
     """
-
     class Props(Window.Props):
         use_header_bar: int
         accept_focus: bool
@@ -6221,11 +6322,13 @@ class Assistant(Window, Atk.ImplementorIface, Buildable):
 
     @property
     def props(self) -> Props: ...
-    parent: Window
+    @property
+    def parent(self) -> Window: ...
     @property
     def priv(self) -> AssistantPrivate: ...
     def __init__(
         self,
+        *,
         use_header_bar: int = ...,
         accept_focus: bool = ...,
         application: Application | None = ...,
@@ -6295,7 +6398,7 @@ class Assistant(Window, Atk.ImplementorIface, Buildable):
         vexpand_set: bool = ...,
         visible: bool = ...,
         width_request: int = ...,
-    ): ...
+    ) -> None: ...
     def add_action_widget(self, child: Widget) -> None: ...
     def append_page(self, page: Widget) -> int: ...
     def commit(self) -> None: ...
@@ -6344,17 +6447,16 @@ class AssistantClass(GObject.GPointer):
 
         AssistantClass()
     """
-
-    parent_class: WindowClass
-    prepare: Callable[[Assistant, Widget], None]
-    apply: Callable[[Assistant], None]
-    close: Callable[[Assistant], None]
-    cancel: Callable[[Assistant], None]
-    _gtk_reserved1: None
-    _gtk_reserved2: None
-    _gtk_reserved3: None
-    _gtk_reserved4: None
-    _gtk_reserved5: None
+    @property
+    def parent_class(self) -> WindowClass: ...
+    @property
+    def prepare(self) -> Callable[[Assistant, Widget], None]: ...
+    @property
+    def apply(self) -> Callable[[Assistant], None]: ...
+    @property
+    def close(self) -> Callable[[Assistant], None]: ...
+    @property
+    def cancel(self) -> Callable[[Assistant], None]: ...
 
 class AssistantPrivate(GObject.GPointer): ...
 
@@ -6536,7 +6638,6 @@ class Bin(Container, Atk.ImplementorIface, Buildable):
     Signals from GObject:
       notify (GParam)
     """
-
     class Props(Container.Props):
         border_width: int
         resize_mode: ResizeMode
@@ -6583,11 +6684,13 @@ class Bin(Container, Atk.ImplementorIface, Buildable):
 
     @property
     def props(self) -> Props: ...
-    container: Container
+    @property
+    def container(self) -> Container: ...
     @property
     def priv(self) -> BinPrivate: ...
     def __init__(
         self,
+        *,
         border_width: int = ...,
         child: Widget = ...,
         resize_mode: ResizeMode = ...,
@@ -6627,7 +6730,7 @@ class Bin(Container, Atk.ImplementorIface, Buildable):
         vexpand_set: bool = ...,
         visible: bool = ...,
         width_request: int = ...,
-    ): ...
+    ) -> None: ...
     def get_child(self) -> Widget | None: ...
 
 class BinClass(GObject.GPointer):
@@ -6638,12 +6741,8 @@ class BinClass(GObject.GPointer):
 
         BinClass()
     """
-
-    parent_class: ContainerClass
-    _gtk_reserved1: None
-    _gtk_reserved2: None
-    _gtk_reserved3: None
-    _gtk_reserved4: None
+    @property
+    def parent_class(self) -> ContainerClass: ...
 
 class BinPrivate(GObject.GPointer): ...
 
@@ -6656,7 +6755,7 @@ class BindingArg(GObject.GPointer):
         BindingArg()
     """
 
-    arg_type: type
+    arg_type: type[Any]
 
 class BindingEntry(GObject.GPointer):
     """
@@ -6775,6 +6874,7 @@ class BooleanCellAccessible(
       active-descendant-changed (gpointer)
       announcement (gchararray)
       notification (gchararray, gint)
+      attribute-changed (gchararray, gchararray)
 
     Properties from AtkObject:
       accessible-name -> gchararray: Accessible Name
@@ -6807,18 +6907,23 @@ class BooleanCellAccessible(
         Is used to notify that the table caption has changed
       accessible-hypertext-nlinks -> gint: Number of Accessible Hypertext Links
         The number of links which the current AtkHypertext has
+      accessible-id -> gchararray: Accessible ID
+        ID for the accessible; useful for automated testing
+      accessible-help-text -> gchararray: Help text
+        Help text associated with the accessible
 
     Signals from GObject:
       notify (GParam)
     """
-
     class Props(RendererCellAccessible.Props):
         renderer: CellRenderer
         widget: Widget | None
         accessible_component_layer: int
         accessible_component_mdi_zorder: int
         accessible_description: str
+        accessible_help_text: str
         accessible_hypertext_nlinks: int
+        accessible_id: str
         accessible_name: str
         accessible_parent: Atk.Object
         accessible_role: Atk.Role
@@ -6839,9 +6944,12 @@ class BooleanCellAccessible(
     def priv(self) -> BooleanCellAccessiblePrivate: ...
     def __init__(
         self,
+        *,
         renderer: CellRenderer = ...,
         widget: Widget | None = ...,
         accessible_description: str = ...,
+        accessible_help_text: str = ...,
+        accessible_id: str = ...,
         accessible_name: str = ...,
         accessible_parent: Atk.Object = ...,
         accessible_role: Atk.Role = ...,
@@ -6853,7 +6961,7 @@ class BooleanCellAccessible(
         accessible_table_row_header: Atk.Object = ...,
         accessible_table_summary: Atk.Object = ...,
         accessible_value: float = ...,
-    ): ...
+    ) -> None: ...
 
 class BooleanCellAccessibleClass(GObject.GPointer):
     """
@@ -6863,8 +6971,8 @@ class BooleanCellAccessibleClass(GObject.GPointer):
 
         BooleanCellAccessibleClass()
     """
-
-    parent_class: RendererCellAccessibleClass
+    @property
+    def parent_class(self) -> RendererCellAccessibleClass: ...
 
 class BooleanCellAccessiblePrivate(GObject.GPointer): ...
 
@@ -6882,6 +6990,8 @@ class Border(GObject.GBoxed):
     right: int
     top: int
     bottom: int
+    @staticmethod
+    def __new__(cls: type[Self]) -> Self: ...
     def copy(self) -> Border: ...
     def free(self) -> None: ...
     @classmethod
@@ -7074,7 +7184,6 @@ class Box(Container, Atk.ImplementorIface, Buildable, Orientable):
     Signals from GObject:
       notify (GParam)
     """
-
     class Props(Container.Props):
         baseline_position: BaselinePosition
         homogeneous: bool
@@ -7125,11 +7234,13 @@ class Box(Container, Atk.ImplementorIface, Buildable, Orientable):
 
     @property
     def props(self) -> Props: ...
-    container: Container
+    @property
+    def container(self) -> Container: ...
     @property
     def priv(self) -> BoxPrivate: ...
     def __init__(
         self,
+        *,
         baseline_position: BaselinePosition = ...,
         homogeneous: bool = ...,
         spacing: int = ...,
@@ -7173,7 +7284,7 @@ class Box(Container, Atk.ImplementorIface, Buildable, Orientable):
         visible: bool = ...,
         width_request: int = ...,
         orientation: Orientation = ...,
-    ): ...
+    ) -> None: ...
     def get_baseline_position(self) -> BaselinePosition: ...
     def get_center_widget(self) -> Widget | None: ...
     def get_homogeneous(self) -> bool: ...
@@ -7206,12 +7317,8 @@ class BoxClass(GObject.GPointer):
 
         BoxClass()
     """
-
-    parent_class: ContainerClass
-    _gtk_reserved1: None
-    _gtk_reserved2: None
-    _gtk_reserved3: None
-    _gtk_reserved4: None
+    @property
+    def parent_class(self) -> ContainerClass: ...
 
 class BoxPrivate(GObject.GPointer): ...
 
@@ -7222,24 +7329,15 @@ class Buildable(GObject.GInterface, Protocol):
     Signals from GObject:
       notify (GParam)
     """
-
     def add_child(
         self, builder: Builder, child: GObject.Object, type: str | None = None
     ) -> None: ...
     def construct_child(self, builder: Builder, name: str) -> GObject.Object: ...
     def custom_finished(
-        self,
-        builder: Builder,
-        child: GObject.Object | None,
-        tagname: str,
-        data: None,
+        self, builder: Builder, child: GObject.Object | None, tagname: str, data: None
     ) -> None: ...
     def custom_tag_end(
-        self,
-        builder: Builder,
-        child: GObject.Object | None,
-        tagname: str,
-        data: None,
+        self, builder: Builder, child: GObject.Object | None, tagname: str, data: None
     ) -> None: ...
     def custom_tag_start(
         self, builder: Builder, child: GObject.Object | None, tagname: str
@@ -7262,25 +7360,45 @@ class BuildableIface(GObject.GPointer):
 
         BuildableIface()
     """
-
-    g_iface: GObject.TypeInterface
-    set_name: Callable[[Buildable, str], None]
-    get_name: Callable[[Buildable], str]
-    add_child: Callable[[Buildable, Builder, GObject.Object, str | None], None]
-    set_buildable_property: Callable[[Buildable, Builder, str, Any], None]
-    construct_child: Callable[[Buildable, Builder, str], GObject.Object]
-    custom_tag_start: Callable[
+    @property
+    def g_iface(self) -> GObject.TypeInterface: ...
+    @property
+    def set_name(self) -> Callable[[Buildable, str], None]: ...
+    @property
+    def get_name(self) -> Callable[[Buildable], str]: ...
+    @property
+    def add_child(
+        self,
+    ) -> Callable[[Buildable, Builder, GObject.Object, str | None], None]: ...
+    @property
+    def set_buildable_property(
+        self,
+    ) -> Callable[[Buildable, Builder, str, Any], None]: ...
+    @property
+    def construct_child(
+        self,
+    ) -> Callable[[Buildable, Builder, str], GObject.Object]: ...
+    @property
+    def custom_tag_start(
+        self,
+    ) -> Callable[
         [Buildable, Builder, GObject.Object | None, str],
         tuple[bool, GLib.MarkupParser, None],
-    ]
-    custom_tag_end: Callable[
-        [Buildable, Builder, GObject.Object | None, str, None], None
-    ]
-    custom_finished: Callable[
-        [Buildable, Builder, GObject.Object | None, str, None], None
-    ]
-    parser_finished: Callable[[Buildable, Builder], None]
-    get_internal_child: Callable[[Buildable, Builder, str], GObject.Object]
+    ]: ...
+    @property
+    def custom_tag_end(
+        self,
+    ) -> Callable[[Buildable, Builder, GObject.Object | None, str, None], None]: ...
+    @property
+    def custom_finished(
+        self,
+    ) -> Callable[[Buildable, Builder, GObject.Object | None, str, None], None]: ...
+    @property
+    def parser_finished(self) -> Callable[[Buildable, Builder], None]: ...
+    @property
+    def get_internal_child(
+        self,
+    ) -> Callable[[Buildable, Builder, str], GObject.Object]: ...
 
 class Builder(GObject.Object):
     """
@@ -7303,7 +7421,6 @@ class Builder(GObject.Object):
     Signals from GObject:
       notify (GParam)
     """
-
     class Props(GObject.Object.Props):
         translation_domain: str
 
@@ -7313,7 +7430,7 @@ class Builder(GObject.Object):
     def parent_instance(self) -> GObject.Object: ...
     @property
     def priv(self) -> BuilderPrivate: ...
-    def __init__(self, translation_domain: str | None = ...): ...
+    def __init__(self, *, translation_domain: str | None = ...) -> None: ...
     def add_callback_symbol(
         self, callback_name: str, callback_symbol: Callable[[], None]
     ) -> None: ...
@@ -7334,16 +7451,16 @@ class Builder(GObject.Object):
     def connect_signals_full(
         self, func: Callable[..., None], *user_data: Any
     ) -> None: ...
-    def do_get_type_from_name(self, type_name: str) -> type: ...
+    def do_get_type_from_name(self, type_name: str) -> type[Any]: ...
     def expose_object(self, name: str, object: GObject.Object) -> None: ...
     def extend_with_template(
-        self, widget: Widget, template_type: type, buffer: str, length: int
+        self, widget: Widget, template_type: type[Any], buffer: str, length: int
     ) -> int: ...
     def get_application(self) -> Application | None: ...
     def get_object(self, name: str) -> GObject.Object | None: ...
     def get_objects(self) -> list[GObject.Object]: ...
     def get_translation_domain(self) -> str: ...
-    def get_type_from_name(self, type_name: str) -> type: ...
+    def get_type_from_name(self, type_name: str) -> type[Any]: ...
     @classmethod
     def new(cls) -> Builder: ...
     @classmethod
@@ -7357,7 +7474,9 @@ class Builder(GObject.Object):
     def value_from_string(
         self, pspec: GObject.ParamSpec, string: str
     ) -> tuple[bool, Any]: ...
-    def value_from_string_type(self, type: type, string: str) -> tuple[bool, Any]: ...
+    def value_from_string_type(
+        self, type: type[Any], string: str
+    ) -> tuple[bool, Any]: ...
 
 class BuilderClass(GObject.GPointer):
     """
@@ -7367,21 +7486,14 @@ class BuilderClass(GObject.GPointer):
 
         BuilderClass()
     """
-
-    parent_class: GObject.ObjectClass
-    get_type_from_name: Callable[[Builder, str], type]
-    _gtk_reserved1: None
-    _gtk_reserved2: None
-    _gtk_reserved3: None
-    _gtk_reserved4: None
-    _gtk_reserved5: None
-    _gtk_reserved6: None
-    _gtk_reserved7: None
-    _gtk_reserved8: None
+    @property
+    def parent_class(self) -> GObject.ObjectClass: ...
+    @property
+    def get_type_from_name(self) -> Callable[[Builder, str], type[Any]]: ...
 
 class BuilderPrivate(GObject.GPointer): ...
 
-class Button(Bin, Atk.ImplementorIface, Actionable, Activatable, Buildable):
+class Button(Bin, Atk.ImplementorIface, Actionable, Activatable, Buildable, Container):
     """
     :Constructors:
 
@@ -7592,7 +7704,6 @@ class Button(Bin, Atk.ImplementorIface, Actionable, Activatable, Buildable):
     Signals from GObject:
       notify (GParam)
     """
-
     class Props(Bin.Props):
         always_show_image: bool
         image: Widget | None
@@ -7652,11 +7763,13 @@ class Button(Bin, Atk.ImplementorIface, Actionable, Activatable, Buildable):
 
     @property
     def props(self) -> Props: ...
-    bin: Bin
+    @property
+    def bin(self) -> Bin: ...
     @property
     def priv(self) -> ButtonPrivate: ...
     def __init__(
         self,
+        *,
         always_show_image: bool = ...,
         image: Widget | None = ...,
         image_position: PositionType = ...,
@@ -7709,7 +7822,7 @@ class Button(Bin, Atk.ImplementorIface, Actionable, Activatable, Buildable):
         action_target: GLib.Variant = ...,
         related_action: Action = ...,
         use_action_appearance: bool = ...,
-    ): ...
+    ) -> None: ...
     def clicked(self) -> None: ...
     def do_activate(self) -> None: ...
     def do_clicked(self) -> None: ...
@@ -7721,7 +7834,9 @@ class Button(Bin, Atk.ImplementorIface, Actionable, Activatable, Buildable):
     def get_alignment(self) -> tuple[float, float]: ...
     def get_always_show_image(self) -> bool: ...
     def get_event_window(self) -> _Gdk3.Window: ...
-    def get_focus_on_click(self, *args, **kwargs): ...  # FIXME Function
+    def get_focus_on_click(
+        self, *args, **kwargs
+    ): ...  # FIXME: Override is missing typing annotation
     def get_image(self) -> Widget | None: ...
     def get_image_position(self) -> PositionType: ...
     def get_label(self) -> str: ...
@@ -7743,7 +7858,9 @@ class Button(Bin, Atk.ImplementorIface, Actionable, Activatable, Buildable):
     def released(self) -> None: ...
     def set_alignment(self, xalign: float, yalign: float) -> None: ...
     def set_always_show_image(self, always_show: bool) -> None: ...
-    def set_focus_on_click(self, *args, **kwargs): ...  # FIXME Function
+    def set_focus_on_click(
+        self, *args, **kwargs
+    ): ...  # FIXME: Override is missing typing annotation
     def set_image(self, image: Widget | None = None) -> None: ...
     def set_image_position(self, position: PositionType) -> None: ...
     def set_label(self, label: str) -> None: ...
@@ -7783,6 +7900,7 @@ class ButtonAccessible(ContainerAccessible, Atk.Action, Atk.Component, Atk.Image
       active-descendant-changed (gpointer)
       announcement (gchararray)
       notification (gchararray, gint)
+      attribute-changed (gchararray, gchararray)
 
     Properties from AtkObject:
       accessible-name -> gchararray: Accessible Name
@@ -7815,17 +7933,22 @@ class ButtonAccessible(ContainerAccessible, Atk.Action, Atk.Component, Atk.Image
         Is used to notify that the table caption has changed
       accessible-hypertext-nlinks -> gint: Number of Accessible Hypertext Links
         The number of links which the current AtkHypertext has
+      accessible-id -> gchararray: Accessible ID
+        ID for the accessible; useful for automated testing
+      accessible-help-text -> gchararray: Help text
+        Help text associated with the accessible
 
     Signals from GObject:
       notify (GParam)
     """
-
     class Props(ContainerAccessible.Props):
         widget: Widget | None
         accessible_component_layer: int
         accessible_component_mdi_zorder: int
         accessible_description: str
+        accessible_help_text: str
         accessible_hypertext_nlinks: int
+        accessible_id: str
         accessible_name: str
         accessible_parent: Atk.Object
         accessible_role: Atk.Role
@@ -7840,13 +7963,17 @@ class ButtonAccessible(ContainerAccessible, Atk.Action, Atk.Component, Atk.Image
 
     @property
     def props(self) -> Props: ...
-    parent: ContainerAccessible
+    @property
+    def parent(self) -> ContainerAccessible: ...
     @property
     def priv(self) -> ButtonAccessiblePrivate: ...
     def __init__(
         self,
+        *,
         widget: Widget | None = ...,
         accessible_description: str = ...,
+        accessible_help_text: str = ...,
+        accessible_id: str = ...,
         accessible_name: str = ...,
         accessible_parent: Atk.Object = ...,
         accessible_role: Atk.Role = ...,
@@ -7858,7 +7985,7 @@ class ButtonAccessible(ContainerAccessible, Atk.Action, Atk.Component, Atk.Image
         accessible_table_row_header: Atk.Object = ...,
         accessible_table_summary: Atk.Object = ...,
         accessible_value: float = ...,
-    ): ...
+    ) -> None: ...
 
 class ButtonAccessibleClass(GObject.GPointer):
     """
@@ -7868,8 +7995,8 @@ class ButtonAccessibleClass(GObject.GPointer):
 
         ButtonAccessibleClass()
     """
-
-    parent_class: ContainerAccessibleClass
+    @property
+    def parent_class(self) -> ContainerAccessibleClass: ...
 
 class ButtonAccessiblePrivate(GObject.GPointer): ...
 
@@ -8064,7 +8191,6 @@ class ButtonBox(Box, Atk.ImplementorIface, Buildable, Orientable):
     Signals from GObject:
       notify (GParam)
     """
-
     class Props(Box.Props):
         layout_style: ButtonBoxStyle
         baseline_position: BaselinePosition
@@ -8116,11 +8242,13 @@ class ButtonBox(Box, Atk.ImplementorIface, Buildable, Orientable):
 
     @property
     def props(self) -> Props: ...
-    box: Box
+    @property
+    def box(self) -> Box: ...
     @property
     def priv(self) -> ButtonBoxPrivate: ...
     def __init__(
         self,
+        *,
         layout_style: ButtonBoxStyle = ...,
         baseline_position: BaselinePosition = ...,
         homogeneous: bool = ...,
@@ -8165,7 +8293,7 @@ class ButtonBox(Box, Atk.ImplementorIface, Buildable, Orientable):
         visible: bool = ...,
         width_request: int = ...,
         orientation: Orientation = ...,
-    ): ...
+    ) -> None: ...
     def get_child_non_homogeneous(self, child: Widget) -> bool: ...
     def get_child_secondary(self, child: Widget) -> bool: ...
     def get_layout(self) -> ButtonBoxStyle: ...
@@ -8185,12 +8313,8 @@ class ButtonBoxClass(GObject.GPointer):
 
         ButtonBoxClass()
     """
-
-    parent_class: BoxClass
-    _gtk_reserved1: None
-    _gtk_reserved2: None
-    _gtk_reserved3: None
-    _gtk_reserved4: None
+    @property
+    def parent_class(self) -> BoxClass: ...
 
 class ButtonBoxPrivate(GObject.GPointer): ...
 
@@ -8202,18 +8326,20 @@ class ButtonClass(GObject.GPointer):
 
         ButtonClass()
     """
-
-    parent_class: BinClass
-    pressed: Callable[[Button], None]
-    released: Callable[[Button], None]
-    clicked: Callable[[Button], None]
-    enter: Callable[[Button], None]
-    leave: Callable[[Button], None]
-    activate: Callable[[Button], None]
-    _gtk_reserved1: None
-    _gtk_reserved2: None
-    _gtk_reserved3: None
-    _gtk_reserved4: None
+    @property
+    def parent_class(self) -> BinClass: ...
+    @property
+    def pressed(self) -> Callable[[Button], None]: ...
+    @property
+    def released(self) -> Callable[[Button], None]: ...
+    @property
+    def clicked(self) -> Callable[[Button], None]: ...
+    @property
+    def enter(self) -> Callable[[Button], None]: ...
+    @property
+    def leave(self) -> Callable[[Button], None]: ...
+    @property
+    def activate(self) -> Callable[[Button], None]: ...
 
 class ButtonPrivate(GObject.GPointer): ...
 
@@ -8413,7 +8539,6 @@ class Calendar(Widget, Atk.ImplementorIface, Buildable):
     Signals from GObject:
       notify (GParam)
     """
-
     class Props(Widget.Props):
         day: int
         detail_height_rows: int
@@ -8467,11 +8592,13 @@ class Calendar(Widget, Atk.ImplementorIface, Buildable):
 
     @property
     def props(self) -> Props: ...
-    widget: Widget
+    @property
+    def widget(self) -> Widget: ...
     @property
     def priv(self) -> CalendarPrivate: ...
     def __init__(
         self,
+        *,
         day: int = ...,
         detail_height_rows: int = ...,
         detail_width_chars: int = ...,
@@ -8518,7 +8645,7 @@ class Calendar(Widget, Atk.ImplementorIface, Buildable):
         vexpand_set: bool = ...,
         visible: bool = ...,
         width_request: int = ...,
-    ): ...
+    ) -> None: ...
     def clear_marks(self) -> None: ...
     def do_day_selected(self) -> None: ...
     def do_day_selected_double_click(self) -> None: ...
@@ -8551,19 +8678,22 @@ class CalendarClass(GObject.GPointer):
 
         CalendarClass()
     """
-
-    parent_class: WidgetClass
-    month_changed: Callable[[Calendar], None]
-    day_selected: Callable[[Calendar], None]
-    day_selected_double_click: Callable[[Calendar], None]
-    prev_month: Callable[[Calendar], None]
-    next_month: Callable[[Calendar], None]
-    prev_year: Callable[[Calendar], None]
-    next_year: Callable[[Calendar], None]
-    _gtk_reserved1: None
-    _gtk_reserved2: None
-    _gtk_reserved3: None
-    _gtk_reserved4: None
+    @property
+    def parent_class(self) -> WidgetClass: ...
+    @property
+    def month_changed(self) -> Callable[[Calendar], None]: ...
+    @property
+    def day_selected(self) -> Callable[[Calendar], None]: ...
+    @property
+    def day_selected_double_click(self) -> Callable[[Calendar], None]: ...
+    @property
+    def prev_month(self) -> Callable[[Calendar], None]: ...
+    @property
+    def next_month(self) -> Callable[[Calendar], None]: ...
+    @property
+    def prev_year(self) -> Callable[[Calendar], None]: ...
+    @property
+    def next_year(self) -> Callable[[Calendar], None]: ...
 
 class CalendarPrivate(GObject.GPointer): ...
 
@@ -8593,6 +8723,7 @@ class CellAccessible(Accessible, Atk.Action, Atk.Component, Atk.TableCell):
       active-descendant-changed (gpointer)
       announcement (gchararray)
       notification (gchararray, gint)
+      attribute-changed (gchararray, gchararray)
 
     Properties from AtkObject:
       accessible-name -> gchararray: Accessible Name
@@ -8625,17 +8756,22 @@ class CellAccessible(Accessible, Atk.Action, Atk.Component, Atk.TableCell):
         Is used to notify that the table caption has changed
       accessible-hypertext-nlinks -> gint: Number of Accessible Hypertext Links
         The number of links which the current AtkHypertext has
+      accessible-id -> gchararray: Accessible ID
+        ID for the accessible; useful for automated testing
+      accessible-help-text -> gchararray: Help text
+        Help text associated with the accessible
 
     Signals from GObject:
       notify (GParam)
     """
-
     class Props(Accessible.Props):
         widget: Widget | None
         accessible_component_layer: int
         accessible_component_mdi_zorder: int
         accessible_description: str
+        accessible_help_text: str
         accessible_hypertext_nlinks: int
+        accessible_id: str
         accessible_name: str
         accessible_parent: Atk.Object
         accessible_role: Atk.Role
@@ -8650,13 +8786,17 @@ class CellAccessible(Accessible, Atk.Action, Atk.Component, Atk.TableCell):
 
     @property
     def props(self) -> Props: ...
-    parent: Accessible
+    @property
+    def parent(self) -> Accessible: ...
     @property
     def priv(self) -> CellAccessiblePrivate: ...
     def __init__(
         self,
+        *,
         widget: Widget | None = ...,
         accessible_description: str = ...,
+        accessible_help_text: str = ...,
+        accessible_id: str = ...,
         accessible_name: str = ...,
         accessible_parent: Atk.Object = ...,
         accessible_role: Atk.Role = ...,
@@ -8668,7 +8808,7 @@ class CellAccessible(Accessible, Atk.Action, Atk.Component, Atk.TableCell):
         accessible_table_row_header: Atk.Object = ...,
         accessible_table_summary: Atk.Object = ...,
         accessible_value: float = ...,
-    ): ...
+    ) -> None: ...
     def do_update_cache(self, emit_signal: bool) -> None: ...
 
 class CellAccessibleClass(GObject.GPointer):
@@ -8679,15 +8819,15 @@ class CellAccessibleClass(GObject.GPointer):
 
         CellAccessibleClass()
     """
-
-    parent_class: AccessibleClass
-    update_cache: Callable[[CellAccessible, bool], None]
+    @property
+    def parent_class(self) -> AccessibleClass: ...
+    @property
+    def update_cache(self) -> Callable[[CellAccessible, bool], None]: ...
 
 class CellAccessibleParent(GObject.GInterface, Protocol):
     """
     Interface GtkCellAccessibleParent
     """
-
     def activate(self, cell: CellAccessible) -> None: ...
     def edit(self, cell: CellAccessible) -> None: ...
     def expand_collapse(self, cell: CellAccessible) -> None: ...
@@ -8713,30 +8853,52 @@ class CellAccessibleParentIface(GObject.GPointer):
 
         CellAccessibleParentIface()
     """
-
-    parent: GObject.TypeInterface
-    get_cell_extents: Callable[
+    @property
+    def parent(self) -> GObject.TypeInterface: ...
+    @property
+    def get_cell_extents(
+        self,
+    ) -> Callable[
         [CellAccessibleParent, CellAccessible, Atk.CoordType], tuple[int, int, int, int]
-    ]
-    get_cell_area: Callable[[CellAccessibleParent, CellAccessible], _Gdk3.Rectangle]
-    grab_focus: Callable[[CellAccessibleParent, CellAccessible], bool]
-    get_child_index: Callable[[CellAccessibleParent, CellAccessible], int]
-    get_renderer_state: Callable[
-        [CellAccessibleParent, CellAccessible], CellRendererState
-    ]
-    expand_collapse: Callable[[CellAccessibleParent, CellAccessible], None]
-    activate: Callable[[CellAccessibleParent, CellAccessible], None]
-    edit: Callable[[CellAccessibleParent, CellAccessible], None]
-    update_relationset: Callable[
-        [CellAccessibleParent, CellAccessible, Atk.RelationSet], None
-    ]
-    get_cell_position: Callable[[CellAccessibleParent, CellAccessible], tuple[int, int]]
-    get_column_header_cells: Callable[
-        [CellAccessibleParent, CellAccessible], list[Atk.Object]
-    ]
-    get_row_header_cells: Callable[
-        [CellAccessibleParent, CellAccessible], list[Atk.Object]
-    ]
+    ]: ...
+    @property
+    def get_cell_area(
+        self,
+    ) -> Callable[[CellAccessibleParent, CellAccessible], _Gdk3.Rectangle]: ...
+    @property
+    def grab_focus(self) -> Callable[[CellAccessibleParent, CellAccessible], bool]: ...
+    @property
+    def get_child_index(
+        self,
+    ) -> Callable[[CellAccessibleParent, CellAccessible], int]: ...
+    @property
+    def get_renderer_state(
+        self,
+    ) -> Callable[[CellAccessibleParent, CellAccessible], CellRendererState]: ...
+    @property
+    def expand_collapse(
+        self,
+    ) -> Callable[[CellAccessibleParent, CellAccessible], None]: ...
+    @property
+    def activate(self) -> Callable[[CellAccessibleParent, CellAccessible], None]: ...
+    @property
+    def edit(self) -> Callable[[CellAccessibleParent, CellAccessible], None]: ...
+    @property
+    def update_relationset(
+        self,
+    ) -> Callable[[CellAccessibleParent, CellAccessible, Atk.RelationSet], None]: ...
+    @property
+    def get_cell_position(
+        self,
+    ) -> Callable[[CellAccessibleParent, CellAccessible], tuple[int, int]]: ...
+    @property
+    def get_column_header_cells(
+        self,
+    ) -> Callable[[CellAccessibleParent, CellAccessible], list[Atk.Object]]: ...
+    @property
+    def get_row_header_cells(
+        self,
+    ) -> Callable[[CellAccessibleParent, CellAccessible], list[Atk.Object]]: ...
 
 class CellAccessiblePrivate(GObject.GPointer): ...
 
@@ -8767,7 +8929,6 @@ class CellArea(GObject.InitiallyUnowned, Buildable, CellLayout):
     Signals from GObject:
       notify (GParam)
     """
-
     class Props(GObject.InitiallyUnowned.Props):
         edit_widget: CellEditable
         edited_cell: CellRenderer
@@ -8779,7 +8940,7 @@ class CellArea(GObject.InitiallyUnowned, Buildable, CellLayout):
     def parent_instance(self) -> GObject.InitiallyUnowned: ...
     @property
     def priv(self) -> CellAreaPrivate: ...
-    def __init__(self, focus_cell: CellRenderer = ...): ...
+    def __init__(self, *, focus_cell: CellRenderer = ...) -> None: ...
     def activate(
         self,
         context: CellAreaContext,
@@ -9020,7 +9181,6 @@ class CellAreaBox(CellArea, Buildable, CellLayout, Orientable):
     Signals from GObject:
       notify (GParam)
     """
-
     class Props(CellArea.Props):
         spacing: int
         edit_widget: CellEditable
@@ -9036,10 +9196,11 @@ class CellAreaBox(CellArea, Buildable, CellLayout, Orientable):
     def priv(self) -> CellAreaBoxPrivate: ...
     def __init__(
         self,
+        *,
         spacing: int = ...,
         focus_cell: CellRenderer = ...,
         orientation: Orientation = ...,
-    ): ...
+    ) -> None: ...
     def get_spacing(self) -> int: ...
     @classmethod
     def new(cls) -> CellAreaBox: ...
@@ -9059,12 +9220,8 @@ class CellAreaBoxClass(GObject.GPointer):
 
         CellAreaBoxClass()
     """
-
-    parent_class: CellAreaClass
-    _gtk_reserved1: None
-    _gtk_reserved2: None
-    _gtk_reserved3: None
-    _gtk_reserved4: None
+    @property
+    def parent_class(self) -> CellAreaClass: ...
 
 class CellAreaBoxPrivate(GObject.GPointer): ...
 
@@ -9076,13 +9233,20 @@ class CellAreaClass(GObject.GPointer):
 
         CellAreaClass()
     """
-
-    parent_class: GObject.InitiallyUnownedClass
-    add: Callable[[CellArea, CellRenderer], None]
-    remove: Callable[[CellArea, CellRenderer], None]
-    foreach: Callable[..., None]
-    foreach_alloc: Callable[..., None]
-    event: Callable[
+    @property
+    def parent_class(self) -> GObject.InitiallyUnownedClass: ...
+    @property
+    def add(self) -> Callable[[CellArea, CellRenderer], None]: ...
+    @property
+    def remove(self) -> Callable[[CellArea, CellRenderer], None]: ...
+    @property
+    def foreach(self) -> Callable[..., None]: ...
+    @property
+    def foreach_alloc(self) -> Callable[..., None]: ...
+    @property
+    def event(
+        self,
+    ) -> Callable[
         [
             CellArea,
             CellAreaContext,
@@ -9092,8 +9256,11 @@ class CellAreaClass(GObject.GPointer):
             CellRendererState,
         ],
         int,
-    ]
-    render: Callable[
+    ]: ...
+    @property
+    def render(
+        self,
+    ) -> Callable[
         [
             CellArea,
             CellAreaContext,
@@ -9105,39 +9272,54 @@ class CellAreaClass(GObject.GPointer):
             bool,
         ],
         None,
-    ]
-    apply_attributes: Callable[[CellArea, TreeModel, TreeIter, bool, bool], None]
-    create_context: Callable[[CellArea], CellAreaContext]
-    copy_context: Callable[[CellArea, CellAreaContext], CellAreaContext]
-    get_request_mode: Callable[[CellArea], SizeRequestMode]
-    get_preferred_width: Callable[[CellArea, CellAreaContext, Widget], tuple[int, int]]
-    get_preferred_height_for_width: Callable[
-        [CellArea, CellAreaContext, Widget, int], tuple[int, int]
-    ]
-    get_preferred_height: Callable[[CellArea, CellAreaContext, Widget], tuple[int, int]]
-    get_preferred_width_for_height: Callable[
-        [CellArea, CellAreaContext, Widget, int], tuple[int, int]
-    ]
-    set_cell_property: Callable[
-        [CellArea, CellRenderer, int, Any, GObject.ParamSpec], None
-    ]
-    get_cell_property: Callable[
-        [CellArea, CellRenderer, int, Any, GObject.ParamSpec], None
-    ]
-    focus: Callable[[CellArea, DirectionType], bool]
-    is_activatable: Callable[[CellArea], bool]
-    activate: Callable[
+    ]: ...
+    @property
+    def apply_attributes(
+        self,
+    ) -> Callable[[CellArea, TreeModel, TreeIter, bool, bool], None]: ...
+    @property
+    def create_context(self) -> Callable[[CellArea], CellAreaContext]: ...
+    @property
+    def copy_context(
+        self,
+    ) -> Callable[[CellArea, CellAreaContext], CellAreaContext]: ...
+    @property
+    def get_request_mode(self) -> Callable[[CellArea], SizeRequestMode]: ...
+    @property
+    def get_preferred_width(
+        self,
+    ) -> Callable[[CellArea, CellAreaContext, Widget], tuple[int, int]]: ...
+    @property
+    def get_preferred_height_for_width(
+        self,
+    ) -> Callable[[CellArea, CellAreaContext, Widget, int], tuple[int, int]]: ...
+    @property
+    def get_preferred_height(
+        self,
+    ) -> Callable[[CellArea, CellAreaContext, Widget], tuple[int, int]]: ...
+    @property
+    def get_preferred_width_for_height(
+        self,
+    ) -> Callable[[CellArea, CellAreaContext, Widget, int], tuple[int, int]]: ...
+    @property
+    def set_cell_property(
+        self,
+    ) -> Callable[[CellArea, CellRenderer, int, Any, GObject.ParamSpec], None]: ...
+    @property
+    def get_cell_property(
+        self,
+    ) -> Callable[[CellArea, CellRenderer, int, Any, GObject.ParamSpec], None]: ...
+    @property
+    def focus(self) -> Callable[[CellArea, DirectionType], bool]: ...
+    @property
+    def is_activatable(self) -> Callable[[CellArea], bool]: ...
+    @property
+    def activate(
+        self,
+    ) -> Callable[
         [CellArea, CellAreaContext, Widget, _Gdk3.Rectangle, CellRendererState, bool],
         bool,
-    ]
-    _gtk_reserved1: None
-    _gtk_reserved2: None
-    _gtk_reserved3: None
-    _gtk_reserved4: None
-    _gtk_reserved5: None
-    _gtk_reserved6: None
-    _gtk_reserved7: None
-    _gtk_reserved8: None
+    ]: ...
     def find_cell_property(self, property_name: str) -> GObject.ParamSpec: ...
     def install_cell_property(
         self, property_id: int, pspec: GObject.ParamSpec
@@ -9169,7 +9351,6 @@ class CellAreaContext(GObject.Object):
     Signals from GObject:
       notify (GParam)
     """
-
     class Props(GObject.Object.Props):
         area: CellArea
         minimum_height: int
@@ -9183,7 +9364,7 @@ class CellAreaContext(GObject.Object):
     def parent_instance(self) -> GObject.Object: ...
     @property
     def priv(self) -> CellAreaContextPrivate: ...
-    def __init__(self, area: CellArea = ...): ...
+    def __init__(self, *, area: CellArea = ...) -> None: ...
     def allocate(self, width: int, height: int) -> None: ...
     def do_allocate(self, width: int, height: int) -> None: ...
     def do_get_preferred_height_for_width(self, width: int) -> tuple[int, int]: ...
@@ -9209,18 +9390,20 @@ class CellAreaContextClass(GObject.GPointer):
 
         CellAreaContextClass()
     """
-
-    parent_class: GObject.ObjectClass
-    allocate: Callable[[CellAreaContext, int, int], None]
-    reset: Callable[[CellAreaContext], None]
-    get_preferred_height_for_width: Callable[[CellAreaContext, int], tuple[int, int]]
-    get_preferred_width_for_height: Callable[[CellAreaContext, int], tuple[int, int]]
-    _gtk_reserved1: None
-    _gtk_reserved2: None
-    _gtk_reserved3: None
-    _gtk_reserved4: None
-    _gtk_reserved5: None
-    _gtk_reserved6: None
+    @property
+    def parent_class(self) -> GObject.ObjectClass: ...
+    @property
+    def allocate(self) -> Callable[[CellAreaContext, int, int], None]: ...
+    @property
+    def reset(self) -> Callable[[CellAreaContext], None]: ...
+    @property
+    def get_preferred_height_for_width(
+        self,
+    ) -> Callable[[CellAreaContext, int], tuple[int, int]]: ...
+    @property
+    def get_preferred_width_for_height(
+        self,
+    ) -> Callable[[CellAreaContext, int], tuple[int, int]]: ...
 
 class CellAreaContextPrivate(GObject.GPointer): ...
 class CellAreaPrivate(GObject.GPointer): ...
@@ -9232,7 +9415,6 @@ class CellEditable(GObject.GInterface, Protocol):
     Signals from GObject:
       notify (GParam)
     """
-
     def editing_done(self) -> None: ...
     def remove_widget(self) -> None: ...
     def start_editing(self, event: _Gdk3.Event | None = None) -> None: ...
@@ -9245,11 +9427,14 @@ class CellEditableIface(GObject.GPointer):
 
         CellEditableIface()
     """
-
-    g_iface: GObject.TypeInterface
-    editing_done: Callable[[CellEditable], None]
-    remove_widget: Callable[[CellEditable], None]
-    start_editing: Callable[[CellEditable, _Gdk3.Event | None], None]
+    @property
+    def g_iface(self) -> GObject.TypeInterface: ...
+    @property
+    def editing_done(self) -> Callable[[CellEditable], None]: ...
+    @property
+    def remove_widget(self) -> Callable[[CellEditable], None]: ...
+    @property
+    def start_editing(self) -> Callable[[CellEditable, _Gdk3.Event | None], None]: ...
 
 class CellLayout(GObject.GInterface, Protocol):
     """
@@ -9258,7 +9443,6 @@ class CellLayout(GObject.GInterface, Protocol):
     Signals from GObject:
       notify (GParam)
     """
-
     def add_attribute(
         self, cell: CellRenderer, attribute: str, column: int
     ) -> None: ...
@@ -9284,17 +9468,26 @@ class CellLayoutIface(GObject.GPointer):
 
         CellLayoutIface()
     """
-
-    g_iface: GObject.TypeInterface
-    pack_start: Callable[[CellLayout, CellRenderer, bool], None]
-    pack_end: Callable[[CellLayout, CellRenderer, bool], None]
-    clear: Callable[[CellLayout], None]
-    add_attribute: Callable[[CellLayout, CellRenderer, str, int], None]
-    set_cell_data_func: Callable[..., None]
-    clear_attributes: Callable[[CellLayout, CellRenderer], None]
-    reorder: Callable[[CellLayout, CellRenderer, int], None]
-    get_cells: Callable[[CellLayout], list[CellRenderer]]
-    get_area: Callable[[CellLayout], CellArea | None]
+    @property
+    def g_iface(self) -> GObject.TypeInterface: ...
+    @property
+    def pack_start(self) -> Callable[[CellLayout, CellRenderer, bool], None]: ...
+    @property
+    def pack_end(self) -> Callable[[CellLayout, CellRenderer, bool], None]: ...
+    @property
+    def clear(self) -> Callable[[CellLayout], None]: ...
+    @property
+    def add_attribute(self) -> Callable[[CellLayout, CellRenderer, str, int], None]: ...
+    @property
+    def set_cell_data_func(self) -> Callable[..., None]: ...
+    @property
+    def clear_attributes(self) -> Callable[[CellLayout, CellRenderer], None]: ...
+    @property
+    def reorder(self) -> Callable[[CellLayout, CellRenderer, int], None]: ...
+    @property
+    def get_cells(self) -> Callable[[CellLayout], list[CellRenderer]]: ...
+    @property
+    def get_area(self) -> Callable[[CellLayout], CellArea | None]: ...
 
 class CellRenderer(GObject.InitiallyUnowned):
     """
@@ -9347,7 +9540,6 @@ class CellRenderer(GObject.InitiallyUnowned):
     Signals from GObject:
       notify (GParam)
     """
-
     class Props(GObject.InitiallyUnowned.Props):
         cell_background_gdk: _Gdk3.Color
         cell_background_rgba: _Gdk3.RGBA
@@ -9374,6 +9566,7 @@ class CellRenderer(GObject.InitiallyUnowned):
     def priv(self) -> CellRendererPrivate: ...
     def __init__(
         self,
+        *,
         cell_background: str = ...,
         cell_background_gdk: _Gdk3.Color = ...,
         cell_background_rgba: _Gdk3.RGBA = ...,
@@ -9389,7 +9582,7 @@ class CellRenderer(GObject.InitiallyUnowned):
         xpad: int = ...,
         yalign: float = ...,
         ypad: int = ...,
-    ): ...
+    ) -> None: ...
     def activate(
         self,
         event: _Gdk3.Event,
@@ -9475,7 +9668,7 @@ class CellRenderer(GObject.InitiallyUnowned):
         cell_area: _Gdk3.Rectangle,
         flags: CellRendererState,
     ) -> None: ...
-    def set_accessible_type(self, type: type) -> None: ...
+    def set_accessible_type(self, type: type[Any]) -> None: ...
     def set_alignment(self, xalign: float, yalign: float) -> None: ...
     def set_fixed_size(self, width: int, height: int) -> None: ...
     def set_padding(self, xpad: int, ypad: int) -> None: ...
@@ -9659,7 +9852,6 @@ class CellRendererAccel(CellRendererText):
     Signals from GObject:
       notify (GParam)
     """
-
     class Props(CellRendererText.Props):
         accel_key: int
         accel_mode: CellRendererAccelMode
@@ -9732,11 +9924,13 @@ class CellRendererAccel(CellRendererText):
 
     @property
     def props(self) -> Props: ...
-    parent: CellRendererText
+    @property
+    def parent(self) -> CellRendererText: ...
     @property
     def priv(self) -> CellRendererAccelPrivate: ...
     def __init__(
         self,
+        *,
         accel_key: int = ...,
         accel_mode: CellRendererAccelMode = ...,
         accel_mods: _Gdk3.ModifierType = ...,
@@ -9804,7 +9998,7 @@ class CellRendererAccel(CellRendererText):
         xpad: int = ...,
         yalign: float = ...,
         ypad: int = ...,
-    ): ...
+    ) -> None: ...
     def do_accel_cleared(self, path_string: str) -> None: ...
     def do_accel_edited(
         self,
@@ -9824,15 +10018,14 @@ class CellRendererAccelClass(GObject.GPointer):
 
         CellRendererAccelClass()
     """
-
-    parent_class: CellRendererTextClass
-    accel_edited: Callable[[CellRendererAccel, str, int, _Gdk3.ModifierType, int], None]
-    accel_cleared: Callable[[CellRendererAccel, str], None]
-    _gtk_reserved0: None
-    _gtk_reserved1: None
-    _gtk_reserved2: None
-    _gtk_reserved3: None
-    _gtk_reserved4: None
+    @property
+    def parent_class(self) -> CellRendererTextClass: ...
+    @property
+    def accel_edited(
+        self,
+    ) -> Callable[[CellRendererAccel, str, int, _Gdk3.ModifierType, int], None]: ...
+    @property
+    def accel_cleared(self) -> Callable[[CellRendererAccel, str], None]: ...
 
 class CellRendererAccelPrivate(GObject.GPointer): ...
 
@@ -9844,24 +10037,42 @@ class CellRendererClass(GObject.GPointer):
 
         CellRendererClass()
     """
-
-    parent_class: GObject.InitiallyUnownedClass
-    get_request_mode: Callable[[CellRenderer], SizeRequestMode]
-    get_preferred_width: Callable[[CellRenderer, Widget], tuple[int, int]]
-    get_preferred_height_for_width: Callable[
-        [CellRenderer, Widget, int], tuple[int, int]
-    ]
-    get_preferred_height: Callable[[CellRenderer, Widget], tuple[int, int]]
-    get_preferred_width_for_height: Callable[
-        [CellRenderer, Widget, int], tuple[int, int]
-    ]
-    get_aligned_area: Callable[
+    @property
+    def parent_class(self) -> GObject.InitiallyUnownedClass: ...
+    @property
+    def get_request_mode(self) -> Callable[[CellRenderer], SizeRequestMode]: ...
+    @property
+    def get_preferred_width(
+        self,
+    ) -> Callable[[CellRenderer, Widget], tuple[int, int]]: ...
+    @property
+    def get_preferred_height_for_width(
+        self,
+    ) -> Callable[[CellRenderer, Widget, int], tuple[int, int]]: ...
+    @property
+    def get_preferred_height(
+        self,
+    ) -> Callable[[CellRenderer, Widget], tuple[int, int]]: ...
+    @property
+    def get_preferred_width_for_height(
+        self,
+    ) -> Callable[[CellRenderer, Widget, int], tuple[int, int]]: ...
+    @property
+    def get_aligned_area(
+        self,
+    ) -> Callable[
         [CellRenderer, Widget, CellRendererState, _Gdk3.Rectangle], _Gdk3.Rectangle
-    ]
-    get_size: Callable[
+    ]: ...
+    @property
+    def get_size(
+        self,
+    ) -> Callable[
         [CellRenderer, Widget, _Gdk3.Rectangle | None], tuple[int, int, int, int]
-    ]
-    render: Callable[
+    ]: ...
+    @property
+    def render(
+        self,
+    ) -> Callable[
         [
             CellRenderer,
             cairo.Context[_SomeSurface],
@@ -9871,8 +10082,11 @@ class CellRendererClass(GObject.GPointer):
             CellRendererState,
         ],
         None,
-    ]
-    activate: Callable[
+    ]: ...
+    @property
+    def activate(
+        self,
+    ) -> Callable[
         [
             CellRenderer,
             _Gdk3.Event,
@@ -9883,8 +10097,11 @@ class CellRendererClass(GObject.GPointer):
             CellRendererState,
         ],
         bool,
-    ]
-    start_editing: Callable[
+    ]: ...
+    @property
+    def start_editing(
+        self,
+    ) -> Callable[
         [
             CellRenderer,
             _Gdk3.Event | None,
@@ -9895,15 +10112,14 @@ class CellRendererClass(GObject.GPointer):
             CellRendererState,
         ],
         CellEditable | None,
-    ]
-    editing_canceled: Callable[[CellRenderer], None]
-    editing_started: Callable[[CellRenderer, CellEditable, str], None]
+    ]: ...
+    @property
+    def editing_canceled(self) -> Callable[[CellRenderer], None]: ...
+    @property
+    def editing_started(self) -> Callable[[CellRenderer, CellEditable, str], None]: ...
     @property
     def priv(self) -> CellRendererClassPrivate: ...
-    _gtk_reserved2: None
-    _gtk_reserved3: None
-    _gtk_reserved4: None
-    def set_accessible_type(self, type: type) -> None: ...
+    def set_accessible_type(self, type: type[Any]) -> None: ...
 
 class CellRendererClassPrivate(GObject.GPointer): ...
 
@@ -10071,7 +10287,6 @@ class CellRendererCombo(CellRendererText):
     Signals from GObject:
       notify (GParam)
     """
-
     class Props(CellRendererText.Props):
         has_entry: bool
         model: TreeModel
@@ -10143,11 +10358,13 @@ class CellRendererCombo(CellRendererText):
 
     @property
     def props(self) -> Props: ...
-    parent: CellRendererText
+    @property
+    def parent(self) -> CellRendererText: ...
     @property
     def priv(self) -> CellRendererComboPrivate: ...
     def __init__(
         self,
+        *,
         has_entry: bool = ...,
         model: TreeModel = ...,
         text_column: int = ...,
@@ -10214,7 +10431,7 @@ class CellRendererCombo(CellRendererText):
         xpad: int = ...,
         yalign: float = ...,
         ypad: int = ...,
-    ): ...
+    ) -> None: ...
     @classmethod
     def new(cls) -> CellRendererCombo: ...
 
@@ -10226,12 +10443,8 @@ class CellRendererComboClass(GObject.GPointer):
 
         CellRendererComboClass()
     """
-
-    parent: CellRendererTextClass
-    _gtk_reserved1: None
-    _gtk_reserved2: None
-    _gtk_reserved3: None
-    _gtk_reserved4: None
+    @property
+    def parent(self) -> CellRendererTextClass: ...
 
 class CellRendererComboPrivate(GObject.GPointer): ...
 
@@ -10309,7 +10522,6 @@ class CellRendererPixbuf(CellRenderer):
     Signals from GObject:
       notify (GParam)
     """
-
     class Props(CellRenderer.Props):
         follow_state: bool
         gicon: Gio.Icon
@@ -10340,11 +10552,13 @@ class CellRendererPixbuf(CellRenderer):
 
     @property
     def props(self) -> Props: ...
-    parent: CellRenderer
+    @property
+    def parent(self) -> CellRenderer: ...
     @property
     def priv(self) -> CellRendererPixbufPrivate: ...
     def __init__(
         self,
+        *,
         follow_state: bool = ...,
         gicon: Gio.Icon = ...,
         icon_name: str = ...,
@@ -10370,7 +10584,7 @@ class CellRendererPixbuf(CellRenderer):
         xpad: int = ...,
         yalign: float = ...,
         ypad: int = ...,
-    ): ...
+    ) -> None: ...
     @classmethod
     def new(cls) -> CellRendererPixbuf: ...
 
@@ -10382,12 +10596,8 @@ class CellRendererPixbufClass(GObject.GPointer):
 
         CellRendererPixbufClass()
     """
-
-    parent_class: CellRendererClass
-    _gtk_reserved1: None
-    _gtk_reserved2: None
-    _gtk_reserved3: None
-    _gtk_reserved4: None
+    @property
+    def parent_class(self) -> CellRendererClass: ...
 
 class CellRendererPixbufPrivate(GObject.GPointer): ...
 class CellRendererPrivate(GObject.GPointer): ...
@@ -10458,7 +10668,6 @@ class CellRendererProgress(CellRenderer, Orientable):
     Signals from GObject:
       notify (GParam)
     """
-
     class Props(CellRenderer.Props):
         inverted: bool
         pulse: int
@@ -10492,6 +10701,7 @@ class CellRendererProgress(CellRenderer, Orientable):
     def priv(self) -> CellRendererProgressPrivate: ...
     def __init__(
         self,
+        *,
         inverted: bool = ...,
         pulse: int = ...,
         text: str = ...,
@@ -10514,7 +10724,7 @@ class CellRendererProgress(CellRenderer, Orientable):
         yalign: float = ...,
         ypad: int = ...,
         orientation: Orientation = ...,
-    ): ...
+    ) -> None: ...
     @classmethod
     def new(cls) -> CellRendererProgress: ...
 
@@ -10526,12 +10736,8 @@ class CellRendererProgressClass(GObject.GPointer):
 
         CellRendererProgressClass()
     """
-
-    parent_class: CellRendererClass
-    _gtk_reserved1: None
-    _gtk_reserved2: None
-    _gtk_reserved3: None
-    _gtk_reserved4: None
+    @property
+    def parent_class(self) -> CellRendererClass: ...
 
 class CellRendererProgressPrivate(GObject.GPointer): ...
 
@@ -10696,7 +10902,6 @@ class CellRendererSpin(CellRendererText):
     Signals from GObject:
       notify (GParam)
     """
-
     class Props(CellRendererText.Props):
         adjustment: Adjustment
         climb_rate: float
@@ -10768,11 +10973,13 @@ class CellRendererSpin(CellRendererText):
 
     @property
     def props(self) -> Props: ...
-    parent: CellRendererText
+    @property
+    def parent(self) -> CellRendererText: ...
     @property
     def priv(self) -> CellRendererSpinPrivate: ...
     def __init__(
         self,
+        *,
         adjustment: Adjustment = ...,
         climb_rate: float = ...,
         digits: int = ...,
@@ -10839,7 +11046,7 @@ class CellRendererSpin(CellRendererText):
         xpad: int = ...,
         yalign: float = ...,
         ypad: int = ...,
-    ): ...
+    ) -> None: ...
     @classmethod
     def new(cls) -> CellRendererSpin: ...
 
@@ -10851,12 +11058,8 @@ class CellRendererSpinClass(GObject.GPointer):
 
         CellRendererSpinClass()
     """
-
-    parent: CellRendererTextClass
-    _gtk_reserved1: None
-    _gtk_reserved2: None
-    _gtk_reserved3: None
-    _gtk_reserved4: None
+    @property
+    def parent(self) -> CellRendererTextClass: ...
 
 class CellRendererSpinPrivate(GObject.GPointer): ...
 
@@ -10920,7 +11123,6 @@ class CellRendererSpinner(CellRenderer):
     Signals from GObject:
       notify (GParam)
     """
-
     class Props(CellRenderer.Props):
         active: bool
         pulse: int
@@ -10944,11 +11146,13 @@ class CellRendererSpinner(CellRenderer):
 
     @property
     def props(self) -> Props: ...
-    parent: CellRenderer
+    @property
+    def parent(self) -> CellRenderer: ...
     @property
     def priv(self) -> CellRendererSpinnerPrivate: ...
     def __init__(
         self,
+        *,
         active: bool = ...,
         pulse: int = ...,
         size: IconSize = ...,
@@ -10967,7 +11171,7 @@ class CellRendererSpinner(CellRenderer):
         xpad: int = ...,
         yalign: float = ...,
         ypad: int = ...,
-    ): ...
+    ) -> None: ...
     @classmethod
     def new(cls) -> CellRendererSpinner: ...
 
@@ -10979,12 +11183,8 @@ class CellRendererSpinnerClass(GObject.GPointer):
 
         CellRendererSpinnerClass()
     """
-
-    parent_class: CellRendererClass
-    _gtk_reserved1: None
-    _gtk_reserved2: None
-    _gtk_reserved3: None
-    _gtk_reserved4: None
+    @property
+    def parent_class(self) -> CellRendererClass: ...
 
 class CellRendererSpinnerPrivate(GObject.GPointer): ...
 
@@ -11141,7 +11341,6 @@ class CellRendererText(CellRenderer):
     Signals from GObject:
       notify (GParam)
     """
-
     class Props(CellRenderer.Props):
         align_set: bool
         alignment: Pango.Alignment
@@ -11210,11 +11409,13 @@ class CellRendererText(CellRenderer):
 
     @property
     def props(self) -> Props: ...
-    parent: CellRenderer
+    @property
+    def parent(self) -> CellRenderer: ...
     @property
     def priv(self) -> CellRendererTextPrivate: ...
     def __init__(
         self,
+        *,
         align_set: bool = ...,
         alignment: Pango.Alignment = ...,
         attributes: Pango.AttrList = ...,
@@ -11278,7 +11479,7 @@ class CellRendererText(CellRenderer):
         xpad: int = ...,
         yalign: float = ...,
         ypad: int = ...,
-    ): ...
+    ) -> None: ...
     def do_edited(self, path: str, new_text: str) -> None: ...
     @classmethod
     def new(cls) -> CellRendererText: ...
@@ -11292,13 +11493,10 @@ class CellRendererTextClass(GObject.GPointer):
 
         CellRendererTextClass()
     """
-
-    parent_class: CellRendererClass
-    edited: Callable[[CellRendererText, str, str], None]
-    _gtk_reserved1: None
-    _gtk_reserved2: None
-    _gtk_reserved3: None
-    _gtk_reserved4: None
+    @property
+    def parent_class(self) -> CellRendererClass: ...
+    @property
+    def edited(self) -> Callable[[CellRendererText, str, str], None]: ...
 
 class CellRendererTextPrivate(GObject.GPointer): ...
 
@@ -11369,7 +11567,6 @@ class CellRendererToggle(CellRenderer):
     Signals from GObject:
       notify (GParam)
     """
-
     class Props(CellRenderer.Props):
         activatable: bool
         active: bool
@@ -11395,11 +11592,13 @@ class CellRendererToggle(CellRenderer):
 
     @property
     def props(self) -> Props: ...
-    parent: CellRenderer
+    @property
+    def parent(self) -> CellRenderer: ...
     @property
     def priv(self) -> CellRendererTogglePrivate: ...
     def __init__(
         self,
+        *,
         activatable: bool = ...,
         active: bool = ...,
         inconsistent: bool = ...,
@@ -11420,7 +11619,7 @@ class CellRendererToggle(CellRenderer):
         xpad: int = ...,
         yalign: float = ...,
         ypad: int = ...,
-    ): ...
+    ) -> None: ...
     def do_toggled(self, path: str) -> None: ...
     def get_activatable(self) -> bool: ...
     def get_active(self) -> bool: ...
@@ -11439,13 +11638,10 @@ class CellRendererToggleClass(GObject.GPointer):
 
         CellRendererToggleClass()
     """
-
-    parent_class: CellRendererClass
-    toggled: Callable[[CellRendererToggle, str], None]
-    _gtk_reserved1: None
-    _gtk_reserved2: None
-    _gtk_reserved3: None
-    _gtk_reserved4: None
+    @property
+    def parent_class(self) -> CellRendererClass: ...
+    @property
+    def toggled(self) -> Callable[[CellRendererToggle, str], None]: ...
 
 class CellRendererTogglePrivate(GObject.GPointer): ...
 
@@ -11638,7 +11834,6 @@ class CellView(Widget, Atk.ImplementorIface, Buildable, CellLayout, Orientable):
     Signals from GObject:
       notify (GParam)
     """
-
     class Props(Widget.Props):
         background_gdk: _Gdk3.Color
         background_rgba: _Gdk3.RGBA
@@ -11698,6 +11893,7 @@ class CellView(Widget, Atk.ImplementorIface, Buildable, CellLayout, Orientable):
     def priv(self) -> CellViewPrivate: ...
     def __init__(
         self,
+        *,
         background: str = ...,
         background_gdk: _Gdk3.Color = ...,
         background_rgba: _Gdk3.RGBA = ...,
@@ -11744,7 +11940,7 @@ class CellView(Widget, Atk.ImplementorIface, Buildable, CellLayout, Orientable):
         visible: bool = ...,
         width_request: int = ...,
         orientation: Orientation = ...,
-    ): ...
+    ) -> None: ...
     def get_displayed_row(self) -> TreePath | None: ...
     def get_draw_sensitive(self) -> bool: ...
     def get_fit_model(self) -> bool: ...
@@ -11775,12 +11971,8 @@ class CellViewClass(GObject.GPointer):
 
         CellViewClass()
     """
-
-    parent_class: WidgetClass
-    _gtk_reserved1: None
-    _gtk_reserved2: None
-    _gtk_reserved3: None
-    _gtk_reserved4: None
+    @property
+    def parent_class(self) -> WidgetClass: ...
 
 class CellViewPrivate(GObject.GPointer): ...
 
@@ -12006,7 +12198,6 @@ class CheckButton(
     Signals from GObject:
       notify (GParam)
     """
-
     class Props(ToggleButton.Props):
         active: bool
         draw_indicator: bool
@@ -12073,6 +12264,7 @@ class CheckButton(
     def toggle_button(self) -> ToggleButton: ...
     def __init__(
         self,
+        *,
         active: bool = ...,
         draw_indicator: bool = ...,
         inconsistent: bool = ...,
@@ -12128,7 +12320,7 @@ class CheckButton(
         action_target: GLib.Variant = ...,
         related_action: Action = ...,
         use_action_appearance: bool = ...,
-    ): ...
+    ) -> None: ...
     def do_draw_indicator(self, cr: cairo.Context[_SomeSurface]) -> None: ...
     @classmethod
     def new(cls) -> CheckButton: ...
@@ -12145,13 +12337,12 @@ class CheckButtonClass(GObject.GPointer):
 
         CheckButtonClass()
     """
-
-    parent_class: ToggleButtonClass
-    draw_indicator: Callable[[CheckButton, cairo.Context[_SomeSurface]], None]
-    _gtk_reserved1: None
-    _gtk_reserved2: None
-    _gtk_reserved3: None
-    _gtk_reserved4: None
+    @property
+    def parent_class(self) -> ToggleButtonClass: ...
+    @property
+    def draw_indicator(
+        self,
+    ) -> Callable[[CheckButton, cairo.Context[_SomeSurface]], None]: ...
 
 class CheckMenuItem(MenuItem, Atk.ImplementorIface, Actionable, Activatable, Buildable):
     """
@@ -12365,7 +12556,6 @@ class CheckMenuItem(MenuItem, Atk.ImplementorIface, Actionable, Activatable, Bui
     Signals from GObject:
       notify (GParam)
     """
-
     class Props(MenuItem.Props):
         active: bool
         draw_as_radio: bool
@@ -12424,11 +12614,13 @@ class CheckMenuItem(MenuItem, Atk.ImplementorIface, Actionable, Activatable, Bui
 
     @property
     def props(self) -> Props: ...
-    menu_item: MenuItem
+    @property
+    def menu_item(self) -> MenuItem: ...
     @property
     def priv(self) -> CheckMenuItemPrivate: ...
     def __init__(
         self,
+        *,
         active: bool = ...,
         draw_as_radio: bool = ...,
         inconsistent: bool = ...,
@@ -12480,7 +12672,7 @@ class CheckMenuItem(MenuItem, Atk.ImplementorIface, Actionable, Activatable, Bui
         action_target: GLib.Variant = ...,
         related_action: Action = ...,
         use_action_appearance: bool = ...,
-    ): ...
+    ) -> None: ...
     def do_draw_indicator(self, cr: cairo.Context[_SomeSurface]) -> None: ...
     def do_toggled(self) -> None: ...
     def get_active(self) -> bool: ...
@@ -12540,6 +12732,7 @@ class CheckMenuItemAccessible(
       active-descendant-changed (gpointer)
       announcement (gchararray)
       notification (gchararray, gint)
+      attribute-changed (gchararray, gchararray)
 
     Properties from AtkObject:
       accessible-name -> gchararray: Accessible Name
@@ -12572,17 +12765,22 @@ class CheckMenuItemAccessible(
         Is used to notify that the table caption has changed
       accessible-hypertext-nlinks -> gint: Number of Accessible Hypertext Links
         The number of links which the current AtkHypertext has
+      accessible-id -> gchararray: Accessible ID
+        ID for the accessible; useful for automated testing
+      accessible-help-text -> gchararray: Help text
+        Help text associated with the accessible
 
     Signals from GObject:
       notify (GParam)
     """
-
     class Props(MenuItemAccessible.Props):
         widget: Widget | None
         accessible_component_layer: int
         accessible_component_mdi_zorder: int
         accessible_description: str
+        accessible_help_text: str
         accessible_hypertext_nlinks: int
+        accessible_id: str
         accessible_name: str
         accessible_parent: Atk.Object
         accessible_role: Atk.Role
@@ -12603,8 +12801,11 @@ class CheckMenuItemAccessible(
     def priv(self) -> CheckMenuItemAccessiblePrivate: ...
     def __init__(
         self,
+        *,
         widget: Widget | None = ...,
         accessible_description: str = ...,
+        accessible_help_text: str = ...,
+        accessible_id: str = ...,
         accessible_name: str = ...,
         accessible_parent: Atk.Object = ...,
         accessible_role: Atk.Role = ...,
@@ -12616,7 +12817,7 @@ class CheckMenuItemAccessible(
         accessible_table_row_header: Atk.Object = ...,
         accessible_table_summary: Atk.Object = ...,
         accessible_value: float = ...,
-    ): ...
+    ) -> None: ...
 
 class CheckMenuItemAccessibleClass(GObject.GPointer):
     """
@@ -12626,8 +12827,8 @@ class CheckMenuItemAccessibleClass(GObject.GPointer):
 
         CheckMenuItemAccessibleClass()
     """
-
-    parent_class: MenuItemAccessibleClass
+    @property
+    def parent_class(self) -> MenuItemAccessibleClass: ...
 
 class CheckMenuItemAccessiblePrivate(GObject.GPointer): ...
 
@@ -12639,14 +12840,14 @@ class CheckMenuItemClass(GObject.GPointer):
 
         CheckMenuItemClass()
     """
-
-    parent_class: MenuItemClass
-    toggled: Callable[[CheckMenuItem], None]
-    draw_indicator: Callable[[CheckMenuItem, cairo.Context[_SomeSurface]], None]
-    _gtk_reserved1: None
-    _gtk_reserved2: None
-    _gtk_reserved3: None
-    _gtk_reserved4: None
+    @property
+    def parent_class(self) -> MenuItemClass: ...
+    @property
+    def toggled(self) -> Callable[[CheckMenuItem], None]: ...
+    @property
+    def draw_indicator(
+        self,
+    ) -> Callable[[CheckMenuItem, cairo.Context[_SomeSurface]], None]: ...
 
 class CheckMenuItemPrivate(GObject.GPointer): ...
 
@@ -12666,7 +12867,6 @@ class Clipboard(GObject.Object):
     Signals from GObject:
       notify (GParam)
     """
-
     def clear(self) -> None: ...
     @staticmethod
     def get(selection: _Gdk3.Atom) -> Clipboard: ...
@@ -12938,7 +13138,6 @@ class ColorButton(
     Signals from GObject:
       notify (GParam)
     """
-
     class Props(Button.Props):
         alpha: int
         color: _Gdk3.Color
@@ -13010,6 +13209,7 @@ class ColorButton(
     def priv(self) -> ColorButtonPrivate: ...
     def __init__(
         self,
+        *,
         alpha: int = ...,
         color: _Gdk3.Color = ...,
         rgba: _Gdk3.RGBA = ...,
@@ -13068,7 +13268,7 @@ class ColorButton(
         action_target: GLib.Variant = ...,
         related_action: Action = ...,
         use_action_appearance: bool = ...,
-    ): ...
+    ) -> None: ...
     def do_color_set(self) -> None: ...
     def get_alpha(self) -> int: ...
     def get_color(self) -> _Gdk3.Color: ...
@@ -13093,13 +13293,10 @@ class ColorButtonClass(GObject.GPointer):
 
         ColorButtonClass()
     """
-
-    parent_class: ButtonClass
-    color_set: Callable[[ColorButton], None]
-    _gtk_reserved1: None
-    _gtk_reserved2: None
-    _gtk_reserved3: None
-    _gtk_reserved4: None
+    @property
+    def parent_class(self) -> ButtonClass: ...
+    @property
+    def color_set(self) -> Callable[[ColorButton], None]: ...
 
 class ColorButtonPrivate(GObject.GPointer): ...
 
@@ -13110,7 +13307,6 @@ class ColorChooser(GObject.GInterface, Protocol):
     Signals from GObject:
       notify (GParam)
     """
-
     def add_palette(
         self,
         orientation: Orientation,
@@ -13391,7 +13587,6 @@ class ColorChooserDialog(Dialog, Atk.ImplementorIface, Buildable, ColorChooser):
     Signals from GObject:
       notify (GParam)
     """
-
     class Props(Dialog.Props):
         show_editor: bool
         use_header_bar: int
@@ -13481,6 +13676,7 @@ class ColorChooserDialog(Dialog, Atk.ImplementorIface, Buildable, ColorChooser):
     def priv(self) -> ColorChooserDialogPrivate: ...
     def __init__(
         self,
+        *,
         show_editor: bool = ...,
         use_header_bar: int = ...,
         accept_focus: bool = ...,
@@ -13553,7 +13749,7 @@ class ColorChooserDialog(Dialog, Atk.ImplementorIface, Buildable, ColorChooser):
         width_request: int = ...,
         rgba: _Gdk3.RGBA = ...,
         use_alpha: bool = ...,
-    ): ...
+    ) -> None: ...
     @classmethod
     def new(
         cls, title: str | None = None, parent: Window | None = None
@@ -13567,12 +13763,8 @@ class ColorChooserDialogClass(GObject.GPointer):
 
         ColorChooserDialogClass()
     """
-
-    parent_class: DialogClass
-    _gtk_reserved1: None
-    _gtk_reserved2: None
-    _gtk_reserved3: None
-    _gtk_reserved4: None
+    @property
+    def parent_class(self) -> DialogClass: ...
 
 class ColorChooserDialogPrivate(GObject.GPointer): ...
 
@@ -13584,15 +13776,22 @@ class ColorChooserInterface(GObject.GPointer):
 
         ColorChooserInterface()
     """
-
-    base_interface: GObject.TypeInterface
-    get_rgba: Callable[[ColorChooser], _Gdk3.RGBA]
-    set_rgba: Callable[[ColorChooser, _Gdk3.RGBA], None]
-    add_palette: Callable[
+    @property
+    def base_interface(self) -> GObject.TypeInterface: ...
+    @property
+    def get_rgba(self) -> Callable[[ColorChooser], _Gdk3.RGBA]: ...
+    @property
+    def set_rgba(self) -> Callable[[ColorChooser, _Gdk3.RGBA], None]: ...
+    @property
+    def add_palette(
+        self,
+    ) -> Callable[
         [ColorChooser, Orientation, int, Sequence[_Gdk3.RGBA] | None], None
-    ]
-    color_activated: Callable[[ColorChooser, _Gdk3.RGBA], None]
-    padding: list[None]
+    ]: ...
+    @property
+    def color_activated(self) -> Callable[[ColorChooser, _Gdk3.RGBA], None]: ...
+    @property
+    def padding(self) -> list[None]: ...
 
 class ColorChooserWidget(
     Box, Atk.ImplementorIface, Buildable, ColorChooser, Orientable
@@ -13790,7 +13989,6 @@ class ColorChooserWidget(
     Signals from GObject:
       notify (GParam)
     """
-
     class Props(Box.Props):
         show_editor: bool
         baseline_position: BaselinePosition
@@ -13850,6 +14048,7 @@ class ColorChooserWidget(
     def priv(self) -> ColorChooserWidgetPrivate: ...
     def __init__(
         self,
+        *,
         show_editor: bool = ...,
         baseline_position: BaselinePosition = ...,
         homogeneous: bool = ...,
@@ -13896,7 +14095,7 @@ class ColorChooserWidget(
         rgba: _Gdk3.RGBA = ...,
         use_alpha: bool = ...,
         orientation: Orientation = ...,
-    ): ...
+    ) -> None: ...
     @classmethod
     def new(cls) -> ColorChooserWidget: ...
 
@@ -13908,16 +14107,8 @@ class ColorChooserWidgetClass(GObject.GPointer):
 
         ColorChooserWidgetClass()
     """
-
-    parent_class: BoxClass
-    _gtk_reserved1: None
-    _gtk_reserved2: None
-    _gtk_reserved3: None
-    _gtk_reserved4: None
-    _gtk_reserved5: None
-    _gtk_reserved6: None
-    _gtk_reserved7: None
-    _gtk_reserved8: None
+    @property
+    def parent_class(self) -> BoxClass: ...
 
 class ColorChooserWidgetPrivate(GObject.GPointer): ...
 
@@ -14123,7 +14314,6 @@ class ColorSelection(Box, Atk.ImplementorIface, Buildable, Orientable):
     Signals from GObject:
       notify (GParam)
     """
-
     class Props(Box.Props):
         current_alpha: int
         current_color: _Gdk3.Color
@@ -14181,9 +14371,11 @@ class ColorSelection(Box, Atk.ImplementorIface, Buildable, Orientable):
     def props(self) -> Props: ...
     @property
     def parent_instance(self) -> Box: ...
-    private_data: ColorSelectionPrivate
+    @property
+    def private_data(self) -> ColorSelectionPrivate: ...
     def __init__(
         self,
+        *,
         current_alpha: int = ...,
         current_color: _Gdk3.Color = ...,
         current_rgba: _Gdk3.RGBA = ...,
@@ -14232,7 +14424,7 @@ class ColorSelection(Box, Atk.ImplementorIface, Buildable, Orientable):
         visible: bool = ...,
         width_request: int = ...,
         orientation: Orientation = ...,
-    ): ...
+    ) -> None: ...
     def do_color_changed(self) -> None: ...
     def get_current_alpha(self) -> int: ...
     def get_current_color(self) -> _Gdk3.Color: ...
@@ -14266,13 +14458,10 @@ class ColorSelectionClass(GObject.GPointer):
 
         ColorSelectionClass()
     """
-
-    parent_class: BoxClass
-    color_changed: Callable[[ColorSelection], None]
-    _gtk_reserved1: None
-    _gtk_reserved2: None
-    _gtk_reserved3: None
-    _gtk_reserved4: None
+    @property
+    def parent_class(self) -> BoxClass: ...
+    @property
+    def color_changed(self) -> Callable[[ColorSelection], None]: ...
 
 class ColorSelectionDialog(Dialog, Atk.ImplementorIface, Buildable):
     """
@@ -14546,7 +14735,6 @@ class ColorSelectionDialog(Dialog, Atk.ImplementorIface, Buildable):
     Signals from GObject:
       notify (GParam)
     """
-
     class Props(Dialog.Props):
         cancel_button: Widget
         color_selection: Widget
@@ -14637,6 +14825,7 @@ class ColorSelectionDialog(Dialog, Atk.ImplementorIface, Buildable):
     def priv(self) -> ColorSelectionDialogPrivate: ...
     def __init__(
         self,
+        *,
         use_header_bar: int = ...,
         accept_focus: bool = ...,
         application: Application | None = ...,
@@ -14706,7 +14895,7 @@ class ColorSelectionDialog(Dialog, Atk.ImplementorIface, Buildable):
         vexpand_set: bool = ...,
         visible: bool = ...,
         width_request: int = ...,
-    ): ...
+    ) -> None: ...
     def get_color_selection(self) -> Widget: ...
     @classmethod
     def new(cls, title: str) -> ColorSelectionDialog: ...
@@ -14719,17 +14908,15 @@ class ColorSelectionDialogClass(GObject.GPointer):
 
         ColorSelectionDialogClass()
     """
-
-    parent_class: DialogClass
-    _gtk_reserved1: None
-    _gtk_reserved2: None
-    _gtk_reserved3: None
-    _gtk_reserved4: None
+    @property
+    def parent_class(self) -> DialogClass: ...
 
 class ColorSelectionDialogPrivate(GObject.GPointer): ...
 class ColorSelectionPrivate(GObject.GPointer): ...
 
-class ComboBox(Bin, Atk.ImplementorIface, Buildable, CellEditable, CellLayout):
+class ComboBox(
+    Bin, Atk.ImplementorIface, Buildable, CellEditable, CellLayout, Container
+):
     """
     :Constructors:
 
@@ -14958,7 +15145,6 @@ class ComboBox(Bin, Atk.ImplementorIface, Buildable, CellEditable, CellLayout):
     Signals from GObject:
       notify (GParam)
     """
-
     class Props(Bin.Props):
         active: int
         active_id: str | None
@@ -15028,6 +15214,7 @@ class ComboBox(Bin, Atk.ImplementorIface, Buildable, CellEditable, CellLayout):
     def priv(self) -> ComboBoxPrivate: ...
     def __init__(
         self,
+        *,
         active: int = ...,
         active_id: str | None = ...,
         add_tearoffs: bool = ...,
@@ -15083,7 +15270,7 @@ class ComboBox(Bin, Atk.ImplementorIface, Buildable, CellEditable, CellLayout):
         visible: bool = ...,
         width_request: int = ...,
         editing_canceled: bool = ...,
-    ): ...
+    ) -> None: ...
     def do_changed(self) -> None: ...
     def do_format_entry_text(self, path: str) -> str: ...
     def get_active(self) -> int: ...
@@ -15168,6 +15355,7 @@ class ComboBoxAccessible(ContainerAccessible, Atk.Action, Atk.Component, Atk.Sel
       active-descendant-changed (gpointer)
       announcement (gchararray)
       notification (gchararray, gint)
+      attribute-changed (gchararray, gchararray)
 
     Properties from AtkObject:
       accessible-name -> gchararray: Accessible Name
@@ -15200,17 +15388,22 @@ class ComboBoxAccessible(ContainerAccessible, Atk.Action, Atk.Component, Atk.Sel
         Is used to notify that the table caption has changed
       accessible-hypertext-nlinks -> gint: Number of Accessible Hypertext Links
         The number of links which the current AtkHypertext has
+      accessible-id -> gchararray: Accessible ID
+        ID for the accessible; useful for automated testing
+      accessible-help-text -> gchararray: Help text
+        Help text associated with the accessible
 
     Signals from GObject:
       notify (GParam)
     """
-
     class Props(ContainerAccessible.Props):
         widget: Widget | None
         accessible_component_layer: int
         accessible_component_mdi_zorder: int
         accessible_description: str
+        accessible_help_text: str
         accessible_hypertext_nlinks: int
+        accessible_id: str
         accessible_name: str
         accessible_parent: Atk.Object
         accessible_role: Atk.Role
@@ -15225,13 +15418,17 @@ class ComboBoxAccessible(ContainerAccessible, Atk.Action, Atk.Component, Atk.Sel
 
     @property
     def props(self) -> Props: ...
-    parent: ContainerAccessible
+    @property
+    def parent(self) -> ContainerAccessible: ...
     @property
     def priv(self) -> ComboBoxAccessiblePrivate: ...
     def __init__(
         self,
+        *,
         widget: Widget | None = ...,
         accessible_description: str = ...,
+        accessible_help_text: str = ...,
+        accessible_id: str = ...,
         accessible_name: str = ...,
         accessible_parent: Atk.Object = ...,
         accessible_role: Atk.Role = ...,
@@ -15243,7 +15440,7 @@ class ComboBoxAccessible(ContainerAccessible, Atk.Action, Atk.Component, Atk.Sel
         accessible_table_row_header: Atk.Object = ...,
         accessible_table_summary: Atk.Object = ...,
         accessible_value: float = ...,
-    ): ...
+    ) -> None: ...
 
 class ComboBoxAccessibleClass(GObject.GPointer):
     """
@@ -15253,8 +15450,8 @@ class ComboBoxAccessibleClass(GObject.GPointer):
 
         ComboBoxAccessibleClass()
     """
-
-    parent_class: ContainerAccessibleClass
+    @property
+    def parent_class(self) -> ContainerAccessibleClass: ...
 
 class ComboBoxAccessiblePrivate(GObject.GPointer): ...
 
@@ -15266,13 +15463,12 @@ class ComboBoxClass(GObject.GPointer):
 
         ComboBoxClass()
     """
-
-    parent_class: BinClass
-    changed: Callable[[ComboBox], None]
-    format_entry_text: Callable[[ComboBox, str], str]
-    _gtk_reserved1: None
-    _gtk_reserved2: None
-    _gtk_reserved3: None
+    @property
+    def parent_class(self) -> BinClass: ...
+    @property
+    def changed(self) -> Callable[[ComboBox], None]: ...
+    @property
+    def format_entry_text(self) -> Callable[[ComboBox, str], str]: ...
 
 class ComboBoxPrivate(GObject.GPointer): ...
 
@@ -15505,7 +15701,6 @@ class ComboBoxText(ComboBox, Atk.ImplementorIface, Buildable, CellEditable, Cell
     Signals from GObject:
       notify (GParam)
     """
-
     class Props(ComboBox.Props):
         active: int
         active_id: str | None
@@ -15575,6 +15770,7 @@ class ComboBoxText(ComboBox, Atk.ImplementorIface, Buildable, CellEditable, Cell
     def priv(self) -> ComboBoxTextPrivate: ...
     def __init__(
         self,
+        *,
         active: int = ...,
         active_id: str | None = ...,
         add_tearoffs: bool = ...,
@@ -15630,7 +15826,7 @@ class ComboBoxText(ComboBox, Atk.ImplementorIface, Buildable, CellEditable, Cell
         visible: bool = ...,
         width_request: int = ...,
         editing_canceled: bool = ...,
-    ): ...
+    ) -> None: ...
     def append(self, id: str | None, text: str) -> None: ...
     def append_text(self, text: str) -> None: ...
     # override
@@ -15654,16 +15850,12 @@ class ComboBoxTextClass(GObject.GPointer):
 
         ComboBoxTextClass()
     """
-
-    parent_class: ComboBoxClass
-    _gtk_reserved1: None
-    _gtk_reserved2: None
-    _gtk_reserved3: None
-    _gtk_reserved4: None
+    @property
+    def parent_class(self) -> ComboBoxClass: ...
 
 class ComboBoxTextPrivate(GObject.GPointer): ...
 
-class Container(Widget, Atk.ImplementorIface, Buildable):
+class Container(Widget, Atk.ImplementorIface, Buildable, Widget):
     """
     :Constructors:
 
@@ -15841,7 +16033,6 @@ class Container(Widget, Atk.ImplementorIface, Buildable):
     Signals from GObject:
       notify (GParam)
     """
-
     class Props(Widget.Props):
         border_width: int
         resize_mode: ResizeMode
@@ -15888,11 +16079,13 @@ class Container(Widget, Atk.ImplementorIface, Buildable):
 
     @property
     def props(self) -> Props: ...
-    widget: Widget
+    @property
+    def widget(self) -> Widget: ...
     @property
     def priv(self) -> ContainerPrivate: ...
     def __init__(
         self,
+        *,
         border_width: int = ...,
         child: Widget = ...,
         resize_mode: ResizeMode = ...,
@@ -15932,25 +16125,34 @@ class Container(Widget, Atk.ImplementorIface, Buildable):
         vexpand_set: bool = ...,
         visible: bool = ...,
         width_request: int = ...,
-    ): ...
+    ) -> None: ...
+    def __bool__(self): ...  # FIXME: Override is missing typing annotation
+    def __iter__(self): ...  # FIXME: Override is missing typing annotation
+    def __len__(self): ...  # FIXME: Override is missing typing annotation
     def add(self, widget: Widget) -> None: ...
     def check_resize(self) -> None: ...
-    def child_get(self, child, *prop_names): ...  # FIXME Function
+    def child_get(self, child, *prop_names):
+        """
+        Returns a list of child property values for the given names.
+        """  # FIXME: Override is missing typing annotation
     def child_get_property(
         self, child, property_name, value=None
-    ): ...  # FIXME Function
+    ): ...  # FIXME: Override is missing typing annotation
     def child_notify(self, child: Widget, child_property: str) -> None: ...
     def child_notify_by_pspec(
         self, child: Widget, pspec: GObject.ParamSpec
     ) -> None: ...
-    def child_set(self, child, **kwargs): ...  # FIXME Function
+    def child_set(self, child, **kwargs):
+        """
+        Set a child properties on the given child to key/value pairs.
+        """  # FIXME: Override is missing typing annotation
     def child_set_property(
         self, child: Widget, property_name: str, value: Any
     ) -> None: ...
-    def child_type(self) -> type: ...
+    def child_type(self) -> type[Any]: ...
     def do_add(self, widget: Widget) -> None: ...
     def do_check_resize(self) -> None: ...
-    def do_child_type(self) -> type: ...
+    def do_child_type(self) -> type[Any]: ...
     def do_composite_name(self, child: Widget) -> str: ...
     def do_forall(
         self,
@@ -16027,6 +16229,7 @@ class ContainerAccessible(WidgetAccessible, Atk.Component):
       active-descendant-changed (gpointer)
       announcement (gchararray)
       notification (gchararray, gint)
+      attribute-changed (gchararray, gchararray)
 
     Properties from AtkObject:
       accessible-name -> gchararray: Accessible Name
@@ -16059,17 +16262,22 @@ class ContainerAccessible(WidgetAccessible, Atk.Component):
         Is used to notify that the table caption has changed
       accessible-hypertext-nlinks -> gint: Number of Accessible Hypertext Links
         The number of links which the current AtkHypertext has
+      accessible-id -> gchararray: Accessible ID
+        ID for the accessible; useful for automated testing
+      accessible-help-text -> gchararray: Help text
+        Help text associated with the accessible
 
     Signals from GObject:
       notify (GParam)
     """
-
     class Props(WidgetAccessible.Props):
         widget: Widget | None
         accessible_component_layer: int
         accessible_component_mdi_zorder: int
         accessible_description: str
+        accessible_help_text: str
         accessible_hypertext_nlinks: int
+        accessible_id: str
         accessible_name: str
         accessible_parent: Atk.Object
         accessible_role: Atk.Role
@@ -16084,13 +16292,17 @@ class ContainerAccessible(WidgetAccessible, Atk.Component):
 
     @property
     def props(self) -> Props: ...
-    parent: WidgetAccessible
+    @property
+    def parent(self) -> WidgetAccessible: ...
     @property
     def priv(self) -> ContainerAccessiblePrivate: ...
     def __init__(
         self,
+        *,
         widget: Widget | None = ...,
         accessible_description: str = ...,
+        accessible_help_text: str = ...,
+        accessible_id: str = ...,
         accessible_name: str = ...,
         accessible_parent: Atk.Object = ...,
         accessible_role: Atk.Role = ...,
@@ -16102,7 +16314,7 @@ class ContainerAccessible(WidgetAccessible, Atk.Component):
         accessible_table_row_header: Atk.Object = ...,
         accessible_table_summary: Atk.Object = ...,
         accessible_value: float = ...,
-    ): ...
+    ) -> None: ...
 
 class ContainerAccessibleClass(GObject.GPointer):
     """
@@ -16112,10 +16324,12 @@ class ContainerAccessibleClass(GObject.GPointer):
 
         ContainerAccessibleClass()
     """
-
-    parent_class: WidgetAccessibleClass
-    add_gtk: Callable[[Container, Widget, None], int]
-    remove_gtk: Callable[[Container, Widget, None], int]
+    @property
+    def parent_class(self) -> WidgetAccessibleClass: ...
+    @property
+    def add_gtk(self) -> Callable[[Container, Widget, None], int]: ...
+    @property
+    def remove_gtk(self) -> Callable[[Container, Widget, None], int]: ...
 
 class ContainerAccessiblePrivate(GObject.GPointer): ...
 
@@ -16149,6 +16363,7 @@ class ContainerCellAccessible(CellAccessible, Atk.Action, Atk.Component, Atk.Tab
       active-descendant-changed (gpointer)
       announcement (gchararray)
       notification (gchararray, gint)
+      attribute-changed (gchararray, gchararray)
 
     Properties from AtkObject:
       accessible-name -> gchararray: Accessible Name
@@ -16181,17 +16396,22 @@ class ContainerCellAccessible(CellAccessible, Atk.Action, Atk.Component, Atk.Tab
         Is used to notify that the table caption has changed
       accessible-hypertext-nlinks -> gint: Number of Accessible Hypertext Links
         The number of links which the current AtkHypertext has
+      accessible-id -> gchararray: Accessible ID
+        ID for the accessible; useful for automated testing
+      accessible-help-text -> gchararray: Help text
+        Help text associated with the accessible
 
     Signals from GObject:
       notify (GParam)
     """
-
     class Props(CellAccessible.Props):
         widget: Widget | None
         accessible_component_layer: int
         accessible_component_mdi_zorder: int
         accessible_description: str
+        accessible_help_text: str
         accessible_hypertext_nlinks: int
+        accessible_id: str
         accessible_name: str
         accessible_parent: Atk.Object
         accessible_role: Atk.Role
@@ -16206,13 +16426,17 @@ class ContainerCellAccessible(CellAccessible, Atk.Action, Atk.Component, Atk.Tab
 
     @property
     def props(self) -> Props: ...
-    parent: CellAccessible
+    @property
+    def parent(self) -> CellAccessible: ...
     @property
     def priv(self) -> ContainerCellAccessiblePrivate: ...
     def __init__(
         self,
+        *,
         widget: Widget | None = ...,
         accessible_description: str = ...,
+        accessible_help_text: str = ...,
+        accessible_id: str = ...,
         accessible_name: str = ...,
         accessible_parent: Atk.Object = ...,
         accessible_role: Atk.Role = ...,
@@ -16224,7 +16448,7 @@ class ContainerCellAccessible(CellAccessible, Atk.Action, Atk.Component, Atk.Tab
         accessible_table_row_header: Atk.Object = ...,
         accessible_table_summary: Atk.Object = ...,
         accessible_value: float = ...,
-    ): ...
+    ) -> None: ...
     def add_child(self, child: CellAccessible) -> None: ...
     def get_children(self) -> list[CellAccessible]: ...
     @classmethod
@@ -16239,8 +16463,8 @@ class ContainerCellAccessibleClass(GObject.GPointer):
 
         ContainerCellAccessibleClass()
     """
-
-    parent_class: CellAccessibleClass
+    @property
+    def parent_class(self) -> CellAccessibleClass: ...
 
 class ContainerCellAccessiblePrivate(GObject.GPointer): ...
 
@@ -16252,27 +16476,32 @@ class ContainerClass(GObject.GPointer):
 
         ContainerClass()
     """
-
-    parent_class: WidgetClass
-    add: Callable[[Container, Widget], None]
-    remove: Callable[[Container, Widget], None]
-    check_resize: Callable[[Container], None]
-    forall: Callable[..., None]
-    set_focus_child: Callable[[Container, Widget | None], None]
-    child_type: Callable[[Container], type]
-    composite_name: Callable[[Container, Widget], str]
-    set_child_property: Callable[[Container, Widget, int, Any, GObject.ParamSpec], None]
-    get_child_property: Callable[[Container, Widget, int, Any, GObject.ParamSpec], None]
-    get_path_for_child: Callable[[Container, Widget], WidgetPath]
-    _handle_border_width: int
-    _gtk_reserved1: None
-    _gtk_reserved2: None
-    _gtk_reserved3: None
-    _gtk_reserved4: None
-    _gtk_reserved5: None
-    _gtk_reserved6: None
-    _gtk_reserved7: None
-    _gtk_reserved8: None
+    @property
+    def parent_class(self) -> WidgetClass: ...
+    @property
+    def add(self) -> Callable[[Container, Widget], None]: ...
+    @property
+    def remove(self) -> Callable[[Container, Widget], None]: ...
+    @property
+    def check_resize(self) -> Callable[[Container], None]: ...
+    @property
+    def forall(self) -> Callable[..., None]: ...
+    @property
+    def set_focus_child(self) -> Callable[[Container, Widget | None], None]: ...
+    @property
+    def child_type(self) -> Callable[[Container], type[Any]]: ...
+    @property
+    def composite_name(self) -> Callable[[Container, Widget], str]: ...
+    @property
+    def set_child_property(
+        self,
+    ) -> Callable[[Container, Widget, int, Any, GObject.ParamSpec], None]: ...
+    @property
+    def get_child_property(
+        self,
+    ) -> Callable[[Container, Widget, int, Any, GObject.ParamSpec], None]: ...
+    @property
+    def get_path_for_child(self) -> Callable[[Container, Widget], WidgetPath]: ...
     def find_child_property(self, property_name: str) -> GObject.ParamSpec | None: ...
     def handle_border_width(self) -> None: ...
     def install_child_properties(self, pspecs: Sequence[GObject.ParamSpec]) -> None: ...
@@ -16303,7 +16532,6 @@ class CssProvider(GObject.Object, StyleProvider):
     Signals from GObject:
       notify (GParam)
     """
-
     @property
     def parent_instance(self) -> GObject.Object: ...
     @property
@@ -16330,12 +16558,12 @@ class CssProviderClass(GObject.GPointer):
 
         CssProviderClass()
     """
-
-    parent_class: GObject.ObjectClass
-    parsing_error: Callable[[CssProvider, CssSection, GLib.Error], None]
-    _gtk_reserved2: None
-    _gtk_reserved3: None
-    _gtk_reserved4: None
+    @property
+    def parent_class(self) -> GObject.ObjectClass: ...
+    @property
+    def parsing_error(
+        self,
+    ) -> Callable[[CssProvider, CssSection, GLib.Error], None]: ...
 
 class CssProviderPrivate(GObject.GPointer): ...
 
@@ -16350,7 +16578,7 @@ class CssSection(GObject.GBoxed):
     def ref(self) -> CssSection: ...
     def unref(self) -> None: ...
 
-class Dialog(Window, Atk.ImplementorIface, Buildable):
+class Dialog(Window, Atk.ImplementorIface, Buildable, Container):
     """
     :Constructors:
 
@@ -16612,7 +16840,6 @@ class Dialog(Window, Atk.ImplementorIface, Buildable):
     Signals from GObject:
       notify (GParam)
     """
-
     class Props(Window.Props):
         use_header_bar: int
         accept_focus: bool
@@ -16693,11 +16920,13 @@ class Dialog(Window, Atk.ImplementorIface, Buildable):
 
     @property
     def props(self) -> Props: ...
-    window: Window
+    @property
+    def window(self) -> Window: ...
     @property
     def priv(self) -> DialogPrivate: ...
     def __init__(
         self,
+        *,
         use_header_bar: int = ...,
         accept_focus: bool = ...,
         application: Application | None = ...,
@@ -16767,14 +16996,26 @@ class Dialog(Window, Atk.ImplementorIface, Buildable):
         vexpand_set: bool = ...,
         visible: bool = ...,
         width_request: int = ...,
-    ): ...
-    _old_arg_names = ...  # FIXME Constant
-    action_area = ...  # FIXME Constant
-    vbox = ...  # FIXME Constant
+    ) -> None: ...
+    action_area = ...  # FIXME: Constant is missing typing annotation
+    vbox = ...  # FIXME: Constant is missing typing annotation
 
     def add_action_widget(self, child: Widget, response_id: int) -> None: ...
     def add_button(self, button_text: str, response_id: int) -> Widget: ...
-    def add_buttons(self, *args): ...  # FIXME Function
+    def add_buttons(self, *args):
+        """
+        The add_buttons() method adds several buttons to the Gtk.Dialog using
+        the button data passed as arguments to the method. This method is the
+        same as calling the Gtk.Dialog.add_button() repeatedly. The button data
+        pairs - button text (or stock ID) and a response ID integer are passed
+        individually. For example:
+
+        .. code-block:: python
+
+            dialog.add_buttons(Gtk.STOCK_OPEN, 42, "Close", Gtk.ResponseType.CLOSE)
+
+        will add "Open" and "Close" buttons to dialog.
+        """  # FIXME: Override is missing typing annotation
     def do_close(self) -> None: ...
     def do_response(self, response_id: int) -> None: ...
     def get_action_area(self) -> Box: ...
@@ -16785,7 +17026,7 @@ class Dialog(Window, Atk.ImplementorIface, Buildable):
     @classmethod
     def new(cls) -> Dialog: ...
     def response(self, response_id: int) -> None: ...
-    def run(self, *args, **kwargs): ...  # FIXME Function
+    def run(self, *args, **kwargs): ...  # FIXME: Override is missing typing annotation
     def set_alternative_button_order_from_array(
         self, new_order: Sequence[int]
     ) -> None: ...
@@ -16800,14 +17041,12 @@ class DialogClass(GObject.GPointer):
 
         DialogClass()
     """
-
-    parent_class: WindowClass
-    response: Callable[[Dialog, int], None]
-    close: Callable[[Dialog], None]
-    _gtk_reserved1: None
-    _gtk_reserved2: None
-    _gtk_reserved3: None
-    _gtk_reserved4: None
+    @property
+    def parent_class(self) -> WindowClass: ...
+    @property
+    def response(self) -> Callable[[Dialog, int], None]: ...
+    @property
+    def close(self) -> Callable[[Dialog], None]: ...
 
 class DialogPrivate(GObject.GPointer): ...
 
@@ -16976,7 +17215,6 @@ class DrawingArea(Widget, Atk.ImplementorIface, Buildable):
     Signals from GObject:
       notify (GParam)
     """
-
     class Props(Widget.Props):
         app_paintable: bool
         can_default: bool
@@ -17020,10 +17258,13 @@ class DrawingArea(Widget, Atk.ImplementorIface, Buildable):
 
     @property
     def props(self) -> Props: ...
-    widget: Widget
-    dummy: None
+    @property
+    def widget(self) -> Widget: ...
+    @property
+    def dummy(self) -> None: ...
     def __init__(
         self,
+        *,
         app_paintable: bool = ...,
         can_default: bool = ...,
         can_focus: bool = ...,
@@ -17060,7 +17301,7 @@ class DrawingArea(Widget, Atk.ImplementorIface, Buildable):
         vexpand_set: bool = ...,
         visible: bool = ...,
         width_request: int = ...,
-    ): ...
+    ) -> None: ...
     @classmethod
     def new(cls) -> DrawingArea: ...
 
@@ -17072,18 +17313,13 @@ class DrawingAreaClass(GObject.GPointer):
 
         DrawingAreaClass()
     """
-
-    parent_class: WidgetClass
-    _gtk_reserved1: None
-    _gtk_reserved2: None
-    _gtk_reserved3: None
-    _gtk_reserved4: None
+    @property
+    def parent_class(self) -> WidgetClass: ...
 
 class Editable(GObject.GInterface, Protocol):
     """
     Interface GtkEditable
     """
-
     def copy_clipboard(self) -> None: ...
     def cut_clipboard(self) -> None: ...
     def delete_selection(self) -> None: ...
@@ -17094,7 +17330,9 @@ class Editable(GObject.GInterface, Protocol):
     def get_selection_bounds(
         self,
     ) -> tuple[int, int] | tuple[()]: ...  # CHECK Wrapped function
-    def insert_text(self, text, position): ...  # FIXME Function
+    def insert_text(
+        self, text, position
+    ): ...  # FIXME: Override is missing typing annotation
     def paste_clipboard(self) -> None: ...
     def select_region(self, start_pos: int, end_pos: int) -> None: ...
     def set_editable(self, is_editable: bool) -> None: ...
@@ -17108,18 +17346,28 @@ class EditableInterface(GObject.GPointer):
 
         EditableInterface()
     """
-
-    base_iface: GObject.TypeInterface
-    insert_text: Callable[[Editable, str, int], int]
-    delete_text: Callable[[Editable, int, int], None]
-    changed: Callable[[Editable], None]
-    do_insert_text: Callable[[Editable, str, int], int]
-    do_delete_text: Callable[[Editable, int, int], None]
-    get_chars: Callable[[Editable, int, int], str]
-    set_selection_bounds: Callable[[Editable, int, int], None]
-    get_selection_bounds: Callable[[Editable], tuple[bool, int, int]]
-    set_position: Callable[[Editable, int], None]
-    get_position: Callable[[Editable], int]
+    @property
+    def base_iface(self) -> GObject.TypeInterface: ...
+    @property
+    def insert_text(self) -> Callable[[Editable, str, int], int]: ...
+    @property
+    def delete_text(self) -> Callable[[Editable, int, int], None]: ...
+    @property
+    def changed(self) -> Callable[[Editable], None]: ...
+    @property
+    def do_insert_text(self) -> Callable[[Editable, str, int], int]: ...
+    @property
+    def do_delete_text(self) -> Callable[[Editable, int, int], None]: ...
+    @property
+    def get_chars(self) -> Callable[[Editable, int, int], str]: ...
+    @property
+    def set_selection_bounds(self) -> Callable[[Editable, int, int], None]: ...
+    @property
+    def get_selection_bounds(self) -> Callable[[Editable], tuple[bool, int, int]]: ...
+    @property
+    def set_position(self) -> Callable[[Editable, int], None]: ...
+    @property
+    def get_position(self) -> Callable[[Editable], int]: ...
 
 class Entry(Widget, Atk.ImplementorIface, Buildable, CellEditable, Editable):
     """
@@ -17144,6 +17392,7 @@ class Entry(Widget, Atk.ImplementorIface, Buildable, CellEditable, Editable):
       cut-clipboard ()
       paste-clipboard ()
       toggle-overwrite ()
+      toggle-direction ()
       icon-press (GtkEntryIconPosition, GdkEvent)
       icon-release (GtkEntryIconPosition, GdkEvent)
       preedit-changed (gchararray)
@@ -17416,7 +17665,6 @@ class Entry(Widget, Atk.ImplementorIface, Buildable, CellEditable, Editable):
     Signals from GObject:
       notify (GParam)
     """
-
     class Props(Widget.Props):
         activates_default: bool
         attributes: Pango.AttrList | None
@@ -17518,6 +17766,7 @@ class Entry(Widget, Atk.ImplementorIface, Buildable, CellEditable, Editable):
     def priv(self) -> EntryPrivate: ...
     def __init__(
         self,
+        *,
         activates_default: bool = ...,
         attributes: Pango.AttrList = ...,
         buffer: EntryBuffer = ...,
@@ -17600,7 +17849,7 @@ class Entry(Widget, Atk.ImplementorIface, Buildable, CellEditable, Editable):
         visible: bool = ...,
         width_request: int = ...,
         editing_canceled: bool = ...,
-    ): ...
+    ) -> None: ...
     def do_activate(self) -> None: ...
     def do_backspace(self) -> None: ...
     def do_copy_clipboard(self) -> None: ...
@@ -17617,6 +17866,7 @@ class Entry(Widget, Atk.ImplementorIface, Buildable, CellEditable, Editable):
     ) -> None: ...
     def do_paste_clipboard(self) -> None: ...
     def do_populate_popup(self, popup: Widget) -> None: ...
+    def do_toggle_direction(self) -> None: ...
     def do_toggle_overwrite(self) -> None: ...
     def get_activates_default(self) -> bool: ...
     def get_alignment(self) -> float: ...
@@ -17759,6 +18009,7 @@ class EntryAccessible(
       active-descendant-changed (gpointer)
       announcement (gchararray)
       notification (gchararray, gint)
+      attribute-changed (gchararray, gchararray)
 
     Properties from AtkObject:
       accessible-name -> gchararray: Accessible Name
@@ -17791,17 +18042,22 @@ class EntryAccessible(
         Is used to notify that the table caption has changed
       accessible-hypertext-nlinks -> gint: Number of Accessible Hypertext Links
         The number of links which the current AtkHypertext has
+      accessible-id -> gchararray: Accessible ID
+        ID for the accessible; useful for automated testing
+      accessible-help-text -> gchararray: Help text
+        Help text associated with the accessible
 
     Signals from GObject:
       notify (GParam)
     """
-
     class Props(WidgetAccessible.Props):
         widget: Widget | None
         accessible_component_layer: int
         accessible_component_mdi_zorder: int
         accessible_description: str
+        accessible_help_text: str
         accessible_hypertext_nlinks: int
+        accessible_id: str
         accessible_name: str
         accessible_parent: Atk.Object
         accessible_role: Atk.Role
@@ -17822,8 +18078,11 @@ class EntryAccessible(
     def priv(self) -> EntryAccessiblePrivate: ...
     def __init__(
         self,
+        *,
         widget: Widget | None = ...,
         accessible_description: str = ...,
+        accessible_help_text: str = ...,
+        accessible_id: str = ...,
         accessible_name: str = ...,
         accessible_parent: Atk.Object = ...,
         accessible_role: Atk.Role = ...,
@@ -17835,7 +18094,7 @@ class EntryAccessible(
         accessible_table_row_header: Atk.Object = ...,
         accessible_table_summary: Atk.Object = ...,
         accessible_value: float = ...,
-    ): ...
+    ) -> None: ...
 
 class EntryAccessibleClass(GObject.GPointer):
     """
@@ -17845,8 +18104,8 @@ class EntryAccessibleClass(GObject.GPointer):
 
         EntryAccessibleClass()
     """
-
-    parent_class: WidgetAccessibleClass
+    @property
+    def parent_class(self) -> WidgetAccessibleClass: ...
 
 class EntryAccessiblePrivate(GObject.GPointer): ...
 
@@ -17876,7 +18135,6 @@ class EntryBuffer(GObject.Object):
     Signals from GObject:
       notify (GParam)
     """
-
     class Props(GObject.Object.Props):
         length: int
         max_length: int
@@ -17888,7 +18146,7 @@ class EntryBuffer(GObject.Object):
     def parent_instance(self) -> GObject.Object: ...
     @property
     def priv(self) -> EntryBufferPrivate: ...
-    def __init__(self, max_length: int = ..., text: str = ...): ...
+    def __init__(self, *, max_length: int = ..., text: str = ...) -> None: ...
     def delete_text(self, position: int, n_chars: int) -> int: ...
     def do_delete_text(self, position: int, n_chars: int) -> int: ...
     def do_deleted_text(self, position: int, n_chars: int) -> None: ...
@@ -17916,22 +18174,20 @@ class EntryBufferClass(GObject.GPointer):
 
         EntryBufferClass()
     """
-
-    parent_class: GObject.ObjectClass
-    inserted_text: Callable[[EntryBuffer, int, str, int], None]
-    deleted_text: Callable[[EntryBuffer, int, int], None]
-    get_text: Callable[[EntryBuffer, int], str]
-    get_length: Callable[[EntryBuffer], int]
-    insert_text: Callable[[EntryBuffer, int, str, int], int]
-    delete_text: Callable[[EntryBuffer, int, int], int]
-    _gtk_reserved1: None
-    _gtk_reserved2: None
-    _gtk_reserved3: None
-    _gtk_reserved4: None
-    _gtk_reserved5: None
-    _gtk_reserved6: None
-    _gtk_reserved7: None
-    _gtk_reserved8: None
+    @property
+    def parent_class(self) -> GObject.ObjectClass: ...
+    @property
+    def inserted_text(self) -> Callable[[EntryBuffer, int, str, int], None]: ...
+    @property
+    def deleted_text(self) -> Callable[[EntryBuffer, int, int], None]: ...
+    @property
+    def get_text(self) -> Callable[[EntryBuffer, int], str]: ...
+    @property
+    def get_length(self) -> Callable[[EntryBuffer], int]: ...
+    @property
+    def insert_text(self) -> Callable[[EntryBuffer, int, str, int], int]: ...
+    @property
+    def delete_text(self) -> Callable[[EntryBuffer, int, int], int]: ...
 
 class EntryBufferPrivate(GObject.GPointer): ...
 
@@ -17943,27 +18199,36 @@ class EntryClass(GObject.GPointer):
 
         EntryClass()
     """
-
-    parent_class: WidgetClass
-    populate_popup: Callable[[Entry, Widget], None]
-    activate: Callable[[Entry], None]
-    move_cursor: Callable[[Entry, MovementStep, int, bool], None]
-    insert_at_cursor: Callable[[Entry, str], None]
-    delete_from_cursor: Callable[[Entry, DeleteType, int], None]
-    backspace: Callable[[Entry], None]
-    cut_clipboard: Callable[[Entry], None]
-    copy_clipboard: Callable[[Entry], None]
-    paste_clipboard: Callable[[Entry], None]
-    toggle_overwrite: Callable[[Entry], None]
-    get_text_area_size: Callable[[Entry, int, int, int, int], None]
-    get_frame_size: Callable[[Entry, int, int, int, int], None]
-    insert_emoji: Callable[[Entry], None]
-    _gtk_reserved1: None
-    _gtk_reserved2: None
-    _gtk_reserved3: None
-    _gtk_reserved4: None
-    _gtk_reserved5: None
-    _gtk_reserved6: None
+    @property
+    def parent_class(self) -> WidgetClass: ...
+    @property
+    def populate_popup(self) -> Callable[[Entry, Widget], None]: ...
+    @property
+    def activate(self) -> Callable[[Entry], None]: ...
+    @property
+    def move_cursor(self) -> Callable[[Entry, MovementStep, int, bool], None]: ...
+    @property
+    def insert_at_cursor(self) -> Callable[[Entry, str], None]: ...
+    @property
+    def delete_from_cursor(self) -> Callable[[Entry, DeleteType, int], None]: ...
+    @property
+    def backspace(self) -> Callable[[Entry], None]: ...
+    @property
+    def cut_clipboard(self) -> Callable[[Entry], None]: ...
+    @property
+    def copy_clipboard(self) -> Callable[[Entry], None]: ...
+    @property
+    def paste_clipboard(self) -> Callable[[Entry], None]: ...
+    @property
+    def toggle_overwrite(self) -> Callable[[Entry], None]: ...
+    @property
+    def get_text_area_size(self) -> Callable[[Entry, int, int, int, int], None]: ...
+    @property
+    def get_frame_size(self) -> Callable[[Entry, int, int, int, int], None]: ...
+    @property
+    def insert_emoji(self) -> Callable[[Entry], None]: ...
+    @property
+    def toggle_direction(self) -> Callable[[Entry], None]: ...
 
 class EntryCompletion(GObject.Object, Buildable, CellLayout):
     """
@@ -18007,7 +18272,6 @@ class EntryCompletion(GObject.Object, Buildable, CellLayout):
     Signals from GObject:
       notify (GParam)
     """
-
     class Props(GObject.Object.Props):
         cell_area: CellArea
         inline_completion: bool
@@ -18027,6 +18291,7 @@ class EntryCompletion(GObject.Object, Buildable, CellLayout):
     def priv(self) -> EntryCompletionPrivate: ...
     def __init__(
         self,
+        *,
         cell_area: CellArea = ...,
         inline_completion: bool = ...,
         inline_selection: bool = ...,
@@ -18036,7 +18301,7 @@ class EntryCompletion(GObject.Object, Buildable, CellLayout):
         popup_set_width: bool = ...,
         popup_single_match: bool = ...,
         text_column: int = ...,
-    ): ...
+    ) -> None: ...
     def complete(self) -> None: ...
     def compute_prefix(self, key: str) -> str | None: ...
     def delete_action(self, index_: int) -> None: ...
@@ -18080,16 +18345,22 @@ class EntryCompletionClass(GObject.GPointer):
 
         EntryCompletionClass()
     """
-
-    parent_class: GObject.ObjectClass
-    match_selected: Callable[[EntryCompletion, TreeModel, TreeIter], bool]
-    action_activated: Callable[[EntryCompletion, int], None]
-    insert_prefix: Callable[[EntryCompletion, str], bool]
-    cursor_on_match: Callable[[EntryCompletion, TreeModel, TreeIter], bool]
-    no_matches: Callable[[EntryCompletion], None]
-    _gtk_reserved0: None
-    _gtk_reserved1: None
-    _gtk_reserved2: None
+    @property
+    def parent_class(self) -> GObject.ObjectClass: ...
+    @property
+    def match_selected(
+        self,
+    ) -> Callable[[EntryCompletion, TreeModel, TreeIter], bool]: ...
+    @property
+    def action_activated(self) -> Callable[[EntryCompletion, int], None]: ...
+    @property
+    def insert_prefix(self) -> Callable[[EntryCompletion, str], bool]: ...
+    @property
+    def cursor_on_match(
+        self,
+    ) -> Callable[[EntryCompletion, TreeModel, TreeIter], bool]: ...
+    @property
+    def no_matches(self) -> Callable[[EntryCompletion], None]: ...
 
 class EntryCompletionPrivate(GObject.GPointer): ...
 
@@ -18115,6 +18386,7 @@ class EntryIconAccessible(Atk.Object, Atk.Action, Atk.Component):
       active-descendant-changed (gpointer)
       announcement (gchararray)
       notification (gchararray, gint)
+      attribute-changed (gchararray, gchararray)
 
     Properties from AtkObject:
       accessible-name -> gchararray: Accessible Name
@@ -18147,16 +18419,21 @@ class EntryIconAccessible(Atk.Object, Atk.Action, Atk.Component):
         Is used to notify that the table caption has changed
       accessible-hypertext-nlinks -> gint: Number of Accessible Hypertext Links
         The number of links which the current AtkHypertext has
+      accessible-id -> gchararray: Accessible ID
+        ID for the accessible; useful for automated testing
+      accessible-help-text -> gchararray: Help text
+        Help text associated with the accessible
 
     Signals from GObject:
       notify (GParam)
     """
-
     class Props(Atk.Object.Props):
         accessible_component_layer: int
         accessible_component_mdi_zorder: int
         accessible_description: str
+        accessible_help_text: str
         accessible_hypertext_nlinks: int
+        accessible_id: str
         accessible_name: str
         accessible_parent: Atk.Object
         accessible_role: Atk.Role
@@ -18173,7 +18450,10 @@ class EntryIconAccessible(Atk.Object, Atk.Action, Atk.Component):
     def props(self) -> Props: ...
     def __init__(
         self,
+        *,
         accessible_description: str = ...,
+        accessible_help_text: str = ...,
+        accessible_id: str = ...,
         accessible_name: str = ...,
         accessible_parent: Atk.Object = ...,
         accessible_role: Atk.Role = ...,
@@ -18185,7 +18465,7 @@ class EntryIconAccessible(Atk.Object, Atk.Action, Atk.Component):
         accessible_table_row_header: Atk.Object = ...,
         accessible_table_summary: Atk.Object = ...,
         accessible_value: float = ...,
-    ): ...
+    ) -> None: ...
 
 class EntryPrivate(GObject.GPointer): ...
 
@@ -18374,7 +18654,6 @@ class EventBox(Bin, Atk.ImplementorIface, Buildable):
     Signals from GObject:
       notify (GParam)
     """
-
     class Props(Bin.Props):
         above_child: bool
         visible_window: bool
@@ -18423,11 +18702,13 @@ class EventBox(Bin, Atk.ImplementorIface, Buildable):
 
     @property
     def props(self) -> Props: ...
-    bin: Bin
+    @property
+    def bin(self) -> Bin: ...
     @property
     def priv(self) -> EventBoxPrivate: ...
     def __init__(
         self,
+        *,
         above_child: bool = ...,
         visible_window: bool = ...,
         border_width: int = ...,
@@ -18469,7 +18750,7 @@ class EventBox(Bin, Atk.ImplementorIface, Buildable):
         vexpand_set: bool = ...,
         visible: bool = ...,
         width_request: int = ...,
-    ): ...
+    ) -> None: ...
     def get_above_child(self) -> bool: ...
     def get_visible_window(self) -> bool: ...
     @classmethod
@@ -18485,12 +18766,8 @@ class EventBoxClass(GObject.GPointer):
 
         EventBoxClass()
     """
-
-    parent_class: BinClass
-    _gtk_reserved1: None
-    _gtk_reserved2: None
-    _gtk_reserved3: None
-    _gtk_reserved4: None
+    @property
+    def parent_class(self) -> BinClass: ...
 
 class EventBoxPrivate(GObject.GPointer): ...
 
@@ -18513,7 +18790,6 @@ class EventController(GObject.Object):
     Signals from GObject:
       notify (GParam)
     """
-
     class Props(GObject.Object.Props):
         propagation_phase: PropagationPhase
         widget: Widget
@@ -18521,8 +18797,8 @@ class EventController(GObject.Object):
     @property
     def props(self) -> Props: ...
     def __init__(
-        self, propagation_phase: PropagationPhase = ..., widget: Widget = ...
-    ): ...
+        self, *, propagation_phase: PropagationPhase = ..., widget: Widget = ...
+    ) -> None: ...
     def get_propagation_phase(self) -> PropagationPhase: ...
     def get_widget(self) -> Widget: ...
     def handle_event(self, event: _Gdk3.Event) -> bool: ...
@@ -18559,7 +18835,6 @@ class EventControllerKey(EventController):
     Signals from GObject:
       notify (GParam)
     """
-
     class Props(EventController.Props):
         propagation_phase: PropagationPhase
         widget: Widget
@@ -18567,8 +18842,8 @@ class EventControllerKey(EventController):
     @property
     def props(self) -> Props: ...
     def __init__(
-        self, propagation_phase: PropagationPhase = ..., widget: Widget = ...
-    ): ...
+        self, *, propagation_phase: PropagationPhase = ..., widget: Widget = ...
+    ) -> None: ...
     def forward(self, widget: Widget) -> bool: ...
     def get_group(self) -> int: ...
     def get_im_context(self) -> IMContext: ...
@@ -18603,7 +18878,6 @@ class EventControllerMotion(EventController):
     Signals from GObject:
       notify (GParam)
     """
-
     class Props(EventController.Props):
         propagation_phase: PropagationPhase
         widget: Widget
@@ -18611,8 +18885,8 @@ class EventControllerMotion(EventController):
     @property
     def props(self) -> Props: ...
     def __init__(
-        self, propagation_phase: PropagationPhase = ..., widget: Widget = ...
-    ): ...
+        self, *, propagation_phase: PropagationPhase = ..., widget: Widget = ...
+    ) -> None: ...
     @classmethod
     def new(cls, widget: Widget) -> EventControllerMotion: ...
 
@@ -18648,7 +18922,6 @@ class EventControllerScroll(EventController):
     Signals from GObject:
       notify (GParam)
     """
-
     class Props(EventController.Props):
         flags: EventControllerScrollFlags
         propagation_phase: PropagationPhase
@@ -18658,10 +18931,11 @@ class EventControllerScroll(EventController):
     def props(self) -> Props: ...
     def __init__(
         self,
+        *,
         flags: EventControllerScrollFlags = ...,
         propagation_phase: PropagationPhase = ...,
         widget: Widget = ...,
-    ): ...
+    ) -> None: ...
     def get_flags(self) -> EventControllerScrollFlags: ...
     @classmethod
     def new(
@@ -18872,7 +19146,6 @@ class Expander(Bin, Atk.ImplementorIface, Buildable):
     Signals from GObject:
       notify (GParam)
     """
-
     class Props(Bin.Props):
         expanded: bool
         label: str | None
@@ -18927,11 +19200,13 @@ class Expander(Bin, Atk.ImplementorIface, Buildable):
 
     @property
     def props(self) -> Props: ...
-    bin: Bin
+    @property
+    def bin(self) -> Bin: ...
     @property
     def priv(self) -> ExpanderPrivate: ...
     def __init__(
         self,
+        *,
         expanded: bool = ...,
         label: str | None = ...,
         label_fill: bool = ...,
@@ -18979,7 +19254,7 @@ class Expander(Bin, Atk.ImplementorIface, Buildable):
         vexpand_set: bool = ...,
         visible: bool = ...,
         width_request: int = ...,
-    ): ...
+    ) -> None: ...
     def do_activate(self) -> None: ...
     def get_expanded(self) -> bool: ...
     def get_label(self) -> str | None: ...
@@ -19034,6 +19309,7 @@ class ExpanderAccessible(ContainerAccessible, Atk.Action, Atk.Component):
       active-descendant-changed (gpointer)
       announcement (gchararray)
       notification (gchararray, gint)
+      attribute-changed (gchararray, gchararray)
 
     Properties from AtkObject:
       accessible-name -> gchararray: Accessible Name
@@ -19066,17 +19342,22 @@ class ExpanderAccessible(ContainerAccessible, Atk.Action, Atk.Component):
         Is used to notify that the table caption has changed
       accessible-hypertext-nlinks -> gint: Number of Accessible Hypertext Links
         The number of links which the current AtkHypertext has
+      accessible-id -> gchararray: Accessible ID
+        ID for the accessible; useful for automated testing
+      accessible-help-text -> gchararray: Help text
+        Help text associated with the accessible
 
     Signals from GObject:
       notify (GParam)
     """
-
     class Props(ContainerAccessible.Props):
         widget: Widget | None
         accessible_component_layer: int
         accessible_component_mdi_zorder: int
         accessible_description: str
+        accessible_help_text: str
         accessible_hypertext_nlinks: int
+        accessible_id: str
         accessible_name: str
         accessible_parent: Atk.Object
         accessible_role: Atk.Role
@@ -19091,13 +19372,17 @@ class ExpanderAccessible(ContainerAccessible, Atk.Action, Atk.Component):
 
     @property
     def props(self) -> Props: ...
-    parent: ContainerAccessible
+    @property
+    def parent(self) -> ContainerAccessible: ...
     @property
     def priv(self) -> ExpanderAccessiblePrivate: ...
     def __init__(
         self,
+        *,
         widget: Widget | None = ...,
         accessible_description: str = ...,
+        accessible_help_text: str = ...,
+        accessible_id: str = ...,
         accessible_name: str = ...,
         accessible_parent: Atk.Object = ...,
         accessible_role: Atk.Role = ...,
@@ -19109,7 +19394,7 @@ class ExpanderAccessible(ContainerAccessible, Atk.Action, Atk.Component):
         accessible_table_row_header: Atk.Object = ...,
         accessible_table_summary: Atk.Object = ...,
         accessible_value: float = ...,
-    ): ...
+    ) -> None: ...
 
 class ExpanderAccessibleClass(GObject.GPointer):
     """
@@ -19119,8 +19404,8 @@ class ExpanderAccessibleClass(GObject.GPointer):
 
         ExpanderAccessibleClass()
     """
-
-    parent_class: ContainerAccessibleClass
+    @property
+    def parent_class(self) -> ContainerAccessibleClass: ...
 
 class ExpanderAccessiblePrivate(GObject.GPointer): ...
 
@@ -19132,13 +19417,10 @@ class ExpanderClass(GObject.GPointer):
 
         ExpanderClass()
     """
-
-    parent_class: BinClass
-    activate: Callable[[Expander], None]
-    _gtk_reserved1: None
-    _gtk_reserved2: None
-    _gtk_reserved3: None
-    _gtk_reserved4: None
+    @property
+    def parent_class(self) -> BinClass: ...
+    @property
+    def activate(self) -> Callable[[Expander], None]: ...
 
 class ExpanderPrivate(GObject.GPointer): ...
 
@@ -19149,7 +19431,6 @@ class FileChooser(GObject.GInterface, Protocol):
     Signals from GObject:
       notify (GParam)
     """
-
     def add_choice(
         self,
         id: str,
@@ -19428,7 +19709,6 @@ class FileChooserButton(Box, Atk.ImplementorIface, Buildable, FileChooser, Orien
     Signals from GObject:
       notify (GParam)
     """
-
     class Props(Box.Props):
         title: str
         width_chars: int
@@ -19493,11 +19773,13 @@ class FileChooserButton(Box, Atk.ImplementorIface, Buildable, FileChooser, Orien
 
     @property
     def props(self) -> Props: ...
-    parent: Box
+    @property
+    def parent(self) -> Box: ...
     @property
     def priv(self) -> FileChooserButtonPrivate: ...
     def __init__(
         self,
+        *,
         dialog: FileChooser = ...,
         title: str = ...,
         width_chars: int = ...,
@@ -19555,7 +19837,7 @@ class FileChooserButton(Box, Atk.ImplementorIface, Buildable, FileChooser, Orien
         show_hidden: bool = ...,
         use_preview_label: bool = ...,
         orientation: Orientation = ...,
-    ): ...
+    ) -> None: ...
     def do_file_set(self) -> None: ...
     def get_focus_on_click(self) -> bool: ...
     def get_title(self) -> str: ...
@@ -19576,13 +19858,10 @@ class FileChooserButtonClass(GObject.GPointer):
 
         FileChooserButtonClass()
     """
-
-    parent_class: BoxClass
-    file_set: Callable[[FileChooserButton], None]
-    __gtk_reserved1: None
-    __gtk_reserved2: None
-    __gtk_reserved3: None
-    __gtk_reserved4: None
+    @property
+    def parent_class(self) -> BoxClass: ...
+    @property
+    def file_set(self) -> Callable[[FileChooserButton], None]: ...
 
 class FileChooserButtonPrivate(GObject.GPointer): ...
 
@@ -19854,7 +20133,6 @@ class FileChooserDialog(Dialog, Atk.ImplementorIface, Buildable, FileChooser):
     Signals from GObject:
       notify (GParam)
     """
-
     class Props(Dialog.Props):
         use_header_bar: int
         accept_focus: bool
@@ -19952,6 +20230,7 @@ class FileChooserDialog(Dialog, Atk.ImplementorIface, Buildable, FileChooser):
     def priv(self) -> FileChooserDialogPrivate: ...
     def __init__(
         self,
+        *,
         use_header_bar: int = ...,
         accept_focus: bool = ...,
         application: Application | None = ...,
@@ -20032,7 +20311,7 @@ class FileChooserDialog(Dialog, Atk.ImplementorIface, Buildable, FileChooser):
         select_multiple: bool = ...,
         show_hidden: bool = ...,
         use_preview_label: bool = ...,
-    ): ...
+    ) -> None: ...
 
 class FileChooserDialogClass(GObject.GPointer):
     """
@@ -20042,12 +20321,8 @@ class FileChooserDialogClass(GObject.GPointer):
 
         FileChooserDialogClass()
     """
-
-    parent_class: DialogClass
-    _gtk_reserved1: None
-    _gtk_reserved2: None
-    _gtk_reserved3: None
-    _gtk_reserved4: None
+    @property
+    def parent_class(self) -> DialogClass: ...
 
 class FileChooserDialogPrivate(GObject.GPointer): ...
 
@@ -20091,7 +20366,6 @@ class FileChooserNative(NativeDialog, FileChooser):
     Signals from GObject:
       notify (GParam)
     """
-
     class Props(NativeDialog.Props):
         accept_label: str | None
         cancel_label: str | None
@@ -20115,6 +20389,7 @@ class FileChooserNative(NativeDialog, FileChooser):
     def props(self) -> Props: ...
     def __init__(
         self,
+        *,
         accept_label: str | None = ...,
         cancel_label: str | None = ...,
         modal: bool = ...,
@@ -20132,7 +20407,7 @@ class FileChooserNative(NativeDialog, FileChooser):
         select_multiple: bool = ...,
         show_hidden: bool = ...,
         use_preview_label: bool = ...,
-    ): ...
+    ) -> None: ...
     def get_accept_label(self) -> str | None: ...
     def get_cancel_label(self) -> str | None: ...
     @classmethod
@@ -20155,8 +20430,8 @@ class FileChooserNativeClass(GObject.GPointer):
 
         FileChooserNativeClass()
     """
-
-    parent_class: NativeDialogClass
+    @property
+    def parent_class(self) -> NativeDialogClass: ...
 
 class FileChooserWidget(Box, Atk.ImplementorIface, Buildable, FileChooser, Orientable):
     """
@@ -20376,7 +20651,6 @@ class FileChooserWidget(Box, Atk.ImplementorIface, Buildable, FileChooser, Orien
     Signals from GObject:
       notify (GParam)
     """
-
     class Props(Box.Props):
         search_mode: bool
         subtitle: str
@@ -20446,6 +20720,7 @@ class FileChooserWidget(Box, Atk.ImplementorIface, Buildable, FileChooser, Orien
     def priv(self) -> FileChooserWidgetPrivate: ...
     def __init__(
         self,
+        *,
         search_mode: bool = ...,
         baseline_position: BaselinePosition = ...,
         homogeneous: bool = ...,
@@ -20501,7 +20776,7 @@ class FileChooserWidget(Box, Atk.ImplementorIface, Buildable, FileChooser, Orien
         show_hidden: bool = ...,
         use_preview_label: bool = ...,
         orientation: Orientation = ...,
-    ): ...
+    ) -> None: ...
     @classmethod
     def new(cls, action: FileChooserAction) -> FileChooserWidget: ...
 
@@ -20537,6 +20812,7 @@ class FileChooserWidgetAccessible(ContainerAccessible, Atk.Action, Atk.Component
       active-descendant-changed (gpointer)
       announcement (gchararray)
       notification (gchararray, gint)
+      attribute-changed (gchararray, gchararray)
 
     Properties from AtkObject:
       accessible-name -> gchararray: Accessible Name
@@ -20569,17 +20845,22 @@ class FileChooserWidgetAccessible(ContainerAccessible, Atk.Action, Atk.Component
         Is used to notify that the table caption has changed
       accessible-hypertext-nlinks -> gint: Number of Accessible Hypertext Links
         The number of links which the current AtkHypertext has
+      accessible-id -> gchararray: Accessible ID
+        ID for the accessible; useful for automated testing
+      accessible-help-text -> gchararray: Help text
+        Help text associated with the accessible
 
     Signals from GObject:
       notify (GParam)
     """
-
     class Props(ContainerAccessible.Props):
         widget: Widget | None
         accessible_component_layer: int
         accessible_component_mdi_zorder: int
         accessible_description: str
+        accessible_help_text: str
         accessible_hypertext_nlinks: int
+        accessible_id: str
         accessible_name: str
         accessible_parent: Atk.Object
         accessible_role: Atk.Role
@@ -20594,13 +20875,17 @@ class FileChooserWidgetAccessible(ContainerAccessible, Atk.Action, Atk.Component
 
     @property
     def props(self) -> Props: ...
-    parent: ContainerAccessible
+    @property
+    def parent(self) -> ContainerAccessible: ...
     @property
     def priv(self) -> FileChooserWidgetAccessiblePrivate: ...
     def __init__(
         self,
+        *,
         widget: Widget | None = ...,
         accessible_description: str = ...,
+        accessible_help_text: str = ...,
+        accessible_id: str = ...,
         accessible_name: str = ...,
         accessible_parent: Atk.Object = ...,
         accessible_role: Atk.Role = ...,
@@ -20612,7 +20897,7 @@ class FileChooserWidgetAccessible(ContainerAccessible, Atk.Action, Atk.Component
         accessible_table_row_header: Atk.Object = ...,
         accessible_table_summary: Atk.Object = ...,
         accessible_value: float = ...,
-    ): ...
+    ) -> None: ...
 
 class FileChooserWidgetAccessibleClass(GObject.GPointer):
     """
@@ -20622,8 +20907,8 @@ class FileChooserWidgetAccessibleClass(GObject.GPointer):
 
         FileChooserWidgetAccessibleClass()
     """
-
-    parent_class: ContainerAccessibleClass
+    @property
+    def parent_class(self) -> ContainerAccessibleClass: ...
 
 class FileChooserWidgetAccessiblePrivate(GObject.GPointer): ...
 
@@ -20635,12 +20920,8 @@ class FileChooserWidgetClass(GObject.GPointer):
 
         FileChooserWidgetClass()
     """
-
-    parent_class: BoxClass
-    _gtk_reserved1: None
-    _gtk_reserved2: None
-    _gtk_reserved3: None
-    _gtk_reserved4: None
+    @property
+    def parent_class(self) -> BoxClass: ...
 
 class FileChooserWidgetPrivate(GObject.GPointer): ...
 
@@ -20659,7 +20940,6 @@ class FileFilter(GObject.InitiallyUnowned, Buildable):
     Signals from GObject:
       notify (GParam)
     """
-
     def add_custom(
         self, needed: FileFilterFlags, func: Callable[..., bool], *data: Any
     ) -> None: ...
@@ -20870,7 +21150,6 @@ class Fixed(Container, Atk.ImplementorIface, Buildable):
     Signals from GObject:
       notify (GParam)
     """
-
     class Props(Container.Props):
         border_width: int
         resize_mode: ResizeMode
@@ -20917,11 +21196,13 @@ class Fixed(Container, Atk.ImplementorIface, Buildable):
 
     @property
     def props(self) -> Props: ...
-    container: Container
+    @property
+    def container(self) -> Container: ...
     @property
     def priv(self) -> FixedPrivate: ...
     def __init__(
         self,
+        *,
         border_width: int = ...,
         child: Widget = ...,
         resize_mode: ResizeMode = ...,
@@ -20961,7 +21242,7 @@ class Fixed(Container, Atk.ImplementorIface, Buildable):
         vexpand_set: bool = ...,
         visible: bool = ...,
         width_request: int = ...,
-    ): ...
+    ) -> None: ...
     def move(self, widget: Widget, x: int, y: int) -> None: ...
     @classmethod
     def new(cls) -> Fixed: ...
@@ -20988,12 +21269,8 @@ class FixedClass(GObject.GPointer):
 
         FixedClass()
     """
-
-    parent_class: ContainerClass
-    _gtk_reserved1: None
-    _gtk_reserved2: None
-    _gtk_reserved3: None
-    _gtk_reserved4: None
+    @property
+    def parent_class(self) -> ContainerClass: ...
 
 class FixedPrivate(GObject.GPointer): ...
 
@@ -21201,7 +21478,6 @@ class FlowBox(Container, Atk.ImplementorIface, Buildable, Orientable):
     Signals from GObject:
       notify (GParam)
     """
-
     class Props(Container.Props):
         activate_on_single_click: bool
         column_spacing: int
@@ -21256,9 +21532,11 @@ class FlowBox(Container, Atk.ImplementorIface, Buildable, Orientable):
 
     @property
     def props(self) -> Props: ...
-    container: Container
+    @property
+    def container(self) -> Container: ...
     def __init__(
         self,
+        *,
         activate_on_single_click: bool = ...,
         column_spacing: int = ...,
         homogeneous: bool = ...,
@@ -21306,7 +21584,7 @@ class FlowBox(Container, Atk.ImplementorIface, Buildable, Orientable):
         visible: bool = ...,
         width_request: int = ...,
         orientation: Orientation = ...,
-    ): ...
+    ) -> None: ...
     def bind_model(
         self,
         model: Gio.ListModel | None,
@@ -21391,6 +21669,7 @@ class FlowBoxAccessible(ContainerAccessible, Atk.Component, Atk.Selection):
       active-descendant-changed (gpointer)
       announcement (gchararray)
       notification (gchararray, gint)
+      attribute-changed (gchararray, gchararray)
 
     Properties from AtkObject:
       accessible-name -> gchararray: Accessible Name
@@ -21423,17 +21702,22 @@ class FlowBoxAccessible(ContainerAccessible, Atk.Component, Atk.Selection):
         Is used to notify that the table caption has changed
       accessible-hypertext-nlinks -> gint: Number of Accessible Hypertext Links
         The number of links which the current AtkHypertext has
+      accessible-id -> gchararray: Accessible ID
+        ID for the accessible; useful for automated testing
+      accessible-help-text -> gchararray: Help text
+        Help text associated with the accessible
 
     Signals from GObject:
       notify (GParam)
     """
-
     class Props(ContainerAccessible.Props):
         widget: Widget | None
         accessible_component_layer: int
         accessible_component_mdi_zorder: int
         accessible_description: str
+        accessible_help_text: str
         accessible_hypertext_nlinks: int
+        accessible_id: str
         accessible_name: str
         accessible_parent: Atk.Object
         accessible_role: Atk.Role
@@ -21448,13 +21732,17 @@ class FlowBoxAccessible(ContainerAccessible, Atk.Component, Atk.Selection):
 
     @property
     def props(self) -> Props: ...
-    parent: ContainerAccessible
+    @property
+    def parent(self) -> ContainerAccessible: ...
     @property
     def priv(self) -> FlowBoxAccessiblePrivate: ...
     def __init__(
         self,
+        *,
         widget: Widget | None = ...,
         accessible_description: str = ...,
+        accessible_help_text: str = ...,
+        accessible_id: str = ...,
         accessible_name: str = ...,
         accessible_parent: Atk.Object = ...,
         accessible_role: Atk.Role = ...,
@@ -21466,7 +21754,7 @@ class FlowBoxAccessible(ContainerAccessible, Atk.Component, Atk.Selection):
         accessible_table_row_header: Atk.Object = ...,
         accessible_table_summary: Atk.Object = ...,
         accessible_value: float = ...,
-    ): ...
+    ) -> None: ...
 
 class FlowBoxAccessibleClass(GObject.GPointer):
     """
@@ -21476,8 +21764,8 @@ class FlowBoxAccessibleClass(GObject.GPointer):
 
         FlowBoxAccessibleClass()
     """
-
-    parent_class: ContainerAccessibleClass
+    @property
+    def parent_class(self) -> ContainerAccessibleClass: ...
 
 class FlowBoxAccessiblePrivate(GObject.GPointer): ...
 
@@ -21663,7 +21951,6 @@ class FlowBoxChild(Bin, Atk.ImplementorIface, Buildable):
     Signals from GObject:
       notify (GParam)
     """
-
     class Props(Bin.Props):
         border_width: int
         resize_mode: ResizeMode
@@ -21714,6 +22001,7 @@ class FlowBoxChild(Bin, Atk.ImplementorIface, Buildable):
     def parent_instance(self) -> Bin: ...
     def __init__(
         self,
+        *,
         border_width: int = ...,
         child: Widget = ...,
         resize_mode: ResizeMode = ...,
@@ -21753,7 +22041,7 @@ class FlowBoxChild(Bin, Atk.ImplementorIface, Buildable):
         vexpand_set: bool = ...,
         visible: bool = ...,
         width_request: int = ...,
-    ): ...
+    ) -> None: ...
     def changed(self) -> None: ...
     def do_activate(self) -> None: ...
     def get_index(self) -> int: ...
@@ -21793,6 +22081,7 @@ class FlowBoxChildAccessible(ContainerAccessible, Atk.Component):
       active-descendant-changed (gpointer)
       announcement (gchararray)
       notification (gchararray, gint)
+      attribute-changed (gchararray, gchararray)
 
     Properties from AtkObject:
       accessible-name -> gchararray: Accessible Name
@@ -21825,17 +22114,22 @@ class FlowBoxChildAccessible(ContainerAccessible, Atk.Component):
         Is used to notify that the table caption has changed
       accessible-hypertext-nlinks -> gint: Number of Accessible Hypertext Links
         The number of links which the current AtkHypertext has
+      accessible-id -> gchararray: Accessible ID
+        ID for the accessible; useful for automated testing
+      accessible-help-text -> gchararray: Help text
+        Help text associated with the accessible
 
     Signals from GObject:
       notify (GParam)
     """
-
     class Props(ContainerAccessible.Props):
         widget: Widget | None
         accessible_component_layer: int
         accessible_component_mdi_zorder: int
         accessible_description: str
+        accessible_help_text: str
         accessible_hypertext_nlinks: int
+        accessible_id: str
         accessible_name: str
         accessible_parent: Atk.Object
         accessible_role: Atk.Role
@@ -21850,11 +22144,15 @@ class FlowBoxChildAccessible(ContainerAccessible, Atk.Component):
 
     @property
     def props(self) -> Props: ...
-    parent: ContainerAccessible
+    @property
+    def parent(self) -> ContainerAccessible: ...
     def __init__(
         self,
+        *,
         widget: Widget | None = ...,
         accessible_description: str = ...,
+        accessible_help_text: str = ...,
+        accessible_id: str = ...,
         accessible_name: str = ...,
         accessible_parent: Atk.Object = ...,
         accessible_role: Atk.Role = ...,
@@ -21866,7 +22164,7 @@ class FlowBoxChildAccessible(ContainerAccessible, Atk.Component):
         accessible_table_row_header: Atk.Object = ...,
         accessible_table_summary: Atk.Object = ...,
         accessible_value: float = ...,
-    ): ...
+    ) -> None: ...
 
 class FlowBoxChildAccessibleClass(GObject.GPointer):
     """
@@ -21876,8 +22174,8 @@ class FlowBoxChildAccessibleClass(GObject.GPointer):
 
         FlowBoxChildAccessibleClass()
     """
-
-    parent_class: ContainerAccessibleClass
+    @property
+    def parent_class(self) -> ContainerAccessibleClass: ...
 
 class FlowBoxChildClass(GObject.GPointer):
     """
@@ -21887,11 +22185,10 @@ class FlowBoxChildClass(GObject.GPointer):
 
         FlowBoxChildClass()
     """
-
-    parent_class: BinClass
-    activate: Callable[[FlowBoxChild], None]
-    _gtk_reserved1: None
-    _gtk_reserved2: None
+    @property
+    def parent_class(self) -> BinClass: ...
+    @property
+    def activate(self) -> Callable[[FlowBoxChild], None]: ...
 
 class FlowBoxClass(GObject.GPointer):
     """
@@ -21901,21 +22198,22 @@ class FlowBoxClass(GObject.GPointer):
 
         FlowBoxClass()
     """
-
-    parent_class: ContainerClass
-    child_activated: Callable[[FlowBox, FlowBoxChild], None]
-    selected_children_changed: Callable[[FlowBox], None]
-    activate_cursor_child: Callable[[FlowBox], None]
-    toggle_cursor_child: Callable[[FlowBox], None]
-    move_cursor: Callable[[FlowBox, MovementStep, int], bool]
-    select_all: Callable[[FlowBox], None]
-    unselect_all: Callable[[FlowBox], None]
-    _gtk_reserved1: None
-    _gtk_reserved2: None
-    _gtk_reserved3: None
-    _gtk_reserved4: None
-    _gtk_reserved5: None
-    _gtk_reserved6: None
+    @property
+    def parent_class(self) -> ContainerClass: ...
+    @property
+    def child_activated(self) -> Callable[[FlowBox, FlowBoxChild], None]: ...
+    @property
+    def selected_children_changed(self) -> Callable[[FlowBox], None]: ...
+    @property
+    def activate_cursor_child(self) -> Callable[[FlowBox], None]: ...
+    @property
+    def toggle_cursor_child(self) -> Callable[[FlowBox], None]: ...
+    @property
+    def move_cursor(self) -> Callable[[FlowBox, MovementStep, int], bool]: ...
+    @property
+    def select_all(self) -> Callable[[FlowBox], None]: ...
+    @property
+    def unselect_all(self) -> Callable[[FlowBox], None]: ...
 
 class FontButton(
     Button, Atk.ImplementorIface, Actionable, Activatable, Buildable, FontChooser
@@ -22147,7 +22445,6 @@ class FontButton(
     Signals from GObject:
       notify (GParam)
     """
-
     class Props(Button.Props):
         font_name: str
         show_size: bool
@@ -22226,6 +22523,7 @@ class FontButton(
     def priv(self) -> FontButtonPrivate: ...
     def __init__(
         self,
+        *,
         font_name: str = ...,
         show_size: bool = ...,
         show_style: bool = ...,
@@ -22290,7 +22588,7 @@ class FontButton(
         level: FontChooserLevel = ...,
         preview_text: str = ...,
         show_preview_entry: bool = ...,
-    ): ...
+    ) -> None: ...
     def do_font_set(self) -> None: ...
     def get_font_name(self) -> str: ...
     def get_show_size(self) -> bool: ...
@@ -22317,13 +22615,10 @@ class FontButtonClass(GObject.GPointer):
 
         FontButtonClass()
     """
-
-    parent_class: ButtonClass
-    font_set: Callable[[FontButton], None]
-    _gtk_reserved1: None
-    _gtk_reserved2: None
-    _gtk_reserved3: None
-    _gtk_reserved4: None
+    @property
+    def parent_class(self) -> ButtonClass: ...
+    @property
+    def font_set(self) -> Callable[[FontButton], None]: ...
 
 class FontButtonPrivate(GObject.GPointer): ...
 
@@ -22334,7 +22629,6 @@ class FontChooser(GObject.GInterface, Protocol):
     Signals from GObject:
       notify (GParam)
     """
-
     def get_font(self) -> str | None: ...
     def get_font_desc(self) -> Pango.FontDescription | None: ...
     def get_font_face(self) -> Pango.FontFace | None: ...
@@ -22622,7 +22916,6 @@ class FontChooserDialog(Dialog, Atk.ImplementorIface, Buildable, FontChooser):
     Signals from GObject:
       notify (GParam)
     """
-
     class Props(Dialog.Props):
         use_header_bar: int
         accept_focus: bool
@@ -22716,6 +23009,7 @@ class FontChooserDialog(Dialog, Atk.ImplementorIface, Buildable, FontChooser):
     def priv(self) -> FontChooserDialogPrivate: ...
     def __init__(
         self,
+        *,
         use_header_bar: int = ...,
         accept_focus: bool = ...,
         application: Application | None = ...,
@@ -22791,7 +23085,7 @@ class FontChooserDialog(Dialog, Atk.ImplementorIface, Buildable, FontChooser):
         level: FontChooserLevel = ...,
         preview_text: str = ...,
         show_preview_entry: bool = ...,
-    ): ...
+    ) -> None: ...
     @classmethod
     def new(
         cls, title: str | None = None, parent: Window | None = None
@@ -22805,12 +23099,8 @@ class FontChooserDialogClass(GObject.GPointer):
 
         FontChooserDialogClass()
     """
-
-    parent_class: DialogClass
-    _gtk_reserved1: None
-    _gtk_reserved2: None
-    _gtk_reserved3: None
-    _gtk_reserved4: None
+    @property
+    def parent_class(self) -> DialogClass: ...
 
 class FontChooserDialogPrivate(GObject.GPointer): ...
 
@@ -22822,16 +23112,24 @@ class FontChooserIface(GObject.GPointer):
 
         FontChooserIface()
     """
-
-    base_iface: GObject.TypeInterface
-    get_font_family: Callable[[FontChooser], Pango.FontFamily | None]
-    get_font_face: Callable[[FontChooser], Pango.FontFace | None]
-    get_font_size: Callable[[FontChooser], int]
-    set_filter_func: Callable[..., None]
-    font_activated: Callable[[FontChooser, str], None]
-    set_font_map: Callable[[FontChooser, Pango.FontMap | None], None]
-    get_font_map: Callable[[FontChooser], Pango.FontMap | None]
-    padding: list[None]
+    @property
+    def base_iface(self) -> GObject.TypeInterface: ...
+    @property
+    def get_font_family(self) -> Callable[[FontChooser], Pango.FontFamily | None]: ...
+    @property
+    def get_font_face(self) -> Callable[[FontChooser], Pango.FontFace | None]: ...
+    @property
+    def get_font_size(self) -> Callable[[FontChooser], int]: ...
+    @property
+    def set_filter_func(self) -> Callable[..., None]: ...
+    @property
+    def font_activated(self) -> Callable[[FontChooser, str], None]: ...
+    @property
+    def set_font_map(self) -> Callable[[FontChooser, Pango.FontMap | None], None]: ...
+    @property
+    def get_font_map(self) -> Callable[[FontChooser], Pango.FontMap | None]: ...
+    @property
+    def padding(self) -> list[None]: ...
 
 class FontChooserWidget(Box, Atk.ImplementorIface, Buildable, FontChooser, Orientable):
     """
@@ -23027,7 +23325,6 @@ class FontChooserWidget(Box, Atk.ImplementorIface, Buildable, FontChooser, Orien
     Signals from GObject:
       notify (GParam)
     """
-
     class Props(Box.Props):
         tweak_action: Gio.Action
         baseline_position: BaselinePosition
@@ -23092,6 +23389,7 @@ class FontChooserWidget(Box, Atk.ImplementorIface, Buildable, FontChooser, Orien
     def priv(self) -> FontChooserWidgetPrivate: ...
     def __init__(
         self,
+        *,
         baseline_position: BaselinePosition = ...,
         homogeneous: bool = ...,
         spacing: int = ...,
@@ -23141,7 +23439,7 @@ class FontChooserWidget(Box, Atk.ImplementorIface, Buildable, FontChooser, Orien
         preview_text: str = ...,
         show_preview_entry: bool = ...,
         orientation: Orientation = ...,
-    ): ...
+    ) -> None: ...
     @classmethod
     def new(cls) -> FontChooserWidget: ...
 
@@ -23153,16 +23451,8 @@ class FontChooserWidgetClass(GObject.GPointer):
 
         FontChooserWidgetClass()
     """
-
-    parent_class: BoxClass
-    _gtk_reserved1: None
-    _gtk_reserved2: None
-    _gtk_reserved3: None
-    _gtk_reserved4: None
-    _gtk_reserved5: None
-    _gtk_reserved6: None
-    _gtk_reserved7: None
-    _gtk_reserved8: None
+    @property
+    def parent_class(self) -> BoxClass: ...
 
 class FontChooserWidgetPrivate(GObject.GPointer): ...
 
@@ -23359,7 +23649,6 @@ class FontSelection(Box, Atk.ImplementorIface, Buildable, Orientable):
     Signals from GObject:
       notify (GParam)
     """
-
     class Props(Box.Props):
         font_name: str
         preview_text: str
@@ -23418,6 +23707,7 @@ class FontSelection(Box, Atk.ImplementorIface, Buildable, Orientable):
     def priv(self) -> FontSelectionPrivate: ...
     def __init__(
         self,
+        *,
         font_name: str = ...,
         preview_text: str = ...,
         baseline_position: BaselinePosition = ...,
@@ -23463,7 +23753,7 @@ class FontSelection(Box, Atk.ImplementorIface, Buildable, Orientable):
         visible: bool = ...,
         width_request: int = ...,
         orientation: Orientation = ...,
-    ): ...
+    ) -> None: ...
     def get_face(self) -> Pango.FontFace: ...
     def get_face_list(self) -> Widget: ...
     def get_family(self) -> Pango.FontFamily: ...
@@ -23487,12 +23777,8 @@ class FontSelectionClass(GObject.GPointer):
 
         FontSelectionClass()
     """
-
-    parent_class: BoxClass
-    _gtk_reserved1: None
-    _gtk_reserved2: None
-    _gtk_reserved3: None
-    _gtk_reserved4: None
+    @property
+    def parent_class(self) -> BoxClass: ...
 
 class FontSelectionDialog(Dialog, Atk.ImplementorIface, Buildable):
     """
@@ -23756,7 +24042,6 @@ class FontSelectionDialog(Dialog, Atk.ImplementorIface, Buildable):
     Signals from GObject:
       notify (GParam)
     """
-
     class Props(Dialog.Props):
         use_header_bar: int
         accept_focus: bool
@@ -23843,6 +24128,7 @@ class FontSelectionDialog(Dialog, Atk.ImplementorIface, Buildable):
     def priv(self) -> FontSelectionDialogPrivate: ...
     def __init__(
         self,
+        *,
         use_header_bar: int = ...,
         accept_focus: bool = ...,
         application: Application | None = ...,
@@ -23912,7 +24198,7 @@ class FontSelectionDialog(Dialog, Atk.ImplementorIface, Buildable):
         vexpand_set: bool = ...,
         visible: bool = ...,
         width_request: int = ...,
-    ): ...
+    ) -> None: ...
     def get_cancel_button(self) -> Widget: ...
     def get_font_name(self) -> str: ...
     def get_font_selection(self) -> Widget: ...
@@ -23931,12 +24217,8 @@ class FontSelectionDialogClass(GObject.GPointer):
 
         FontSelectionDialogClass()
     """
-
-    parent_class: DialogClass
-    _gtk_reserved1: None
-    _gtk_reserved2: None
-    _gtk_reserved3: None
-    _gtk_reserved4: None
+    @property
+    def parent_class(self) -> DialogClass: ...
 
 class FontSelectionDialogPrivate(GObject.GPointer): ...
 class FontSelectionPrivate(GObject.GPointer): ...
@@ -24132,7 +24414,6 @@ class Frame(Bin, Atk.ImplementorIface, Buildable):
     Signals from GObject:
       notify (GParam)
     """
-
     class Props(Bin.Props):
         label: str | None
         label_widget: Widget | None
@@ -24184,11 +24465,13 @@ class Frame(Bin, Atk.ImplementorIface, Buildable):
 
     @property
     def props(self) -> Props: ...
-    bin: Bin
+    @property
+    def bin(self) -> Bin: ...
     @property
     def priv(self) -> FramePrivate: ...
     def __init__(
         self,
+        *,
         label: str | None = ...,
         label_widget: Widget | None = ...,
         label_xalign: float = ...,
@@ -24233,7 +24516,7 @@ class Frame(Bin, Atk.ImplementorIface, Buildable):
         vexpand_set: bool = ...,
         visible: bool = ...,
         width_request: int = ...,
-    ): ...
+    ) -> None: ...
     def do_compute_child_allocation(self, allocation: _Gdk3.Rectangle) -> None: ...
     def get_label(self) -> str | None: ...
     def get_label_align(self) -> tuple[float, float]: ...
@@ -24278,6 +24561,7 @@ class FrameAccessible(ContainerAccessible, Atk.Component):
       active-descendant-changed (gpointer)
       announcement (gchararray)
       notification (gchararray, gint)
+      attribute-changed (gchararray, gchararray)
 
     Properties from AtkObject:
       accessible-name -> gchararray: Accessible Name
@@ -24310,17 +24594,22 @@ class FrameAccessible(ContainerAccessible, Atk.Component):
         Is used to notify that the table caption has changed
       accessible-hypertext-nlinks -> gint: Number of Accessible Hypertext Links
         The number of links which the current AtkHypertext has
+      accessible-id -> gchararray: Accessible ID
+        ID for the accessible; useful for automated testing
+      accessible-help-text -> gchararray: Help text
+        Help text associated with the accessible
 
     Signals from GObject:
       notify (GParam)
     """
-
     class Props(ContainerAccessible.Props):
         widget: Widget | None
         accessible_component_layer: int
         accessible_component_mdi_zorder: int
         accessible_description: str
+        accessible_help_text: str
         accessible_hypertext_nlinks: int
+        accessible_id: str
         accessible_name: str
         accessible_parent: Atk.Object
         accessible_role: Atk.Role
@@ -24335,13 +24624,17 @@ class FrameAccessible(ContainerAccessible, Atk.Component):
 
     @property
     def props(self) -> Props: ...
-    parent: ContainerAccessible
+    @property
+    def parent(self) -> ContainerAccessible: ...
     @property
     def priv(self) -> FrameAccessiblePrivate: ...
     def __init__(
         self,
+        *,
         widget: Widget | None = ...,
         accessible_description: str = ...,
+        accessible_help_text: str = ...,
+        accessible_id: str = ...,
         accessible_name: str = ...,
         accessible_parent: Atk.Object = ...,
         accessible_role: Atk.Role = ...,
@@ -24353,7 +24646,7 @@ class FrameAccessible(ContainerAccessible, Atk.Component):
         accessible_table_row_header: Atk.Object = ...,
         accessible_table_summary: Atk.Object = ...,
         accessible_value: float = ...,
-    ): ...
+    ) -> None: ...
 
 class FrameAccessibleClass(GObject.GPointer):
     """
@@ -24363,8 +24656,8 @@ class FrameAccessibleClass(GObject.GPointer):
 
         FrameAccessibleClass()
     """
-
-    parent_class: ContainerAccessibleClass
+    @property
+    def parent_class(self) -> ContainerAccessibleClass: ...
 
 class FrameAccessiblePrivate(GObject.GPointer): ...
 
@@ -24376,13 +24669,10 @@ class FrameClass(GObject.GPointer):
 
         FrameClass()
     """
-
-    parent_class: BinClass
-    compute_child_allocation: Callable[[Frame, _Gdk3.Rectangle], None]
-    _gtk_reserved1: None
-    _gtk_reserved2: None
-    _gtk_reserved3: None
-    _gtk_reserved4: None
+    @property
+    def parent_class(self) -> BinClass: ...
+    @property
+    def compute_child_allocation(self) -> Callable[[Frame, _Gdk3.Rectangle], None]: ...
 
 class FramePrivate(GObject.GPointer): ...
 
@@ -24570,7 +24860,6 @@ class GLArea(Widget, Atk.ImplementorIface, Buildable):
     Signals from GObject:
       notify (GParam)
     """
-
     class Props(Widget.Props):
         auto_render: bool
         context: _Gdk3.GLContext
@@ -24624,6 +24913,7 @@ class GLArea(Widget, Atk.ImplementorIface, Buildable):
     def parent_instance(self) -> Widget: ...
     def __init__(
         self,
+        *,
         auto_render: bool = ...,
         has_alpha: bool = ...,
         has_depth_buffer: bool = ...,
@@ -24665,7 +24955,7 @@ class GLArea(Widget, Atk.ImplementorIface, Buildable):
         vexpand_set: bool = ...,
         visible: bool = ...,
         width_request: int = ...,
-    ): ...
+    ) -> None: ...
     def attach_buffers(self) -> None: ...
     def do_render(self, context: _Gdk3.GLContext) -> bool: ...
     def do_resize(self, width: int, height: int) -> None: ...
@@ -24697,12 +24987,14 @@ class GLAreaClass(GObject.GPointer):
 
         GLAreaClass()
     """
-
-    parent_class: WidgetClass
-    render: Callable[[GLArea, _Gdk3.GLContext], bool]
-    resize: Callable[[GLArea, int, int], None]
-    create_context: None
-    _padding: list[None]
+    @property
+    def parent_class(self) -> WidgetClass: ...
+    @property
+    def render(self) -> Callable[[GLArea, _Gdk3.GLContext], bool]: ...
+    @property
+    def resize(self) -> Callable[[GLArea, int, int], None]: ...
+    @property
+    def create_context(self) -> None: ...
 
 class Gesture(EventController):
     """
@@ -24736,7 +25028,6 @@ class Gesture(EventController):
     Signals from GObject:
       notify (GParam)
     """
-
     class Props(EventController.Props):
         n_points: int
         window: _Gdk3.Window | None
@@ -24747,11 +25038,12 @@ class Gesture(EventController):
     def props(self) -> Props: ...
     def __init__(
         self,
+        *,
         n_points: int = ...,
         window: _Gdk3.Window | None = ...,
         propagation_phase: PropagationPhase = ...,
         widget: Widget = ...,
-    ): ...
+    ) -> None: ...
     def get_bounding_box(self) -> tuple[bool, _Gdk3.Rectangle]: ...
     def get_bounding_box_center(self) -> tuple[bool, float, float]: ...
     def get_device(self) -> _Gdk3.Device | None: ...
@@ -24828,7 +25120,6 @@ class GestureDrag(GestureSingle):
     Signals from GObject:
       notify (GParam)
     """
-
     class Props(GestureSingle.Props):
         button: int
         exclusive: bool
@@ -24842,6 +25133,7 @@ class GestureDrag(GestureSingle):
     def props(self) -> Props: ...
     def __init__(
         self,
+        *,
         button: int = ...,
         exclusive: bool = ...,
         touch_only: bool = ...,
@@ -24849,7 +25141,7 @@ class GestureDrag(GestureSingle):
         window: _Gdk3.Window | None = ...,
         propagation_phase: PropagationPhase = ...,
         widget: Widget = ...,
-    ): ...
+    ) -> None: ...
     def get_offset(self) -> tuple[bool, float, float]: ...
     def get_start_point(self) -> tuple[bool, float, float]: ...
     @classmethod
@@ -24906,7 +25198,6 @@ class GestureLongPress(GestureSingle):
     Signals from GObject:
       notify (GParam)
     """
-
     class Props(GestureSingle.Props):
         delay_factor: float
         button: int
@@ -24921,6 +25212,7 @@ class GestureLongPress(GestureSingle):
     def props(self) -> Props: ...
     def __init__(
         self,
+        *,
         delay_factor: float = ...,
         button: int = ...,
         exclusive: bool = ...,
@@ -24929,7 +25221,7 @@ class GestureLongPress(GestureSingle):
         window: _Gdk3.Window | None = ...,
         propagation_phase: PropagationPhase = ...,
         widget: Widget = ...,
-    ): ...
+    ) -> None: ...
     @classmethod
     def new(cls, widget: Widget) -> GestureLongPress: ...
 
@@ -24981,7 +25273,6 @@ class GestureMultiPress(GestureSingle):
     Signals from GObject:
       notify (GParam)
     """
-
     class Props(GestureSingle.Props):
         button: int
         exclusive: bool
@@ -24995,6 +25286,7 @@ class GestureMultiPress(GestureSingle):
     def props(self) -> Props: ...
     def __init__(
         self,
+        *,
         button: int = ...,
         exclusive: bool = ...,
         touch_only: bool = ...,
@@ -25002,7 +25294,7 @@ class GestureMultiPress(GestureSingle):
         window: _Gdk3.Window | None = ...,
         propagation_phase: PropagationPhase = ...,
         widget: Widget = ...,
-    ): ...
+    ) -> None: ...
     def get_area(self) -> tuple[bool, _Gdk3.Rectangle]: ...
     @classmethod
     def new(cls, widget: Widget) -> GestureMultiPress: ...
@@ -25063,7 +25355,6 @@ class GesturePan(GestureDrag):
     Signals from GObject:
       notify (GParam)
     """
-
     class Props(GestureDrag.Props):
         orientation: Orientation
         button: int
@@ -25078,6 +25369,7 @@ class GesturePan(GestureDrag):
     def props(self) -> Props: ...
     def __init__(
         self,
+        *,
         orientation: Orientation = ...,
         button: int = ...,
         exclusive: bool = ...,
@@ -25086,7 +25378,7 @@ class GesturePan(GestureDrag):
         window: _Gdk3.Window | None = ...,
         propagation_phase: PropagationPhase = ...,
         widget: Widget = ...,
-    ): ...
+    ) -> None: ...
     def get_orientation(self) -> Orientation: ...
     @classmethod
     def new(cls, widget: Widget, orientation: Orientation) -> GesturePan: ...
@@ -25130,7 +25422,6 @@ class GestureRotate(Gesture):
     Signals from GObject:
       notify (GParam)
     """
-
     class Props(Gesture.Props):
         n_points: int
         window: _Gdk3.Window | None
@@ -25141,11 +25432,12 @@ class GestureRotate(Gesture):
     def props(self) -> Props: ...
     def __init__(
         self,
+        *,
         n_points: int = ...,
         window: _Gdk3.Window | None = ...,
         propagation_phase: PropagationPhase = ...,
         widget: Widget = ...,
-    ): ...
+    ) -> None: ...
     def get_angle_delta(self) -> float: ...
     @classmethod
     def new(cls, widget: Widget) -> GestureRotate: ...
@@ -25192,7 +25484,6 @@ class GestureSingle(Gesture):
     Signals from GObject:
       notify (GParam)
     """
-
     class Props(Gesture.Props):
         button: int
         exclusive: bool
@@ -25206,6 +25497,7 @@ class GestureSingle(Gesture):
     def props(self) -> Props: ...
     def __init__(
         self,
+        *,
         button: int = ...,
         exclusive: bool = ...,
         touch_only: bool = ...,
@@ -25213,7 +25505,7 @@ class GestureSingle(Gesture):
         window: _Gdk3.Window | None = ...,
         propagation_phase: PropagationPhase = ...,
         widget: Widget = ...,
-    ): ...
+    ) -> None: ...
     def get_button(self) -> int: ...
     def get_current_button(self) -> int: ...
     def get_current_sequence(self) -> _Gdk3.EventSequence | None: ...
@@ -25272,7 +25564,6 @@ class GestureStylus(GestureSingle):
     Signals from GObject:
       notify (GParam)
     """
-
     class Props(GestureSingle.Props):
         button: int
         exclusive: bool
@@ -25286,6 +25577,7 @@ class GestureStylus(GestureSingle):
     def props(self) -> Props: ...
     def __init__(
         self,
+        *,
         button: int = ...,
         exclusive: bool = ...,
         touch_only: bool = ...,
@@ -25293,7 +25585,7 @@ class GestureStylus(GestureSingle):
         window: _Gdk3.Window | None = ...,
         propagation_phase: PropagationPhase = ...,
         widget: Widget = ...,
-    ): ...
+    ) -> None: ...
     def get_axes(self, axes: Sequence[_Gdk3.AxisUse]) -> tuple[bool, list[float]]: ...
     def get_axis(self, axis: _Gdk3.AxisUse) -> tuple[bool, float]: ...
     def get_device_tool(self) -> _Gdk3.DeviceTool | None: ...
@@ -25346,7 +25638,6 @@ class GestureSwipe(GestureSingle):
     Signals from GObject:
       notify (GParam)
     """
-
     class Props(GestureSingle.Props):
         button: int
         exclusive: bool
@@ -25360,6 +25651,7 @@ class GestureSwipe(GestureSingle):
     def props(self) -> Props: ...
     def __init__(
         self,
+        *,
         button: int = ...,
         exclusive: bool = ...,
         touch_only: bool = ...,
@@ -25367,7 +25659,7 @@ class GestureSwipe(GestureSingle):
         window: _Gdk3.Window | None = ...,
         propagation_phase: PropagationPhase = ...,
         widget: Widget = ...,
-    ): ...
+    ) -> None: ...
     def get_velocity(self) -> tuple[bool, float, float]: ...
     @classmethod
     def new(cls, widget: Widget) -> GestureSwipe: ...
@@ -25410,7 +25702,6 @@ class GestureZoom(Gesture):
     Signals from GObject:
       notify (GParam)
     """
-
     class Props(Gesture.Props):
         n_points: int
         window: _Gdk3.Window | None
@@ -25421,11 +25712,12 @@ class GestureZoom(Gesture):
     def props(self) -> Props: ...
     def __init__(
         self,
+        *,
         n_points: int = ...,
         window: _Gdk3.Window | None = ...,
         propagation_phase: PropagationPhase = ...,
         widget: Widget = ...,
-    ): ...
+    ) -> None: ...
     def get_scale_delta(self) -> float: ...
     @classmethod
     def new(cls, widget: Widget) -> GestureZoom: ...
@@ -25441,7 +25733,6 @@ class Gradient(GObject.GBoxed):
         new_linear(x0:float, y0:float, x1:float, y1:float) -> Gtk.Gradient
         new_radial(x0:float, y0:float, radius0:float, x1:float, y1:float, radius1:float) -> Gtk.Gradient
     """
-
     def add_color_stop(self, offset: float, color: SymbolicColor) -> None: ...
     @classmethod
     def new_linear(cls, x0: float, y0: float, x1: float, y1: float) -> Gradient: ...
@@ -25646,7 +25937,6 @@ class Grid(Container, Atk.ImplementorIface, Buildable, Orientable):
     Signals from GObject:
       notify (GParam)
     """
-
     class Props(Container.Props):
         baseline_row: int
         column_homogeneous: bool
@@ -25699,11 +25989,13 @@ class Grid(Container, Atk.ImplementorIface, Buildable, Orientable):
 
     @property
     def props(self) -> Props: ...
-    container: Container
+    @property
+    def container(self) -> Container: ...
     @property
     def priv(self) -> GridPrivate: ...
     def __init__(
         self,
+        *,
         baseline_row: int = ...,
         column_homogeneous: bool = ...,
         column_spacing: int = ...,
@@ -25749,7 +26041,7 @@ class Grid(Container, Atk.ImplementorIface, Buildable, Orientable):
         visible: bool = ...,
         width_request: int = ...,
         orientation: Orientation = ...,
-    ): ...
+    ) -> None: ...
     def attach(
         self, child: Widget, left: int, top: int, width: int, height: int
     ) -> None: ...
@@ -25790,16 +26082,8 @@ class GridClass(GObject.GPointer):
 
         GridClass()
     """
-
-    parent_class: ContainerClass
-    _gtk_reserved1: None
-    _gtk_reserved2: None
-    _gtk_reserved3: None
-    _gtk_reserved4: None
-    _gtk_reserved5: None
-    _gtk_reserved6: None
-    _gtk_reserved7: None
-    _gtk_reserved8: None
+    @property
+    def parent_class(self) -> ContainerClass: ...
 
 class GridPrivate(GObject.GPointer): ...
 
@@ -25990,7 +26274,6 @@ class HBox(Box, Atk.ImplementorIface, Buildable, Orientable):
     Signals from GObject:
       notify (GParam)
     """
-
     class Props(Box.Props):
         baseline_position: BaselinePosition
         homogeneous: bool
@@ -26041,9 +26324,11 @@ class HBox(Box, Atk.ImplementorIface, Buildable, Orientable):
 
     @property
     def props(self) -> Props: ...
-    box: Box
+    @property
+    def box(self) -> Box: ...
     def __init__(
         self,
+        *,
         baseline_position: BaselinePosition = ...,
         homogeneous: bool = ...,
         spacing: int = ...,
@@ -26087,7 +26372,7 @@ class HBox(Box, Atk.ImplementorIface, Buildable, Orientable):
         visible: bool = ...,
         width_request: int = ...,
         orientation: Orientation = ...,
-    ): ...
+    ) -> None: ...
     @classmethod
     def new(cls, homogeneous: bool, spacing: int) -> HBox: ...
 
@@ -26099,8 +26384,8 @@ class HBoxClass(GObject.GPointer):
 
         HBoxClass()
     """
-
-    parent_class: BoxClass
+    @property
+    def parent_class(self) -> BoxClass: ...
 
 class HButtonBox(ButtonBox, Atk.ImplementorIface, Buildable, Orientable):
     """
@@ -26293,7 +26578,6 @@ class HButtonBox(ButtonBox, Atk.ImplementorIface, Buildable, Orientable):
     Signals from GObject:
       notify (GParam)
     """
-
     class Props(ButtonBox.Props):
         layout_style: ButtonBoxStyle
         baseline_position: BaselinePosition
@@ -26345,9 +26629,11 @@ class HButtonBox(ButtonBox, Atk.ImplementorIface, Buildable, Orientable):
 
     @property
     def props(self) -> Props: ...
-    button_box: ButtonBox
+    @property
+    def button_box(self) -> ButtonBox: ...
     def __init__(
         self,
+        *,
         layout_style: ButtonBoxStyle = ...,
         baseline_position: BaselinePosition = ...,
         homogeneous: bool = ...,
@@ -26392,7 +26678,7 @@ class HButtonBox(ButtonBox, Atk.ImplementorIface, Buildable, Orientable):
         visible: bool = ...,
         width_request: int = ...,
         orientation: Orientation = ...,
-    ): ...
+    ) -> None: ...
     @classmethod
     def new(cls) -> HButtonBox: ...
 
@@ -26404,8 +26690,8 @@ class HButtonBoxClass(GObject.GPointer):
 
         HButtonBoxClass()
     """
-
-    parent_class: ButtonBoxClass
+    @property
+    def parent_class(self) -> ButtonBoxClass: ...
 
 class HPaned(Paned, Atk.ImplementorIface, Buildable, Orientable):
     """
@@ -26606,7 +26892,6 @@ class HPaned(Paned, Atk.ImplementorIface, Buildable, Orientable):
     Signals from GObject:
       notify (GParam)
     """
-
     class Props(Paned.Props):
         max_position: int
         min_position: int
@@ -26659,9 +26944,11 @@ class HPaned(Paned, Atk.ImplementorIface, Buildable, Orientable):
 
     @property
     def props(self) -> Props: ...
-    paned: Paned
+    @property
+    def paned(self) -> Paned: ...
     def __init__(
         self,
+        *,
         position: int = ...,
         position_set: bool = ...,
         wide_handle: bool = ...,
@@ -26705,7 +26992,7 @@ class HPaned(Paned, Atk.ImplementorIface, Buildable, Orientable):
         visible: bool = ...,
         width_request: int = ...,
         orientation: Orientation = ...,
-    ): ...
+    ) -> None: ...
     @classmethod
     def new(cls) -> HPaned: ...
 
@@ -26717,8 +27004,8 @@ class HPanedClass(GObject.GPointer):
 
         HPanedClass()
     """
-
-    parent_class: PanedClass
+    @property
+    def parent_class(self) -> PanedClass: ...
 
 class HSV(Widget, Atk.ImplementorIface, Buildable):
     """
@@ -26889,7 +27176,6 @@ class HSV(Widget, Atk.ImplementorIface, Buildable):
     Signals from GObject:
       notify (GParam)
     """
-
     class Props(Widget.Props):
         app_paintable: bool
         can_default: bool
@@ -26939,6 +27225,7 @@ class HSV(Widget, Atk.ImplementorIface, Buildable):
     def priv(self) -> HSVPrivate: ...
     def __init__(
         self,
+        *,
         app_paintable: bool = ...,
         can_default: bool = ...,
         can_focus: bool = ...,
@@ -26975,7 +27262,7 @@ class HSV(Widget, Atk.ImplementorIface, Buildable):
         vexpand_set: bool = ...,
         visible: bool = ...,
         width_request: int = ...,
-    ): ...
+    ) -> None: ...
     def do_changed(self) -> None: ...
     def do_move(self, type: DirectionType) -> None: ...
     def get_color(self) -> tuple[float, float, float]: ...
@@ -26996,14 +27283,12 @@ class HSVClass(GObject.GPointer):
 
         HSVClass()
     """
-
-    parent_class: WidgetClass
-    changed: Callable[[HSV], None]
-    move: Callable[[HSV, DirectionType], None]
-    _gtk_reserved1: None
-    _gtk_reserved2: None
-    _gtk_reserved3: None
-    _gtk_reserved4: None
+    @property
+    def parent_class(self) -> WidgetClass: ...
+    @property
+    def changed(self) -> Callable[[HSV], None]: ...
+    @property
+    def move(self) -> Callable[[HSV, DirectionType], None]: ...
 
 class HSVPrivate(GObject.GPointer): ...
 
@@ -27210,7 +27495,6 @@ class HScale(Scale, Atk.ImplementorIface, Buildable, Orientable):
     Signals from GObject:
       notify (GParam)
     """
-
     class Props(Scale.Props):
         digits: int
         draw_value: bool
@@ -27267,9 +27551,11 @@ class HScale(Scale, Atk.ImplementorIface, Buildable, Orientable):
 
     @property
     def props(self) -> Props: ...
-    scale: Scale
+    @property
+    def scale(self) -> Scale: ...
     def __init__(
         self,
+        *,
         digits: int = ...,
         draw_value: bool = ...,
         has_origin: bool = ...,
@@ -27319,7 +27605,7 @@ class HScale(Scale, Atk.ImplementorIface, Buildable, Orientable):
         visible: bool = ...,
         width_request: int = ...,
         orientation: Orientation = ...,
-    ): ...
+    ) -> None: ...
     @classmethod
     def new(cls, adjustment: Adjustment | None = None) -> HScale: ...
     @classmethod
@@ -27333,8 +27619,8 @@ class HScaleClass(GObject.GPointer):
 
         HScaleClass()
     """
-
-    parent_class: ScaleClass
+    @property
+    def parent_class(self) -> ScaleClass: ...
 
 class HScrollbar(Scrollbar, Atk.ImplementorIface, Buildable, Orientable):
     """
@@ -27525,7 +27811,6 @@ class HScrollbar(Scrollbar, Atk.ImplementorIface, Buildable, Orientable):
     Signals from GObject:
       notify (GParam)
     """
-
     class Props(Scrollbar.Props):
         adjustment: Adjustment
         fill_level: float
@@ -27578,9 +27863,11 @@ class HScrollbar(Scrollbar, Atk.ImplementorIface, Buildable, Orientable):
 
     @property
     def props(self) -> Props: ...
-    scrollbar: Scrollbar
+    @property
+    def scrollbar(self) -> Scrollbar: ...
     def __init__(
         self,
+        *,
         adjustment: Adjustment = ...,
         fill_level: float = ...,
         inverted: bool = ...,
@@ -27626,7 +27913,7 @@ class HScrollbar(Scrollbar, Atk.ImplementorIface, Buildable, Orientable):
         visible: bool = ...,
         width_request: int = ...,
         orientation: Orientation = ...,
-    ): ...
+    ) -> None: ...
     @classmethod
     def new(cls, adjustment: Adjustment | None = None) -> HScrollbar: ...
 
@@ -27638,8 +27925,8 @@ class HScrollbarClass(GObject.GPointer):
 
         HScrollbarClass()
     """
-
-    parent_class: ScrollbarClass
+    @property
+    def parent_class(self) -> ScrollbarClass: ...
 
 class HSeparator(Separator, Atk.ImplementorIface, Buildable, Orientable):
     """
@@ -27806,7 +28093,6 @@ class HSeparator(Separator, Atk.ImplementorIface, Buildable, Orientable):
     Signals from GObject:
       notify (GParam)
     """
-
     class Props(Separator.Props):
         app_paintable: bool
         can_default: bool
@@ -27851,9 +28137,11 @@ class HSeparator(Separator, Atk.ImplementorIface, Buildable, Orientable):
 
     @property
     def props(self) -> Props: ...
-    separator: Separator
+    @property
+    def separator(self) -> Separator: ...
     def __init__(
         self,
+        *,
         app_paintable: bool = ...,
         can_default: bool = ...,
         can_focus: bool = ...,
@@ -27891,7 +28179,7 @@ class HSeparator(Separator, Atk.ImplementorIface, Buildable, Orientable):
         visible: bool = ...,
         width_request: int = ...,
         orientation: Orientation = ...,
-    ): ...
+    ) -> None: ...
     @classmethod
     def new(cls) -> HSeparator: ...
 
@@ -27903,8 +28191,8 @@ class HSeparatorClass(GObject.GPointer):
 
         HSeparatorClass()
     """
-
-    parent_class: SeparatorClass
+    @property
+    def parent_class(self) -> SeparatorClass: ...
 
 class HandleBox(Bin, Atk.ImplementorIface, Buildable):
     """
@@ -28101,7 +28389,6 @@ class HandleBox(Bin, Atk.ImplementorIface, Buildable):
     Signals from GObject:
       notify (GParam)
     """
-
     class Props(Bin.Props):
         child_detached: bool
         handle_position: PositionType
@@ -28153,11 +28440,13 @@ class HandleBox(Bin, Atk.ImplementorIface, Buildable):
 
     @property
     def props(self) -> Props: ...
-    bin: Bin
+    @property
+    def bin(self) -> Bin: ...
     @property
     def priv(self) -> HandleBoxPrivate: ...
     def __init__(
         self,
+        *,
         handle_position: PositionType = ...,
         shadow_type: ShadowType = ...,
         snap_edge: PositionType = ...,
@@ -28201,7 +28490,7 @@ class HandleBox(Bin, Atk.ImplementorIface, Buildable):
         vexpand_set: bool = ...,
         visible: bool = ...,
         width_request: int = ...,
-    ): ...
+    ) -> None: ...
     def do_child_attached(self, child: Widget) -> None: ...
     def do_child_detached(self, child: Widget) -> None: ...
     def get_child_detached(self) -> bool: ...
@@ -28222,14 +28511,12 @@ class HandleBoxClass(GObject.GPointer):
 
         HandleBoxClass()
     """
-
-    parent_class: BinClass
-    child_attached: Callable[[HandleBox, Widget], None]
-    child_detached: Callable[[HandleBox, Widget], None]
-    _gtk_reserved1: None
-    _gtk_reserved2: None
-    _gtk_reserved3: None
-    _gtk_reserved4: None
+    @property
+    def parent_class(self) -> BinClass: ...
+    @property
+    def child_attached(self) -> Callable[[HandleBox, Widget], None]: ...
+    @property
+    def child_detached(self) -> Callable[[HandleBox, Widget], None]: ...
 
 class HandleBoxPrivate(GObject.GPointer): ...
 
@@ -28430,7 +28717,6 @@ class HeaderBar(Container, Atk.ImplementorIface, Buildable):
     Signals from GObject:
       notify (GParam)
     """
-
     class Props(Container.Props):
         custom_title: Widget | None
         decoration_layout: str
@@ -28485,9 +28771,11 @@ class HeaderBar(Container, Atk.ImplementorIface, Buildable):
 
     @property
     def props(self) -> Props: ...
-    container: Container
+    @property
+    def container(self) -> Container: ...
     def __init__(
         self,
+        *,
         custom_title: Widget | None = ...,
         decoration_layout: str | None = ...,
         decoration_layout_set: bool = ...,
@@ -28535,7 +28823,7 @@ class HeaderBar(Container, Atk.ImplementorIface, Buildable):
         vexpand_set: bool = ...,
         visible: bool = ...,
         width_request: int = ...,
-    ): ...
+    ) -> None: ...
     def get_custom_title(self) -> Widget | None: ...
     def get_decoration_layout(self) -> str: ...
     def get_has_subtitle(self) -> bool: ...
@@ -28585,6 +28873,7 @@ class HeaderBarAccessible(ContainerAccessible, Atk.Component):
       active-descendant-changed (gpointer)
       announcement (gchararray)
       notification (gchararray, gint)
+      attribute-changed (gchararray, gchararray)
 
     Properties from AtkObject:
       accessible-name -> gchararray: Accessible Name
@@ -28617,17 +28906,22 @@ class HeaderBarAccessible(ContainerAccessible, Atk.Component):
         Is used to notify that the table caption has changed
       accessible-hypertext-nlinks -> gint: Number of Accessible Hypertext Links
         The number of links which the current AtkHypertext has
+      accessible-id -> gchararray: Accessible ID
+        ID for the accessible; useful for automated testing
+      accessible-help-text -> gchararray: Help text
+        Help text associated with the accessible
 
     Signals from GObject:
       notify (GParam)
     """
-
     class Props(ContainerAccessible.Props):
         widget: Widget | None
         accessible_component_layer: int
         accessible_component_mdi_zorder: int
         accessible_description: str
+        accessible_help_text: str
         accessible_hypertext_nlinks: int
+        accessible_id: str
         accessible_name: str
         accessible_parent: Atk.Object
         accessible_role: Atk.Role
@@ -28642,11 +28936,15 @@ class HeaderBarAccessible(ContainerAccessible, Atk.Component):
 
     @property
     def props(self) -> Props: ...
-    parent: ContainerAccessible
+    @property
+    def parent(self) -> ContainerAccessible: ...
     def __init__(
         self,
+        *,
         widget: Widget | None = ...,
         accessible_description: str = ...,
+        accessible_help_text: str = ...,
+        accessible_id: str = ...,
         accessible_name: str = ...,
         accessible_parent: Atk.Object = ...,
         accessible_role: Atk.Role = ...,
@@ -28658,7 +28956,7 @@ class HeaderBarAccessible(ContainerAccessible, Atk.Component):
         accessible_table_row_header: Atk.Object = ...,
         accessible_table_summary: Atk.Object = ...,
         accessible_value: float = ...,
-    ): ...
+    ) -> None: ...
 
 class HeaderBarAccessibleClass(GObject.GPointer):
     """
@@ -28668,8 +28966,8 @@ class HeaderBarAccessibleClass(GObject.GPointer):
 
         HeaderBarAccessibleClass()
     """
-
-    parent_class: ContainerAccessibleClass
+    @property
+    def parent_class(self) -> ContainerAccessibleClass: ...
 
 class HeaderBarAccessiblePrivate(GObject.GPointer): ...
 
@@ -28681,12 +28979,8 @@ class HeaderBarClass(GObject.GPointer):
 
         HeaderBarClass()
     """
-
-    parent_class: ContainerClass
-    _gtk_reserved1: None
-    _gtk_reserved2: None
-    _gtk_reserved3: None
-    _gtk_reserved4: None
+    @property
+    def parent_class(self) -> ContainerClass: ...
 
 class HeaderBarPrivate(GObject.GPointer): ...
 
@@ -28717,7 +29011,6 @@ class IMContext(GObject.Object):
     Signals from GObject:
       notify (GParam)
     """
-
     class Props(GObject.Object.Props):
         input_hints: InputHints
         input_purpose: InputPurpose
@@ -28727,8 +29020,8 @@ class IMContext(GObject.Object):
     @property
     def parent_instance(self) -> GObject.Object: ...
     def __init__(
-        self, input_hints: InputHints = ..., input_purpose: InputPurpose = ...
-    ): ...
+        self, *, input_hints: InputHints = ..., input_purpose: InputPurpose = ...
+    ) -> None: ...
     def delete_surrounding(self, offset: int, n_chars: int) -> bool: ...
     def do_commit(self, str: str) -> None: ...
     def do_delete_surrounding(self, offset: int, n_chars: int) -> bool: ...
@@ -28750,9 +29043,7 @@ class IMContext(GObject.Object):
     def focus_in(self) -> None: ...
     def focus_out(self) -> None: ...
     def get_preedit_string(self) -> tuple[str, Pango.AttrList, int]: ...
-    def get_surrounding(
-        self,
-    ) -> tuple[str, int] | None: ...  # CHECK Wrapped function
+    def get_surrounding(self) -> tuple[str, int] | None: ...  # CHECK Wrapped function
     def reset(self) -> None: ...
     def set_client_window(self, window: _Gdk3.Window | None = None) -> None: ...
     def set_cursor_location(self, area: _Gdk3.Rectangle) -> None: ...
@@ -28767,30 +29058,42 @@ class IMContextClass(GObject.GPointer):
 
         IMContextClass()
     """
-
-    parent_class: GObject.ObjectClass
-    preedit_start: Callable[[IMContext], None]
-    preedit_end: Callable[[IMContext], None]
-    preedit_changed: Callable[[IMContext], None]
-    commit: Callable[[IMContext, str], None]
-    retrieve_surrounding: Callable[[IMContext], bool]
-    delete_surrounding: Callable[[IMContext, int, int], bool]
-    set_client_window: Callable[[IMContext, _Gdk3.Window | None], None]
-    get_preedit_string: Callable[[IMContext], tuple[str, Pango.AttrList, int]]
-    filter_keypress: Callable[[IMContext, _Gdk3.EventKey], bool]
-    focus_in: Callable[[IMContext], None]
-    focus_out: Callable[[IMContext], None]
-    reset: Callable[[IMContext], None]
-    set_cursor_location: Callable[[IMContext, _Gdk3.Rectangle], None]
-    set_use_preedit: Callable[[IMContext, bool], None]
-    set_surrounding: Callable[[IMContext, str, int, int], None]
-    get_surrounding: Callable[[IMContext], tuple[bool, str, int]]
-    _gtk_reserved1: None
-    _gtk_reserved2: None
-    _gtk_reserved3: None
-    _gtk_reserved4: None
-    _gtk_reserved5: None
-    _gtk_reserved6: None
+    @property
+    def parent_class(self) -> GObject.ObjectClass: ...
+    @property
+    def preedit_start(self) -> Callable[[IMContext], None]: ...
+    @property
+    def preedit_end(self) -> Callable[[IMContext], None]: ...
+    @property
+    def preedit_changed(self) -> Callable[[IMContext], None]: ...
+    @property
+    def commit(self) -> Callable[[IMContext, str], None]: ...
+    @property
+    def retrieve_surrounding(self) -> Callable[[IMContext], bool]: ...
+    @property
+    def delete_surrounding(self) -> Callable[[IMContext, int, int], bool]: ...
+    @property
+    def set_client_window(self) -> Callable[[IMContext, _Gdk3.Window | None], None]: ...
+    @property
+    def get_preedit_string(
+        self,
+    ) -> Callable[[IMContext], tuple[str, Pango.AttrList, int]]: ...
+    @property
+    def filter_keypress(self) -> Callable[[IMContext, _Gdk3.EventKey], bool]: ...
+    @property
+    def focus_in(self) -> Callable[[IMContext], None]: ...
+    @property
+    def focus_out(self) -> Callable[[IMContext], None]: ...
+    @property
+    def reset(self) -> Callable[[IMContext], None]: ...
+    @property
+    def set_cursor_location(self) -> Callable[[IMContext, _Gdk3.Rectangle], None]: ...
+    @property
+    def set_use_preedit(self) -> Callable[[IMContext, bool], None]: ...
+    @property
+    def set_surrounding(self) -> Callable[[IMContext, str, int, int], None]: ...
+    @property
+    def get_surrounding(self) -> Callable[[IMContext], tuple[bool, str, int]]: ...
 
 class IMContextInfo(GObject.GPointer):
     """
@@ -28835,19 +29138,19 @@ class IMContextSimple(IMContext):
     Signals from GObject:
       notify (GParam)
     """
-
     class Props(IMContext.Props):
         input_hints: InputHints
         input_purpose: InputPurpose
 
     @property
     def props(self) -> Props: ...
-    object: IMContext
+    @property
+    def object(self) -> IMContext: ...
     @property
     def priv(self) -> IMContextSimplePrivate: ...
     def __init__(
-        self, input_hints: InputHints = ..., input_purpose: InputPurpose = ...
-    ): ...
+        self, *, input_hints: InputHints = ..., input_purpose: InputPurpose = ...
+    ) -> None: ...
     def add_compose_file(self, compose_file: str) -> None: ...
     @classmethod
     def new(cls) -> IMContextSimple: ...
@@ -28893,19 +29196,19 @@ class IMMulticontext(IMContext):
     Signals from GObject:
       notify (GParam)
     """
-
     class Props(IMContext.Props):
         input_hints: InputHints
         input_purpose: InputPurpose
 
     @property
     def props(self) -> Props: ...
-    object: IMContext
+    @property
+    def object(self) -> IMContext: ...
     @property
     def priv(self) -> IMMulticontextPrivate: ...
     def __init__(
-        self, input_hints: InputHints = ..., input_purpose: InputPurpose = ...
-    ): ...
+        self, *, input_hints: InputHints = ..., input_purpose: InputPurpose = ...
+    ) -> None: ...
     def append_menuitems(self, menushell: MenuShell) -> None: ...
     def get_context_id(self) -> str: ...
     @classmethod
@@ -28920,12 +29223,8 @@ class IMMulticontextClass(GObject.GPointer):
 
         IMMulticontextClass()
     """
-
-    parent_class: IMContextClass
-    _gtk_reserved1: None
-    _gtk_reserved2: None
-    _gtk_reserved3: None
-    _gtk_reserved4: None
+    @property
+    def parent_class(self) -> IMContextClass: ...
 
 class IMMulticontextPrivate(GObject.GPointer): ...
 
@@ -28943,7 +29242,6 @@ class IconFactory(GObject.Object, Buildable):
     Signals from GObject:
       notify (GParam)
     """
-
     @property
     def parent_instance(self) -> GObject.Object: ...
     @property
@@ -28965,12 +29263,8 @@ class IconFactoryClass(GObject.GPointer):
 
         IconFactoryClass()
     """
-
-    parent_class: GObject.ObjectClass
-    _gtk_reserved1: None
-    _gtk_reserved2: None
-    _gtk_reserved3: None
-    _gtk_reserved4: None
+    @property
+    def parent_class(self) -> GObject.ObjectClass: ...
 
 class IconFactoryPrivate(GObject.GPointer): ...
 
@@ -28988,7 +29282,6 @@ class IconInfo(GObject.Object):
     Signals from GObject:
       notify (GParam)
     """
-
     def get_attach_points(self) -> tuple[bool, list[_Gdk3.Point]]: ...
     def get_base_scale(self) -> int: ...
     def get_base_size(self) -> int: ...
@@ -29062,7 +29355,8 @@ class IconSet(GObject.GBoxed):
         new() -> Gtk.IconSet
         new_from_pixbuf(pixbuf:GdkPixbuf.Pixbuf) -> Gtk.IconSet
     """
-
+    @staticmethod
+    def __new__(cls, pixbuf=None): ...  # FIXME: Override is missing typing annotation
     def add_source(self, source: IconSource) -> None: ...
     def copy(self) -> IconSet: ...
     def get_sizes(self) -> list[int]: ...
@@ -29100,7 +29394,8 @@ class IconSource(GObject.GBoxed):
 
         new() -> Gtk.IconSource
     """
-
+    @staticmethod
+    def __new__(cls: type[Self]) -> Self: ...
     def copy(self) -> IconSource: ...
     def free(self) -> None: ...
     def get_direction(self) -> TextDirection: ...
@@ -29141,7 +29436,6 @@ class IconTheme(GObject.Object):
     Signals from GObject:
       notify (GParam)
     """
-
     @property
     def parent_instance(self) -> GObject.Object: ...
     @property
@@ -29212,13 +29506,10 @@ class IconThemeClass(GObject.GPointer):
 
         IconThemeClass()
     """
-
-    parent_class: GObject.ObjectClass
-    changed: Callable[[IconTheme], None]
-    _gtk_reserved1: None
-    _gtk_reserved2: None
-    _gtk_reserved3: None
-    _gtk_reserved4: None
+    @property
+    def parent_class(self) -> GObject.ObjectClass: ...
+    @property
+    def changed(self) -> Callable[[IconTheme], None]: ...
 
 class IconThemePrivate(GObject.GPointer): ...
 
@@ -29449,7 +29740,6 @@ class IconView(Container, Atk.ImplementorIface, Buildable, CellLayout, Scrollabl
     Signals from GObject:
       notify (GParam)
     """
-
     class Props(Container.Props):
         activate_on_single_click: bool
         cell_area: CellArea
@@ -29516,11 +29806,13 @@ class IconView(Container, Atk.ImplementorIface, Buildable, CellLayout, Scrollabl
 
     @property
     def props(self) -> Props: ...
-    parent: Container
+    @property
+    def parent(self) -> Container: ...
     @property
     def priv(self) -> IconViewPrivate: ...
     def __init__(
         self,
+        *,
         activate_on_single_click: bool = ...,
         cell_area: CellArea = ...,
         column_spacing: int = ...,
@@ -29580,7 +29872,7 @@ class IconView(Container, Atk.ImplementorIface, Buildable, CellLayout, Scrollabl
         hscroll_policy: ScrollablePolicy = ...,
         vadjustment: Adjustment | None = ...,
         vscroll_policy: ScrollablePolicy = ...,
-    ): ...
+    ) -> None: ...
     def convert_widget_to_bin_window_coords(
         self, wx: int, wy: int
     ) -> tuple[int, int]: ...
@@ -29719,6 +30011,7 @@ class IconViewAccessible(ContainerAccessible, Atk.Component, Atk.Selection):
       active-descendant-changed (gpointer)
       announcement (gchararray)
       notification (gchararray, gint)
+      attribute-changed (gchararray, gchararray)
 
     Properties from AtkObject:
       accessible-name -> gchararray: Accessible Name
@@ -29751,17 +30044,22 @@ class IconViewAccessible(ContainerAccessible, Atk.Component, Atk.Selection):
         Is used to notify that the table caption has changed
       accessible-hypertext-nlinks -> gint: Number of Accessible Hypertext Links
         The number of links which the current AtkHypertext has
+      accessible-id -> gchararray: Accessible ID
+        ID for the accessible; useful for automated testing
+      accessible-help-text -> gchararray: Help text
+        Help text associated with the accessible
 
     Signals from GObject:
       notify (GParam)
     """
-
     class Props(ContainerAccessible.Props):
         widget: Widget | None
         accessible_component_layer: int
         accessible_component_mdi_zorder: int
         accessible_description: str
+        accessible_help_text: str
         accessible_hypertext_nlinks: int
+        accessible_id: str
         accessible_name: str
         accessible_parent: Atk.Object
         accessible_role: Atk.Role
@@ -29776,13 +30074,17 @@ class IconViewAccessible(ContainerAccessible, Atk.Component, Atk.Selection):
 
     @property
     def props(self) -> Props: ...
-    parent: ContainerAccessible
+    @property
+    def parent(self) -> ContainerAccessible: ...
     @property
     def priv(self) -> IconViewAccessiblePrivate: ...
     def __init__(
         self,
+        *,
         widget: Widget | None = ...,
         accessible_description: str = ...,
+        accessible_help_text: str = ...,
+        accessible_id: str = ...,
         accessible_name: str = ...,
         accessible_parent: Atk.Object = ...,
         accessible_role: Atk.Role = ...,
@@ -29794,7 +30096,7 @@ class IconViewAccessible(ContainerAccessible, Atk.Component, Atk.Selection):
         accessible_table_row_header: Atk.Object = ...,
         accessible_table_summary: Atk.Object = ...,
         accessible_value: float = ...,
-    ): ...
+    ) -> None: ...
 
 class IconViewAccessibleClass(GObject.GPointer):
     """
@@ -29804,8 +30106,8 @@ class IconViewAccessibleClass(GObject.GPointer):
 
         IconViewAccessibleClass()
     """
-
-    parent_class: ContainerAccessibleClass
+    @property
+    def parent_class(self) -> ContainerAccessibleClass: ...
 
 class IconViewAccessiblePrivate(GObject.GPointer): ...
 
@@ -29817,20 +30119,24 @@ class IconViewClass(GObject.GPointer):
 
         IconViewClass()
     """
-
-    parent_class: ContainerClass
-    item_activated: Callable[[IconView, TreePath], None]
-    selection_changed: Callable[[IconView], None]
-    select_all: Callable[[IconView], None]
-    unselect_all: Callable[[IconView], None]
-    select_cursor_item: Callable[[IconView], None]
-    toggle_cursor_item: Callable[[IconView], None]
-    move_cursor: Callable[[IconView, MovementStep, int], bool]
-    activate_cursor_item: Callable[[IconView], bool]
-    _gtk_reserved1: None
-    _gtk_reserved2: None
-    _gtk_reserved3: None
-    _gtk_reserved4: None
+    @property
+    def parent_class(self) -> ContainerClass: ...
+    @property
+    def item_activated(self) -> Callable[[IconView, TreePath], None]: ...
+    @property
+    def selection_changed(self) -> Callable[[IconView], None]: ...
+    @property
+    def select_all(self) -> Callable[[IconView], None]: ...
+    @property
+    def unselect_all(self) -> Callable[[IconView], None]: ...
+    @property
+    def select_cursor_item(self) -> Callable[[IconView], None]: ...
+    @property
+    def toggle_cursor_item(self) -> Callable[[IconView], None]: ...
+    @property
+    def move_cursor(self) -> Callable[[IconView, MovementStep, int], bool]: ...
+    @property
+    def activate_cursor_item(self) -> Callable[[IconView], bool]: ...
 
 class IconViewPrivate(GObject.GPointer): ...
 
@@ -30046,7 +30352,6 @@ class Image(Misc, Atk.ImplementorIface, Buildable):
     Signals from GObject:
       notify (GParam)
     """
-
     class Props(Misc.Props):
         file: str
         gicon: Gio.Icon
@@ -30107,11 +30412,13 @@ class Image(Misc, Atk.ImplementorIface, Buildable):
 
     @property
     def props(self) -> Props: ...
-    misc: Misc
+    @property
+    def misc(self) -> Misc: ...
     @property
     def priv(self) -> ImagePrivate: ...
     def __init__(
         self,
+        *,
         file: str = ...,
         gicon: Gio.Icon = ...,
         icon_name: str = ...,
@@ -30164,7 +30471,7 @@ class Image(Misc, Atk.ImplementorIface, Buildable):
         vexpand_set: bool = ...,
         visible: bool = ...,
         width_request: int = ...,
-    ): ...
+    ) -> None: ...
     def clear(self) -> None: ...
     def get_animation(self) -> GdkPixbuf.PixbufAnimation | None: ...
     def get_gicon(self) -> tuple[Gio.Icon, int]: ...
@@ -30234,6 +30541,7 @@ class ImageAccessible(WidgetAccessible, Atk.Component, Atk.Image):
       active-descendant-changed (gpointer)
       announcement (gchararray)
       notification (gchararray, gint)
+      attribute-changed (gchararray, gchararray)
 
     Properties from AtkObject:
       accessible-name -> gchararray: Accessible Name
@@ -30266,17 +30574,22 @@ class ImageAccessible(WidgetAccessible, Atk.Component, Atk.Image):
         Is used to notify that the table caption has changed
       accessible-hypertext-nlinks -> gint: Number of Accessible Hypertext Links
         The number of links which the current AtkHypertext has
+      accessible-id -> gchararray: Accessible ID
+        ID for the accessible; useful for automated testing
+      accessible-help-text -> gchararray: Help text
+        Help text associated with the accessible
 
     Signals from GObject:
       notify (GParam)
     """
-
     class Props(WidgetAccessible.Props):
         widget: Widget | None
         accessible_component_layer: int
         accessible_component_mdi_zorder: int
         accessible_description: str
+        accessible_help_text: str
         accessible_hypertext_nlinks: int
+        accessible_id: str
         accessible_name: str
         accessible_parent: Atk.Object
         accessible_role: Atk.Role
@@ -30291,13 +30604,17 @@ class ImageAccessible(WidgetAccessible, Atk.Component, Atk.Image):
 
     @property
     def props(self) -> Props: ...
-    parent: WidgetAccessible
+    @property
+    def parent(self) -> WidgetAccessible: ...
     @property
     def priv(self) -> ImageAccessiblePrivate: ...
     def __init__(
         self,
+        *,
         widget: Widget | None = ...,
         accessible_description: str = ...,
+        accessible_help_text: str = ...,
+        accessible_id: str = ...,
         accessible_name: str = ...,
         accessible_parent: Atk.Object = ...,
         accessible_role: Atk.Role = ...,
@@ -30309,7 +30626,7 @@ class ImageAccessible(WidgetAccessible, Atk.Component, Atk.Image):
         accessible_table_row_header: Atk.Object = ...,
         accessible_table_summary: Atk.Object = ...,
         accessible_value: float = ...,
-    ): ...
+    ) -> None: ...
 
 class ImageAccessibleClass(GObject.GPointer):
     """
@@ -30319,8 +30636,8 @@ class ImageAccessibleClass(GObject.GPointer):
 
         ImageAccessibleClass()
     """
-
-    parent_class: WidgetAccessibleClass
+    @property
+    def parent_class(self) -> WidgetAccessibleClass: ...
 
 class ImageAccessiblePrivate(GObject.GPointer): ...
 
@@ -30362,6 +30679,7 @@ class ImageCellAccessible(
       active-descendant-changed (gpointer)
       announcement (gchararray)
       notification (gchararray, gint)
+      attribute-changed (gchararray, gchararray)
 
     Properties from AtkObject:
       accessible-name -> gchararray: Accessible Name
@@ -30394,18 +30712,23 @@ class ImageCellAccessible(
         Is used to notify that the table caption has changed
       accessible-hypertext-nlinks -> gint: Number of Accessible Hypertext Links
         The number of links which the current AtkHypertext has
+      accessible-id -> gchararray: Accessible ID
+        ID for the accessible; useful for automated testing
+      accessible-help-text -> gchararray: Help text
+        Help text associated with the accessible
 
     Signals from GObject:
       notify (GParam)
     """
-
     class Props(RendererCellAccessible.Props):
         renderer: CellRenderer
         widget: Widget | None
         accessible_component_layer: int
         accessible_component_mdi_zorder: int
         accessible_description: str
+        accessible_help_text: str
         accessible_hypertext_nlinks: int
+        accessible_id: str
         accessible_name: str
         accessible_parent: Atk.Object
         accessible_role: Atk.Role
@@ -30426,9 +30749,12 @@ class ImageCellAccessible(
     def priv(self) -> ImageCellAccessiblePrivate: ...
     def __init__(
         self,
+        *,
         renderer: CellRenderer = ...,
         widget: Widget | None = ...,
         accessible_description: str = ...,
+        accessible_help_text: str = ...,
+        accessible_id: str = ...,
         accessible_name: str = ...,
         accessible_parent: Atk.Object = ...,
         accessible_role: Atk.Role = ...,
@@ -30440,7 +30766,7 @@ class ImageCellAccessible(
         accessible_table_row_header: Atk.Object = ...,
         accessible_table_summary: Atk.Object = ...,
         accessible_value: float = ...,
-    ): ...
+    ) -> None: ...
 
 class ImageCellAccessibleClass(GObject.GPointer):
     """
@@ -30450,8 +30776,8 @@ class ImageCellAccessibleClass(GObject.GPointer):
 
         ImageCellAccessibleClass()
     """
-
-    parent_class: RendererCellAccessibleClass
+    @property
+    def parent_class(self) -> RendererCellAccessibleClass: ...
 
 class ImageCellAccessiblePrivate(GObject.GPointer): ...
 
@@ -30463,12 +30789,8 @@ class ImageClass(GObject.GPointer):
 
         ImageClass()
     """
-
-    parent_class: MiscClass
-    _gtk_reserved1: None
-    _gtk_reserved2: None
-    _gtk_reserved3: None
-    _gtk_reserved4: None
+    @property
+    def parent_class(self) -> MiscClass: ...
 
 class ImageMenuItem(MenuItem, Atk.ImplementorIface, Actionable, Activatable, Buildable):
     """
@@ -30682,7 +31004,6 @@ class ImageMenuItem(MenuItem, Atk.ImplementorIface, Actionable, Activatable, Bui
     Signals from GObject:
       notify (GParam)
     """
-
     class Props(MenuItem.Props):
         always_show_image: bool
         image: Widget
@@ -30742,11 +31063,13 @@ class ImageMenuItem(MenuItem, Atk.ImplementorIface, Actionable, Activatable, Bui
 
     @property
     def props(self) -> Props: ...
-    menu_item: MenuItem
+    @property
+    def menu_item(self) -> MenuItem: ...
     @property
     def priv(self) -> ImageMenuItemPrivate: ...
     def __init__(
         self,
+        *,
         accel_group: AccelGroup = ...,
         always_show_image: bool = ...,
         image: Widget | None = ...,
@@ -30799,7 +31122,7 @@ class ImageMenuItem(MenuItem, Atk.ImplementorIface, Actionable, Activatable, Bui
         action_target: GLib.Variant = ...,
         related_action: Action = ...,
         use_action_appearance: bool = ...,
-    ): ...
+    ) -> None: ...
     def get_always_show_image(self) -> bool: ...
     def get_image(self) -> Widget: ...
     def get_use_stock(self) -> bool: ...
@@ -30826,12 +31149,8 @@ class ImageMenuItemClass(GObject.GPointer):
 
         ImageMenuItemClass()
     """
-
-    parent_class: MenuItemClass
-    _gtk_reserved1: None
-    _gtk_reserved2: None
-    _gtk_reserved3: None
-    _gtk_reserved4: None
+    @property
+    def parent_class(self) -> MenuItemClass: ...
 
 class ImageMenuItemPrivate(GObject.GPointer): ...
 class ImagePrivate(GObject.GPointer): ...
@@ -31035,7 +31354,6 @@ class InfoBar(Box, Atk.ImplementorIface, Buildable, Orientable):
     Signals from GObject:
       notify (GParam)
     """
-
     class Props(Box.Props):
         message_type: MessageType
         revealed: bool
@@ -31089,11 +31407,13 @@ class InfoBar(Box, Atk.ImplementorIface, Buildable, Orientable):
 
     @property
     def props(self) -> Props: ...
-    parent: Box
+    @property
+    def parent(self) -> Box: ...
     @property
     def priv(self) -> InfoBarPrivate: ...
     def __init__(
         self,
+        *,
         message_type: MessageType = ...,
         revealed: bool = ...,
         show_close_button: bool = ...,
@@ -31140,7 +31460,7 @@ class InfoBar(Box, Atk.ImplementorIface, Buildable, Orientable):
         visible: bool = ...,
         width_request: int = ...,
         orientation: Orientation = ...,
-    ): ...
+    ) -> None: ...
     def add_action_widget(self, child: Widget, response_id: int) -> None: ...
     def add_button(self, button_text: str, response_id: int) -> Button: ...
     def do_close(self) -> None: ...
@@ -31167,14 +31487,12 @@ class InfoBarClass(GObject.GPointer):
 
         InfoBarClass()
     """
-
-    parent_class: BoxClass
-    response: Callable[[InfoBar, int], None]
-    close: Callable[[InfoBar], None]
-    _gtk_reserved1: None
-    _gtk_reserved2: None
-    _gtk_reserved3: None
-    _gtk_reserved4: None
+    @property
+    def parent_class(self) -> BoxClass: ...
+    @property
+    def response(self) -> Callable[[InfoBar, int], None]: ...
+    @property
+    def close(self) -> Callable[[InfoBar], None]: ...
 
 class InfoBarPrivate(GObject.GPointer): ...
 
@@ -31348,7 +31666,6 @@ class Invisible(Widget, Atk.ImplementorIface, Buildable):
     Signals from GObject:
       notify (GParam)
     """
-
     class Props(Widget.Props):
         screen: _Gdk3.Screen
         app_paintable: bool
@@ -31393,11 +31710,13 @@ class Invisible(Widget, Atk.ImplementorIface, Buildable):
 
     @property
     def props(self) -> Props: ...
-    widget: Widget
+    @property
+    def widget(self) -> Widget: ...
     @property
     def priv(self) -> InvisiblePrivate: ...
     def __init__(
         self,
+        *,
         screen: _Gdk3.Screen = ...,
         app_paintable: bool = ...,
         can_default: bool = ...,
@@ -31435,7 +31754,7 @@ class Invisible(Widget, Atk.ImplementorIface, Buildable):
         vexpand_set: bool = ...,
         visible: bool = ...,
         width_request: int = ...,
-    ): ...
+    ) -> None: ...
     def get_screen(self) -> _Gdk3.Screen: ...
     @classmethod
     def new(cls) -> Invisible: ...
@@ -31451,12 +31770,8 @@ class InvisibleClass(GObject.GPointer):
 
         InvisibleClass()
     """
-
-    parent_class: WidgetClass
-    _gtk_reserved1: None
-    _gtk_reserved2: None
-    _gtk_reserved3: None
-    _gtk_reserved4: None
+    @property
+    def parent_class(self) -> WidgetClass: ...
 
 class InvisiblePrivate(GObject.GPointer): ...
 
@@ -31689,7 +32004,6 @@ class Label(Misc, Atk.ImplementorIface, Buildable):
     Signals from GObject:
       notify (GParam)
     """
-
     class Props(Misc.Props):
         angle: float
         attributes: Pango.AttrList | None
@@ -31757,11 +32071,13 @@ class Label(Misc, Atk.ImplementorIface, Buildable):
 
     @property
     def props(self) -> Props: ...
-    misc: Misc
+    @property
+    def misc(self) -> Misc: ...
     @property
     def priv(self) -> LabelPrivate: ...
     def __init__(
         self,
+        *,
         angle: float = ...,
         attributes: Pango.AttrList | None = ...,
         ellipsize: Pango.EllipsizeMode = ...,
@@ -31819,7 +32135,7 @@ class Label(Misc, Atk.ImplementorIface, Buildable):
         vexpand_set: bool = ...,
         visible: bool = ...,
         width_request: int = ...,
-    ): ...
+    ) -> None: ...
     def do_activate_link(self, uri: str) -> bool: ...
     def do_copy_clipboard(self) -> None: ...
     def do_move_cursor(
@@ -31919,6 +32235,7 @@ class LabelAccessible(WidgetAccessible, Atk.Component, Atk.Hypertext, Atk.Text):
       active-descendant-changed (gpointer)
       announcement (gchararray)
       notification (gchararray, gint)
+      attribute-changed (gchararray, gchararray)
 
     Properties from AtkObject:
       accessible-name -> gchararray: Accessible Name
@@ -31951,17 +32268,22 @@ class LabelAccessible(WidgetAccessible, Atk.Component, Atk.Hypertext, Atk.Text):
         Is used to notify that the table caption has changed
       accessible-hypertext-nlinks -> gint: Number of Accessible Hypertext Links
         The number of links which the current AtkHypertext has
+      accessible-id -> gchararray: Accessible ID
+        ID for the accessible; useful for automated testing
+      accessible-help-text -> gchararray: Help text
+        Help text associated with the accessible
 
     Signals from GObject:
       notify (GParam)
     """
-
     class Props(WidgetAccessible.Props):
         widget: Widget | None
         accessible_component_layer: int
         accessible_component_mdi_zorder: int
         accessible_description: str
+        accessible_help_text: str
         accessible_hypertext_nlinks: int
+        accessible_id: str
         accessible_name: str
         accessible_parent: Atk.Object
         accessible_role: Atk.Role
@@ -31976,13 +32298,17 @@ class LabelAccessible(WidgetAccessible, Atk.Component, Atk.Hypertext, Atk.Text):
 
     @property
     def props(self) -> Props: ...
-    parent: WidgetAccessible
+    @property
+    def parent(self) -> WidgetAccessible: ...
     @property
     def priv(self) -> LabelAccessiblePrivate: ...
     def __init__(
         self,
+        *,
         widget: Widget | None = ...,
         accessible_description: str = ...,
+        accessible_help_text: str = ...,
+        accessible_id: str = ...,
         accessible_name: str = ...,
         accessible_parent: Atk.Object = ...,
         accessible_role: Atk.Role = ...,
@@ -31994,7 +32320,7 @@ class LabelAccessible(WidgetAccessible, Atk.Component, Atk.Hypertext, Atk.Text):
         accessible_table_row_header: Atk.Object = ...,
         accessible_table_summary: Atk.Object = ...,
         accessible_value: float = ...,
-    ): ...
+    ) -> None: ...
 
 class LabelAccessibleClass(GObject.GPointer):
     """
@@ -32004,8 +32330,8 @@ class LabelAccessibleClass(GObject.GPointer):
 
         LabelAccessibleClass()
     """
-
-    parent_class: WidgetAccessibleClass
+    @property
+    def parent_class(self) -> WidgetAccessibleClass: ...
 
 class LabelAccessiblePrivate(GObject.GPointer): ...
 
@@ -32017,20 +32343,16 @@ class LabelClass(GObject.GPointer):
 
         LabelClass()
     """
-
-    parent_class: MiscClass
-    move_cursor: Callable[[Label, MovementStep, int, bool], None]
-    copy_clipboard: Callable[[Label], None]
-    populate_popup: Callable[[Label, Menu], None]
-    activate_link: Callable[[Label, str], bool]
-    _gtk_reserved1: None
-    _gtk_reserved2: None
-    _gtk_reserved3: None
-    _gtk_reserved4: None
-    _gtk_reserved5: None
-    _gtk_reserved6: None
-    _gtk_reserved7: None
-    _gtk_reserved8: None
+    @property
+    def parent_class(self) -> MiscClass: ...
+    @property
+    def move_cursor(self) -> Callable[[Label, MovementStep, int, bool], None]: ...
+    @property
+    def copy_clipboard(self) -> Callable[[Label], None]: ...
+    @property
+    def populate_popup(self) -> Callable[[Label, Menu], None]: ...
+    @property
+    def activate_link(self) -> Callable[[Label, str], bool]: ...
 
 class LabelPrivate(GObject.GPointer): ...
 class LabelSelectionInfo(GObject.GPointer): ...
@@ -32220,7 +32542,6 @@ class Layout(Container, Atk.ImplementorIface, Buildable, Scrollable):
     Signals from GObject:
       notify (GParam)
     """
-
     class Props(Container.Props):
         height: int
         width: int
@@ -32273,11 +32594,13 @@ class Layout(Container, Atk.ImplementorIface, Buildable, Scrollable):
 
     @property
     def props(self) -> Props: ...
-    container: Container
+    @property
+    def container(self) -> Container: ...
     @property
     def priv(self) -> LayoutPrivate: ...
     def __init__(
         self,
+        *,
         height: int = ...,
         width: int = ...,
         border_width: int = ...,
@@ -32323,7 +32646,7 @@ class Layout(Container, Atk.ImplementorIface, Buildable, Scrollable):
         hscroll_policy: ScrollablePolicy = ...,
         vadjustment: Adjustment | None = ...,
         vscroll_policy: ScrollablePolicy = ...,
-    ): ...
+    ) -> None: ...
     def get_bin_window(self) -> _Gdk3.Window: ...
     def get_hadjustment(self) -> Adjustment: ...
     def get_size(self) -> tuple[int, int]: ...
@@ -32348,12 +32671,8 @@ class LayoutClass(GObject.GPointer):
 
         LayoutClass()
     """
-
-    parent_class: ContainerClass
-    _gtk_reserved1: None
-    _gtk_reserved2: None
-    _gtk_reserved3: None
-    _gtk_reserved4: None
+    @property
+    def parent_class(self) -> ContainerClass: ...
 
 class LayoutPrivate(GObject.GPointer): ...
 
@@ -32538,7 +32857,6 @@ class LevelBar(Widget, Atk.ImplementorIface, Buildable, Orientable):
     Signals from GObject:
       notify (GParam)
     """
-
     class Props(Widget.Props):
         inverted: bool
         max_value: float
@@ -32588,11 +32906,13 @@ class LevelBar(Widget, Atk.ImplementorIface, Buildable, Orientable):
 
     @property
     def props(self) -> Props: ...
-    parent: Widget
+    @property
+    def parent(self) -> Widget: ...
     @property
     def priv(self) -> LevelBarPrivate: ...
     def __init__(
         self,
+        *,
         inverted: bool = ...,
         max_value: float = ...,
         min_value: float = ...,
@@ -32635,7 +32955,7 @@ class LevelBar(Widget, Atk.ImplementorIface, Buildable, Orientable):
         visible: bool = ...,
         width_request: int = ...,
         orientation: Orientation = ...,
-    ): ...
+    ) -> None: ...
     def add_offset_value(self, name: str, value: float) -> None: ...
     def do_offset_changed(self, name: str) -> None: ...
     def get_inverted(self) -> bool: ...
@@ -32687,6 +33007,7 @@ class LevelBarAccessible(WidgetAccessible, Atk.Component, Atk.Value):
       active-descendant-changed (gpointer)
       announcement (gchararray)
       notification (gchararray, gint)
+      attribute-changed (gchararray, gchararray)
 
     Properties from AtkObject:
       accessible-name -> gchararray: Accessible Name
@@ -32719,17 +33040,22 @@ class LevelBarAccessible(WidgetAccessible, Atk.Component, Atk.Value):
         Is used to notify that the table caption has changed
       accessible-hypertext-nlinks -> gint: Number of Accessible Hypertext Links
         The number of links which the current AtkHypertext has
+      accessible-id -> gchararray: Accessible ID
+        ID for the accessible; useful for automated testing
+      accessible-help-text -> gchararray: Help text
+        Help text associated with the accessible
 
     Signals from GObject:
       notify (GParam)
     """
-
     class Props(WidgetAccessible.Props):
         widget: Widget | None
         accessible_component_layer: int
         accessible_component_mdi_zorder: int
         accessible_description: str
+        accessible_help_text: str
         accessible_hypertext_nlinks: int
+        accessible_id: str
         accessible_name: str
         accessible_parent: Atk.Object
         accessible_role: Atk.Role
@@ -32744,13 +33070,17 @@ class LevelBarAccessible(WidgetAccessible, Atk.Component, Atk.Value):
 
     @property
     def props(self) -> Props: ...
-    parent: WidgetAccessible
+    @property
+    def parent(self) -> WidgetAccessible: ...
     @property
     def priv(self) -> LevelBarAccessiblePrivate: ...
     def __init__(
         self,
+        *,
         widget: Widget | None = ...,
         accessible_description: str = ...,
+        accessible_help_text: str = ...,
+        accessible_id: str = ...,
         accessible_name: str = ...,
         accessible_parent: Atk.Object = ...,
         accessible_role: Atk.Role = ...,
@@ -32762,7 +33092,7 @@ class LevelBarAccessible(WidgetAccessible, Atk.Component, Atk.Value):
         accessible_table_row_header: Atk.Object = ...,
         accessible_table_summary: Atk.Object = ...,
         accessible_value: float = ...,
-    ): ...
+    ) -> None: ...
 
 class LevelBarAccessibleClass(GObject.GPointer):
     """
@@ -32772,8 +33102,8 @@ class LevelBarAccessibleClass(GObject.GPointer):
 
         LevelBarAccessibleClass()
     """
-
-    parent_class: WidgetAccessibleClass
+    @property
+    def parent_class(self) -> WidgetAccessibleClass: ...
 
 class LevelBarAccessiblePrivate(GObject.GPointer): ...
 
@@ -32785,10 +33115,12 @@ class LevelBarClass(GObject.GPointer):
 
         LevelBarClass()
     """
-
-    parent_class: WidgetClass
-    offset_changed: Callable[[LevelBar, str], None]
-    padding: list[None]
+    @property
+    def parent_class(self) -> WidgetClass: ...
+    @property
+    def offset_changed(self) -> Callable[[LevelBar, str], None]: ...
+    @property
+    def padding(self) -> list[None]: ...
 
 class LevelBarPrivate(GObject.GPointer): ...
 
@@ -33009,7 +33341,6 @@ class LinkButton(Button, Atk.ImplementorIface, Actionable, Activatable, Buildabl
     Signals from GObject:
       notify (GParam)
     """
-
     class Props(Button.Props):
         uri: str
         visited: bool
@@ -33077,6 +33408,7 @@ class LinkButton(Button, Atk.ImplementorIface, Actionable, Activatable, Buildabl
     def priv(self) -> LinkButtonPrivate: ...
     def __init__(
         self,
+        *,
         uri: str = ...,
         visited: bool = ...,
         always_show_image: bool = ...,
@@ -33131,7 +33463,7 @@ class LinkButton(Button, Atk.ImplementorIface, Actionable, Activatable, Buildabl
         action_target: GLib.Variant = ...,
         related_action: Action = ...,
         use_action_appearance: bool = ...,
-    ): ...
+    ) -> None: ...
     def do_activate_link(self) -> bool: ...
     def get_uri(self) -> str: ...
     def get_visited(self) -> bool: ...
@@ -33179,6 +33511,7 @@ class LinkButtonAccessible(
       active-descendant-changed (gpointer)
       announcement (gchararray)
       notification (gchararray, gint)
+      attribute-changed (gchararray, gchararray)
 
     Properties from AtkObject:
       accessible-name -> gchararray: Accessible Name
@@ -33211,17 +33544,22 @@ class LinkButtonAccessible(
         Is used to notify that the table caption has changed
       accessible-hypertext-nlinks -> gint: Number of Accessible Hypertext Links
         The number of links which the current AtkHypertext has
+      accessible-id -> gchararray: Accessible ID
+        ID for the accessible; useful for automated testing
+      accessible-help-text -> gchararray: Help text
+        Help text associated with the accessible
 
     Signals from GObject:
       notify (GParam)
     """
-
     class Props(ButtonAccessible.Props):
         widget: Widget | None
         accessible_component_layer: int
         accessible_component_mdi_zorder: int
         accessible_description: str
+        accessible_help_text: str
         accessible_hypertext_nlinks: int
+        accessible_id: str
         accessible_name: str
         accessible_parent: Atk.Object
         accessible_role: Atk.Role
@@ -33242,8 +33580,11 @@ class LinkButtonAccessible(
     def priv(self) -> LinkButtonAccessiblePrivate: ...
     def __init__(
         self,
+        *,
         widget: Widget | None = ...,
         accessible_description: str = ...,
+        accessible_help_text: str = ...,
+        accessible_id: str = ...,
         accessible_name: str = ...,
         accessible_parent: Atk.Object = ...,
         accessible_role: Atk.Role = ...,
@@ -33255,7 +33596,7 @@ class LinkButtonAccessible(
         accessible_table_row_header: Atk.Object = ...,
         accessible_table_summary: Atk.Object = ...,
         accessible_value: float = ...,
-    ): ...
+    ) -> None: ...
 
 class LinkButtonAccessibleClass(GObject.GPointer):
     """
@@ -33265,8 +33606,8 @@ class LinkButtonAccessibleClass(GObject.GPointer):
 
         LinkButtonAccessibleClass()
     """
-
-    parent_class: ButtonAccessibleClass
+    @property
+    def parent_class(self) -> ButtonAccessibleClass: ...
 
 class LinkButtonAccessiblePrivate(GObject.GPointer): ...
 
@@ -33278,13 +33619,10 @@ class LinkButtonClass(GObject.GPointer):
 
         LinkButtonClass()
     """
-
-    parent_class: ButtonClass
-    activate_link: Callable[[LinkButton], bool]
-    _gtk_padding1: None
-    _gtk_padding2: None
-    _gtk_padding3: None
-    _gtk_padding4: None
+    @property
+    def parent_class(self) -> ButtonClass: ...
+    @property
+    def activate_link(self) -> Callable[[LinkButton], bool]: ...
 
 class LinkButtonPrivate(GObject.GPointer): ...
 
@@ -33483,7 +33821,6 @@ class ListBox(Container, Atk.ImplementorIface, Buildable):
     Signals from GObject:
       notify (GParam)
     """
-
     class Props(Container.Props):
         activate_on_single_click: bool
         selection_mode: SelectionMode
@@ -33536,6 +33873,7 @@ class ListBox(Container, Atk.ImplementorIface, Buildable):
     def parent_instance(self) -> Container: ...
     def __init__(
         self,
+        *,
         activate_on_single_click: bool = ...,
         selection_mode: SelectionMode = ...,
         border_width: int = ...,
@@ -33577,7 +33915,7 @@ class ListBox(Container, Atk.ImplementorIface, Buildable):
         vexpand_set: bool = ...,
         visible: bool = ...,
         width_request: int = ...,
-    ): ...
+    ) -> None: ...
     def bind_model(
         self,
         model: Gio.ListModel | None = None,
@@ -33663,6 +34001,7 @@ class ListBoxAccessible(ContainerAccessible, Atk.Component, Atk.Selection):
       active-descendant-changed (gpointer)
       announcement (gchararray)
       notification (gchararray, gint)
+      attribute-changed (gchararray, gchararray)
 
     Properties from AtkObject:
       accessible-name -> gchararray: Accessible Name
@@ -33695,17 +34034,22 @@ class ListBoxAccessible(ContainerAccessible, Atk.Component, Atk.Selection):
         Is used to notify that the table caption has changed
       accessible-hypertext-nlinks -> gint: Number of Accessible Hypertext Links
         The number of links which the current AtkHypertext has
+      accessible-id -> gchararray: Accessible ID
+        ID for the accessible; useful for automated testing
+      accessible-help-text -> gchararray: Help text
+        Help text associated with the accessible
 
     Signals from GObject:
       notify (GParam)
     """
-
     class Props(ContainerAccessible.Props):
         widget: Widget | None
         accessible_component_layer: int
         accessible_component_mdi_zorder: int
         accessible_description: str
+        accessible_help_text: str
         accessible_hypertext_nlinks: int
+        accessible_id: str
         accessible_name: str
         accessible_parent: Atk.Object
         accessible_role: Atk.Role
@@ -33720,13 +34064,17 @@ class ListBoxAccessible(ContainerAccessible, Atk.Component, Atk.Selection):
 
     @property
     def props(self) -> Props: ...
-    parent: ContainerAccessible
+    @property
+    def parent(self) -> ContainerAccessible: ...
     @property
     def priv(self) -> ListBoxAccessiblePrivate: ...
     def __init__(
         self,
+        *,
         widget: Widget | None = ...,
         accessible_description: str = ...,
+        accessible_help_text: str = ...,
+        accessible_id: str = ...,
         accessible_name: str = ...,
         accessible_parent: Atk.Object = ...,
         accessible_role: Atk.Role = ...,
@@ -33738,7 +34086,7 @@ class ListBoxAccessible(ContainerAccessible, Atk.Component, Atk.Selection):
         accessible_table_row_header: Atk.Object = ...,
         accessible_table_summary: Atk.Object = ...,
         accessible_value: float = ...,
-    ): ...
+    ) -> None: ...
 
 class ListBoxAccessibleClass(GObject.GPointer):
     """
@@ -33748,8 +34096,8 @@ class ListBoxAccessibleClass(GObject.GPointer):
 
         ListBoxAccessibleClass()
     """
-
-    parent_class: ContainerAccessibleClass
+    @property
+    def parent_class(self) -> ContainerAccessibleClass: ...
 
 class ListBoxAccessiblePrivate(GObject.GPointer): ...
 
@@ -33761,19 +34109,24 @@ class ListBoxClass(GObject.GPointer):
 
         ListBoxClass()
     """
-
-    parent_class: ContainerClass
-    row_selected: Callable[[ListBox, ListBoxRow], None]
-    row_activated: Callable[[ListBox, ListBoxRow], None]
-    activate_cursor_row: Callable[[ListBox], None]
-    toggle_cursor_row: Callable[[ListBox], None]
-    move_cursor: Callable[[ListBox, MovementStep, int], None]
-    selected_rows_changed: Callable[[ListBox], None]
-    select_all: Callable[[ListBox], None]
-    unselect_all: Callable[[ListBox], None]
-    _gtk_reserved1: None
-    _gtk_reserved2: None
-    _gtk_reserved3: None
+    @property
+    def parent_class(self) -> ContainerClass: ...
+    @property
+    def row_selected(self) -> Callable[[ListBox, ListBoxRow], None]: ...
+    @property
+    def row_activated(self) -> Callable[[ListBox, ListBoxRow], None]: ...
+    @property
+    def activate_cursor_row(self) -> Callable[[ListBox], None]: ...
+    @property
+    def toggle_cursor_row(self) -> Callable[[ListBox], None]: ...
+    @property
+    def move_cursor(self) -> Callable[[ListBox, MovementStep, int], None]: ...
+    @property
+    def selected_rows_changed(self) -> Callable[[ListBox], None]: ...
+    @property
+    def select_all(self) -> Callable[[ListBox], None]: ...
+    @property
+    def unselect_all(self) -> Callable[[ListBox], None]: ...
 
 class ListBoxRow(Bin, Atk.ImplementorIface, Actionable, Buildable):
     """
@@ -33963,7 +34316,6 @@ class ListBoxRow(Bin, Atk.ImplementorIface, Actionable, Buildable):
     Signals from GObject:
       notify (GParam)
     """
-
     class Props(Bin.Props):
         activatable: bool
         selectable: bool
@@ -34018,6 +34370,7 @@ class ListBoxRow(Bin, Atk.ImplementorIface, Actionable, Buildable):
     def parent_instance(self) -> Bin: ...
     def __init__(
         self,
+        *,
         activatable: bool = ...,
         selectable: bool = ...,
         border_width: int = ...,
@@ -34061,7 +34414,7 @@ class ListBoxRow(Bin, Atk.ImplementorIface, Actionable, Buildable):
         width_request: int = ...,
         action_name: str | None = ...,
         action_target: GLib.Variant = ...,
-    ): ...
+    ) -> None: ...
     def changed(self) -> None: ...
     def do_activate(self) -> None: ...
     def get_activatable(self) -> bool: ...
@@ -34107,6 +34460,7 @@ class ListBoxRowAccessible(ContainerAccessible, Atk.Component):
       active-descendant-changed (gpointer)
       announcement (gchararray)
       notification (gchararray, gint)
+      attribute-changed (gchararray, gchararray)
 
     Properties from AtkObject:
       accessible-name -> gchararray: Accessible Name
@@ -34139,17 +34493,22 @@ class ListBoxRowAccessible(ContainerAccessible, Atk.Component):
         Is used to notify that the table caption has changed
       accessible-hypertext-nlinks -> gint: Number of Accessible Hypertext Links
         The number of links which the current AtkHypertext has
+      accessible-id -> gchararray: Accessible ID
+        ID for the accessible; useful for automated testing
+      accessible-help-text -> gchararray: Help text
+        Help text associated with the accessible
 
     Signals from GObject:
       notify (GParam)
     """
-
     class Props(ContainerAccessible.Props):
         widget: Widget | None
         accessible_component_layer: int
         accessible_component_mdi_zorder: int
         accessible_description: str
+        accessible_help_text: str
         accessible_hypertext_nlinks: int
+        accessible_id: str
         accessible_name: str
         accessible_parent: Atk.Object
         accessible_role: Atk.Role
@@ -34164,11 +34523,15 @@ class ListBoxRowAccessible(ContainerAccessible, Atk.Component):
 
     @property
     def props(self) -> Props: ...
-    parent: ContainerAccessible
+    @property
+    def parent(self) -> ContainerAccessible: ...
     def __init__(
         self,
+        *,
         widget: Widget | None = ...,
         accessible_description: str = ...,
+        accessible_help_text: str = ...,
+        accessible_id: str = ...,
         accessible_name: str = ...,
         accessible_parent: Atk.Object = ...,
         accessible_role: Atk.Role = ...,
@@ -34180,7 +34543,7 @@ class ListBoxRowAccessible(ContainerAccessible, Atk.Component):
         accessible_table_row_header: Atk.Object = ...,
         accessible_table_summary: Atk.Object = ...,
         accessible_value: float = ...,
-    ): ...
+    ) -> None: ...
 
 class ListBoxRowAccessibleClass(GObject.GPointer):
     """
@@ -34190,8 +34553,8 @@ class ListBoxRowAccessibleClass(GObject.GPointer):
 
         ListBoxRowAccessibleClass()
     """
-
-    parent_class: ContainerAccessibleClass
+    @property
+    def parent_class(self) -> ContainerAccessibleClass: ...
 
 class ListBoxRowClass(GObject.GPointer):
     """
@@ -34201,11 +34564,10 @@ class ListBoxRowClass(GObject.GPointer):
 
         ListBoxRowClass()
     """
-
-    parent_class: BinClass
-    activate: Callable[[ListBoxRow], None]
-    _gtk_reserved1: None
-    _gtk_reserved2: None
+    @property
+    def parent_class(self) -> BinClass: ...
+    @property
+    def activate(self) -> Callable[[ListBoxRow], None]: ...
 
 # override
 class ListStore(
@@ -34217,7 +34579,7 @@ class ListStore(
     ::
 
         ListStore(**properties)
-        new(types:list) -> Gtk.ListStore
+        new(types:list) -> ListStore
 
     Object GtkListStore
 
@@ -34236,6 +34598,7 @@ class ListStore(
     """
 
     parent: GObject.Object = ...
+
     @property
     def priv(self) -> ListStorePrivate: ...
     def __init__(self, *args: Any) -> None: ...
@@ -34504,7 +34867,6 @@ class LockButton(Button, Atk.ImplementorIface, Actionable, Activatable, Buildabl
     Signals from GObject:
       notify (GParam)
     """
-
     class Props(Button.Props):
         permission: Gio.Permission
         text_lock: str
@@ -34570,11 +34932,13 @@ class LockButton(Button, Atk.ImplementorIface, Actionable, Activatable, Buildabl
 
     @property
     def props(self) -> Props: ...
-    parent: Button
+    @property
+    def parent(self) -> Button: ...
     @property
     def priv(self) -> LockButtonPrivate: ...
     def __init__(
         self,
+        *,
         permission: Gio.Permission | None = ...,
         text_lock: str = ...,
         text_unlock: str = ...,
@@ -34633,7 +34997,7 @@ class LockButton(Button, Atk.ImplementorIface, Actionable, Activatable, Buildabl
         action_target: GLib.Variant = ...,
         related_action: Action = ...,
         use_action_appearance: bool = ...,
-    ): ...
+    ) -> None: ...
     def get_permission(self) -> Gio.Permission: ...
     @classmethod
     def new(cls, permission: Gio.Permission | None = None) -> LockButton: ...
@@ -34674,6 +35038,7 @@ class LockButtonAccessible(ButtonAccessible, Atk.Action, Atk.Component, Atk.Imag
       active-descendant-changed (gpointer)
       announcement (gchararray)
       notification (gchararray, gint)
+      attribute-changed (gchararray, gchararray)
 
     Properties from AtkObject:
       accessible-name -> gchararray: Accessible Name
@@ -34706,17 +35071,22 @@ class LockButtonAccessible(ButtonAccessible, Atk.Action, Atk.Component, Atk.Imag
         Is used to notify that the table caption has changed
       accessible-hypertext-nlinks -> gint: Number of Accessible Hypertext Links
         The number of links which the current AtkHypertext has
+      accessible-id -> gchararray: Accessible ID
+        ID for the accessible; useful for automated testing
+      accessible-help-text -> gchararray: Help text
+        Help text associated with the accessible
 
     Signals from GObject:
       notify (GParam)
     """
-
     class Props(ButtonAccessible.Props):
         widget: Widget | None
         accessible_component_layer: int
         accessible_component_mdi_zorder: int
         accessible_description: str
+        accessible_help_text: str
         accessible_hypertext_nlinks: int
+        accessible_id: str
         accessible_name: str
         accessible_parent: Atk.Object
         accessible_role: Atk.Role
@@ -34731,13 +35101,17 @@ class LockButtonAccessible(ButtonAccessible, Atk.Action, Atk.Component, Atk.Imag
 
     @property
     def props(self) -> Props: ...
-    parent: ButtonAccessible
+    @property
+    def parent(self) -> ButtonAccessible: ...
     @property
     def priv(self) -> LockButtonAccessiblePrivate: ...
     def __init__(
         self,
+        *,
         widget: Widget | None = ...,
         accessible_description: str = ...,
+        accessible_help_text: str = ...,
+        accessible_id: str = ...,
         accessible_name: str = ...,
         accessible_parent: Atk.Object = ...,
         accessible_role: Atk.Role = ...,
@@ -34749,7 +35123,7 @@ class LockButtonAccessible(ButtonAccessible, Atk.Action, Atk.Component, Atk.Imag
         accessible_table_row_header: Atk.Object = ...,
         accessible_table_summary: Atk.Object = ...,
         accessible_value: float = ...,
-    ): ...
+    ) -> None: ...
 
 class LockButtonAccessibleClass(GObject.GPointer):
     """
@@ -34759,8 +35133,8 @@ class LockButtonAccessibleClass(GObject.GPointer):
 
         LockButtonAccessibleClass()
     """
-
-    parent_class: ButtonAccessibleClass
+    @property
+    def parent_class(self) -> ButtonAccessibleClass: ...
 
 class LockButtonAccessiblePrivate(GObject.GPointer): ...
 
@@ -34772,16 +35146,24 @@ class LockButtonClass(GObject.GPointer):
 
         LockButtonClass()
     """
-
-    parent_class: ButtonClass
-    reserved0: Callable[[], None]
-    reserved1: Callable[[], None]
-    reserved2: Callable[[], None]
-    reserved3: Callable[[], None]
-    reserved4: Callable[[], None]
-    reserved5: Callable[[], None]
-    reserved6: Callable[[], None]
-    reserved7: Callable[[], None]
+    @property
+    def parent_class(self) -> ButtonClass: ...
+    @property
+    def reserved0(self) -> Callable[[], None]: ...
+    @property
+    def reserved1(self) -> Callable[[], None]: ...
+    @property
+    def reserved2(self) -> Callable[[], None]: ...
+    @property
+    def reserved3(self) -> Callable[[], None]: ...
+    @property
+    def reserved4(self) -> Callable[[], None]: ...
+    @property
+    def reserved5(self) -> Callable[[], None]: ...
+    @property
+    def reserved6(self) -> Callable[[], None]: ...
+    @property
+    def reserved7(self) -> Callable[[], None]: ...
 
 class LockButtonPrivate(GObject.GPointer): ...
 
@@ -35009,7 +35391,6 @@ class Menu(MenuShell, Atk.ImplementorIface, Buildable):
     Signals from GObject:
       notify (GParam)
     """
-
     class Props(MenuShell.Props):
         accel_group: AccelGroup
         accel_path: str
@@ -35069,11 +35450,13 @@ class Menu(MenuShell, Atk.ImplementorIface, Buildable):
 
     @property
     def props(self) -> Props: ...
-    menu_shell: MenuShell
+    @property
+    def menu_shell(self) -> MenuShell: ...
     @property
     def priv(self) -> MenuPrivate: ...
     def __init__(
         self,
+        *,
         accel_group: AccelGroup | None = ...,
         accel_path: str | None = ...,
         active: int = ...,
@@ -35126,7 +35509,7 @@ class Menu(MenuShell, Atk.ImplementorIface, Buildable):
         vexpand_set: bool = ...,
         visible: bool = ...,
         width_request: int = ...,
-    ): ...
+    ) -> None: ...
     def attach(
         self,
         child: Widget,
@@ -35245,6 +35628,7 @@ class MenuAccessible(MenuShellAccessible, Atk.Component, Atk.Selection):
       active-descendant-changed (gpointer)
       announcement (gchararray)
       notification (gchararray, gint)
+      attribute-changed (gchararray, gchararray)
 
     Properties from AtkObject:
       accessible-name -> gchararray: Accessible Name
@@ -35277,17 +35661,22 @@ class MenuAccessible(MenuShellAccessible, Atk.Component, Atk.Selection):
         Is used to notify that the table caption has changed
       accessible-hypertext-nlinks -> gint: Number of Accessible Hypertext Links
         The number of links which the current AtkHypertext has
+      accessible-id -> gchararray: Accessible ID
+        ID for the accessible; useful for automated testing
+      accessible-help-text -> gchararray: Help text
+        Help text associated with the accessible
 
     Signals from GObject:
       notify (GParam)
     """
-
     class Props(MenuShellAccessible.Props):
         widget: Widget | None
         accessible_component_layer: int
         accessible_component_mdi_zorder: int
         accessible_description: str
+        accessible_help_text: str
         accessible_hypertext_nlinks: int
+        accessible_id: str
         accessible_name: str
         accessible_parent: Atk.Object
         accessible_role: Atk.Role
@@ -35302,13 +35691,17 @@ class MenuAccessible(MenuShellAccessible, Atk.Component, Atk.Selection):
 
     @property
     def props(self) -> Props: ...
-    parent: MenuShellAccessible
+    @property
+    def parent(self) -> MenuShellAccessible: ...
     @property
     def priv(self) -> MenuAccessiblePrivate: ...
     def __init__(
         self,
+        *,
         widget: Widget | None = ...,
         accessible_description: str = ...,
+        accessible_help_text: str = ...,
+        accessible_id: str = ...,
         accessible_name: str = ...,
         accessible_parent: Atk.Object = ...,
         accessible_role: Atk.Role = ...,
@@ -35320,7 +35713,7 @@ class MenuAccessible(MenuShellAccessible, Atk.Component, Atk.Selection):
         accessible_table_row_header: Atk.Object = ...,
         accessible_table_summary: Atk.Object = ...,
         accessible_value: float = ...,
-    ): ...
+    ) -> None: ...
 
 class MenuAccessibleClass(GObject.GPointer):
     """
@@ -35330,8 +35723,8 @@ class MenuAccessibleClass(GObject.GPointer):
 
         MenuAccessibleClass()
     """
-
-    parent_class: MenuShellAccessibleClass
+    @property
+    def parent_class(self) -> MenuShellAccessibleClass: ...
 
 class MenuAccessiblePrivate(GObject.GPointer): ...
 
@@ -35535,7 +35928,6 @@ class MenuBar(MenuShell, Atk.ImplementorIface, Buildable):
     Signals from GObject:
       notify (GParam)
     """
-
     class Props(MenuShell.Props):
         child_pack_direction: PackDirection
         pack_direction: PackDirection
@@ -35585,11 +35977,13 @@ class MenuBar(MenuShell, Atk.ImplementorIface, Buildable):
 
     @property
     def props(self) -> Props: ...
-    menu_shell: MenuShell
+    @property
+    def menu_shell(self) -> MenuShell: ...
     @property
     def priv(self) -> MenuBarPrivate: ...
     def __init__(
         self,
+        *,
         child_pack_direction: PackDirection = ...,
         pack_direction: PackDirection = ...,
         take_focus: bool = ...,
@@ -35632,7 +36026,7 @@ class MenuBar(MenuShell, Atk.ImplementorIface, Buildable):
         vexpand_set: bool = ...,
         visible: bool = ...,
         width_request: int = ...,
-    ): ...
+    ) -> None: ...
     def get_child_pack_direction(self) -> PackDirection: ...
     def get_pack_direction(self) -> PackDirection: ...
     @classmethod
@@ -35650,12 +36044,8 @@ class MenuBarClass(GObject.GPointer):
 
         MenuBarClass()
     """
-
-    parent_class: MenuShellClass
-    _gtk_reserved1: None
-    _gtk_reserved2: None
-    _gtk_reserved3: None
-    _gtk_reserved4: None
+    @property
+    def parent_class(self) -> MenuShellClass: ...
 
 class MenuBarPrivate(GObject.GPointer): ...
 
@@ -35893,7 +36283,6 @@ class MenuButton(
     Signals from GObject:
       notify (GParam)
     """
-
     class Props(ToggleButton.Props):
         align_widget: Container | None
         direction: ArrowType
@@ -35968,6 +36357,7 @@ class MenuButton(
     def priv(self) -> MenuButtonPrivate: ...
     def __init__(
         self,
+        *,
         align_widget: Container | None = ...,
         direction: ArrowType = ...,
         menu_model: Gio.MenuModel | None = ...,
@@ -36029,7 +36419,7 @@ class MenuButton(
         action_target: GLib.Variant = ...,
         related_action: Action = ...,
         use_action_appearance: bool = ...,
-    ): ...
+    ) -> None: ...
     def get_align_widget(self) -> Widget | None: ...
     def get_direction(self) -> ArrowType: ...
     def get_menu_model(self) -> Gio.MenuModel | None: ...
@@ -36085,6 +36475,7 @@ class MenuButtonAccessible(
       active-descendant-changed (gpointer)
       announcement (gchararray)
       notification (gchararray, gint)
+      attribute-changed (gchararray, gchararray)
 
     Properties from AtkObject:
       accessible-name -> gchararray: Accessible Name
@@ -36117,17 +36508,22 @@ class MenuButtonAccessible(
         Is used to notify that the table caption has changed
       accessible-hypertext-nlinks -> gint: Number of Accessible Hypertext Links
         The number of links which the current AtkHypertext has
+      accessible-id -> gchararray: Accessible ID
+        ID for the accessible; useful for automated testing
+      accessible-help-text -> gchararray: Help text
+        Help text associated with the accessible
 
     Signals from GObject:
       notify (GParam)
     """
-
     class Props(ToggleButtonAccessible.Props):
         widget: Widget | None
         accessible_component_layer: int
         accessible_component_mdi_zorder: int
         accessible_description: str
+        accessible_help_text: str
         accessible_hypertext_nlinks: int
+        accessible_id: str
         accessible_name: str
         accessible_parent: Atk.Object
         accessible_role: Atk.Role
@@ -36148,8 +36544,11 @@ class MenuButtonAccessible(
     def priv(self) -> MenuButtonAccessiblePrivate: ...
     def __init__(
         self,
+        *,
         widget: Widget | None = ...,
         accessible_description: str = ...,
+        accessible_help_text: str = ...,
+        accessible_id: str = ...,
         accessible_name: str = ...,
         accessible_parent: Atk.Object = ...,
         accessible_role: Atk.Role = ...,
@@ -36161,7 +36560,7 @@ class MenuButtonAccessible(
         accessible_table_row_header: Atk.Object = ...,
         accessible_table_summary: Atk.Object = ...,
         accessible_value: float = ...,
-    ): ...
+    ) -> None: ...
 
 class MenuButtonAccessibleClass(GObject.GPointer):
     """
@@ -36171,8 +36570,8 @@ class MenuButtonAccessibleClass(GObject.GPointer):
 
         MenuButtonAccessibleClass()
     """
-
-    parent_class: ToggleButtonAccessibleClass
+    @property
+    def parent_class(self) -> ToggleButtonAccessibleClass: ...
 
 class MenuButtonAccessiblePrivate(GObject.GPointer): ...
 
@@ -36184,12 +36583,8 @@ class MenuButtonClass(GObject.GPointer):
 
         MenuButtonClass()
     """
-
-    parent_class: ToggleButtonClass
-    _gtk_reserved1: None
-    _gtk_reserved2: None
-    _gtk_reserved3: None
-    _gtk_reserved4: None
+    @property
+    def parent_class(self) -> ToggleButtonClass: ...
 
 class MenuButtonPrivate(GObject.GPointer): ...
 
@@ -36201,12 +36596,8 @@ class MenuClass(GObject.GPointer):
 
         MenuClass()
     """
-
-    parent_class: MenuShellClass
-    _gtk_reserved1: None
-    _gtk_reserved2: None
-    _gtk_reserved3: None
-    _gtk_reserved4: None
+    @property
+    def parent_class(self) -> MenuShellClass: ...
 
 class MenuItem(Bin, Atk.ImplementorIface, Actionable, Activatable, Buildable):
     """
@@ -36409,7 +36800,6 @@ class MenuItem(Bin, Atk.ImplementorIface, Actionable, Activatable, Buildable):
     Signals from GObject:
       notify (GParam)
     """
-
     class Props(Bin.Props):
         accel_path: str | None
         label: str
@@ -36465,11 +36855,13 @@ class MenuItem(Bin, Atk.ImplementorIface, Actionable, Activatable, Buildable):
 
     @property
     def props(self) -> Props: ...
-    bin: Bin
+    @property
+    def bin(self) -> Bin: ...
     @property
     def priv(self) -> MenuItemPrivate: ...
     def __init__(
         self,
+        *,
         accel_path: str | None = ...,
         label: str = ...,
         right_justified: bool = ...,
@@ -36518,7 +36910,7 @@ class MenuItem(Bin, Atk.ImplementorIface, Actionable, Activatable, Buildable):
         action_target: GLib.Variant = ...,
         related_action: Action = ...,
         use_action_appearance: bool = ...,
-    ): ...
+    ) -> None: ...
     def activate(self) -> None: ...
     def deselect(self) -> None: ...
     def do_activate(self) -> None: ...
@@ -36586,6 +36978,7 @@ class MenuItemAccessible(ContainerAccessible, Atk.Action, Atk.Component, Atk.Sel
       active-descendant-changed (gpointer)
       announcement (gchararray)
       notification (gchararray, gint)
+      attribute-changed (gchararray, gchararray)
 
     Properties from AtkObject:
       accessible-name -> gchararray: Accessible Name
@@ -36618,17 +37011,22 @@ class MenuItemAccessible(ContainerAccessible, Atk.Action, Atk.Component, Atk.Sel
         Is used to notify that the table caption has changed
       accessible-hypertext-nlinks -> gint: Number of Accessible Hypertext Links
         The number of links which the current AtkHypertext has
+      accessible-id -> gchararray: Accessible ID
+        ID for the accessible; useful for automated testing
+      accessible-help-text -> gchararray: Help text
+        Help text associated with the accessible
 
     Signals from GObject:
       notify (GParam)
     """
-
     class Props(ContainerAccessible.Props):
         widget: Widget | None
         accessible_component_layer: int
         accessible_component_mdi_zorder: int
         accessible_description: str
+        accessible_help_text: str
         accessible_hypertext_nlinks: int
+        accessible_id: str
         accessible_name: str
         accessible_parent: Atk.Object
         accessible_role: Atk.Role
@@ -36643,13 +37041,17 @@ class MenuItemAccessible(ContainerAccessible, Atk.Action, Atk.Component, Atk.Sel
 
     @property
     def props(self) -> Props: ...
-    parent: ContainerAccessible
+    @property
+    def parent(self) -> ContainerAccessible: ...
     @property
     def priv(self) -> MenuItemAccessiblePrivate: ...
     def __init__(
         self,
+        *,
         widget: Widget | None = ...,
         accessible_description: str = ...,
+        accessible_help_text: str = ...,
+        accessible_id: str = ...,
         accessible_name: str = ...,
         accessible_parent: Atk.Object = ...,
         accessible_role: Atk.Role = ...,
@@ -36661,7 +37063,7 @@ class MenuItemAccessible(ContainerAccessible, Atk.Action, Atk.Component, Atk.Sel
         accessible_table_row_header: Atk.Object = ...,
         accessible_table_summary: Atk.Object = ...,
         accessible_value: float = ...,
-    ): ...
+    ) -> None: ...
 
 class MenuItemAccessibleClass(GObject.GPointer):
     """
@@ -36671,8 +37073,8 @@ class MenuItemAccessibleClass(GObject.GPointer):
 
         MenuItemAccessibleClass()
     """
-
-    parent_class: ContainerAccessibleClass
+    @property
+    def parent_class(self) -> ContainerAccessibleClass: ...
 
 class MenuItemAccessiblePrivate(GObject.GPointer): ...
 
@@ -36684,21 +37086,26 @@ class MenuItemClass(GObject.GPointer):
 
         MenuItemClass()
     """
-
-    parent_class: BinClass
-    hide_on_activate: int
-    activate: Callable[[MenuItem], None]
-    activate_item: Callable[[MenuItem], None]
-    toggle_size_request: Callable[[MenuItem], int]
-    toggle_size_allocate: Callable[[MenuItem, int], None]
-    set_label: Callable[[MenuItem, str], None]
-    get_label: Callable[[MenuItem], str]
-    select: Callable[[MenuItem], None]
-    deselect: Callable[[MenuItem], None]
-    _gtk_reserved1: None
-    _gtk_reserved2: None
-    _gtk_reserved3: None
-    _gtk_reserved4: None
+    @property
+    def parent_class(self) -> BinClass: ...
+    @property
+    def hide_on_activate(self) -> int: ...
+    @property
+    def activate(self) -> Callable[[MenuItem], None]: ...
+    @property
+    def activate_item(self) -> Callable[[MenuItem], None]: ...
+    @property
+    def toggle_size_request(self) -> Callable[[MenuItem], int]: ...
+    @property
+    def toggle_size_allocate(self) -> Callable[[MenuItem, int], None]: ...
+    @property
+    def set_label(self) -> Callable[[MenuItem, str], None]: ...
+    @property
+    def get_label(self) -> Callable[[MenuItem], str]: ...
+    @property
+    def select(self) -> Callable[[MenuItem], None]: ...
+    @property
+    def deselect(self) -> Callable[[MenuItem], None]: ...
 
 class MenuItemPrivate(GObject.GPointer): ...
 class MenuPrivate(GObject.GPointer): ...
@@ -36895,7 +37302,6 @@ class MenuShell(Container, Atk.ImplementorIface, Buildable):
     Signals from GObject:
       notify (GParam)
     """
-
     class Props(Container.Props):
         take_focus: bool
         border_width: int
@@ -36943,11 +37349,13 @@ class MenuShell(Container, Atk.ImplementorIface, Buildable):
 
     @property
     def props(self) -> Props: ...
-    container: Container
+    @property
+    def container(self) -> Container: ...
     @property
     def priv(self) -> MenuShellPrivate: ...
     def __init__(
         self,
+        *,
         take_focus: bool = ...,
         border_width: int = ...,
         child: Widget = ...,
@@ -36988,7 +37396,7 @@ class MenuShell(Container, Atk.ImplementorIface, Buildable):
         vexpand_set: bool = ...,
         visible: bool = ...,
         width_request: int = ...,
-    ): ...
+    ) -> None: ...
     def activate_item(self, menu_item: Widget, force_deactivate: bool) -> None: ...
     def append(self, child: MenuItem) -> None: ...
     def bind_model(
@@ -37053,6 +37461,7 @@ class MenuShellAccessible(ContainerAccessible, Atk.Component, Atk.Selection):
       active-descendant-changed (gpointer)
       announcement (gchararray)
       notification (gchararray, gint)
+      attribute-changed (gchararray, gchararray)
 
     Properties from AtkObject:
       accessible-name -> gchararray: Accessible Name
@@ -37085,17 +37494,22 @@ class MenuShellAccessible(ContainerAccessible, Atk.Component, Atk.Selection):
         Is used to notify that the table caption has changed
       accessible-hypertext-nlinks -> gint: Number of Accessible Hypertext Links
         The number of links which the current AtkHypertext has
+      accessible-id -> gchararray: Accessible ID
+        ID for the accessible; useful for automated testing
+      accessible-help-text -> gchararray: Help text
+        Help text associated with the accessible
 
     Signals from GObject:
       notify (GParam)
     """
-
     class Props(ContainerAccessible.Props):
         widget: Widget | None
         accessible_component_layer: int
         accessible_component_mdi_zorder: int
         accessible_description: str
+        accessible_help_text: str
         accessible_hypertext_nlinks: int
+        accessible_id: str
         accessible_name: str
         accessible_parent: Atk.Object
         accessible_role: Atk.Role
@@ -37110,13 +37524,17 @@ class MenuShellAccessible(ContainerAccessible, Atk.Component, Atk.Selection):
 
     @property
     def props(self) -> Props: ...
-    parent: ContainerAccessible
+    @property
+    def parent(self) -> ContainerAccessible: ...
     @property
     def priv(self) -> MenuShellAccessiblePrivate: ...
     def __init__(
         self,
+        *,
         widget: Widget | None = ...,
         accessible_description: str = ...,
+        accessible_help_text: str = ...,
+        accessible_id: str = ...,
         accessible_name: str = ...,
         accessible_parent: Atk.Object = ...,
         accessible_role: Atk.Role = ...,
@@ -37128,7 +37546,7 @@ class MenuShellAccessible(ContainerAccessible, Atk.Component, Atk.Selection):
         accessible_table_row_header: Atk.Object = ...,
         accessible_table_summary: Atk.Object = ...,
         accessible_value: float = ...,
-    ): ...
+    ) -> None: ...
 
 class MenuShellAccessibleClass(GObject.GPointer):
     """
@@ -37138,8 +37556,8 @@ class MenuShellAccessibleClass(GObject.GPointer):
 
         MenuShellAccessibleClass()
     """
-
-    parent_class: ContainerAccessibleClass
+    @property
+    def parent_class(self) -> ContainerAccessibleClass: ...
 
 class MenuShellAccessiblePrivate(GObject.GPointer): ...
 
@@ -37151,22 +37569,28 @@ class MenuShellClass(GObject.GPointer):
 
         MenuShellClass()
     """
-
-    parent_class: ContainerClass
-    submenu_placement: int
-    deactivate: Callable[[MenuShell], None]
-    selection_done: Callable[[MenuShell], None]
-    move_current: Callable[[MenuShell, MenuDirectionType], None]
-    activate_current: Callable[[MenuShell, bool], None]
-    cancel: Callable[[MenuShell], None]
-    select_item: Callable[[MenuShell, Widget], None]
-    insert: Callable[[MenuShell, Widget, int], None]
-    get_popup_delay: Callable[[MenuShell], int]
-    move_selected: Callable[[MenuShell, int], bool]
-    _gtk_reserved1: None
-    _gtk_reserved2: None
-    _gtk_reserved3: None
-    _gtk_reserved4: None
+    @property
+    def parent_class(self) -> ContainerClass: ...
+    @property
+    def submenu_placement(self) -> int: ...
+    @property
+    def deactivate(self) -> Callable[[MenuShell], None]: ...
+    @property
+    def selection_done(self) -> Callable[[MenuShell], None]: ...
+    @property
+    def move_current(self) -> Callable[[MenuShell, MenuDirectionType], None]: ...
+    @property
+    def activate_current(self) -> Callable[[MenuShell, bool], None]: ...
+    @property
+    def cancel(self) -> Callable[[MenuShell], None]: ...
+    @property
+    def select_item(self) -> Callable[[MenuShell, Widget], None]: ...
+    @property
+    def insert(self) -> Callable[[MenuShell, Widget, int], None]: ...
+    @property
+    def get_popup_delay(self) -> Callable[[MenuShell], int]: ...
+    @property
+    def move_selected(self) -> Callable[[MenuShell, int], bool]: ...
 
 class MenuShellPrivate(GObject.GPointer): ...
 
@@ -37388,7 +37812,6 @@ class MenuToolButton(
     Signals from GObject:
       notify (GParam)
     """
-
     class Props(ToolButton.Props):
         menu: Menu
         icon_name: str | None
@@ -37455,6 +37878,7 @@ class MenuToolButton(
     def priv(self) -> MenuToolButtonPrivate: ...
     def __init__(
         self,
+        *,
         menu: Menu = ...,
         icon_name: str | None = ...,
         icon_widget: Widget | None = ...,
@@ -37508,7 +37932,7 @@ class MenuToolButton(
         action_target: GLib.Variant = ...,
         related_action: Action = ...,
         use_action_appearance: bool = ...,
-    ): ...
+    ) -> None: ...
     def do_show_menu(self) -> None: ...
     def get_menu(self) -> Widget: ...
     @classmethod
@@ -37529,17 +37953,14 @@ class MenuToolButtonClass(GObject.GPointer):
 
         MenuToolButtonClass()
     """
-
-    parent_class: ToolButtonClass
-    show_menu: Callable[[MenuToolButton], None]
-    _gtk_reserved1: None
-    _gtk_reserved2: None
-    _gtk_reserved3: None
-    _gtk_reserved4: None
+    @property
+    def parent_class(self) -> ToolButtonClass: ...
+    @property
+    def show_menu(self) -> Callable[[MenuToolButton], None]: ...
 
 class MenuToolButtonPrivate(GObject.GPointer): ...
 
-class MessageDialog(Dialog, Atk.ImplementorIface, Buildable):
+class MessageDialog(Dialog, Atk.ImplementorIface, Buildable, Dialog):
     """
     :Constructors:
 
@@ -37818,7 +38239,6 @@ class MessageDialog(Dialog, Atk.ImplementorIface, Buildable):
     Signals from GObject:
       notify (GParam)
     """
-
     class Props(Dialog.Props):
         image: Widget
         message_area: Widget
@@ -37913,6 +38333,7 @@ class MessageDialog(Dialog, Atk.ImplementorIface, Buildable):
     def priv(self) -> MessageDialogPrivate: ...
     def __init__(
         self,
+        *,
         buttons: ButtonsType = ...,
         image: Widget = ...,
         message_type: MessageType = ...,
@@ -37989,7 +38410,7 @@ class MessageDialog(Dialog, Atk.ImplementorIface, Buildable):
         vexpand_set: bool = ...,
         visible: bool = ...,
         width_request: int = ...,
-    ): ...
+    ) -> None: ...
     # override
     def format_secondary_markup(self, message_format: str) -> None: ...
     # override
@@ -38007,12 +38428,8 @@ class MessageDialogClass(GObject.GPointer):
 
         MessageDialogClass()
     """
-
-    parent_class: DialogClass
-    _gtk_reserved1: None
-    _gtk_reserved2: None
-    _gtk_reserved3: None
-    _gtk_reserved4: None
+    @property
+    def parent_class(self) -> DialogClass: ...
 
 class MessageDialogPrivate(GObject.GPointer): ...
 
@@ -38190,7 +38607,6 @@ class Misc(Widget, Atk.ImplementorIface, Buildable):
     Signals from GObject:
       notify (GParam)
     """
-
     class Props(Widget.Props):
         xalign: float
         xpad: int
@@ -38238,11 +38654,13 @@ class Misc(Widget, Atk.ImplementorIface, Buildable):
 
     @property
     def props(self) -> Props: ...
-    widget: Widget
+    @property
+    def widget(self) -> Widget: ...
     @property
     def priv(self) -> MiscPrivate: ...
     def __init__(
         self,
+        *,
         xalign: float = ...,
         xpad: int = ...,
         yalign: float = ...,
@@ -38283,7 +38701,7 @@ class Misc(Widget, Atk.ImplementorIface, Buildable):
         vexpand_set: bool = ...,
         visible: bool = ...,
         width_request: int = ...,
-    ): ...
+    ) -> None: ...
     def get_alignment(self) -> tuple[float, float]: ...
     def get_padding(self) -> tuple[int, int]: ...
     def set_alignment(self, xalign: float, yalign: float) -> None: ...
@@ -38297,12 +38715,8 @@ class MiscClass(GObject.GPointer):
 
         MiscClass()
     """
-
-    parent_class: WidgetClass
-    _gtk_reserved1: None
-    _gtk_reserved2: None
-    _gtk_reserved3: None
-    _gtk_reserved4: None
+    @property
+    def parent_class(self) -> WidgetClass: ...
 
 class MiscPrivate(GObject.GPointer): ...
 
@@ -38533,7 +38947,6 @@ class ModelButton(Button, Atk.ImplementorIface, Actionable, Activatable, Buildab
     Signals from GObject:
       notify (GParam)
     """
-
     class Props(Button.Props):
         active: bool
         centered: bool
@@ -38604,6 +39017,7 @@ class ModelButton(Button, Atk.ImplementorIface, Actionable, Activatable, Buildab
     def props(self) -> Props: ...
     def __init__(
         self,
+        *,
         active: bool = ...,
         centered: bool = ...,
         icon: Gio.Icon = ...,
@@ -38665,7 +39079,7 @@ class ModelButton(Button, Atk.ImplementorIface, Actionable, Activatable, Buildab
         action_target: GLib.Variant = ...,
         related_action: Action = ...,
         use_action_appearance: bool = ...,
-    ): ...
+    ) -> None: ...
     @classmethod
     def new(cls) -> ModelButton: ...
 
@@ -38697,29 +39111,19 @@ class MountOperation(Gio.MountOperation):
       show-unmount-progress (gchararray, gint64, gint64)
 
     Properties from GMountOperation:
-      username -> gchararray: Username
-        The user name
-      password -> gchararray: Password
-        The password
-      anonymous -> gboolean: Anonymous
-        Whether to use an anonymous user
-      domain -> gchararray: Domain
-        The domain of the mount operation
-      password-save -> GPasswordSave: Password save
-        How passwords should be saved
-      choice -> gint: Choice
-        The users choice
-      is-tcrypt-hidden-volume -> gboolean: TCRYPT Hidden Volume
-        Whether to unlock a TCRYPT hidden volume. See https://www.veracrypt.fr/en/Hidden%20Volume.html.
-      is-tcrypt-system-volume -> gboolean: TCRYPT System Volume
-        Whether to unlock a TCRYPT system volume. Only supported for unlocking Windows system volumes. See https://www.veracrypt.fr/en/System%20Encryption.html.
-      pim -> guint: PIM
-        The VeraCrypt PIM value
+      username -> gchararray: username
+      password -> gchararray: password
+      anonymous -> gboolean: anonymous
+      domain -> gchararray: domain
+      password-save -> GPasswordSave: password-save
+      choice -> gint: choice
+      is-tcrypt-hidden-volume -> gboolean: is-tcrypt-hidden-volume
+      is-tcrypt-system-volume -> gboolean: is-tcrypt-system-volume
+      pim -> guint: pim
 
     Signals from GObject:
       notify (GParam)
     """
-
     class Props(Gio.MountOperation.Props):
         is_showing: bool
         parent: Window
@@ -38742,6 +39146,7 @@ class MountOperation(Gio.MountOperation):
     def priv(self) -> MountOperationPrivate: ...
     def __init__(
         self,
+        *,
         parent: Window | None = ...,
         screen: _Gdk3.Screen = ...,
         anonymous: bool = ...,
@@ -38753,7 +39158,7 @@ class MountOperation(Gio.MountOperation):
         password_save: Gio.PasswordSave = ...,
         pim: int = ...,
         username: str | None = ...,
-    ): ...
+    ) -> None: ...
     def get_parent(self) -> Window: ...
     def get_screen(self) -> _Gdk3.Screen: ...
     def is_showing(self) -> bool: ...
@@ -38770,12 +39175,8 @@ class MountOperationClass(GObject.GPointer):
 
         MountOperationClass()
     """
-
-    parent_class: Gio.MountOperationClass
-    _gtk_reserved1: None
-    _gtk_reserved2: None
-    _gtk_reserved3: None
-    _gtk_reserved4: None
+    @property
+    def parent_class(self) -> Gio.MountOperationClass: ...
 
 class MountOperationPrivate(GObject.GPointer): ...
 
@@ -38805,7 +39206,6 @@ class NativeDialog(GObject.Object):
     Signals from GObject:
       notify (GParam)
     """
-
     class Props(GObject.Object.Props):
         modal: bool
         title: str | None
@@ -38818,11 +39218,12 @@ class NativeDialog(GObject.Object):
     def parent_instance(self) -> GObject.Object: ...
     def __init__(
         self,
+        *,
         modal: bool = ...,
         title: str = ...,
         transient_for: Window | None = ...,
         visible: bool = ...,
-    ): ...
+    ) -> None: ...
     def destroy(self) -> None: ...
     def do_hide(self) -> None: ...
     def do_response(self, response_id: int) -> None: ...
@@ -38846,15 +39247,14 @@ class NativeDialogClass(GObject.GPointer):
 
         NativeDialogClass()
     """
-
-    parent_class: GObject.ObjectClass
-    response: Callable[[NativeDialog, int], None]
-    show: Callable[[NativeDialog], None]
-    hide: Callable[[NativeDialog], None]
-    _gtk_reserved1: None
-    _gtk_reserved2: None
-    _gtk_reserved3: None
-    _gtk_reserved4: None
+    @property
+    def parent_class(self) -> GObject.ObjectClass: ...
+    @property
+    def response(self) -> Callable[[NativeDialog, int], None]: ...
+    @property
+    def show(self) -> Callable[[NativeDialog], None]: ...
+    @property
+    def hide(self) -> Callable[[NativeDialog], None]: ...
 
 class Notebook(Container, Atk.ImplementorIface, Buildable):
     """
@@ -39063,7 +39463,6 @@ class Notebook(Container, Atk.ImplementorIface, Buildable):
     Signals from GObject:
       notify (GParam)
     """
-
     class Props(Container.Props):
         enable_popup: bool
         group_name: str | None
@@ -39117,11 +39516,13 @@ class Notebook(Container, Atk.ImplementorIface, Buildable):
 
     @property
     def props(self) -> Props: ...
-    container: Container
+    @property
+    def container(self) -> Container: ...
     @property
     def priv(self) -> NotebookPrivate: ...
     def __init__(
         self,
+        *,
         enable_popup: bool = ...,
         group_name: str | None = ...,
         page: int = ...,
@@ -39168,7 +39569,7 @@ class Notebook(Container, Atk.ImplementorIface, Buildable):
         vexpand_set: bool = ...,
         visible: bool = ...,
         width_request: int = ...,
-    ): ...
+    ) -> None: ...
     def append_page(self, child: Widget, tab_label: Widget | None = None) -> int: ...
     def append_page_menu(
         self,
@@ -39283,6 +39684,7 @@ class NotebookAccessible(ContainerAccessible, Atk.Component, Atk.Selection):
       active-descendant-changed (gpointer)
       announcement (gchararray)
       notification (gchararray, gint)
+      attribute-changed (gchararray, gchararray)
 
     Properties from AtkObject:
       accessible-name -> gchararray: Accessible Name
@@ -39315,17 +39717,22 @@ class NotebookAccessible(ContainerAccessible, Atk.Component, Atk.Selection):
         Is used to notify that the table caption has changed
       accessible-hypertext-nlinks -> gint: Number of Accessible Hypertext Links
         The number of links which the current AtkHypertext has
+      accessible-id -> gchararray: Accessible ID
+        ID for the accessible; useful for automated testing
+      accessible-help-text -> gchararray: Help text
+        Help text associated with the accessible
 
     Signals from GObject:
       notify (GParam)
     """
-
     class Props(ContainerAccessible.Props):
         widget: Widget | None
         accessible_component_layer: int
         accessible_component_mdi_zorder: int
         accessible_description: str
+        accessible_help_text: str
         accessible_hypertext_nlinks: int
+        accessible_id: str
         accessible_name: str
         accessible_parent: Atk.Object
         accessible_role: Atk.Role
@@ -39340,13 +39747,17 @@ class NotebookAccessible(ContainerAccessible, Atk.Component, Atk.Selection):
 
     @property
     def props(self) -> Props: ...
-    parent: ContainerAccessible
+    @property
+    def parent(self) -> ContainerAccessible: ...
     @property
     def priv(self) -> NotebookAccessiblePrivate: ...
     def __init__(
         self,
+        *,
         widget: Widget | None = ...,
         accessible_description: str = ...,
+        accessible_help_text: str = ...,
+        accessible_id: str = ...,
         accessible_name: str = ...,
         accessible_parent: Atk.Object = ...,
         accessible_role: Atk.Role = ...,
@@ -39358,7 +39769,7 @@ class NotebookAccessible(ContainerAccessible, Atk.Component, Atk.Selection):
         accessible_table_row_header: Atk.Object = ...,
         accessible_table_summary: Atk.Object = ...,
         accessible_value: float = ...,
-    ): ...
+    ) -> None: ...
 
 class NotebookAccessibleClass(GObject.GPointer):
     """
@@ -39368,8 +39779,8 @@ class NotebookAccessibleClass(GObject.GPointer):
 
         NotebookAccessibleClass()
     """
-
-    parent_class: ContainerAccessibleClass
+    @property
+    def parent_class(self) -> ContainerAccessibleClass: ...
 
 class NotebookAccessiblePrivate(GObject.GPointer): ...
 
@@ -39381,27 +39792,30 @@ class NotebookClass(GObject.GPointer):
 
         NotebookClass()
     """
-
-    parent_class: ContainerClass
-    switch_page: Callable[[Notebook, Widget, int], None]
-    select_page: Callable[[Notebook, bool], bool]
-    focus_tab: Callable[[Notebook, NotebookTab], bool]
-    change_current_page: Callable[[Notebook, int], bool]
-    move_focus_out: Callable[[Notebook, DirectionType], None]
-    reorder_tab: Callable[[Notebook, DirectionType, bool], bool]
-    insert_page: Callable[[Notebook, Widget, Widget, Widget, int], int]
-    create_window: None
-    page_reordered: Callable[[Notebook, Widget, int], None]
-    page_removed: Callable[[Notebook, Widget, int], None]
-    page_added: Callable[[Notebook, Widget, int], None]
-    _gtk_reserved1: None
-    _gtk_reserved2: None
-    _gtk_reserved3: None
-    _gtk_reserved4: None
-    _gtk_reserved5: None
-    _gtk_reserved6: None
-    _gtk_reserved7: None
-    _gtk_reserved8: None
+    @property
+    def parent_class(self) -> ContainerClass: ...
+    @property
+    def switch_page(self) -> Callable[[Notebook, Widget, int], None]: ...
+    @property
+    def select_page(self) -> Callable[[Notebook, bool], bool]: ...
+    @property
+    def focus_tab(self) -> Callable[[Notebook, NotebookTab], bool]: ...
+    @property
+    def change_current_page(self) -> Callable[[Notebook, int], bool]: ...
+    @property
+    def move_focus_out(self) -> Callable[[Notebook, DirectionType], None]: ...
+    @property
+    def reorder_tab(self) -> Callable[[Notebook, DirectionType, bool], bool]: ...
+    @property
+    def insert_page(self) -> Callable[[Notebook, Widget, Widget, Widget, int], int]: ...
+    @property
+    def create_window(self) -> None: ...
+    @property
+    def page_reordered(self) -> Callable[[Notebook, Widget, int], None]: ...
+    @property
+    def page_removed(self) -> Callable[[Notebook, Widget, int], None]: ...
+    @property
+    def page_added(self) -> Callable[[Notebook, Widget, int], None]: ...
 
 class NotebookPageAccessible(Atk.Object, Atk.Component):
     """
@@ -39426,6 +39840,7 @@ class NotebookPageAccessible(Atk.Object, Atk.Component):
       active-descendant-changed (gpointer)
       announcement (gchararray)
       notification (gchararray, gint)
+      attribute-changed (gchararray, gchararray)
 
     Properties from AtkObject:
       accessible-name -> gchararray: Accessible Name
@@ -39458,16 +39873,21 @@ class NotebookPageAccessible(Atk.Object, Atk.Component):
         Is used to notify that the table caption has changed
       accessible-hypertext-nlinks -> gint: Number of Accessible Hypertext Links
         The number of links which the current AtkHypertext has
+      accessible-id -> gchararray: Accessible ID
+        ID for the accessible; useful for automated testing
+      accessible-help-text -> gchararray: Help text
+        Help text associated with the accessible
 
     Signals from GObject:
       notify (GParam)
     """
-
     class Props(Atk.Object.Props):
         accessible_component_layer: int
         accessible_component_mdi_zorder: int
         accessible_description: str
+        accessible_help_text: str
         accessible_hypertext_nlinks: int
+        accessible_id: str
         accessible_name: str
         accessible_parent: Atk.Object
         accessible_role: Atk.Role
@@ -39482,12 +39902,16 @@ class NotebookPageAccessible(Atk.Object, Atk.Component):
 
     @property
     def props(self) -> Props: ...
-    parent: Atk.Object
+    @property
+    def parent(self) -> Atk.Object: ...
     @property
     def priv(self) -> NotebookPageAccessiblePrivate: ...
     def __init__(
         self,
+        *,
         accessible_description: str = ...,
+        accessible_help_text: str = ...,
+        accessible_id: str = ...,
         accessible_name: str = ...,
         accessible_parent: Atk.Object = ...,
         accessible_role: Atk.Role = ...,
@@ -39499,7 +39923,7 @@ class NotebookPageAccessible(Atk.Object, Atk.Component):
         accessible_table_row_header: Atk.Object = ...,
         accessible_table_summary: Atk.Object = ...,
         accessible_value: float = ...,
-    ): ...
+    ) -> None: ...
     def invalidate(self) -> None: ...
     @classmethod
     def new(
@@ -39514,8 +39938,8 @@ class NotebookPageAccessibleClass(GObject.GPointer):
 
         NotebookPageAccessibleClass()
     """
-
-    parent_class: Atk.ObjectClass
+    @property
+    def parent_class(self) -> Atk.ObjectClass: ...
 
 class NotebookPageAccessiblePrivate(GObject.GPointer): ...
 class NotebookPrivate(GObject.GPointer): ...
@@ -39543,13 +39967,11 @@ class NumerableIcon(Gio.EmblemedIcon, Gio.Icon):
         The icon name for the number emblem background
 
     Properties from GEmblemedIcon:
-      gicon -> GIcon: The base GIcon
-        The GIcon to attach emblems to
+      gicon -> GIcon: gicon
 
     Signals from GObject:
       notify (GParam)
     """
-
     class Props(Gio.EmblemedIcon.Props):
         background_icon: Gio.Icon
         background_icon_name: str | None
@@ -39560,18 +39982,20 @@ class NumerableIcon(Gio.EmblemedIcon, Gio.Icon):
 
     @property
     def props(self) -> Props: ...
-    parent: Gio.EmblemedIcon
+    @property
+    def parent(self) -> Gio.EmblemedIcon: ...
     @property
     def priv(self) -> NumerableIconPrivate: ...
     def __init__(
         self,
+        *,
         background_icon: Gio.Icon = ...,
         background_icon_name: str | None = ...,
         count: int = ...,
         label: str | None = ...,
         style_context: StyleContext = ...,
         gicon: Gio.Icon = ...,
-    ): ...
+    ) -> None: ...
     def get_background_gicon(self) -> Gio.Icon | None: ...
     def get_background_icon_name(self) -> str | None: ...
     def get_count(self) -> int: ...
@@ -39597,9 +40021,10 @@ class NumerableIconClass(GObject.GPointer):
 
         NumerableIconClass()
     """
-
-    parent_class: Gio.EmblemedIconClass
-    padding: list[None]
+    @property
+    def parent_class(self) -> Gio.EmblemedIconClass: ...
+    @property
+    def padding(self) -> list[None]: ...
 
 class NumerableIconPrivate(GObject.GPointer): ...
 
@@ -39857,7 +40282,6 @@ class OffscreenWindow(Window, Atk.ImplementorIface, Buildable):
     Signals from GObject:
       notify (GParam)
     """
-
     class Props(Window.Props):
         accept_focus: bool
         application: Application | None
@@ -39937,9 +40361,11 @@ class OffscreenWindow(Window, Atk.ImplementorIface, Buildable):
 
     @property
     def props(self) -> Props: ...
-    parent_object: Window
+    @property
+    def parent_object(self) -> Window: ...
     def __init__(
         self,
+        *,
         accept_focus: bool = ...,
         application: Application | None = ...,
         attached_to: Widget | None = ...,
@@ -40008,7 +40434,7 @@ class OffscreenWindow(Window, Atk.ImplementorIface, Buildable):
         vexpand_set: bool = ...,
         visible: bool = ...,
         width_request: int = ...,
-    ): ...
+    ) -> None: ...
     def get_pixbuf(self) -> GdkPixbuf.Pixbuf | None: ...
     def get_surface(self) -> cairo.Surface | None: ...
     @classmethod
@@ -40022,12 +40448,8 @@ class OffscreenWindowClass(GObject.GPointer):
 
         OffscreenWindowClass()
     """
-
-    parent_class: WindowClass
-    _gtk_reserved1: None
-    _gtk_reserved2: None
-    _gtk_reserved3: None
-    _gtk_reserved4: None
+    @property
+    def parent_class(self) -> WindowClass: ...
 
 class Orientable(GObject.GInterface, Protocol):
     """
@@ -40036,7 +40458,6 @@ class Orientable(GObject.GInterface, Protocol):
     Signals from GObject:
       notify (GParam)
     """
-
     def get_orientation(self) -> Orientation: ...
     def set_orientation(self, orientation: Orientation) -> None: ...
 
@@ -40048,8 +40469,8 @@ class OrientableIface(GObject.GPointer):
 
         OrientableIface()
     """
-
-    base_iface: GObject.TypeInterface
+    @property
+    def base_iface(self) -> GObject.TypeInterface: ...
 
 class Overlay(Bin, Atk.ImplementorIface, Buildable):
     """
@@ -40233,7 +40654,6 @@ class Overlay(Bin, Atk.ImplementorIface, Buildable):
     Signals from GObject:
       notify (GParam)
     """
-
     class Props(Bin.Props):
         border_width: int
         resize_mode: ResizeMode
@@ -40280,11 +40700,13 @@ class Overlay(Bin, Atk.ImplementorIface, Buildable):
 
     @property
     def props(self) -> Props: ...
-    parent: Bin
+    @property
+    def parent(self) -> Bin: ...
     @property
     def priv(self) -> OverlayPrivate: ...
     def __init__(
         self,
+        *,
         border_width: int = ...,
         child: Widget = ...,
         resize_mode: ResizeMode = ...,
@@ -40324,7 +40746,7 @@ class Overlay(Bin, Atk.ImplementorIface, Buildable):
         vexpand_set: bool = ...,
         visible: bool = ...,
         width_request: int = ...,
-    ): ...
+    ) -> None: ...
     def add_overlay(self, widget: Widget) -> None: ...
     def do_get_child_position(
         self, widget: Widget, allocation: _Gdk3.Rectangle
@@ -40343,17 +40765,12 @@ class OverlayClass(GObject.GPointer):
 
         OverlayClass()
     """
-
-    parent_class: BinClass
-    get_child_position: Callable[[Overlay, Widget, _Gdk3.Rectangle], bool]
-    _gtk_reserved1: None
-    _gtk_reserved2: None
-    _gtk_reserved3: None
-    _gtk_reserved4: None
-    _gtk_reserved5: None
-    _gtk_reserved6: None
-    _gtk_reserved7: None
-    _gtk_reserved8: None
+    @property
+    def parent_class(self) -> BinClass: ...
+    @property
+    def get_child_position(
+        self,
+    ) -> Callable[[Overlay, Widget, _Gdk3.Rectangle], bool]: ...
 
 class OverlayPrivate(GObject.GPointer): ...
 
@@ -40398,7 +40815,6 @@ class PadController(EventController):
     Signals from GObject:
       notify (GParam)
     """
-
     class Props(EventController.Props):
         action_group: Gio.ActionGroup
         pad: _Gdk3.Device
@@ -40409,11 +40825,12 @@ class PadController(EventController):
     def props(self) -> Props: ...
     def __init__(
         self,
+        *,
         action_group: Gio.ActionGroup = ...,
         pad: _Gdk3.Device = ...,
         propagation_phase: PropagationPhase = ...,
         widget: Widget = ...,
-    ): ...
+    ) -> None: ...
     @classmethod
     def new(
         cls, window: Window, group: Gio.ActionGroup, pad: _Gdk3.Device | None = None
@@ -40454,7 +40871,6 @@ class PageSetup(GObject.Object):
     Signals from GObject:
       notify (GParam)
     """
-
     def copy(self) -> PageSetup: ...
     def get_bottom_margin(self, unit: Unit) -> float: ...
     def get_left_margin(self, unit: Unit) -> float: ...
@@ -40692,7 +41108,6 @@ class Paned(Container, Atk.ImplementorIface, Buildable, Orientable):
     Signals from GObject:
       notify (GParam)
     """
-
     class Props(Container.Props):
         max_position: int
         min_position: int
@@ -40745,11 +41160,13 @@ class Paned(Container, Atk.ImplementorIface, Buildable, Orientable):
 
     @property
     def props(self) -> Props: ...
-    container: Container
+    @property
+    def container(self) -> Container: ...
     @property
     def priv(self) -> PanedPrivate: ...
     def __init__(
         self,
+        *,
         position: int = ...,
         position_set: bool = ...,
         wide_handle: bool = ...,
@@ -40793,7 +41210,7 @@ class Paned(Container, Atk.ImplementorIface, Buildable, Orientable):
         visible: bool = ...,
         width_request: int = ...,
         orientation: Orientation = ...,
-    ): ...
+    ) -> None: ...
     def add1(self, child: Widget) -> None: ...
     def add2(self, child: Widget) -> None: ...
     def do_accept_position(self) -> bool: ...
@@ -40851,6 +41268,7 @@ class PanedAccessible(ContainerAccessible, Atk.Component, Atk.Value):
       active-descendant-changed (gpointer)
       announcement (gchararray)
       notification (gchararray, gint)
+      attribute-changed (gchararray, gchararray)
 
     Properties from AtkObject:
       accessible-name -> gchararray: Accessible Name
@@ -40883,17 +41301,22 @@ class PanedAccessible(ContainerAccessible, Atk.Component, Atk.Value):
         Is used to notify that the table caption has changed
       accessible-hypertext-nlinks -> gint: Number of Accessible Hypertext Links
         The number of links which the current AtkHypertext has
+      accessible-id -> gchararray: Accessible ID
+        ID for the accessible; useful for automated testing
+      accessible-help-text -> gchararray: Help text
+        Help text associated with the accessible
 
     Signals from GObject:
       notify (GParam)
     """
-
     class Props(ContainerAccessible.Props):
         widget: Widget | None
         accessible_component_layer: int
         accessible_component_mdi_zorder: int
         accessible_description: str
+        accessible_help_text: str
         accessible_hypertext_nlinks: int
+        accessible_id: str
         accessible_name: str
         accessible_parent: Atk.Object
         accessible_role: Atk.Role
@@ -40908,13 +41331,17 @@ class PanedAccessible(ContainerAccessible, Atk.Component, Atk.Value):
 
     @property
     def props(self) -> Props: ...
-    parent: ContainerAccessible
+    @property
+    def parent(self) -> ContainerAccessible: ...
     @property
     def priv(self) -> PanedAccessiblePrivate: ...
     def __init__(
         self,
+        *,
         widget: Widget | None = ...,
         accessible_description: str = ...,
+        accessible_help_text: str = ...,
+        accessible_id: str = ...,
         accessible_name: str = ...,
         accessible_parent: Atk.Object = ...,
         accessible_role: Atk.Role = ...,
@@ -40926,7 +41353,7 @@ class PanedAccessible(ContainerAccessible, Atk.Component, Atk.Value):
         accessible_table_row_header: Atk.Object = ...,
         accessible_table_summary: Atk.Object = ...,
         accessible_value: float = ...,
-    ): ...
+    ) -> None: ...
 
 class PanedAccessibleClass(GObject.GPointer):
     """
@@ -40936,8 +41363,8 @@ class PanedAccessibleClass(GObject.GPointer):
 
         PanedAccessibleClass()
     """
-
-    parent_class: ContainerAccessibleClass
+    @property
+    def parent_class(self) -> ContainerAccessibleClass: ...
 
 class PanedAccessiblePrivate(GObject.GPointer): ...
 
@@ -40949,18 +41376,20 @@ class PanedClass(GObject.GPointer):
 
         PanedClass()
     """
-
-    parent_class: ContainerClass
-    cycle_child_focus: Callable[[Paned, bool], bool]
-    toggle_handle_focus: Callable[[Paned], bool]
-    move_handle: Callable[[Paned, ScrollType], bool]
-    cycle_handle_focus: Callable[[Paned, bool], bool]
-    accept_position: Callable[[Paned], bool]
-    cancel_position: Callable[[Paned], bool]
-    _gtk_reserved1: None
-    _gtk_reserved2: None
-    _gtk_reserved3: None
-    _gtk_reserved4: None
+    @property
+    def parent_class(self) -> ContainerClass: ...
+    @property
+    def cycle_child_focus(self) -> Callable[[Paned, bool], bool]: ...
+    @property
+    def toggle_handle_focus(self) -> Callable[[Paned], bool]: ...
+    @property
+    def move_handle(self) -> Callable[[Paned, ScrollType], bool]: ...
+    @property
+    def cycle_handle_focus(self) -> Callable[[Paned, bool], bool]: ...
+    @property
+    def accept_position(self) -> Callable[[Paned], bool]: ...
+    @property
+    def cancel_position(self) -> Callable[[Paned], bool]: ...
 
 class PanedPrivate(GObject.GPointer): ...
 
@@ -40977,7 +41406,8 @@ class PaperSize(GObject.GBoxed):
         new_from_key_file(key_file:GLib.KeyFile, group_name:str=None) -> Gtk.PaperSize
         new_from_ppd(ppd_name:str, ppd_display_name:str, width:float, height:float) -> Gtk.PaperSize
     """
-
+    @staticmethod
+    def __new__(cls: type[Self], name: str | None = None) -> Self: ...
     def copy(self) -> PaperSize: ...
     def free(self) -> None: ...
     @staticmethod
@@ -41274,7 +41704,6 @@ class PlacesSidebar(ScrolledWindow, Atk.ImplementorIface, Buildable):
     Signals from GObject:
       notify (GParam)
     """
-
     class Props(ScrolledWindow.Props):
         local_only: bool
         location: Gio.File | None
@@ -41349,6 +41778,7 @@ class PlacesSidebar(ScrolledWindow, Atk.ImplementorIface, Buildable):
     def props(self) -> Props: ...
     def __init__(
         self,
+        *,
         local_only: bool = ...,
         location: Gio.File | None = ...,
         open_flags: PlacesOpenFlags = ...,
@@ -41414,7 +41844,7 @@ class PlacesSidebar(ScrolledWindow, Atk.ImplementorIface, Buildable):
         vexpand_set: bool = ...,
         visible: bool = ...,
         width_request: int = ...,
-    ): ...
+    ) -> None: ...
     def add_shortcut(self, location: Gio.File) -> None: ...
     def get_local_only(self) -> bool: ...
     def get_location(self) -> Gio.File | None: ...
@@ -41711,7 +42141,6 @@ class Plug(Window, Atk.ImplementorIface, Buildable):
     Signals from GObject:
       notify (GParam)
     """
-
     class Props(Window.Props):
         embedded: bool
         socket_window: _Gdk3.Window | None
@@ -41793,11 +42222,13 @@ class Plug(Window, Atk.ImplementorIface, Buildable):
 
     @property
     def props(self) -> Props: ...
-    window: Window
+    @property
+    def window(self) -> Window: ...
     @property
     def priv(self) -> PlugPrivate: ...
     def __init__(
         self,
+        *,
         accept_focus: bool = ...,
         application: Application | None = ...,
         attached_to: Widget | None = ...,
@@ -41866,7 +42297,7 @@ class Plug(Window, Atk.ImplementorIface, Buildable):
         vexpand_set: bool = ...,
         visible: bool = ...,
         width_request: int = ...,
-    ): ...
+    ) -> None: ...
     def construct(self, socket_id: int) -> None: ...
     def construct_for_display(self, display: _Gdk3.Display, socket_id: int) -> None: ...
     def do_embedded(self) -> None: ...
@@ -41935,6 +42366,7 @@ class PlugAccessible(WindowAccessible, Atk.Component, Atk.Window):
       active-descendant-changed (gpointer)
       announcement (gchararray)
       notification (gchararray, gint)
+      attribute-changed (gchararray, gchararray)
 
     Properties from AtkObject:
       accessible-name -> gchararray: Accessible Name
@@ -41967,17 +42399,22 @@ class PlugAccessible(WindowAccessible, Atk.Component, Atk.Window):
         Is used to notify that the table caption has changed
       accessible-hypertext-nlinks -> gint: Number of Accessible Hypertext Links
         The number of links which the current AtkHypertext has
+      accessible-id -> gchararray: Accessible ID
+        ID for the accessible; useful for automated testing
+      accessible-help-text -> gchararray: Help text
+        Help text associated with the accessible
 
     Signals from GObject:
       notify (GParam)
     """
-
     class Props(WindowAccessible.Props):
         widget: Widget | None
         accessible_component_layer: int
         accessible_component_mdi_zorder: int
         accessible_description: str
+        accessible_help_text: str
         accessible_hypertext_nlinks: int
+        accessible_id: str
         accessible_name: str
         accessible_parent: Atk.Object
         accessible_role: Atk.Role
@@ -41992,13 +42429,17 @@ class PlugAccessible(WindowAccessible, Atk.Component, Atk.Window):
 
     @property
     def props(self) -> Props: ...
-    parent: WindowAccessible
+    @property
+    def parent(self) -> WindowAccessible: ...
     @property
     def priv(self) -> PlugAccessiblePrivate: ...
     def __init__(
         self,
+        *,
         widget: Widget | None = ...,
         accessible_description: str = ...,
+        accessible_help_text: str = ...,
+        accessible_id: str = ...,
         accessible_name: str = ...,
         accessible_parent: Atk.Object = ...,
         accessible_role: Atk.Role = ...,
@@ -42010,7 +42451,7 @@ class PlugAccessible(WindowAccessible, Atk.Component, Atk.Window):
         accessible_table_row_header: Atk.Object = ...,
         accessible_table_summary: Atk.Object = ...,
         accessible_value: float = ...,
-    ): ...
+    ) -> None: ...
     def get_id(self) -> str: ...
 
 class PlugAccessibleClass(GObject.GPointer):
@@ -42021,8 +42462,8 @@ class PlugAccessibleClass(GObject.GPointer):
 
         PlugAccessibleClass()
     """
-
-    parent_class: WindowAccessibleClass
+    @property
+    def parent_class(self) -> WindowAccessibleClass: ...
 
 class PlugAccessiblePrivate(GObject.GPointer): ...
 
@@ -42034,13 +42475,10 @@ class PlugClass(GObject.GPointer):
 
         PlugClass()
     """
-
-    parent_class: WindowClass
-    embedded: Callable[[Plug], None]
-    _gtk_reserved1: None
-    _gtk_reserved2: None
-    _gtk_reserved3: None
-    _gtk_reserved4: None
+    @property
+    def parent_class(self) -> WindowClass: ...
+    @property
+    def embedded(self) -> Callable[[Plug], None]: ...
 
 class PlugPrivate(GObject.GPointer): ...
 
@@ -42241,7 +42679,6 @@ class Popover(Bin, Atk.ImplementorIface, Buildable):
     Signals from GObject:
       notify (GParam)
     """
-
     class Props(Bin.Props):
         constrain_to: PopoverConstraint
         modal: bool
@@ -42300,6 +42737,7 @@ class Popover(Bin, Atk.ImplementorIface, Buildable):
     def priv(self) -> PopoverPrivate: ...
     def __init__(
         self,
+        *,
         constrain_to: PopoverConstraint = ...,
         modal: bool = ...,
         pointing_to: _Gdk3.Rectangle = ...,
@@ -42345,11 +42783,9 @@ class Popover(Bin, Atk.ImplementorIface, Buildable):
         vexpand_set: bool = ...,
         visible: bool = ...,
         width_request: int = ...,
-    ): ...
+    ) -> None: ...
     def bind_model(
-        self,
-        model: Gio.MenuModel | None = None,
-        action_namespace: str | None = None,
+        self, model: Gio.MenuModel | None = None, action_namespace: str | None = None
     ) -> None: ...
     def do_closed(self) -> None: ...
     def get_constrain_to(self) -> PopoverConstraint: ...
@@ -42407,6 +42843,7 @@ class PopoverAccessible(ContainerAccessible, Atk.Component):
       active-descendant-changed (gpointer)
       announcement (gchararray)
       notification (gchararray, gint)
+      attribute-changed (gchararray, gchararray)
 
     Properties from AtkObject:
       accessible-name -> gchararray: Accessible Name
@@ -42439,17 +42876,22 @@ class PopoverAccessible(ContainerAccessible, Atk.Component):
         Is used to notify that the table caption has changed
       accessible-hypertext-nlinks -> gint: Number of Accessible Hypertext Links
         The number of links which the current AtkHypertext has
+      accessible-id -> gchararray: Accessible ID
+        ID for the accessible; useful for automated testing
+      accessible-help-text -> gchararray: Help text
+        Help text associated with the accessible
 
     Signals from GObject:
       notify (GParam)
     """
-
     class Props(ContainerAccessible.Props):
         widget: Widget | None
         accessible_component_layer: int
         accessible_component_mdi_zorder: int
         accessible_description: str
+        accessible_help_text: str
         accessible_hypertext_nlinks: int
+        accessible_id: str
         accessible_name: str
         accessible_parent: Atk.Object
         accessible_role: Atk.Role
@@ -42464,11 +42906,15 @@ class PopoverAccessible(ContainerAccessible, Atk.Component):
 
     @property
     def props(self) -> Props: ...
-    parent: ContainerAccessible
+    @property
+    def parent(self) -> ContainerAccessible: ...
     def __init__(
         self,
+        *,
         widget: Widget | None = ...,
         accessible_description: str = ...,
+        accessible_help_text: str = ...,
+        accessible_id: str = ...,
         accessible_name: str = ...,
         accessible_parent: Atk.Object = ...,
         accessible_role: Atk.Role = ...,
@@ -42480,7 +42926,7 @@ class PopoverAccessible(ContainerAccessible, Atk.Component):
         accessible_table_row_header: Atk.Object = ...,
         accessible_table_summary: Atk.Object = ...,
         accessible_value: float = ...,
-    ): ...
+    ) -> None: ...
 
 class PopoverAccessibleClass(GObject.GPointer):
     """
@@ -42490,8 +42936,8 @@ class PopoverAccessibleClass(GObject.GPointer):
 
         PopoverAccessibleClass()
     """
-
-    parent_class: ContainerAccessibleClass
+    @property
+    def parent_class(self) -> ContainerAccessibleClass: ...
 
 class PopoverClass(GObject.GPointer):
     """
@@ -42501,10 +42947,12 @@ class PopoverClass(GObject.GPointer):
 
         PopoverClass()
     """
-
-    parent_class: BinClass
-    closed: Callable[[Popover], None]
-    reserved: list[None]
+    @property
+    def parent_class(self) -> BinClass: ...
+    @property
+    def closed(self) -> Callable[[Popover], None]: ...
+    @property
+    def reserved(self) -> list[None]: ...
 
 class PopoverMenu(Popover, Atk.ImplementorIface, Buildable):
     """
@@ -42706,7 +43154,6 @@ class PopoverMenu(Popover, Atk.ImplementorIface, Buildable):
     Signals from GObject:
       notify (GParam)
     """
-
     class Props(Popover.Props):
         visible_submenu: str
         constrain_to: PopoverConstraint
@@ -42762,6 +43209,7 @@ class PopoverMenu(Popover, Atk.ImplementorIface, Buildable):
     def props(self) -> Props: ...
     def __init__(
         self,
+        *,
         visible_submenu: str = ...,
         constrain_to: PopoverConstraint = ...,
         modal: bool = ...,
@@ -42808,7 +43256,7 @@ class PopoverMenu(Popover, Atk.ImplementorIface, Buildable):
         vexpand_set: bool = ...,
         visible: bool = ...,
         width_request: int = ...,
-    ): ...
+    ) -> None: ...
     @classmethod
     def new(cls) -> PopoverMenu: ...
     def open_submenu(self, name: str) -> None: ...
@@ -42821,9 +43269,10 @@ class PopoverMenuClass(GObject.GPointer):
 
         PopoverMenuClass()
     """
-
-    parent_class: PopoverClass
-    reserved: list[None]
+    @property
+    def parent_class(self) -> PopoverClass: ...
+    @property
+    def reserved(self) -> list[None]: ...
 
 class PopoverPrivate(GObject.GPointer): ...
 
@@ -42840,7 +43289,6 @@ class PrintContext(GObject.Object):
     Signals from GObject:
       notify (GParam)
     """
-
     def create_pango_context(self) -> Pango.Context: ...
     def create_pango_layout(self) -> Pango.Layout: ...
     def get_cairo_context(self) -> cairo.Context: ...
@@ -42924,7 +43372,6 @@ class PrintOperation(GObject.Object, PrintOperationPreview):
     Signals from GObject:
       notify (GParam)
     """
-
     class Props(GObject.Object.Props):
         allow_async: bool
         current_page: int
@@ -42953,6 +43400,7 @@ class PrintOperation(GObject.Object, PrintOperationPreview):
     def priv(self) -> PrintOperationPrivate: ...
     def __init__(
         self,
+        *,
         allow_async: bool = ...,
         current_page: int = ...,
         custom_tab_label: str | None = ...,
@@ -42968,7 +43416,7 @@ class PrintOperation(GObject.Object, PrintOperationPreview):
         track_print_status: bool = ...,
         unit: Unit = ...,
         use_full_page: bool = ...,
-    ): ...
+    ) -> None: ...
     def cancel(self) -> None: ...
     def do_begin_print(self, context: PrintContext) -> None: ...
     def do_custom_widget_apply(self, widget: Widget) -> None: ...
@@ -43031,31 +43479,38 @@ class PrintOperationClass(GObject.GPointer):
 
         PrintOperationClass()
     """
-
-    parent_class: GObject.ObjectClass
-    done: Callable[[PrintOperation, PrintOperationResult], None]
-    begin_print: Callable[[PrintOperation, PrintContext], None]
-    paginate: Callable[[PrintOperation, PrintContext], bool]
-    request_page_setup: Callable[[PrintOperation, PrintContext, int, PageSetup], None]
-    draw_page: Callable[[PrintOperation, PrintContext, int], None]
-    end_print: Callable[[PrintOperation, PrintContext], None]
-    status_changed: Callable[[PrintOperation], None]
-    create_custom_widget: None
-    custom_widget_apply: Callable[[PrintOperation, Widget], None]
-    preview: Callable[
+    @property
+    def parent_class(self) -> GObject.ObjectClass: ...
+    @property
+    def done(self) -> Callable[[PrintOperation, PrintOperationResult], None]: ...
+    @property
+    def begin_print(self) -> Callable[[PrintOperation, PrintContext], None]: ...
+    @property
+    def paginate(self) -> Callable[[PrintOperation, PrintContext], bool]: ...
+    @property
+    def request_page_setup(
+        self,
+    ) -> Callable[[PrintOperation, PrintContext, int, PageSetup], None]: ...
+    @property
+    def draw_page(self) -> Callable[[PrintOperation, PrintContext, int], None]: ...
+    @property
+    def end_print(self) -> Callable[[PrintOperation, PrintContext], None]: ...
+    @property
+    def status_changed(self) -> Callable[[PrintOperation], None]: ...
+    @property
+    def create_custom_widget(self) -> None: ...
+    @property
+    def custom_widget_apply(self) -> Callable[[PrintOperation, Widget], None]: ...
+    @property
+    def preview(
+        self,
+    ) -> Callable[
         [PrintOperation, PrintOperationPreview, PrintContext, Window], bool
-    ]
-    update_custom_widget: Callable[
-        [PrintOperation, Widget, PageSetup, PrintSettings], None
-    ]
-    _gtk_reserved1: None
-    _gtk_reserved2: None
-    _gtk_reserved3: None
-    _gtk_reserved4: None
-    _gtk_reserved5: None
-    _gtk_reserved6: None
-    _gtk_reserved7: None
-    _gtk_reserved8: None
+    ]: ...
+    @property
+    def update_custom_widget(
+        self,
+    ) -> Callable[[PrintOperation, Widget, PageSetup, PrintSettings], None]: ...
 
 class PrintOperationPreview(GObject.GInterface, Protocol):
     """
@@ -43064,7 +43519,6 @@ class PrintOperationPreview(GObject.GInterface, Protocol):
     Signals from GObject:
       notify (GParam)
     """
-
     def end_preview(self) -> None: ...
     def is_selected(self, page_nr: int) -> bool: ...
     def render_page(self, page_nr: int) -> None: ...
@@ -43077,21 +43531,20 @@ class PrintOperationPreviewIface(GObject.GPointer):
 
         PrintOperationPreviewIface()
     """
-
-    g_iface: GObject.TypeInterface
-    ready: Callable[[PrintOperationPreview, PrintContext], None]
-    got_page_size: Callable[[PrintOperationPreview, PrintContext, PageSetup], None]
-    render_page: Callable[[PrintOperationPreview, int], None]
-    is_selected: Callable[[PrintOperationPreview, int], bool]
-    end_preview: Callable[[PrintOperationPreview], None]
-    _gtk_reserved1: None
-    _gtk_reserved2: None
-    _gtk_reserved3: None
-    _gtk_reserved4: None
-    _gtk_reserved5: None
-    _gtk_reserved6: None
-    _gtk_reserved7: None
-    _gtk_reserved8: None
+    @property
+    def g_iface(self) -> GObject.TypeInterface: ...
+    @property
+    def ready(self) -> Callable[[PrintOperationPreview, PrintContext], None]: ...
+    @property
+    def got_page_size(
+        self,
+    ) -> Callable[[PrintOperationPreview, PrintContext, PageSetup], None]: ...
+    @property
+    def render_page(self) -> Callable[[PrintOperationPreview, int], None]: ...
+    @property
+    def is_selected(self) -> Callable[[PrintOperationPreview, int], bool]: ...
+    @property
+    def end_preview(self) -> Callable[[PrintOperationPreview], None]: ...
 
 class PrintOperationPrivate(GObject.GPointer): ...
 
@@ -43112,7 +43565,6 @@ class PrintSettings(GObject.Object):
     Signals from GObject:
       notify (GParam)
     """
-
     def copy(self) -> PrintSettings: ...
     def foreach(self, func: Callable[..., None], *user_data: Any) -> None: ...
     def get(self, key: str) -> str: ...
@@ -43379,7 +43831,6 @@ class ProgressBar(Widget, Atk.ImplementorIface, Buildable, Orientable):
     Signals from GObject:
       notify (GParam)
     """
-
     class Props(Widget.Props):
         ellipsize: Pango.EllipsizeMode
         fraction: float
@@ -43430,11 +43881,13 @@ class ProgressBar(Widget, Atk.ImplementorIface, Buildable, Orientable):
 
     @property
     def props(self) -> Props: ...
-    parent: Widget
+    @property
+    def parent(self) -> Widget: ...
     @property
     def priv(self) -> ProgressBarPrivate: ...
     def __init__(
         self,
+        *,
         ellipsize: Pango.EllipsizeMode = ...,
         fraction: float = ...,
         inverted: bool = ...,
@@ -43478,7 +43931,7 @@ class ProgressBar(Widget, Atk.ImplementorIface, Buildable, Orientable):
         visible: bool = ...,
         width_request: int = ...,
         orientation: Orientation = ...,
-    ): ...
+    ) -> None: ...
     def get_ellipsize(self) -> Pango.EllipsizeMode: ...
     def get_fraction(self) -> float: ...
     def get_inverted(self) -> bool: ...
@@ -43527,6 +43980,7 @@ class ProgressBarAccessible(WidgetAccessible, Atk.Component, Atk.Value):
       active-descendant-changed (gpointer)
       announcement (gchararray)
       notification (gchararray, gint)
+      attribute-changed (gchararray, gchararray)
 
     Properties from AtkObject:
       accessible-name -> gchararray: Accessible Name
@@ -43559,17 +44013,22 @@ class ProgressBarAccessible(WidgetAccessible, Atk.Component, Atk.Value):
         Is used to notify that the table caption has changed
       accessible-hypertext-nlinks -> gint: Number of Accessible Hypertext Links
         The number of links which the current AtkHypertext has
+      accessible-id -> gchararray: Accessible ID
+        ID for the accessible; useful for automated testing
+      accessible-help-text -> gchararray: Help text
+        Help text associated with the accessible
 
     Signals from GObject:
       notify (GParam)
     """
-
     class Props(WidgetAccessible.Props):
         widget: Widget | None
         accessible_component_layer: int
         accessible_component_mdi_zorder: int
         accessible_description: str
+        accessible_help_text: str
         accessible_hypertext_nlinks: int
+        accessible_id: str
         accessible_name: str
         accessible_parent: Atk.Object
         accessible_role: Atk.Role
@@ -43584,13 +44043,17 @@ class ProgressBarAccessible(WidgetAccessible, Atk.Component, Atk.Value):
 
     @property
     def props(self) -> Props: ...
-    parent: WidgetAccessible
+    @property
+    def parent(self) -> WidgetAccessible: ...
     @property
     def priv(self) -> ProgressBarAccessiblePrivate: ...
     def __init__(
         self,
+        *,
         widget: Widget | None = ...,
         accessible_description: str = ...,
+        accessible_help_text: str = ...,
+        accessible_id: str = ...,
         accessible_name: str = ...,
         accessible_parent: Atk.Object = ...,
         accessible_role: Atk.Role = ...,
@@ -43602,7 +44065,7 @@ class ProgressBarAccessible(WidgetAccessible, Atk.Component, Atk.Value):
         accessible_table_row_header: Atk.Object = ...,
         accessible_table_summary: Atk.Object = ...,
         accessible_value: float = ...,
-    ): ...
+    ) -> None: ...
 
 class ProgressBarAccessibleClass(GObject.GPointer):
     """
@@ -43612,8 +44075,8 @@ class ProgressBarAccessibleClass(GObject.GPointer):
 
         ProgressBarAccessibleClass()
     """
-
-    parent_class: WidgetAccessibleClass
+    @property
+    def parent_class(self) -> WidgetAccessibleClass: ...
 
 class ProgressBarAccessiblePrivate(GObject.GPointer): ...
 
@@ -43625,20 +44088,11 @@ class ProgressBarClass(GObject.GPointer):
 
         ProgressBarClass()
     """
-
-    parent_class: WidgetClass
-    _gtk_reserved1: None
-    _gtk_reserved2: None
-    _gtk_reserved3: None
-    _gtk_reserved4: None
+    @property
+    def parent_class(self) -> WidgetClass: ...
 
 class ProgressBarPrivate(GObject.GPointer): ...
-
-class PyGTKDeprecationWarning:
-    args = ...  # FIXME Constant
-
-    def add_note(self, *args, **kwargs): ...  # FIXME Function
-    def with_traceback(self, *args, **kwargs): ...  # FIXME Function
+class PyGTKDeprecationWarning(_gi.PyGIDeprecationWarning): ...
 
 class RadioAction(ToggleAction, Buildable):
     """
@@ -43711,7 +44165,6 @@ class RadioAction(ToggleAction, Buildable):
     Signals from GObject:
       notify (GParam)
     """
-
     class Props(ToggleAction.Props):
         current_value: int
         value: int
@@ -43737,10 +44190,13 @@ class RadioAction(ToggleAction, Buildable):
 
     @property
     def props(self) -> Props: ...
-    parent: ToggleAction
-    private_data: RadioActionPrivate
+    @property
+    def parent(self) -> ToggleAction: ...
+    @property
+    def private_data(self) -> RadioActionPrivate: ...
     def __init__(
         self,
+        *,
         current_value: int = ...,
         group: RadioAction | None = ...,
         value: int = ...,
@@ -43762,7 +44218,7 @@ class RadioAction(ToggleAction, Buildable):
         visible_horizontal: bool = ...,
         visible_overflown: bool = ...,
         visible_vertical: bool = ...,
-    ): ...
+    ) -> None: ...
     def do_changed(self, current: RadioAction) -> None: ...
     def get_current_value(self) -> int: ...
     def get_group(self) -> list[RadioAction]: ...
@@ -43787,13 +44243,10 @@ class RadioActionClass(GObject.GPointer):
 
         RadioActionClass()
     """
-
-    parent_class: ToggleActionClass
-    changed: Callable[[RadioAction, RadioAction], None]
-    _gtk_reserved1: None
-    _gtk_reserved2: None
-    _gtk_reserved3: None
-    _gtk_reserved4: None
+    @property
+    def parent_class(self) -> ToggleActionClass: ...
+    @property
+    def changed(self) -> Callable[[RadioAction, RadioAction], None]: ...
 
 class RadioActionEntry(GObject.GPointer):
     """
@@ -44045,7 +44498,6 @@ class RadioButton(
     Signals from GObject:
       notify (GParam)
     """
-
     class Props(CheckButton.Props):
         active: bool
         draw_indicator: bool
@@ -44115,6 +44567,7 @@ class RadioButton(
     def priv(self) -> RadioButtonPrivate: ...
     def __init__(
         self,
+        *,
         group: RadioButton | None = ...,
         active: bool = ...,
         draw_indicator: bool = ...,
@@ -44171,7 +44624,7 @@ class RadioButton(
         action_target: GLib.Variant = ...,
         related_action: Action = ...,
         use_action_appearance: bool = ...,
-    ): ...
+    ) -> None: ...
     def do_group_changed(self) -> None: ...
     def get_group(self) -> list[RadioButton]: ...
     def join_group(self, group_source: RadioButton | None = None) -> None: ...
@@ -44239,6 +44692,7 @@ class RadioButtonAccessible(
       active-descendant-changed (gpointer)
       announcement (gchararray)
       notification (gchararray, gint)
+      attribute-changed (gchararray, gchararray)
 
     Properties from AtkObject:
       accessible-name -> gchararray: Accessible Name
@@ -44271,17 +44725,22 @@ class RadioButtonAccessible(
         Is used to notify that the table caption has changed
       accessible-hypertext-nlinks -> gint: Number of Accessible Hypertext Links
         The number of links which the current AtkHypertext has
+      accessible-id -> gchararray: Accessible ID
+        ID for the accessible; useful for automated testing
+      accessible-help-text -> gchararray: Help text
+        Help text associated with the accessible
 
     Signals from GObject:
       notify (GParam)
     """
-
     class Props(ToggleButtonAccessible.Props):
         widget: Widget | None
         accessible_component_layer: int
         accessible_component_mdi_zorder: int
         accessible_description: str
+        accessible_help_text: str
         accessible_hypertext_nlinks: int
+        accessible_id: str
         accessible_name: str
         accessible_parent: Atk.Object
         accessible_role: Atk.Role
@@ -44302,8 +44761,11 @@ class RadioButtonAccessible(
     def priv(self) -> RadioButtonAccessiblePrivate: ...
     def __init__(
         self,
+        *,
         widget: Widget | None = ...,
         accessible_description: str = ...,
+        accessible_help_text: str = ...,
+        accessible_id: str = ...,
         accessible_name: str = ...,
         accessible_parent: Atk.Object = ...,
         accessible_role: Atk.Role = ...,
@@ -44315,7 +44777,7 @@ class RadioButtonAccessible(
         accessible_table_row_header: Atk.Object = ...,
         accessible_table_summary: Atk.Object = ...,
         accessible_value: float = ...,
-    ): ...
+    ) -> None: ...
 
 class RadioButtonAccessibleClass(GObject.GPointer):
     """
@@ -44325,8 +44787,8 @@ class RadioButtonAccessibleClass(GObject.GPointer):
 
         RadioButtonAccessibleClass()
     """
-
-    parent_class: ToggleButtonAccessibleClass
+    @property
+    def parent_class(self) -> ToggleButtonAccessibleClass: ...
 
 class RadioButtonAccessiblePrivate(GObject.GPointer): ...
 
@@ -44338,13 +44800,10 @@ class RadioButtonClass(GObject.GPointer):
 
         RadioButtonClass()
     """
-
-    parent_class: CheckButtonClass
-    group_changed: Callable[[RadioButton], None]
-    _gtk_reserved1: None
-    _gtk_reserved2: None
-    _gtk_reserved3: None
-    _gtk_reserved4: None
+    @property
+    def parent_class(self) -> CheckButtonClass: ...
+    @property
+    def group_changed(self) -> Callable[[RadioButton], None]: ...
 
 class RadioButtonPrivate(GObject.GPointer): ...
 
@@ -44572,7 +45031,6 @@ class RadioMenuItem(
     Signals from GObject:
       notify (GParam)
     """
-
     class Props(CheckMenuItem.Props):
         active: bool
         draw_as_radio: bool
@@ -44638,6 +45096,7 @@ class RadioMenuItem(
     def priv(self) -> RadioMenuItemPrivate: ...
     def __init__(
         self,
+        *,
         group: RadioMenuItem | None = ...,
         active: bool = ...,
         draw_as_radio: bool = ...,
@@ -44690,7 +45149,7 @@ class RadioMenuItem(
         action_target: GLib.Variant = ...,
         related_action: Action = ...,
         use_action_appearance: bool = ...,
-    ): ...
+    ) -> None: ...
     def do_group_changed(self) -> None: ...
     def get_group(self) -> list[RadioMenuItem]: ...
     def join_group(self, group_source: RadioMenuItem | None = None) -> None: ...
@@ -44765,6 +45224,7 @@ class RadioMenuItemAccessible(
       active-descendant-changed (gpointer)
       announcement (gchararray)
       notification (gchararray, gint)
+      attribute-changed (gchararray, gchararray)
 
     Properties from AtkObject:
       accessible-name -> gchararray: Accessible Name
@@ -44797,17 +45257,22 @@ class RadioMenuItemAccessible(
         Is used to notify that the table caption has changed
       accessible-hypertext-nlinks -> gint: Number of Accessible Hypertext Links
         The number of links which the current AtkHypertext has
+      accessible-id -> gchararray: Accessible ID
+        ID for the accessible; useful for automated testing
+      accessible-help-text -> gchararray: Help text
+        Help text associated with the accessible
 
     Signals from GObject:
       notify (GParam)
     """
-
     class Props(CheckMenuItemAccessible.Props):
         widget: Widget | None
         accessible_component_layer: int
         accessible_component_mdi_zorder: int
         accessible_description: str
+        accessible_help_text: str
         accessible_hypertext_nlinks: int
+        accessible_id: str
         accessible_name: str
         accessible_parent: Atk.Object
         accessible_role: Atk.Role
@@ -44828,8 +45293,11 @@ class RadioMenuItemAccessible(
     def priv(self) -> RadioMenuItemAccessiblePrivate: ...
     def __init__(
         self,
+        *,
         widget: Widget | None = ...,
         accessible_description: str = ...,
+        accessible_help_text: str = ...,
+        accessible_id: str = ...,
         accessible_name: str = ...,
         accessible_parent: Atk.Object = ...,
         accessible_role: Atk.Role = ...,
@@ -44841,7 +45309,7 @@ class RadioMenuItemAccessible(
         accessible_table_row_header: Atk.Object = ...,
         accessible_table_summary: Atk.Object = ...,
         accessible_value: float = ...,
-    ): ...
+    ) -> None: ...
 
 class RadioMenuItemAccessibleClass(GObject.GPointer):
     """
@@ -44851,8 +45319,8 @@ class RadioMenuItemAccessibleClass(GObject.GPointer):
 
         RadioMenuItemAccessibleClass()
     """
-
-    parent_class: CheckMenuItemAccessibleClass
+    @property
+    def parent_class(self) -> CheckMenuItemAccessibleClass: ...
 
 class RadioMenuItemAccessiblePrivate(GObject.GPointer): ...
 
@@ -44864,13 +45332,10 @@ class RadioMenuItemClass(GObject.GPointer):
 
         RadioMenuItemClass()
     """
-
-    parent_class: CheckMenuItemClass
-    group_changed: Callable[[RadioMenuItem], None]
-    _gtk_reserved1: None
-    _gtk_reserved2: None
-    _gtk_reserved3: None
-    _gtk_reserved4: None
+    @property
+    def parent_class(self) -> CheckMenuItemClass: ...
+    @property
+    def group_changed(self) -> Callable[[RadioMenuItem], None]: ...
 
 class RadioMenuItemPrivate(GObject.GPointer): ...
 
@@ -45098,7 +45563,6 @@ class RadioToolButton(
     Signals from GObject:
       notify (GParam)
     """
-
     class Props(ToggleToolButton.Props):
         active: bool
         icon_name: str | None
@@ -45164,6 +45628,7 @@ class RadioToolButton(
     def parent(self) -> ToggleToolButton: ...
     def __init__(
         self,
+        *,
         group: RadioToolButton | None = ...,
         active: bool = ...,
         icon_name: str | None = ...,
@@ -45218,7 +45683,7 @@ class RadioToolButton(
         action_target: GLib.Variant = ...,
         related_action: Action = ...,
         use_action_appearance: bool = ...,
-    ): ...
+    ) -> None: ...
     def get_group(self) -> list[RadioButton]: ...
     @classmethod
     def new(cls, group: list[RadioButton] | None = None) -> RadioToolButton: ...
@@ -45244,12 +45709,8 @@ class RadioToolButtonClass(GObject.GPointer):
 
         RadioToolButtonClass()
     """
-
-    parent_class: ToggleToolButtonClass
-    _gtk_reserved1: None
-    _gtk_reserved2: None
-    _gtk_reserved3: None
-    _gtk_reserved4: None
+    @property
+    def parent_class(self) -> ToggleToolButtonClass: ...
 
 class Range(Widget, Atk.ImplementorIface, Buildable, Orientable):
     """
@@ -45439,7 +45900,6 @@ class Range(Widget, Atk.ImplementorIface, Buildable, Orientable):
     Signals from GObject:
       notify (GParam)
     """
-
     class Props(Widget.Props):
         adjustment: Adjustment
         fill_level: float
@@ -45492,11 +45952,13 @@ class Range(Widget, Atk.ImplementorIface, Buildable, Orientable):
 
     @property
     def props(self) -> Props: ...
-    widget: Widget
+    @property
+    def widget(self) -> Widget: ...
     @property
     def priv(self) -> RangePrivate: ...
     def __init__(
         self,
+        *,
         adjustment: Adjustment = ...,
         fill_level: float = ...,
         inverted: bool = ...,
@@ -45542,7 +46004,7 @@ class Range(Widget, Atk.ImplementorIface, Buildable, Orientable):
         visible: bool = ...,
         width_request: int = ...,
         orientation: Orientation = ...,
-    ): ...
+    ) -> None: ...
     def do_adjust_bounds(self, new_value: float) -> None: ...
     def do_change_value(self, scroll: ScrollType, new_value: float) -> bool: ...
     def do_get_range_border(self, border_: Border) -> None: ...
@@ -45612,6 +46074,7 @@ class RangeAccessible(WidgetAccessible, Atk.Component, Atk.Value):
       active-descendant-changed (gpointer)
       announcement (gchararray)
       notification (gchararray, gint)
+      attribute-changed (gchararray, gchararray)
 
     Properties from AtkObject:
       accessible-name -> gchararray: Accessible Name
@@ -45644,17 +46107,22 @@ class RangeAccessible(WidgetAccessible, Atk.Component, Atk.Value):
         Is used to notify that the table caption has changed
       accessible-hypertext-nlinks -> gint: Number of Accessible Hypertext Links
         The number of links which the current AtkHypertext has
+      accessible-id -> gchararray: Accessible ID
+        ID for the accessible; useful for automated testing
+      accessible-help-text -> gchararray: Help text
+        Help text associated with the accessible
 
     Signals from GObject:
       notify (GParam)
     """
-
     class Props(WidgetAccessible.Props):
         widget: Widget | None
         accessible_component_layer: int
         accessible_component_mdi_zorder: int
         accessible_description: str
+        accessible_help_text: str
         accessible_hypertext_nlinks: int
+        accessible_id: str
         accessible_name: str
         accessible_parent: Atk.Object
         accessible_role: Atk.Role
@@ -45669,13 +46137,17 @@ class RangeAccessible(WidgetAccessible, Atk.Component, Atk.Value):
 
     @property
     def props(self) -> Props: ...
-    parent: WidgetAccessible
+    @property
+    def parent(self) -> WidgetAccessible: ...
     @property
     def priv(self) -> RangeAccessiblePrivate: ...
     def __init__(
         self,
+        *,
         widget: Widget | None = ...,
         accessible_description: str = ...,
+        accessible_help_text: str = ...,
+        accessible_id: str = ...,
         accessible_name: str = ...,
         accessible_parent: Atk.Object = ...,
         accessible_role: Atk.Role = ...,
@@ -45687,7 +46159,7 @@ class RangeAccessible(WidgetAccessible, Atk.Component, Atk.Value):
         accessible_table_row_header: Atk.Object = ...,
         accessible_table_summary: Atk.Object = ...,
         accessible_value: float = ...,
-    ): ...
+    ) -> None: ...
 
 class RangeAccessibleClass(GObject.GPointer):
     """
@@ -45697,8 +46169,8 @@ class RangeAccessibleClass(GObject.GPointer):
 
         RangeAccessibleClass()
     """
-
-    parent_class: WidgetAccessibleClass
+    @property
+    def parent_class(self) -> WidgetAccessibleClass: ...
 
 class RangeAccessiblePrivate(GObject.GPointer): ...
 
@@ -45710,19 +46182,26 @@ class RangeClass(GObject.GPointer):
 
         RangeClass()
     """
-
-    parent_class: WidgetClass
-    slider_detail: str
-    stepper_detail: str
-    value_changed: Callable[[Range], None]
-    adjust_bounds: Callable[[Range, float], None]
-    move_slider: Callable[[Range, ScrollType], None]
-    get_range_border: Callable[[Range, Border], None]
-    change_value: Callable[[Range, ScrollType, float], bool]
-    get_range_size_request: Callable[[Range, Orientation, int, int], None]
-    _gtk_reserved1: None
-    _gtk_reserved2: None
-    _gtk_reserved3: None
+    @property
+    def parent_class(self) -> WidgetClass: ...
+    @property
+    def slider_detail(self) -> str: ...
+    @property
+    def stepper_detail(self) -> str: ...
+    @property
+    def value_changed(self) -> Callable[[Range], None]: ...
+    @property
+    def adjust_bounds(self) -> Callable[[Range, float], None]: ...
+    @property
+    def move_slider(self) -> Callable[[Range, ScrollType], None]: ...
+    @property
+    def get_range_border(self) -> Callable[[Range, Border], None]: ...
+    @property
+    def change_value(self) -> Callable[[Range, ScrollType, float], bool]: ...
+    @property
+    def get_range_size_request(
+        self,
+    ) -> Callable[[Range, Orientation, int, int], None]: ...
 
 class RangePrivate(GObject.GPointer): ...
 class RcContext(GObject.GPointer): ...
@@ -45775,23 +46254,36 @@ class RcStyle(GObject.Object):
     Signals from GObject:
       notify (GParam)
     """
-
     @property
     def parent_instance(self) -> GObject.Object: ...
-    name: str
-    bg_pixmap_name: list[str]
-    font_desc: Pango.FontDescription
-    color_flags: list[RcFlags]
-    fg: list[_Gdk3.Color]
-    bg: list[_Gdk3.Color]
-    text: list[_Gdk3.Color]
-    base: list[_Gdk3.Color]
-    xthickness: int
-    ythickness: int
-    rc_properties: list[None]
-    rc_style_lists: list[None]
-    icon_factories: list[None]
-    engine_specified: int
+    @property
+    def name(self) -> str: ...
+    @property
+    def bg_pixmap_name(self) -> list[str]: ...
+    @property
+    def font_desc(self) -> Pango.FontDescription: ...
+    @property
+    def color_flags(self) -> list[RcFlags]: ...
+    @property
+    def fg(self) -> list[_Gdk3.Color]: ...
+    @property
+    def bg(self) -> list[_Gdk3.Color]: ...
+    @property
+    def text(self) -> list[_Gdk3.Color]: ...
+    @property
+    def base(self) -> list[_Gdk3.Color]: ...
+    @property
+    def xthickness(self) -> int: ...
+    @property
+    def ythickness(self) -> int: ...
+    @property
+    def rc_properties(self) -> list[None]: ...
+    @property
+    def rc_style_lists(self) -> list[None]: ...
+    @property
+    def icon_factories(self) -> list[None]: ...
+    @property
+    def engine_specified(self) -> int: ...
     def copy(self) -> RcStyle: ...
     def do_merge(self, src: RcStyle) -> None: ...
     def do_parse(self, settings: Settings, scanner: GLib.Scanner) -> int: ...
@@ -45806,16 +46298,16 @@ class RcStyleClass(GObject.GPointer):
 
         RcStyleClass()
     """
-
-    parent_class: GObject.ObjectClass
-    create_rc_style: None
-    parse: Callable[[RcStyle, Settings, GLib.Scanner], int]
-    merge: Callable[[RcStyle, RcStyle], None]
-    create_style: None
-    _gtk_reserved1: None
-    _gtk_reserved2: None
-    _gtk_reserved3: None
-    _gtk_reserved4: None
+    @property
+    def parent_class(self) -> GObject.ObjectClass: ...
+    @property
+    def create_rc_style(self) -> None: ...
+    @property
+    def parse(self) -> Callable[[RcStyle, Settings, GLib.Scanner], int]: ...
+    @property
+    def merge(self) -> Callable[[RcStyle, RcStyle], None]: ...
+    @property
+    def create_style(self) -> None: ...
 
 class RecentAction(Action, Buildable, RecentChooser):
     """
@@ -45877,7 +46369,6 @@ class RecentAction(Action, Buildable, RecentChooser):
     Signals from GObject:
       notify (GParam)
     """
-
     class Props(Action.Props):
         show_numbers: bool
         action_group: ActionGroup
@@ -45915,6 +46406,7 @@ class RecentAction(Action, Buildable, RecentChooser):
     def priv(self) -> RecentActionPrivate: ...
     def __init__(
         self,
+        *,
         show_numbers: bool = ...,
         action_group: ActionGroup = ...,
         always_show_image: bool = ...,
@@ -45942,7 +46434,7 @@ class RecentAction(Action, Buildable, RecentChooser):
         show_private: bool = ...,
         show_tips: bool = ...,
         sort_type: RecentSortType = ...,
-    ): ...
+    ) -> None: ...
     def get_show_numbers(self) -> bool: ...
     @classmethod
     def new(
@@ -45971,12 +46463,8 @@ class RecentActionClass(GObject.GPointer):
 
         RecentActionClass()
     """
-
-    parent_class: ActionClass
-    _gtk_reserved1: None
-    _gtk_reserved2: None
-    _gtk_reserved3: None
-    _gtk_reserved4: None
+    @property
+    def parent_class(self) -> ActionClass: ...
 
 class RecentActionPrivate(GObject.GPointer): ...
 
@@ -45987,7 +46475,6 @@ class RecentChooser(GObject.GInterface, Protocol):
     Signals from GObject:
       notify (GParam)
     """
-
     def add_filter(self, filter: RecentFilter) -> None: ...
     def get_current_item(self) -> RecentInfo: ...
     def get_current_uri(self) -> str: ...
@@ -46285,7 +46772,6 @@ class RecentChooserDialog(Dialog, Atk.ImplementorIface, Buildable, RecentChooser
     Signals from GObject:
       notify (GParam)
     """
-
     class Props(Dialog.Props):
         use_header_bar: int
         accept_focus: bool
@@ -46382,6 +46868,7 @@ class RecentChooserDialog(Dialog, Atk.ImplementorIface, Buildable, RecentChooser
     def priv(self) -> RecentChooserDialogPrivate: ...
     def __init__(
         self,
+        *,
         use_header_bar: int = ...,
         accept_focus: bool = ...,
         application: Application | None = ...,
@@ -46461,7 +46948,7 @@ class RecentChooserDialog(Dialog, Atk.ImplementorIface, Buildable, RecentChooser
         show_private: bool = ...,
         show_tips: bool = ...,
         sort_type: RecentSortType = ...,
-    ): ...
+    ) -> None: ...
 
 class RecentChooserDialogClass(GObject.GPointer):
     """
@@ -46471,12 +46958,8 @@ class RecentChooserDialogClass(GObject.GPointer):
 
         RecentChooserDialogClass()
     """
-
-    parent_class: DialogClass
-    _gtk_reserved1: None
-    _gtk_reserved2: None
-    _gtk_reserved3: None
-    _gtk_reserved4: None
+    @property
+    def parent_class(self) -> DialogClass: ...
 
 class RecentChooserDialogPrivate(GObject.GPointer): ...
 
@@ -46488,22 +46971,36 @@ class RecentChooserIface(GObject.GPointer):
 
         RecentChooserIface()
     """
-
-    base_iface: GObject.TypeInterface
-    set_current_uri: Callable[[RecentChooser, str], bool]
-    get_current_uri: Callable[[RecentChooser], str]
-    select_uri: Callable[[RecentChooser, str], bool]
-    unselect_uri: Callable[[RecentChooser, str], None]
-    select_all: Callable[[RecentChooser], None]
-    unselect_all: Callable[[RecentChooser], None]
-    get_items: Callable[[RecentChooser], list[RecentInfo]]
-    get_recent_manager: None
-    add_filter: Callable[[RecentChooser, RecentFilter], None]
-    remove_filter: Callable[[RecentChooser, RecentFilter], None]
-    list_filters: Callable[[RecentChooser], list[RecentFilter]]
-    set_sort_func: Callable[..., None]
-    item_activated: Callable[[RecentChooser], None]
-    selection_changed: Callable[[RecentChooser], None]
+    @property
+    def base_iface(self) -> GObject.TypeInterface: ...
+    @property
+    def set_current_uri(self) -> Callable[[RecentChooser, str], bool]: ...
+    @property
+    def get_current_uri(self) -> Callable[[RecentChooser], str]: ...
+    @property
+    def select_uri(self) -> Callable[[RecentChooser, str], bool]: ...
+    @property
+    def unselect_uri(self) -> Callable[[RecentChooser, str], None]: ...
+    @property
+    def select_all(self) -> Callable[[RecentChooser], None]: ...
+    @property
+    def unselect_all(self) -> Callable[[RecentChooser], None]: ...
+    @property
+    def get_items(self) -> Callable[[RecentChooser], list[RecentInfo]]: ...
+    @property
+    def get_recent_manager(self) -> None: ...
+    @property
+    def add_filter(self) -> Callable[[RecentChooser, RecentFilter], None]: ...
+    @property
+    def remove_filter(self) -> Callable[[RecentChooser, RecentFilter], None]: ...
+    @property
+    def list_filters(self) -> Callable[[RecentChooser], list[RecentFilter]]: ...
+    @property
+    def set_sort_func(self) -> Callable[..., None]: ...
+    @property
+    def item_activated(self) -> Callable[[RecentChooser], None]: ...
+    @property
+    def selection_changed(self) -> Callable[[RecentChooser], None]: ...
 
 class RecentChooserMenu(
     Menu, Atk.ImplementorIface, Activatable, Buildable, RecentChooser
@@ -46739,7 +47236,6 @@ class RecentChooserMenu(
     Signals from GObject:
       notify (GParam)
     """
-
     class Props(Menu.Props):
         show_numbers: bool
         accel_group: AccelGroup
@@ -46818,6 +47314,7 @@ class RecentChooserMenu(
     def priv(self) -> RecentChooserMenuPrivate: ...
     def __init__(
         self,
+        *,
         show_numbers: bool = ...,
         accel_group: AccelGroup | None = ...,
         accel_path: str | None = ...,
@@ -46883,7 +47380,7 @@ class RecentChooserMenu(
         show_private: bool = ...,
         show_tips: bool = ...,
         sort_type: RecentSortType = ...,
-    ): ...
+    ) -> None: ...
     def get_show_numbers(self) -> bool: ...
     @classmethod
     def new(cls) -> RecentChooserMenu: ...
@@ -46899,12 +47396,16 @@ class RecentChooserMenuClass(GObject.GPointer):
 
         RecentChooserMenuClass()
     """
-
-    parent_class: MenuClass
-    gtk_recent1: Callable[[], None]
-    gtk_recent2: Callable[[], None]
-    gtk_recent3: Callable[[], None]
-    gtk_recent4: Callable[[], None]
+    @property
+    def parent_class(self) -> MenuClass: ...
+    @property
+    def gtk_recent1(self) -> Callable[[], None]: ...
+    @property
+    def gtk_recent2(self) -> Callable[[], None]: ...
+    @property
+    def gtk_recent3(self) -> Callable[[], None]: ...
+    @property
+    def gtk_recent4(self) -> Callable[[], None]: ...
 
 class RecentChooserMenuPrivate(GObject.GPointer): ...
 
@@ -47102,7 +47603,6 @@ class RecentChooserWidget(
     Signals from GObject:
       notify (GParam)
     """
-
     class Props(Box.Props):
         baseline_position: BaselinePosition
         homogeneous: bool
@@ -47169,6 +47669,7 @@ class RecentChooserWidget(
     def priv(self) -> RecentChooserWidgetPrivate: ...
     def __init__(
         self,
+        *,
         baseline_position: BaselinePosition = ...,
         homogeneous: bool = ...,
         spacing: int = ...,
@@ -47222,7 +47723,7 @@ class RecentChooserWidget(
         show_private: bool = ...,
         show_tips: bool = ...,
         sort_type: RecentSortType = ...,
-    ): ...
+    ) -> None: ...
     @classmethod
     def new(cls) -> RecentChooserWidget: ...
     @classmethod
@@ -47236,12 +47737,8 @@ class RecentChooserWidgetClass(GObject.GPointer):
 
         RecentChooserWidgetClass()
     """
-
-    parent_class: BoxClass
-    _gtk_reserved1: None
-    _gtk_reserved2: None
-    _gtk_reserved3: None
-    _gtk_reserved4: None
+    @property
+    def parent_class(self) -> BoxClass: ...
 
 class RecentChooserWidgetPrivate(GObject.GPointer): ...
 
@@ -47276,7 +47773,6 @@ class RecentFilter(GObject.InitiallyUnowned, Buildable):
     Signals from GObject:
       notify (GParam)
     """
-
     def add_age(self, days: int) -> None: ...
     def add_application(self, application: str) -> None: ...
     def add_custom(
@@ -47362,7 +47858,6 @@ class RecentManager(GObject.Object):
     Signals from GObject:
       notify (GParam)
     """
-
     class Props(GObject.Object.Props):
         filename: str
         size: int
@@ -47373,7 +47868,7 @@ class RecentManager(GObject.Object):
     def parent_instance(self) -> GObject.Object: ...
     @property
     def priv(self) -> RecentManagerPrivate: ...
-    def __init__(self, filename: str = ...): ...
+    def __init__(self, *, filename: str = ...) -> None: ...
     def add_full(self, uri: str, recent_data: RecentData) -> bool: ...
     def add_item(self, uri: str) -> bool: ...
     def do_changed(self) -> None: ...
@@ -47396,13 +47891,10 @@ class RecentManagerClass(GObject.GPointer):
 
         RecentManagerClass()
     """
-
-    parent_class: GObject.ObjectClass
-    changed: Callable[[RecentManager], None]
-    _gtk_recent1: None
-    _gtk_recent2: None
-    _gtk_recent3: None
-    _gtk_recent4: None
+    @property
+    def parent_class(self) -> GObject.ObjectClass: ...
+    @property
+    def changed(self) -> Callable[[RecentManager], None]: ...
 
 class RecentManagerPrivate(GObject.GPointer): ...
 
@@ -47440,6 +47932,7 @@ class RendererCellAccessible(CellAccessible, Atk.Action, Atk.Component, Atk.Tabl
       active-descendant-changed (gpointer)
       announcement (gchararray)
       notification (gchararray, gint)
+      attribute-changed (gchararray, gchararray)
 
     Properties from AtkObject:
       accessible-name -> gchararray: Accessible Name
@@ -47472,18 +47965,23 @@ class RendererCellAccessible(CellAccessible, Atk.Action, Atk.Component, Atk.Tabl
         Is used to notify that the table caption has changed
       accessible-hypertext-nlinks -> gint: Number of Accessible Hypertext Links
         The number of links which the current AtkHypertext has
+      accessible-id -> gchararray: Accessible ID
+        ID for the accessible; useful for automated testing
+      accessible-help-text -> gchararray: Help text
+        Help text associated with the accessible
 
     Signals from GObject:
       notify (GParam)
     """
-
     class Props(CellAccessible.Props):
         renderer: CellRenderer
         widget: Widget | None
         accessible_component_layer: int
         accessible_component_mdi_zorder: int
         accessible_description: str
+        accessible_help_text: str
         accessible_hypertext_nlinks: int
+        accessible_id: str
         accessible_name: str
         accessible_parent: Atk.Object
         accessible_role: Atk.Role
@@ -47498,14 +47996,18 @@ class RendererCellAccessible(CellAccessible, Atk.Action, Atk.Component, Atk.Tabl
 
     @property
     def props(self) -> Props: ...
-    parent: CellAccessible
+    @property
+    def parent(self) -> CellAccessible: ...
     @property
     def priv(self) -> RendererCellAccessiblePrivate: ...
     def __init__(
         self,
+        *,
         renderer: CellRenderer = ...,
         widget: Widget | None = ...,
         accessible_description: str = ...,
+        accessible_help_text: str = ...,
+        accessible_id: str = ...,
         accessible_name: str = ...,
         accessible_parent: Atk.Object = ...,
         accessible_role: Atk.Role = ...,
@@ -47517,7 +48019,7 @@ class RendererCellAccessible(CellAccessible, Atk.Action, Atk.Component, Atk.Tabl
         accessible_table_row_header: Atk.Object = ...,
         accessible_table_summary: Atk.Object = ...,
         accessible_value: float = ...,
-    ): ...
+    ) -> None: ...
     @classmethod
     def new(cls, renderer: CellRenderer) -> RendererCellAccessible: ...
 
@@ -47529,8 +48031,8 @@ class RendererCellAccessibleClass(GObject.GPointer):
 
         RendererCellAccessibleClass()
     """
-
-    parent_class: CellAccessibleClass
+    @property
+    def parent_class(self) -> CellAccessibleClass: ...
 
 class RendererCellAccessiblePrivate(GObject.GPointer): ...
 
@@ -47559,6 +48061,8 @@ class Requisition(GObject.GBoxed):
 
     width: int
     height: int
+    @staticmethod
+    def __new__(cls: type[Self]) -> Self: ...
     def copy(self) -> Requisition: ...
     def free(self) -> None: ...
     @classmethod
@@ -47753,7 +48257,6 @@ class Revealer(Bin, Atk.ImplementorIface, Buildable):
     Signals from GObject:
       notify (GParam)
     """
-
     class Props(Bin.Props):
         child_revealed: bool
         reveal_child: bool
@@ -47808,6 +48311,7 @@ class Revealer(Bin, Atk.ImplementorIface, Buildable):
     def parent_instance(self) -> Bin: ...
     def __init__(
         self,
+        *,
         reveal_child: bool = ...,
         transition_duration: int = ...,
         transition_type: RevealerTransitionType = ...,
@@ -47850,7 +48354,7 @@ class Revealer(Bin, Atk.ImplementorIface, Buildable):
         vexpand_set: bool = ...,
         visible: bool = ...,
         width_request: int = ...,
-    ): ...
+    ) -> None: ...
     def get_child_revealed(self) -> bool: ...
     def get_reveal_child(self) -> bool: ...
     def get_transition_duration(self) -> int: ...
@@ -47869,8 +48373,8 @@ class RevealerClass(GObject.GPointer):
 
         RevealerClass()
     """
-
-    parent_class: BinClass
+    @property
+    def parent_class(self) -> BinClass: ...
 
 class Scale(Range, Atk.ImplementorIface, Buildable, Orientable):
     """
@@ -48075,7 +48579,6 @@ class Scale(Range, Atk.ImplementorIface, Buildable, Orientable):
     Signals from GObject:
       notify (GParam)
     """
-
     class Props(Range.Props):
         digits: int
         draw_value: bool
@@ -48132,11 +48635,13 @@ class Scale(Range, Atk.ImplementorIface, Buildable, Orientable):
 
     @property
     def props(self) -> Props: ...
-    range: Range
+    @property
+    def range(self) -> Range: ...
     @property
     def priv(self) -> ScalePrivate: ...
     def __init__(
         self,
+        *,
         digits: int = ...,
         draw_value: bool = ...,
         has_origin: bool = ...,
@@ -48186,7 +48691,7 @@ class Scale(Range, Atk.ImplementorIface, Buildable, Orientable):
         visible: bool = ...,
         width_request: int = ...,
         orientation: Orientation = ...,
-    ): ...
+    ) -> None: ...
     def add_mark(
         self, value: float, position: PositionType, markup: str | None = None
     ) -> None: ...
@@ -48251,6 +48756,7 @@ class ScaleAccessible(RangeAccessible, Atk.Component, Atk.Value):
       active-descendant-changed (gpointer)
       announcement (gchararray)
       notification (gchararray, gint)
+      attribute-changed (gchararray, gchararray)
 
     Properties from AtkObject:
       accessible-name -> gchararray: Accessible Name
@@ -48283,17 +48789,22 @@ class ScaleAccessible(RangeAccessible, Atk.Component, Atk.Value):
         Is used to notify that the table caption has changed
       accessible-hypertext-nlinks -> gint: Number of Accessible Hypertext Links
         The number of links which the current AtkHypertext has
+      accessible-id -> gchararray: Accessible ID
+        ID for the accessible; useful for automated testing
+      accessible-help-text -> gchararray: Help text
+        Help text associated with the accessible
 
     Signals from GObject:
       notify (GParam)
     """
-
     class Props(RangeAccessible.Props):
         widget: Widget | None
         accessible_component_layer: int
         accessible_component_mdi_zorder: int
         accessible_description: str
+        accessible_help_text: str
         accessible_hypertext_nlinks: int
+        accessible_id: str
         accessible_name: str
         accessible_parent: Atk.Object
         accessible_role: Atk.Role
@@ -48308,13 +48819,17 @@ class ScaleAccessible(RangeAccessible, Atk.Component, Atk.Value):
 
     @property
     def props(self) -> Props: ...
-    parent: RangeAccessible
+    @property
+    def parent(self) -> RangeAccessible: ...
     @property
     def priv(self) -> ScaleAccessiblePrivate: ...
     def __init__(
         self,
+        *,
         widget: Widget | None = ...,
         accessible_description: str = ...,
+        accessible_help_text: str = ...,
+        accessible_id: str = ...,
         accessible_name: str = ...,
         accessible_parent: Atk.Object = ...,
         accessible_role: Atk.Role = ...,
@@ -48326,7 +48841,7 @@ class ScaleAccessible(RangeAccessible, Atk.Component, Atk.Value):
         accessible_table_row_header: Atk.Object = ...,
         accessible_table_summary: Atk.Object = ...,
         accessible_value: float = ...,
-    ): ...
+    ) -> None: ...
 
 class ScaleAccessibleClass(GObject.GPointer):
     """
@@ -48336,8 +48851,8 @@ class ScaleAccessibleClass(GObject.GPointer):
 
         ScaleAccessibleClass()
     """
-
-    parent_class: RangeAccessibleClass
+    @property
+    def parent_class(self) -> RangeAccessibleClass: ...
 
 class ScaleAccessiblePrivate(GObject.GPointer): ...
 
@@ -48565,7 +49080,6 @@ class ScaleButton(
     Signals from GObject:
       notify (GParam)
     """
-
     class Props(Button.Props):
         adjustment: Adjustment
         icons: list[str]
@@ -48636,6 +49150,7 @@ class ScaleButton(
     def priv(self) -> ScaleButtonPrivate: ...
     def __init__(
         self,
+        *,
         adjustment: Adjustment = ...,
         icons: Sequence[str] = ...,
         size: IconSize = ...,
@@ -48693,7 +49208,7 @@ class ScaleButton(
         related_action: Action = ...,
         use_action_appearance: bool = ...,
         orientation: Orientation = ...,
-    ): ...
+    ) -> None: ...
     def do_value_changed(self, value: float) -> None: ...
     def get_adjustment(self) -> Adjustment: ...
     def get_minus_button(self) -> Button: ...
@@ -48753,6 +49268,7 @@ class ScaleButtonAccessible(
       active-descendant-changed (gpointer)
       announcement (gchararray)
       notification (gchararray, gint)
+      attribute-changed (gchararray, gchararray)
 
     Properties from AtkObject:
       accessible-name -> gchararray: Accessible Name
@@ -48785,17 +49301,22 @@ class ScaleButtonAccessible(
         Is used to notify that the table caption has changed
       accessible-hypertext-nlinks -> gint: Number of Accessible Hypertext Links
         The number of links which the current AtkHypertext has
+      accessible-id -> gchararray: Accessible ID
+        ID for the accessible; useful for automated testing
+      accessible-help-text -> gchararray: Help text
+        Help text associated with the accessible
 
     Signals from GObject:
       notify (GParam)
     """
-
     class Props(ButtonAccessible.Props):
         widget: Widget | None
         accessible_component_layer: int
         accessible_component_mdi_zorder: int
         accessible_description: str
+        accessible_help_text: str
         accessible_hypertext_nlinks: int
+        accessible_id: str
         accessible_name: str
         accessible_parent: Atk.Object
         accessible_role: Atk.Role
@@ -48816,8 +49337,11 @@ class ScaleButtonAccessible(
     def priv(self) -> ScaleButtonAccessiblePrivate: ...
     def __init__(
         self,
+        *,
         widget: Widget | None = ...,
         accessible_description: str = ...,
+        accessible_help_text: str = ...,
+        accessible_id: str = ...,
         accessible_name: str = ...,
         accessible_parent: Atk.Object = ...,
         accessible_role: Atk.Role = ...,
@@ -48829,7 +49353,7 @@ class ScaleButtonAccessible(
         accessible_table_row_header: Atk.Object = ...,
         accessible_table_summary: Atk.Object = ...,
         accessible_value: float = ...,
-    ): ...
+    ) -> None: ...
 
 class ScaleButtonAccessibleClass(GObject.GPointer):
     """
@@ -48839,8 +49363,8 @@ class ScaleButtonAccessibleClass(GObject.GPointer):
 
         ScaleButtonAccessibleClass()
     """
-
-    parent_class: ButtonAccessibleClass
+    @property
+    def parent_class(self) -> ButtonAccessibleClass: ...
 
 class ScaleButtonAccessiblePrivate(GObject.GPointer): ...
 
@@ -48852,13 +49376,10 @@ class ScaleButtonClass(GObject.GPointer):
 
         ScaleButtonClass()
     """
-
-    parent_class: ButtonClass
-    value_changed: Callable[[ScaleButton, float], None]
-    _gtk_reserved1: None
-    _gtk_reserved2: None
-    _gtk_reserved3: None
-    _gtk_reserved4: None
+    @property
+    def parent_class(self) -> ButtonClass: ...
+    @property
+    def value_changed(self) -> Callable[[ScaleButton, float], None]: ...
 
 class ScaleButtonPrivate(GObject.GPointer): ...
 
@@ -48870,15 +49391,14 @@ class ScaleClass(GObject.GPointer):
 
         ScaleClass()
     """
-
-    parent_class: RangeClass
-    format_value: Callable[[Scale, float], str]
-    draw_value: Callable[[Scale], None]
-    get_layout_offsets: Callable[[Scale], tuple[int, int]]
-    _gtk_reserved1: None
-    _gtk_reserved2: None
-    _gtk_reserved3: None
-    _gtk_reserved4: None
+    @property
+    def parent_class(self) -> RangeClass: ...
+    @property
+    def format_value(self) -> Callable[[Scale, float], str]: ...
+    @property
+    def draw_value(self) -> Callable[[Scale], None]: ...
+    @property
+    def get_layout_offsets(self) -> Callable[[Scale], tuple[int, int]]: ...
 
 class ScalePrivate(GObject.GPointer): ...
 
@@ -48889,7 +49409,6 @@ class Scrollable(GObject.GInterface, Protocol):
     Signals from GObject:
       notify (GParam)
     """
-
     def get_border(self) -> tuple[bool, Border]: ...
     def get_hadjustment(self) -> Adjustment: ...
     def get_hscroll_policy(self) -> ScrollablePolicy: ...
@@ -48908,9 +49427,10 @@ class ScrollableInterface(GObject.GPointer):
 
         ScrollableInterface()
     """
-
-    base_iface: GObject.TypeInterface
-    get_border: Callable[[Scrollable], tuple[bool, Border]]
+    @property
+    def base_iface(self) -> GObject.TypeInterface: ...
+    @property
+    def get_border(self) -> Callable[[Scrollable], tuple[bool, Border]]: ...
 
 class Scrollbar(Range, Atk.ImplementorIface, Buildable, Orientable):
     """
@@ -49101,7 +49621,6 @@ class Scrollbar(Range, Atk.ImplementorIface, Buildable, Orientable):
     Signals from GObject:
       notify (GParam)
     """
-
     class Props(Range.Props):
         adjustment: Adjustment
         fill_level: float
@@ -49154,9 +49673,11 @@ class Scrollbar(Range, Atk.ImplementorIface, Buildable, Orientable):
 
     @property
     def props(self) -> Props: ...
-    range: Range
+    @property
+    def range(self) -> Range: ...
     def __init__(
         self,
+        *,
         adjustment: Adjustment = ...,
         fill_level: float = ...,
         inverted: bool = ...,
@@ -49202,7 +49723,7 @@ class Scrollbar(Range, Atk.ImplementorIface, Buildable, Orientable):
         visible: bool = ...,
         width_request: int = ...,
         orientation: Orientation = ...,
-    ): ...
+    ) -> None: ...
     @classmethod
     def new(
         cls, orientation: Orientation, adjustment: Adjustment | None = None
@@ -49216,12 +49737,8 @@ class ScrollbarClass(GObject.GPointer):
 
         ScrollbarClass()
     """
-
-    parent_class: RangeClass
-    _gtk_reserved1: None
-    _gtk_reserved2: None
-    _gtk_reserved3: None
-    _gtk_reserved4: None
+    @property
+    def parent_class(self) -> RangeClass: ...
 
 class ScrolledWindow(Bin, Atk.ImplementorIface, Buildable):
     """
@@ -49440,7 +49957,6 @@ class ScrolledWindow(Bin, Atk.ImplementorIface, Buildable):
     Signals from GObject:
       notify (GParam)
     """
-
     class Props(Bin.Props):
         hadjustment: Adjustment
         hscrollbar_policy: PolicyType
@@ -49502,11 +50018,13 @@ class ScrolledWindow(Bin, Atk.ImplementorIface, Buildable):
 
     @property
     def props(self) -> Props: ...
-    container: Bin
+    @property
+    def container(self) -> Bin: ...
     @property
     def priv(self) -> ScrolledWindowPrivate: ...
     def __init__(
         self,
+        *,
         hadjustment: Adjustment | None = ...,
         hscrollbar_policy: PolicyType = ...,
         kinetic_scrolling: bool = ...,
@@ -49561,7 +50079,7 @@ class ScrolledWindow(Bin, Atk.ImplementorIface, Buildable):
         vexpand_set: bool = ...,
         visible: bool = ...,
         width_request: int = ...,
-    ): ...
+    ) -> None: ...
     def add_with_viewport(self, child: Widget) -> None: ...
     def do_move_focus_out(self, direction: DirectionType) -> None: ...
     def do_scroll_child(self, scroll: ScrollType, horizontal: bool) -> bool: ...
@@ -49637,6 +50155,7 @@ class ScrolledWindowAccessible(ContainerAccessible, Atk.Component):
       active-descendant-changed (gpointer)
       announcement (gchararray)
       notification (gchararray, gint)
+      attribute-changed (gchararray, gchararray)
 
     Properties from AtkObject:
       accessible-name -> gchararray: Accessible Name
@@ -49669,17 +50188,22 @@ class ScrolledWindowAccessible(ContainerAccessible, Atk.Component):
         Is used to notify that the table caption has changed
       accessible-hypertext-nlinks -> gint: Number of Accessible Hypertext Links
         The number of links which the current AtkHypertext has
+      accessible-id -> gchararray: Accessible ID
+        ID for the accessible; useful for automated testing
+      accessible-help-text -> gchararray: Help text
+        Help text associated with the accessible
 
     Signals from GObject:
       notify (GParam)
     """
-
     class Props(ContainerAccessible.Props):
         widget: Widget | None
         accessible_component_layer: int
         accessible_component_mdi_zorder: int
         accessible_description: str
+        accessible_help_text: str
         accessible_hypertext_nlinks: int
+        accessible_id: str
         accessible_name: str
         accessible_parent: Atk.Object
         accessible_role: Atk.Role
@@ -49694,13 +50218,17 @@ class ScrolledWindowAccessible(ContainerAccessible, Atk.Component):
 
     @property
     def props(self) -> Props: ...
-    parent: ContainerAccessible
+    @property
+    def parent(self) -> ContainerAccessible: ...
     @property
     def priv(self) -> ScrolledWindowAccessiblePrivate: ...
     def __init__(
         self,
+        *,
         widget: Widget | None = ...,
         accessible_description: str = ...,
+        accessible_help_text: str = ...,
+        accessible_id: str = ...,
         accessible_name: str = ...,
         accessible_parent: Atk.Object = ...,
         accessible_role: Atk.Role = ...,
@@ -49712,7 +50240,7 @@ class ScrolledWindowAccessible(ContainerAccessible, Atk.Component):
         accessible_table_row_header: Atk.Object = ...,
         accessible_table_summary: Atk.Object = ...,
         accessible_value: float = ...,
-    ): ...
+    ) -> None: ...
 
 class ScrolledWindowAccessibleClass(GObject.GPointer):
     """
@@ -49722,8 +50250,8 @@ class ScrolledWindowAccessibleClass(GObject.GPointer):
 
         ScrolledWindowAccessibleClass()
     """
-
-    parent_class: ContainerAccessibleClass
+    @property
+    def parent_class(self) -> ContainerAccessibleClass: ...
 
 class ScrolledWindowAccessiblePrivate(GObject.GPointer): ...
 
@@ -49735,15 +50263,14 @@ class ScrolledWindowClass(GObject.GPointer):
 
         ScrolledWindowClass()
     """
-
-    parent_class: BinClass
-    scrollbar_spacing: int
-    scroll_child: Callable[[ScrolledWindow, ScrollType, bool], bool]
-    move_focus_out: Callable[[ScrolledWindow, DirectionType], None]
-    _gtk_reserved1: None
-    _gtk_reserved2: None
-    _gtk_reserved3: None
-    _gtk_reserved4: None
+    @property
+    def parent_class(self) -> BinClass: ...
+    @property
+    def scrollbar_spacing(self) -> int: ...
+    @property
+    def scroll_child(self) -> Callable[[ScrolledWindow, ScrollType, bool], bool]: ...
+    @property
+    def move_focus_out(self) -> Callable[[ScrolledWindow, DirectionType], None]: ...
 
 class ScrolledWindowPrivate(GObject.GPointer): ...
 
@@ -49932,7 +50459,6 @@ class SearchBar(Bin, Atk.ImplementorIface, Buildable):
     Signals from GObject:
       notify (GParam)
     """
-
     class Props(Bin.Props):
         search_mode_enabled: bool
         show_close_button: bool
@@ -49981,9 +50507,11 @@ class SearchBar(Bin, Atk.ImplementorIface, Buildable):
 
     @property
     def props(self) -> Props: ...
-    parent: Bin
+    @property
+    def parent(self) -> Bin: ...
     def __init__(
         self,
+        *,
         search_mode_enabled: bool = ...,
         show_close_button: bool = ...,
         border_width: int = ...,
@@ -50025,7 +50553,7 @@ class SearchBar(Bin, Atk.ImplementorIface, Buildable):
         vexpand_set: bool = ...,
         visible: bool = ...,
         width_request: int = ...,
-    ): ...
+    ) -> None: ...
     def connect_entry(self, entry: Entry) -> None: ...
     def get_search_mode(self) -> bool: ...
     def get_show_close_button(self) -> bool: ...
@@ -50043,12 +50571,8 @@ class SearchBarClass(GObject.GPointer):
 
         SearchBarClass()
     """
-
-    parent_class: BinClass
-    _gtk_reserved1: None
-    _gtk_reserved2: None
-    _gtk_reserved3: None
-    _gtk_reserved4: None
+    @property
+    def parent_class(self) -> BinClass: ...
 
 class SearchEntry(Entry, Atk.ImplementorIface, Buildable, CellEditable, Editable):
     """
@@ -50087,6 +50611,7 @@ class SearchEntry(Entry, Atk.ImplementorIface, Buildable, CellEditable, Editable
       cut-clipboard ()
       paste-clipboard ()
       toggle-overwrite ()
+      toggle-direction ()
       icon-press (GtkEntryIconPosition, GdkEvent)
       icon-release (GtkEntryIconPosition, GdkEvent)
       preedit-changed (gchararray)
@@ -50359,7 +50884,6 @@ class SearchEntry(Entry, Atk.ImplementorIface, Buildable, CellEditable, Editable
     Signals from GObject:
       notify (GParam)
     """
-
     class Props(Entry.Props):
         activates_default: bool
         attributes: Pango.AttrList | None
@@ -50455,9 +50979,11 @@ class SearchEntry(Entry, Atk.ImplementorIface, Buildable, CellEditable, Editable
 
     @property
     def props(self) -> Props: ...
-    parent: Entry
+    @property
+    def parent(self) -> Entry: ...
     def __init__(
         self,
+        *,
         activates_default: bool = ...,
         attributes: Pango.AttrList = ...,
         buffer: EntryBuffer = ...,
@@ -50540,7 +51066,7 @@ class SearchEntry(Entry, Atk.ImplementorIface, Buildable, CellEditable, Editable
         visible: bool = ...,
         width_request: int = ...,
         editing_canceled: bool = ...,
-    ): ...
+    ) -> None: ...
     def do_next_match(self) -> None: ...
     def do_previous_match(self) -> None: ...
     def do_search_changed(self) -> None: ...
@@ -50557,12 +51083,16 @@ class SearchEntryClass(GObject.GPointer):
 
         SearchEntryClass()
     """
-
-    parent_class: EntryClass
-    search_changed: Callable[[SearchEntry], None]
-    next_match: Callable[[SearchEntry], None]
-    previous_match: Callable[[SearchEntry], None]
-    stop_search: Callable[[SearchEntry], None]
+    @property
+    def parent_class(self) -> EntryClass: ...
+    @property
+    def search_changed(self) -> Callable[[SearchEntry], None]: ...
+    @property
+    def next_match(self) -> Callable[[SearchEntry], None]: ...
+    @property
+    def previous_match(self) -> Callable[[SearchEntry], None]: ...
+    @property
+    def stop_search(self) -> Callable[[SearchEntry], None]: ...
 
 class SelectionData(GObject.GBoxed):
     def copy(self) -> SelectionData: ...
@@ -50752,7 +51282,6 @@ class Separator(Widget, Atk.ImplementorIface, Buildable, Orientable):
     Signals from GObject:
       notify (GParam)
     """
-
     class Props(Widget.Props):
         app_paintable: bool
         can_default: bool
@@ -50797,11 +51326,13 @@ class Separator(Widget, Atk.ImplementorIface, Buildable, Orientable):
 
     @property
     def props(self) -> Props: ...
-    widget: Widget
+    @property
+    def widget(self) -> Widget: ...
     @property
     def priv(self) -> SeparatorPrivate: ...
     def __init__(
         self,
+        *,
         app_paintable: bool = ...,
         can_default: bool = ...,
         can_focus: bool = ...,
@@ -50839,7 +51370,7 @@ class Separator(Widget, Atk.ImplementorIface, Buildable, Orientable):
         visible: bool = ...,
         width_request: int = ...,
         orientation: Orientation = ...,
-    ): ...
+    ) -> None: ...
     @classmethod
     def new(cls, orientation: Orientation) -> Separator: ...
 
@@ -50851,12 +51382,8 @@ class SeparatorClass(GObject.GPointer):
 
         SeparatorClass()
     """
-
-    parent_class: WidgetClass
-    _gtk_reserved1: None
-    _gtk_reserved2: None
-    _gtk_reserved3: None
-    _gtk_reserved4: None
+    @property
+    def parent_class(self) -> WidgetClass: ...
 
 class SeparatorMenuItem(
     MenuItem, Atk.ImplementorIface, Actionable, Activatable, Buildable
@@ -51059,7 +51586,6 @@ class SeparatorMenuItem(
     Signals from GObject:
       notify (GParam)
     """
-
     class Props(MenuItem.Props):
         accel_path: str | None
         label: str
@@ -51119,6 +51645,7 @@ class SeparatorMenuItem(
     def menu_item(self) -> MenuItem: ...
     def __init__(
         self,
+        *,
         accel_path: str | None = ...,
         label: str = ...,
         right_justified: bool = ...,
@@ -51167,7 +51694,7 @@ class SeparatorMenuItem(
         action_target: GLib.Variant = ...,
         related_action: Action = ...,
         use_action_appearance: bool = ...,
-    ): ...
+    ) -> None: ...
     @classmethod
     def new(cls) -> SeparatorMenuItem: ...
 
@@ -51179,12 +51706,8 @@ class SeparatorMenuItemClass(GObject.GPointer):
 
         SeparatorMenuItemClass()
     """
-
-    parent_class: MenuItemClass
-    _gtk_reserved1: None
-    _gtk_reserved2: None
-    _gtk_reserved3: None
-    _gtk_reserved4: None
+    @property
+    def parent_class(self) -> MenuItemClass: ...
 
 class SeparatorPrivate(GObject.GPointer): ...
 
@@ -51383,7 +51906,6 @@ class SeparatorToolItem(ToolItem, Atk.ImplementorIface, Activatable, Buildable):
     Signals from GObject:
       notify (GParam)
     """
-
     class Props(ToolItem.Props):
         draw: bool
         is_important: bool
@@ -51436,11 +51958,13 @@ class SeparatorToolItem(ToolItem, Atk.ImplementorIface, Activatable, Buildable):
 
     @property
     def props(self) -> Props: ...
-    parent: ToolItem
+    @property
+    def parent(self) -> ToolItem: ...
     @property
     def priv(self) -> SeparatorToolItemPrivate: ...
     def __init__(
         self,
+        *,
         draw: bool = ...,
         is_important: bool = ...,
         visible_horizontal: bool = ...,
@@ -51486,7 +52010,7 @@ class SeparatorToolItem(ToolItem, Atk.ImplementorIface, Activatable, Buildable):
         width_request: int = ...,
         related_action: Action = ...,
         use_action_appearance: bool = ...,
-    ): ...
+    ) -> None: ...
     def get_draw(self) -> bool: ...
     @classmethod
     def new(cls) -> SeparatorToolItem: ...
@@ -51500,12 +52024,8 @@ class SeparatorToolItemClass(GObject.GPointer):
 
         SeparatorToolItemClass()
     """
-
-    parent_class: ToolItemClass
-    _gtk_reserved1: None
-    _gtk_reserved2: None
-    _gtk_reserved3: None
-    _gtk_reserved4: None
+    @property
+    def parent_class(self) -> ToolItemClass: ...
 
 class SeparatorToolItemPrivate(GObject.GPointer): ...
 
@@ -51697,7 +52217,6 @@ class Settings(GObject.Object, StyleProvider):
     Signals from GObject:
       notify (GParam)
     """
-
     class Props(GObject.Object.Props):
         color_hash: dict[str, _Gdk3.Color]
         gtk_alternative_button_order: bool
@@ -51793,6 +52312,7 @@ class Settings(GObject.Object, StyleProvider):
     def priv(self) -> SettingsPrivate: ...
     def __init__(
         self,
+        *,
         gtk_alternative_button_order: bool = ...,
         gtk_alternative_sort_arrows: bool = ...,
         gtk_application_prefer_dark_theme: bool = ...,
@@ -51877,7 +52397,7 @@ class Settings(GObject.Object, StyleProvider):
         gtk_xft_hinting: int = ...,
         gtk_xft_hintstyle: str = ...,
         gtk_xft_rgba: str = ...,
-    ): ...
+    ) -> None: ...
     @staticmethod
     def get_default() -> Settings | None: ...
     @staticmethod
@@ -51903,12 +52423,8 @@ class SettingsClass(GObject.GPointer):
 
         SettingsClass()
     """
-
-    parent_class: GObject.ObjectClass
-    _gtk_reserved1: None
-    _gtk_reserved2: None
-    _gtk_reserved3: None
-    _gtk_reserved4: None
+    @property
+    def parent_class(self) -> GObject.ObjectClass: ...
 
 class SettingsPrivate(GObject.GPointer): ...
 
@@ -52117,7 +52633,6 @@ class ShortcutLabel(Box, Atk.ImplementorIface, Buildable, Orientable):
     Signals from GObject:
       notify (GParam)
     """
-
     class Props(Box.Props):
         accelerator: str | None
         disabled_text: str | None
@@ -52172,6 +52687,7 @@ class ShortcutLabel(Box, Atk.ImplementorIface, Buildable, Orientable):
     def props(self) -> Props: ...
     def __init__(
         self,
+        *,
         accelerator: str = ...,
         disabled_text: str = ...,
         baseline_position: BaselinePosition = ...,
@@ -52217,7 +52733,7 @@ class ShortcutLabel(Box, Atk.ImplementorIface, Buildable, Orientable):
         visible: bool = ...,
         width_request: int = ...,
         orientation: Orientation = ...,
-    ): ...
+    ) -> None: ...
     def get_accelerator(self) -> str | None: ...
     def get_disabled_text(self) -> str | None: ...
     @classmethod
@@ -52425,7 +52941,6 @@ class ShortcutsGroup(Box, Atk.ImplementorIface, Buildable, Orientable):
     Signals from GObject:
       notify (GParam)
     """
-
     class Props(Box.Props):
         height: int
         title: str
@@ -52483,6 +52998,7 @@ class ShortcutsGroup(Box, Atk.ImplementorIface, Buildable, Orientable):
     def props(self) -> Props: ...
     def __init__(
         self,
+        *,
         accel_size_group: SizeGroup = ...,
         title: str = ...,
         title_size_group: SizeGroup = ...,
@@ -52530,7 +53046,7 @@ class ShortcutsGroup(Box, Atk.ImplementorIface, Buildable, Orientable):
         visible: bool = ...,
         width_request: int = ...,
         orientation: Orientation = ...,
-    ): ...
+    ) -> None: ...
 
 class ShortcutsGroupClass(GObject.GPointer): ...
 
@@ -52733,7 +53249,6 @@ class ShortcutsSection(Box, Atk.ImplementorIface, Buildable, Orientable):
     Signals from GObject:
       notify (GParam)
     """
-
     class Props(Box.Props):
         max_height: int
         section_name: str
@@ -52790,6 +53305,7 @@ class ShortcutsSection(Box, Atk.ImplementorIface, Buildable, Orientable):
     def props(self) -> Props: ...
     def __init__(
         self,
+        *,
         max_height: int = ...,
         section_name: str = ...,
         title: str = ...,
@@ -52837,7 +53353,7 @@ class ShortcutsSection(Box, Atk.ImplementorIface, Buildable, Orientable):
         visible: bool = ...,
         width_request: int = ...,
         orientation: Orientation = ...,
-    ): ...
+    ) -> None: ...
 
 class ShortcutsSectionClass(GObject.GPointer): ...
 
@@ -53051,7 +53567,6 @@ class ShortcutsShortcut(Box, Atk.ImplementorIface, Buildable, Orientable):
     Signals from GObject:
       notify (GParam)
     """
-
     class Props(Box.Props):
         accelerator: str
         action_name: str
@@ -53115,6 +53630,7 @@ class ShortcutsShortcut(Box, Atk.ImplementorIface, Buildable, Orientable):
     def props(self) -> Props: ...
     def __init__(
         self,
+        *,
         accel_size_group: SizeGroup = ...,
         accelerator: str = ...,
         action_name: str = ...,
@@ -53169,7 +53685,7 @@ class ShortcutsShortcut(Box, Atk.ImplementorIface, Buildable, Orientable):
         visible: bool = ...,
         width_request: int = ...,
         orientation: Orientation = ...,
-    ): ...
+    ) -> None: ...
 
 class ShortcutsShortcutClass(GObject.GPointer): ...
 
@@ -53436,7 +53952,6 @@ class ShortcutsWindow(Window, Atk.ImplementorIface, Buildable):
     Signals from GObject:
       notify (GParam)
     """
-
     class Props(Window.Props):
         section_name: str
         view_name: str
@@ -53518,9 +54033,11 @@ class ShortcutsWindow(Window, Atk.ImplementorIface, Buildable):
 
     @property
     def props(self) -> Props: ...
-    window: Window
+    @property
+    def window(self) -> Window: ...
     def __init__(
         self,
+        *,
         section_name: str = ...,
         view_name: str = ...,
         accept_focus: bool = ...,
@@ -53591,7 +54108,7 @@ class ShortcutsWindow(Window, Atk.ImplementorIface, Buildable):
         vexpand_set: bool = ...,
         visible: bool = ...,
         width_request: int = ...,
-    ): ...
+    ) -> None: ...
     def do_close(self) -> None: ...
     def do_search(self) -> None: ...
 
@@ -53603,10 +54120,12 @@ class ShortcutsWindowClass(GObject.GPointer):
 
         ShortcutsWindowClass()
     """
-
-    parent_class: WindowClass
-    close: Callable[[ShortcutsWindow], None]
-    search: Callable[[ShortcutsWindow], None]
+    @property
+    def parent_class(self) -> WindowClass: ...
+    @property
+    def close(self) -> Callable[[ShortcutsWindow], None]: ...
+    @property
+    def search(self) -> Callable[[ShortcutsWindow], None]: ...
 
 class SizeGroup(GObject.Object, Buildable):
     """
@@ -53628,7 +54147,6 @@ class SizeGroup(GObject.Object, Buildable):
     Signals from GObject:
       notify (GParam)
     """
-
     class Props(GObject.Object.Props):
         ignore_hidden: bool
         mode: SizeGroupMode
@@ -53639,7 +54157,9 @@ class SizeGroup(GObject.Object, Buildable):
     def parent_instance(self) -> GObject.Object: ...
     @property
     def priv(self) -> SizeGroupPrivate: ...
-    def __init__(self, ignore_hidden: bool = ..., mode: SizeGroupMode = ...): ...
+    def __init__(
+        self, *, ignore_hidden: bool = ..., mode: SizeGroupMode = ...
+    ) -> None: ...
     def add_widget(self, widget: Widget) -> None: ...
     def get_ignore_hidden(self) -> bool: ...
     def get_mode(self) -> SizeGroupMode: ...
@@ -53658,12 +54178,8 @@ class SizeGroupClass(GObject.GPointer):
 
         SizeGroupClass()
     """
-
-    parent_class: GObject.ObjectClass
-    _gtk_reserved1: None
-    _gtk_reserved2: None
-    _gtk_reserved3: None
-    _gtk_reserved4: None
+    @property
+    def parent_class(self) -> GObject.ObjectClass: ...
 
 class SizeGroupPrivate(GObject.GPointer): ...
 
@@ -53850,7 +54366,6 @@ class Socket(Container, Atk.ImplementorIface, Buildable):
     Signals from GObject:
       notify (GParam)
     """
-
     class Props(Container.Props):
         border_width: int
         resize_mode: ResizeMode
@@ -53897,11 +54412,13 @@ class Socket(Container, Atk.ImplementorIface, Buildable):
 
     @property
     def props(self) -> Props: ...
-    container: Container
+    @property
+    def container(self) -> Container: ...
     @property
     def priv(self) -> SocketPrivate: ...
     def __init__(
         self,
+        *,
         border_width: int = ...,
         child: Widget = ...,
         resize_mode: ResizeMode = ...,
@@ -53941,7 +54458,7 @@ class Socket(Container, Atk.ImplementorIface, Buildable):
         vexpand_set: bool = ...,
         visible: bool = ...,
         width_request: int = ...,
-    ): ...
+    ) -> None: ...
     def add_id(self, window: int) -> None: ...
     def do_plug_added(self) -> None: ...
     def do_plug_removed(self) -> bool: ...
@@ -53982,6 +54499,7 @@ class SocketAccessible(ContainerAccessible, Atk.Component):
       active-descendant-changed (gpointer)
       announcement (gchararray)
       notification (gchararray, gint)
+      attribute-changed (gchararray, gchararray)
 
     Properties from AtkObject:
       accessible-name -> gchararray: Accessible Name
@@ -54014,17 +54532,22 @@ class SocketAccessible(ContainerAccessible, Atk.Component):
         Is used to notify that the table caption has changed
       accessible-hypertext-nlinks -> gint: Number of Accessible Hypertext Links
         The number of links which the current AtkHypertext has
+      accessible-id -> gchararray: Accessible ID
+        ID for the accessible; useful for automated testing
+      accessible-help-text -> gchararray: Help text
+        Help text associated with the accessible
 
     Signals from GObject:
       notify (GParam)
     """
-
     class Props(ContainerAccessible.Props):
         widget: Widget | None
         accessible_component_layer: int
         accessible_component_mdi_zorder: int
         accessible_description: str
+        accessible_help_text: str
         accessible_hypertext_nlinks: int
+        accessible_id: str
         accessible_name: str
         accessible_parent: Atk.Object
         accessible_role: Atk.Role
@@ -54039,13 +54562,17 @@ class SocketAccessible(ContainerAccessible, Atk.Component):
 
     @property
     def props(self) -> Props: ...
-    parent: ContainerAccessible
+    @property
+    def parent(self) -> ContainerAccessible: ...
     @property
     def priv(self) -> SocketAccessiblePrivate: ...
     def __init__(
         self,
+        *,
         widget: Widget | None = ...,
         accessible_description: str = ...,
+        accessible_help_text: str = ...,
+        accessible_id: str = ...,
         accessible_name: str = ...,
         accessible_parent: Atk.Object = ...,
         accessible_role: Atk.Role = ...,
@@ -54057,7 +54584,7 @@ class SocketAccessible(ContainerAccessible, Atk.Component):
         accessible_table_row_header: Atk.Object = ...,
         accessible_table_summary: Atk.Object = ...,
         accessible_value: float = ...,
-    ): ...
+    ) -> None: ...
     def embed(self, path: str) -> None: ...
 
 class SocketAccessibleClass(GObject.GPointer):
@@ -54068,8 +54595,8 @@ class SocketAccessibleClass(GObject.GPointer):
 
         SocketAccessibleClass()
     """
-
-    parent_class: ContainerAccessibleClass
+    @property
+    def parent_class(self) -> ContainerAccessibleClass: ...
 
 class SocketAccessiblePrivate(GObject.GPointer): ...
 
@@ -54081,14 +54608,12 @@ class SocketClass(GObject.GPointer):
 
         SocketClass()
     """
-
-    parent_class: ContainerClass
-    plug_added: Callable[[Socket], None]
-    plug_removed: Callable[[Socket], bool]
-    _gtk_reserved1: None
-    _gtk_reserved2: None
-    _gtk_reserved3: None
-    _gtk_reserved4: None
+    @property
+    def parent_class(self) -> ContainerClass: ...
+    @property
+    def plug_added(self) -> Callable[[Socket], None]: ...
+    @property
+    def plug_removed(self) -> Callable[[Socket], bool]: ...
 
 class SocketPrivate(GObject.GPointer): ...
 
@@ -54151,6 +54676,7 @@ class SpinButton(
       cut-clipboard ()
       paste-clipboard ()
       toggle-overwrite ()
+      toggle-direction ()
       icon-press (GtkEntryIconPosition, GdkEvent)
       icon-release (GtkEntryIconPosition, GdkEvent)
       preedit-changed (gchararray)
@@ -54423,7 +54949,6 @@ class SpinButton(
     Signals from GObject:
       notify (GParam)
     """
-
     class Props(Entry.Props):
         adjustment: Adjustment
         climb_rate: float
@@ -54534,6 +55059,7 @@ class SpinButton(
     def priv(self) -> SpinButtonPrivate: ...
     def __init__(
         self,
+        *,
         adjustment: Adjustment = ...,
         climb_rate: float = ...,
         digits: int = ...,
@@ -54625,7 +55151,7 @@ class SpinButton(
         width_request: int = ...,
         editing_canceled: bool = ...,
         orientation: Orientation = ...,
-    ): ...
+    ) -> None: ...
     def configure(
         self, adjustment: Adjustment | None, climb_rate: float, digits: int
     ) -> None: ...
@@ -54715,6 +55241,7 @@ class SpinButtonAccessible(
       active-descendant-changed (gpointer)
       announcement (gchararray)
       notification (gchararray, gint)
+      attribute-changed (gchararray, gchararray)
 
     Properties from AtkObject:
       accessible-name -> gchararray: Accessible Name
@@ -54747,17 +55274,22 @@ class SpinButtonAccessible(
         Is used to notify that the table caption has changed
       accessible-hypertext-nlinks -> gint: Number of Accessible Hypertext Links
         The number of links which the current AtkHypertext has
+      accessible-id -> gchararray: Accessible ID
+        ID for the accessible; useful for automated testing
+      accessible-help-text -> gchararray: Help text
+        Help text associated with the accessible
 
     Signals from GObject:
       notify (GParam)
     """
-
     class Props(EntryAccessible.Props):
         widget: Widget | None
         accessible_component_layer: int
         accessible_component_mdi_zorder: int
         accessible_description: str
+        accessible_help_text: str
         accessible_hypertext_nlinks: int
+        accessible_id: str
         accessible_name: str
         accessible_parent: Atk.Object
         accessible_role: Atk.Role
@@ -54778,8 +55310,11 @@ class SpinButtonAccessible(
     def priv(self) -> SpinButtonAccessiblePrivate: ...
     def __init__(
         self,
+        *,
         widget: Widget | None = ...,
         accessible_description: str = ...,
+        accessible_help_text: str = ...,
+        accessible_id: str = ...,
         accessible_name: str = ...,
         accessible_parent: Atk.Object = ...,
         accessible_role: Atk.Role = ...,
@@ -54791,7 +55326,7 @@ class SpinButtonAccessible(
         accessible_table_row_header: Atk.Object = ...,
         accessible_table_summary: Atk.Object = ...,
         accessible_value: float = ...,
-    ): ...
+    ) -> None: ...
 
 class SpinButtonAccessibleClass(GObject.GPointer):
     """
@@ -54801,8 +55336,8 @@ class SpinButtonAccessibleClass(GObject.GPointer):
 
         SpinButtonAccessibleClass()
     """
-
-    parent_class: EntryAccessibleClass
+    @property
+    def parent_class(self) -> EntryAccessibleClass: ...
 
 class SpinButtonAccessiblePrivate(GObject.GPointer): ...
 
@@ -54814,17 +55349,18 @@ class SpinButtonClass(GObject.GPointer):
 
         SpinButtonClass()
     """
-
-    parent_class: EntryClass
-    input: Callable[[SpinButton, float], int]
-    output: Callable[[SpinButton], int]
-    value_changed: Callable[[SpinButton], None]
-    change_value: Callable[[SpinButton, ScrollType], None]
-    wrapped: Callable[[SpinButton], None]
-    _gtk_reserved1: None
-    _gtk_reserved2: None
-    _gtk_reserved3: None
-    _gtk_reserved4: None
+    @property
+    def parent_class(self) -> EntryClass: ...
+    @property
+    def input(self) -> Callable[[SpinButton, float], int]: ...
+    @property
+    def output(self) -> Callable[[SpinButton], int]: ...
+    @property
+    def value_changed(self) -> Callable[[SpinButton], None]: ...
+    @property
+    def change_value(self) -> Callable[[SpinButton, ScrollType], None]: ...
+    @property
+    def wrapped(self) -> Callable[[SpinButton], None]: ...
 
 class SpinButtonPrivate(GObject.GPointer): ...
 
@@ -54997,7 +55533,6 @@ class Spinner(Widget, Atk.ImplementorIface, Buildable):
     Signals from GObject:
       notify (GParam)
     """
-
     class Props(Widget.Props):
         active: bool
         app_paintable: bool
@@ -55042,11 +55577,13 @@ class Spinner(Widget, Atk.ImplementorIface, Buildable):
 
     @property
     def props(self) -> Props: ...
-    parent: Widget
+    @property
+    def parent(self) -> Widget: ...
     @property
     def priv(self) -> SpinnerPrivate: ...
     def __init__(
         self,
+        *,
         active: bool = ...,
         app_paintable: bool = ...,
         can_default: bool = ...,
@@ -55084,7 +55621,7 @@ class Spinner(Widget, Atk.ImplementorIface, Buildable):
         vexpand_set: bool = ...,
         visible: bool = ...,
         width_request: int = ...,
-    ): ...
+    ) -> None: ...
     @classmethod
     def new(cls) -> Spinner: ...
     def start(self) -> None: ...
@@ -55119,6 +55656,7 @@ class SpinnerAccessible(WidgetAccessible, Atk.Component, Atk.Image):
       active-descendant-changed (gpointer)
       announcement (gchararray)
       notification (gchararray, gint)
+      attribute-changed (gchararray, gchararray)
 
     Properties from AtkObject:
       accessible-name -> gchararray: Accessible Name
@@ -55151,17 +55689,22 @@ class SpinnerAccessible(WidgetAccessible, Atk.Component, Atk.Image):
         Is used to notify that the table caption has changed
       accessible-hypertext-nlinks -> gint: Number of Accessible Hypertext Links
         The number of links which the current AtkHypertext has
+      accessible-id -> gchararray: Accessible ID
+        ID for the accessible; useful for automated testing
+      accessible-help-text -> gchararray: Help text
+        Help text associated with the accessible
 
     Signals from GObject:
       notify (GParam)
     """
-
     class Props(WidgetAccessible.Props):
         widget: Widget | None
         accessible_component_layer: int
         accessible_component_mdi_zorder: int
         accessible_description: str
+        accessible_help_text: str
         accessible_hypertext_nlinks: int
+        accessible_id: str
         accessible_name: str
         accessible_parent: Atk.Object
         accessible_role: Atk.Role
@@ -55176,13 +55719,17 @@ class SpinnerAccessible(WidgetAccessible, Atk.Component, Atk.Image):
 
     @property
     def props(self) -> Props: ...
-    parent: WidgetAccessible
+    @property
+    def parent(self) -> WidgetAccessible: ...
     @property
     def priv(self) -> SpinnerAccessiblePrivate: ...
     def __init__(
         self,
+        *,
         widget: Widget | None = ...,
         accessible_description: str = ...,
+        accessible_help_text: str = ...,
+        accessible_id: str = ...,
         accessible_name: str = ...,
         accessible_parent: Atk.Object = ...,
         accessible_role: Atk.Role = ...,
@@ -55194,7 +55741,7 @@ class SpinnerAccessible(WidgetAccessible, Atk.Component, Atk.Image):
         accessible_table_row_header: Atk.Object = ...,
         accessible_table_summary: Atk.Object = ...,
         accessible_value: float = ...,
-    ): ...
+    ) -> None: ...
 
 class SpinnerAccessibleClass(GObject.GPointer):
     """
@@ -55204,8 +55751,8 @@ class SpinnerAccessibleClass(GObject.GPointer):
 
         SpinnerAccessibleClass()
     """
-
-    parent_class: WidgetAccessibleClass
+    @property
+    def parent_class(self) -> WidgetAccessibleClass: ...
 
 class SpinnerAccessiblePrivate(GObject.GPointer): ...
 
@@ -55217,12 +55764,8 @@ class SpinnerClass(GObject.GPointer):
 
         SpinnerClass()
     """
-
-    parent_class: WidgetClass
-    _gtk_reserved1: None
-    _gtk_reserved2: None
-    _gtk_reserved3: None
-    _gtk_reserved4: None
+    @property
+    def parent_class(self) -> WidgetClass: ...
 
 class SpinnerPrivate(GObject.GPointer): ...
 
@@ -55425,7 +55968,6 @@ class Stack(Container, Atk.ImplementorIface, Buildable):
     Signals from GObject:
       notify (GParam)
     """
-
     class Props(Container.Props):
         hhomogeneous: bool
         homogeneous: bool
@@ -55485,6 +56027,7 @@ class Stack(Container, Atk.ImplementorIface, Buildable):
     def parent_instance(self) -> Container: ...
     def __init__(
         self,
+        *,
         hhomogeneous: bool = ...,
         homogeneous: bool = ...,
         interpolate_size: bool = ...,
@@ -55532,49 +56075,9 @@ class Stack(Container, Atk.ImplementorIface, Buildable):
         vexpand_set: bool = ...,
         visible: bool = ...,
         width_request: int = ...,
-    ): ...
+    ) -> None: ...
     def add_named(self, child: Widget, name: str) -> None: ...
     def add_titled(self, child: Widget, name: str, title: str) -> None: ...
-    # override
-    @overload
-    def child_get_property(
-        self,
-        widget: Widget,
-        property_name: Literal["icon-name"],
-        value: GObject.Value | None = None,
-    ) -> str | None: ...
-    # override
-    @overload
-    def child_get_property(
-        self,
-        widget: Widget,
-        property_name: Literal["name"],
-        value: GObject.Value | None = None,
-    ) -> str | None: ...
-    # override
-    @overload
-    def child_get_property(
-        self,
-        widget: Widget,
-        property_name: Literal["needs-attention"],
-        value: GObject.Value | None = None,
-    ) -> bool: ...
-    # override
-    @overload
-    def child_get_property(
-        self,
-        widget: Widget,
-        property_name: Literal["position"],
-        value: GObject.Value | None = None,
-    ) -> int: ...
-    # override
-    @overload
-    def child_get_property(
-        self,
-        widget: Widget,
-        property_name: Literal["title"],
-        value: GObject.Value | None = None,
-    ) -> str | None: ...
     def get_child_by_name(self, name: str) -> Widget | None: ...
     def get_hhomogeneous(self) -> bool: ...
     def get_homogeneous(self) -> bool: ...
@@ -55631,6 +56134,7 @@ class StackAccessible(ContainerAccessible, Atk.Component):
       active-descendant-changed (gpointer)
       announcement (gchararray)
       notification (gchararray, gint)
+      attribute-changed (gchararray, gchararray)
 
     Properties from AtkObject:
       accessible-name -> gchararray: Accessible Name
@@ -55663,17 +56167,22 @@ class StackAccessible(ContainerAccessible, Atk.Component):
         Is used to notify that the table caption has changed
       accessible-hypertext-nlinks -> gint: Number of Accessible Hypertext Links
         The number of links which the current AtkHypertext has
+      accessible-id -> gchararray: Accessible ID
+        ID for the accessible; useful for automated testing
+      accessible-help-text -> gchararray: Help text
+        Help text associated with the accessible
 
     Signals from GObject:
       notify (GParam)
     """
-
     class Props(ContainerAccessible.Props):
         widget: Widget | None
         accessible_component_layer: int
         accessible_component_mdi_zorder: int
         accessible_description: str
+        accessible_help_text: str
         accessible_hypertext_nlinks: int
+        accessible_id: str
         accessible_name: str
         accessible_parent: Atk.Object
         accessible_role: Atk.Role
@@ -55688,11 +56197,15 @@ class StackAccessible(ContainerAccessible, Atk.Component):
 
     @property
     def props(self) -> Props: ...
-    parent: ContainerAccessible
+    @property
+    def parent(self) -> ContainerAccessible: ...
     def __init__(
         self,
+        *,
         widget: Widget | None = ...,
         accessible_description: str = ...,
+        accessible_help_text: str = ...,
+        accessible_id: str = ...,
         accessible_name: str = ...,
         accessible_parent: Atk.Object = ...,
         accessible_role: Atk.Role = ...,
@@ -55704,7 +56217,7 @@ class StackAccessible(ContainerAccessible, Atk.Component):
         accessible_table_row_header: Atk.Object = ...,
         accessible_table_summary: Atk.Object = ...,
         accessible_value: float = ...,
-    ): ...
+    ) -> None: ...
 
 class StackAccessibleClass(GObject.GPointer):
     """
@@ -55714,8 +56227,8 @@ class StackAccessibleClass(GObject.GPointer):
 
         StackAccessibleClass()
     """
-
-    parent_class: ContainerAccessibleClass
+    @property
+    def parent_class(self) -> ContainerAccessibleClass: ...
 
 class StackClass(GObject.GPointer):
     """
@@ -55725,8 +56238,8 @@ class StackClass(GObject.GPointer):
 
         StackClass()
     """
-
-    parent_class: ContainerClass
+    @property
+    def parent_class(self) -> ContainerClass: ...
 
 class StackSidebar(Bin, Atk.ImplementorIface, Buildable):
     """
@@ -55911,7 +56424,6 @@ class StackSidebar(Bin, Atk.ImplementorIface, Buildable):
     Signals from GObject:
       notify (GParam)
     """
-
     class Props(Bin.Props):
         stack: Stack | None
         border_width: int
@@ -55959,9 +56471,11 @@ class StackSidebar(Bin, Atk.ImplementorIface, Buildable):
 
     @property
     def props(self) -> Props: ...
-    parent: Bin
+    @property
+    def parent(self) -> Bin: ...
     def __init__(
         self,
+        *,
         stack: Stack = ...,
         border_width: int = ...,
         child: Widget = ...,
@@ -56002,7 +56516,7 @@ class StackSidebar(Bin, Atk.ImplementorIface, Buildable):
         vexpand_set: bool = ...,
         visible: bool = ...,
         width_request: int = ...,
-    ): ...
+    ) -> None: ...
     def get_stack(self) -> Stack | None: ...
     @classmethod
     def new(cls) -> StackSidebar: ...
@@ -56016,12 +56530,8 @@ class StackSidebarClass(GObject.GPointer):
 
         StackSidebarClass()
     """
-
-    parent_class: BinClass
-    _gtk_reserved1: None
-    _gtk_reserved2: None
-    _gtk_reserved3: None
-    _gtk_reserved4: None
+    @property
+    def parent_class(self) -> BinClass: ...
 
 class StackSidebarPrivate(GObject.GPointer): ...
 
@@ -56218,7 +56728,6 @@ class StackSwitcher(Box, Atk.ImplementorIface, Buildable, Orientable):
     Signals from GObject:
       notify (GParam)
     """
-
     class Props(Box.Props):
         icon_size: int
         stack: Stack | None
@@ -56271,9 +56780,11 @@ class StackSwitcher(Box, Atk.ImplementorIface, Buildable, Orientable):
 
     @property
     def props(self) -> Props: ...
-    widget: Box
+    @property
+    def widget(self) -> Box: ...
     def __init__(
         self,
+        *,
         icon_size: int = ...,
         stack: Stack | None = ...,
         baseline_position: BaselinePosition = ...,
@@ -56319,7 +56830,7 @@ class StackSwitcher(Box, Atk.ImplementorIface, Buildable, Orientable):
         visible: bool = ...,
         width_request: int = ...,
         orientation: Orientation = ...,
-    ): ...
+    ) -> None: ...
     def get_stack(self) -> Stack | None: ...
     @classmethod
     def new(cls) -> StackSwitcher: ...
@@ -56333,12 +56844,8 @@ class StackSwitcherClass(GObject.GPointer):
 
         StackSwitcherClass()
     """
-
-    parent_class: BoxClass
-    _gtk_reserved1: None
-    _gtk_reserved2: None
-    _gtk_reserved3: None
-    _gtk_reserved4: None
+    @property
+    def parent_class(self) -> BoxClass: ...
 
 class StatusIcon(GObject.Object):
     """
@@ -56400,7 +56907,6 @@ class StatusIcon(GObject.Object):
     Signals from GObject:
       notify (GParam)
     """
-
     class Props(GObject.Object.Props):
         embedded: bool
         gicon: Gio.Icon | None
@@ -56426,6 +56932,7 @@ class StatusIcon(GObject.Object):
     def priv(self) -> StatusIconPrivate: ...
     def __init__(
         self,
+        *,
         file: str = ...,
         gicon: Gio.Icon = ...,
         has_tooltip: bool = ...,
@@ -56437,7 +56944,7 @@ class StatusIcon(GObject.Object):
         tooltip_markup: str | None = ...,
         tooltip_text: str = ...,
         visible: bool = ...,
-    ): ...
+    ) -> None: ...
     def do_activate(self) -> None: ...
     def do_button_press_event(self, event: _Gdk3.EventButton) -> bool: ...
     def do_button_release_event(self, event: _Gdk3.EventButton) -> bool: ...
@@ -56499,19 +57006,26 @@ class StatusIconClass(GObject.GPointer):
 
         StatusIconClass()
     """
-
-    parent_class: GObject.ObjectClass
-    activate: Callable[[StatusIcon], None]
-    popup_menu: Callable[[StatusIcon, int, int], None]
-    size_changed: Callable[[StatusIcon, int], bool]
-    button_press_event: Callable[[StatusIcon, _Gdk3.EventButton], bool]
-    button_release_event: Callable[[StatusIcon, _Gdk3.EventButton], bool]
-    scroll_event: Callable[[StatusIcon, _Gdk3.EventScroll], bool]
-    query_tooltip: Callable[[StatusIcon, int, int, bool, Tooltip], bool]
-    __gtk_reserved1: None
-    __gtk_reserved2: None
-    __gtk_reserved3: None
-    __gtk_reserved4: None
+    @property
+    def parent_class(self) -> GObject.ObjectClass: ...
+    @property
+    def activate(self) -> Callable[[StatusIcon], None]: ...
+    @property
+    def popup_menu(self) -> Callable[[StatusIcon, int, int], None]: ...
+    @property
+    def size_changed(self) -> Callable[[StatusIcon, int], bool]: ...
+    @property
+    def button_press_event(self) -> Callable[[StatusIcon, _Gdk3.EventButton], bool]: ...
+    @property
+    def button_release_event(
+        self,
+    ) -> Callable[[StatusIcon, _Gdk3.EventButton], bool]: ...
+    @property
+    def scroll_event(self) -> Callable[[StatusIcon, _Gdk3.EventScroll], bool]: ...
+    @property
+    def query_tooltip(
+        self,
+    ) -> Callable[[StatusIcon, int, int, bool, Tooltip], bool]: ...
 
 class StatusIconPrivate(GObject.GPointer): ...
 
@@ -56706,7 +57220,6 @@ class Statusbar(Box, Atk.ImplementorIface, Buildable, Orientable):
     Signals from GObject:
       notify (GParam)
     """
-
     class Props(Box.Props):
         baseline_position: BaselinePosition
         homogeneous: bool
@@ -56757,11 +57270,13 @@ class Statusbar(Box, Atk.ImplementorIface, Buildable, Orientable):
 
     @property
     def props(self) -> Props: ...
-    parent_widget: Box
+    @property
+    def parent_widget(self) -> Box: ...
     @property
     def priv(self) -> StatusbarPrivate: ...
     def __init__(
         self,
+        *,
         baseline_position: BaselinePosition = ...,
         homogeneous: bool = ...,
         spacing: int = ...,
@@ -56805,7 +57320,7 @@ class Statusbar(Box, Atk.ImplementorIface, Buildable, Orientable):
         visible: bool = ...,
         width_request: int = ...,
         orientation: Orientation = ...,
-    ): ...
+    ) -> None: ...
     def do_text_popped(self, context_id: int, text: str) -> None: ...
     def do_text_pushed(self, context_id: int, text: str) -> None: ...
     def get_context_id(self, context_description: str) -> int: ...
@@ -56849,6 +57364,7 @@ class StatusbarAccessible(ContainerAccessible, Atk.Component):
       active-descendant-changed (gpointer)
       announcement (gchararray)
       notification (gchararray, gint)
+      attribute-changed (gchararray, gchararray)
 
     Properties from AtkObject:
       accessible-name -> gchararray: Accessible Name
@@ -56881,17 +57397,22 @@ class StatusbarAccessible(ContainerAccessible, Atk.Component):
         Is used to notify that the table caption has changed
       accessible-hypertext-nlinks -> gint: Number of Accessible Hypertext Links
         The number of links which the current AtkHypertext has
+      accessible-id -> gchararray: Accessible ID
+        ID for the accessible; useful for automated testing
+      accessible-help-text -> gchararray: Help text
+        Help text associated with the accessible
 
     Signals from GObject:
       notify (GParam)
     """
-
     class Props(ContainerAccessible.Props):
         widget: Widget | None
         accessible_component_layer: int
         accessible_component_mdi_zorder: int
         accessible_description: str
+        accessible_help_text: str
         accessible_hypertext_nlinks: int
+        accessible_id: str
         accessible_name: str
         accessible_parent: Atk.Object
         accessible_role: Atk.Role
@@ -56906,13 +57427,17 @@ class StatusbarAccessible(ContainerAccessible, Atk.Component):
 
     @property
     def props(self) -> Props: ...
-    parent: ContainerAccessible
+    @property
+    def parent(self) -> ContainerAccessible: ...
     @property
     def priv(self) -> StatusbarAccessiblePrivate: ...
     def __init__(
         self,
+        *,
         widget: Widget | None = ...,
         accessible_description: str = ...,
+        accessible_help_text: str = ...,
+        accessible_id: str = ...,
         accessible_name: str = ...,
         accessible_parent: Atk.Object = ...,
         accessible_role: Atk.Role = ...,
@@ -56924,7 +57449,7 @@ class StatusbarAccessible(ContainerAccessible, Atk.Component):
         accessible_table_row_header: Atk.Object = ...,
         accessible_table_summary: Atk.Object = ...,
         accessible_value: float = ...,
-    ): ...
+    ) -> None: ...
 
 class StatusbarAccessibleClass(GObject.GPointer):
     """
@@ -56934,8 +57459,8 @@ class StatusbarAccessibleClass(GObject.GPointer):
 
         StatusbarAccessibleClass()
     """
-
-    parent_class: ContainerAccessibleClass
+    @property
+    def parent_class(self) -> ContainerAccessibleClass: ...
 
 class StatusbarAccessiblePrivate(GObject.GPointer): ...
 
@@ -56947,15 +57472,14 @@ class StatusbarClass(GObject.GPointer):
 
         StatusbarClass()
     """
-
-    parent_class: BoxClass
-    reserved: None
-    text_pushed: Callable[[Statusbar, int, str], None]
-    text_popped: Callable[[Statusbar, int, str], None]
-    _gtk_reserved1: None
-    _gtk_reserved2: None
-    _gtk_reserved3: None
-    _gtk_reserved4: None
+    @property
+    def parent_class(self) -> BoxClass: ...
+    @property
+    def reserved(self) -> None: ...
+    @property
+    def text_pushed(self) -> Callable[[Statusbar, int, str], None]: ...
+    @property
+    def text_popped(self) -> Callable[[Statusbar, int, str], None]: ...
 
 class StatusbarPrivate(GObject.GPointer): ...
 
@@ -56997,7 +57521,6 @@ class Style(GObject.Object):
     Signals from GObject:
       notify (GParam)
     """
-
     class Props(GObject.Object.Props):
         context: StyleContext
 
@@ -57005,28 +57528,49 @@ class Style(GObject.Object):
     def props(self) -> Props: ...
     @property
     def parent_instance(self) -> GObject.Object: ...
-    fg: list[_Gdk3.Color]
-    bg: list[_Gdk3.Color]
-    light: list[_Gdk3.Color]
-    dark: list[_Gdk3.Color]
-    mid: list[_Gdk3.Color]
-    text: list[_Gdk3.Color]
-    base: list[_Gdk3.Color]
-    text_aa: list[_Gdk3.Color]
-    black: _Gdk3.Color
-    white: _Gdk3.Color
-    font_desc: Pango.FontDescription
-    xthickness: int
-    ythickness: int
-    background: list[cairo.Pattern]
-    attach_count: int
-    visual: _Gdk3.Visual
-    private_font_desc: Pango.FontDescription
-    rc_style: RcStyle
-    styles: list[None]
-    property_cache: list[None]
-    icon_factories: list[None]
-    def __init__(self, context: StyleContext = ...): ...
+    @property
+    def fg(self) -> list[_Gdk3.Color]: ...
+    @property
+    def bg(self) -> list[_Gdk3.Color]: ...
+    @property
+    def light(self) -> list[_Gdk3.Color]: ...
+    @property
+    def dark(self) -> list[_Gdk3.Color]: ...
+    @property
+    def mid(self) -> list[_Gdk3.Color]: ...
+    @property
+    def text(self) -> list[_Gdk3.Color]: ...
+    @property
+    def base(self) -> list[_Gdk3.Color]: ...
+    @property
+    def text_aa(self) -> list[_Gdk3.Color]: ...
+    @property
+    def black(self) -> _Gdk3.Color: ...
+    @property
+    def white(self) -> _Gdk3.Color: ...
+    @property
+    def font_desc(self) -> Pango.FontDescription: ...
+    @property
+    def xthickness(self) -> int: ...
+    @property
+    def ythickness(self) -> int: ...
+    @property
+    def background(self) -> list[cairo.Pattern]: ...
+    @property
+    def attach_count(self) -> int: ...
+    @property
+    def visual(self) -> _Gdk3.Visual: ...
+    @property
+    def private_font_desc(self) -> Pango.FontDescription: ...
+    @property
+    def rc_style(self) -> RcStyle: ...
+    @property
+    def styles(self) -> list[None]: ...
+    @property
+    def property_cache(self) -> list[None]: ...
+    @property
+    def icon_factories(self) -> list[None]: ...
+    def __init__(self, *, context: StyleContext = ...) -> None: ...
     def apply_default_background(
         self,
         cr: cairo.Context[_SomeSurface],
@@ -57298,7 +57842,7 @@ class Style(GObject.Object):
         self, window: _Gdk3.Window, state_type: StateType
     ) -> None: ...
     def do_unrealize(self) -> None: ...
-    def get_style_property(self, widget_type: type, property_name: str) -> Any: ...
+    def get_style_property(self, widget_type: type[Any], property_name: str) -> Any: ...
     def has_context(self) -> bool: ...
     def lookup_color(self, color_name: str) -> tuple[bool, _Gdk3.Color]: ...
     def lookup_icon_set(self, stock_id: str) -> IconSet: ...
@@ -57323,35 +57867,45 @@ class StyleClass(GObject.GPointer):
 
         StyleClass()
     """
-
-    parent_class: GObject.ObjectClass
-    realize: Callable[[Style], None]
-    unrealize: Callable[[Style], None]
-    copy: Callable[[Style, Style], None]
-    clone: None
-    init_from_rc: Callable[[Style, RcStyle], None]
-    set_background: Callable[[Style, _Gdk3.Window, StateType], None]
-    render_icon: Callable[
-        [
-            Style,
-            IconSource,
-            TextDirection,
-            StateType,
-            int,
-            Widget | None,
-            str | None,
-        ],
+    @property
+    def parent_class(self) -> GObject.ObjectClass: ...
+    @property
+    def realize(self) -> Callable[[Style], None]: ...
+    @property
+    def unrealize(self) -> Callable[[Style], None]: ...
+    @property
+    def copy(self) -> Callable[[Style, Style], None]: ...
+    @property
+    def clone(self) -> None: ...
+    @property
+    def init_from_rc(self) -> Callable[[Style, RcStyle], None]: ...
+    @property
+    def set_background(self) -> Callable[[Style, _Gdk3.Window, StateType], None]: ...
+    @property
+    def render_icon(
+        self,
+    ) -> Callable[
+        [Style, IconSource, TextDirection, StateType, int, Widget | None, str | None],
         GdkPixbuf.Pixbuf,
-    ]
-    draw_hline: Callable[
+    ]: ...
+    @property
+    def draw_hline(
+        self,
+    ) -> Callable[
         [Style, cairo.Context[_SomeSurface], StateType, Widget, str, int, int, int],
         None,
-    ]
-    draw_vline: Callable[
+    ]: ...
+    @property
+    def draw_vline(
+        self,
+    ) -> Callable[
         [Style, cairo.Context[_SomeSurface], StateType, Widget, str, int, int, int],
         None,
-    ]
-    draw_shadow: Callable[
+    ]: ...
+    @property
+    def draw_shadow(
+        self,
+    ) -> Callable[
         [
             Style,
             cairo.Context[_SomeSurface],
@@ -57365,8 +57919,11 @@ class StyleClass(GObject.GPointer):
             int,
         ],
         None,
-    ]
-    draw_arrow: Callable[
+    ]: ...
+    @property
+    def draw_arrow(
+        self,
+    ) -> Callable[
         [
             Style,
             cairo.Context[_SomeSurface],
@@ -57382,8 +57939,11 @@ class StyleClass(GObject.GPointer):
             int,
         ],
         None,
-    ]
-    draw_diamond: Callable[
+    ]: ...
+    @property
+    def draw_diamond(
+        self,
+    ) -> Callable[
         [
             Style,
             cairo.Context[_SomeSurface],
@@ -57397,8 +57957,11 @@ class StyleClass(GObject.GPointer):
             int,
         ],
         None,
-    ]
-    draw_box: Callable[
+    ]: ...
+    @property
+    def draw_box(
+        self,
+    ) -> Callable[
         [
             Style,
             cairo.Context[_SomeSurface],
@@ -57412,8 +57975,11 @@ class StyleClass(GObject.GPointer):
             int,
         ],
         None,
-    ]
-    draw_flat_box: Callable[
+    ]: ...
+    @property
+    def draw_flat_box(
+        self,
+    ) -> Callable[
         [
             Style,
             cairo.Context[_SomeSurface],
@@ -57427,8 +57993,11 @@ class StyleClass(GObject.GPointer):
             int,
         ],
         None,
-    ]
-    draw_check: Callable[
+    ]: ...
+    @property
+    def draw_check(
+        self,
+    ) -> Callable[
         [
             Style,
             cairo.Context[_SomeSurface],
@@ -57442,8 +58011,11 @@ class StyleClass(GObject.GPointer):
             int,
         ],
         None,
-    ]
-    draw_option: Callable[
+    ]: ...
+    @property
+    def draw_option(
+        self,
+    ) -> Callable[
         [
             Style,
             cairo.Context[_SomeSurface],
@@ -57457,8 +58029,11 @@ class StyleClass(GObject.GPointer):
             int,
         ],
         None,
-    ]
-    draw_tab: Callable[
+    ]: ...
+    @property
+    def draw_tab(
+        self,
+    ) -> Callable[
         [
             Style,
             cairo.Context[_SomeSurface],
@@ -57472,8 +58047,32 @@ class StyleClass(GObject.GPointer):
             int,
         ],
         None,
-    ]
-    draw_shadow_gap: Callable[
+    ]: ...
+    @property
+    def draw_shadow_gap(
+        self,
+    ) -> Callable[
+        [
+            Style,
+            cairo.Context[_SomeSurface],
+            StateType,
+            ShadowType,
+            Widget,
+            str,
+            int,
+            int,
+            int,
+            int,
+            PositionType,
+            int,
+            int,
+        ],
+        None,
+    ]: ...
+    @property
+    def draw_box_gap(
+        self,
+    ) -> Callable[
         [
             Style,
             cairo.Context[_SomeSurface],
@@ -57490,26 +58089,11 @@ class StyleClass(GObject.GPointer):
             int,
         ],
         None,
-    ]
-    draw_box_gap: Callable[
-        [
-            Style,
-            cairo.Context[_SomeSurface],
-            StateType,
-            ShadowType,
-            Widget,
-            str,
-            int,
-            int,
-            int,
-            int,
-            PositionType,
-            int,
-            int,
-        ],
-        None,
-    ]
-    draw_extension: Callable[
+    ]: ...
+    @property
+    def draw_extension(
+        self,
+    ) -> Callable[
         [
             Style,
             cairo.Context[_SomeSurface],
@@ -57524,8 +58108,11 @@ class StyleClass(GObject.GPointer):
             PositionType,
         ],
         None,
-    ]
-    draw_focus: Callable[
+    ]: ...
+    @property
+    def draw_focus(
+        self,
+    ) -> Callable[
         [
             Style,
             cairo.Context[_SomeSurface],
@@ -57538,8 +58125,11 @@ class StyleClass(GObject.GPointer):
             int,
         ],
         None,
-    ]
-    draw_slider: Callable[
+    ]: ...
+    @property
+    def draw_slider(
+        self,
+    ) -> Callable[
         [
             Style,
             cairo.Context[_SomeSurface],
@@ -57554,8 +58144,11 @@ class StyleClass(GObject.GPointer):
             Orientation,
         ],
         None,
-    ]
-    draw_handle: Callable[
+    ]: ...
+    @property
+    def draw_handle(
+        self,
+    ) -> Callable[
         [
             Style,
             cairo.Context[_SomeSurface],
@@ -57570,8 +58163,11 @@ class StyleClass(GObject.GPointer):
             Orientation,
         ],
         None,
-    ]
-    draw_expander: Callable[
+    ]: ...
+    @property
+    def draw_expander(
+        self,
+    ) -> Callable[
         [
             Style,
             cairo.Context[_SomeSurface],
@@ -57583,8 +58179,11 @@ class StyleClass(GObject.GPointer):
             ExpanderStyle,
         ],
         None,
-    ]
-    draw_layout: Callable[
+    ]: ...
+    @property
+    def draw_layout(
+        self,
+    ) -> Callable[
         [
             Style,
             cairo.Context[_SomeSurface],
@@ -57597,8 +58196,11 @@ class StyleClass(GObject.GPointer):
             Pango.Layout,
         ],
         None,
-    ]
-    draw_resize_grip: Callable[
+    ]: ...
+    @property
+    def draw_resize_grip(
+        self,
+    ) -> Callable[
         [
             Style,
             cairo.Context[_SomeSurface],
@@ -57612,8 +58214,11 @@ class StyleClass(GObject.GPointer):
             int,
         ],
         None,
-    ]
-    draw_spinner: Callable[
+    ]: ...
+    @property
+    def draw_spinner(
+        self,
+    ) -> Callable[
         [
             Style,
             cairo.Context[_SomeSurface],
@@ -57627,18 +58232,7 @@ class StyleClass(GObject.GPointer):
             int,
         ],
         None,
-    ]
-    _gtk_reserved1: None
-    _gtk_reserved2: None
-    _gtk_reserved3: None
-    _gtk_reserved4: None
-    _gtk_reserved5: None
-    _gtk_reserved6: None
-    _gtk_reserved7: None
-    _gtk_reserved8: None
-    _gtk_reserved9: None
-    _gtk_reserved10: None
-    _gtk_reserved11: None
+    ]: ...
 
 class StyleContext(GObject.Object):
     """
@@ -57667,7 +58261,6 @@ class StyleContext(GObject.Object):
     Signals from GObject:
       notify (GParam)
     """
-
     class Props(GObject.Object.Props):
         direction: TextDirection
         paint_clock: _Gdk3.FrameClock
@@ -57676,16 +58269,18 @@ class StyleContext(GObject.Object):
 
     @property
     def props(self) -> Props: ...
-    parent_object: GObject.Object
+    @property
+    def parent_object(self) -> GObject.Object: ...
     @property
     def priv(self) -> StyleContextPrivate: ...
     def __init__(
         self,
+        *,
         direction: TextDirection = ...,
         paint_clock: _Gdk3.FrameClock = ...,
         parent: StyleContext | None = ...,
         screen: _Gdk3.Screen = ...,
-    ): ...
+    ) -> None: ...
     def add_class(self, class_name: str) -> None: ...
     def add_provider(self, provider: StyleProvider, priority: int) -> None: ...
     @staticmethod
@@ -57759,13 +58354,10 @@ class StyleContextClass(GObject.GPointer):
 
         StyleContextClass()
     """
-
-    parent_class: GObject.ObjectClass
-    changed: Callable[[StyleContext], None]
-    _gtk_reserved1: None
-    _gtk_reserved2: None
-    _gtk_reserved3: None
-    _gtk_reserved4: None
+    @property
+    def parent_class(self) -> GObject.ObjectClass: ...
+    @property
+    def changed(self) -> Callable[[StyleContext], None]: ...
 
 class StyleContextPrivate(GObject.GPointer): ...
 
@@ -57786,8 +58378,8 @@ class StyleProperties(GObject.Object, StyleProvider):
     Signals from GObject:
       notify (GParam)
     """
-
-    parent_object: GObject.Object
+    @property
+    def parent_object(self) -> GObject.Object: ...
     @property
     def priv(self) -> StylePropertiesPrivate: ...
     def clear(self) -> None: ...
@@ -57808,12 +58400,8 @@ class StylePropertiesClass(GObject.GPointer):
 
         StylePropertiesClass()
     """
-
-    parent_class: GObject.ObjectClass
-    _gtk_reserved1: None
-    _gtk_reserved2: None
-    _gtk_reserved3: None
-    _gtk_reserved4: None
+    @property
+    def parent_class(self) -> GObject.ObjectClass: ...
 
 class StylePropertiesPrivate(GObject.GPointer): ...
 
@@ -57821,7 +58409,6 @@ class StyleProvider(GObject.GInterface, Protocol):
     """
     Interface GtkStyleProvider
     """
-
     def get_icon_factory(self, path: WidgetPath) -> IconFactory | None: ...
     def get_style(self, path: WidgetPath) -> StyleProperties | None: ...
     def get_style_property(
@@ -57836,13 +58423,22 @@ class StyleProviderIface(GObject.GPointer):
 
         StyleProviderIface()
     """
-
-    g_iface: GObject.TypeInterface
-    get_style: Callable[[StyleProvider, WidgetPath], StyleProperties | None]
-    get_style_property: Callable[
+    @property
+    def g_iface(self) -> GObject.TypeInterface: ...
+    @property
+    def get_style(
+        self,
+    ) -> Callable[[StyleProvider, WidgetPath], StyleProperties | None]: ...
+    @property
+    def get_style_property(
+        self,
+    ) -> Callable[
         [StyleProvider, WidgetPath, StateFlags, GObject.ParamSpec], tuple[bool, Any]
-    ]
-    get_icon_factory: Callable[[StyleProvider, WidgetPath], IconFactory | None]
+    ]: ...
+    @property
+    def get_icon_factory(
+        self,
+    ) -> Callable[[StyleProvider, WidgetPath], IconFactory | None]: ...
 
 class Switch(Widget, Atk.ImplementorIface, Actionable, Activatable, Buildable):
     """
@@ -58019,7 +58615,6 @@ class Switch(Widget, Atk.ImplementorIface, Actionable, Activatable, Buildable):
     Signals from GObject:
       notify (GParam)
     """
-
     class Props(Widget.Props):
         active: bool
         state: bool
@@ -58075,6 +58670,7 @@ class Switch(Widget, Atk.ImplementorIface, Actionable, Activatable, Buildable):
     def priv(self) -> SwitchPrivate: ...
     def __init__(
         self,
+        *,
         active: bool = ...,
         state: bool = ...,
         app_paintable: bool = ...,
@@ -58117,7 +58713,7 @@ class Switch(Widget, Atk.ImplementorIface, Actionable, Activatable, Buildable):
         action_target: GLib.Variant = ...,
         related_action: Action = ...,
         use_action_appearance: bool = ...,
-    ): ...
+    ) -> None: ...
     def do_activate(self) -> None: ...
     def do_state_set(self, state: bool) -> bool: ...
     def get_active(self) -> bool: ...
@@ -58156,6 +58752,7 @@ class SwitchAccessible(WidgetAccessible, Atk.Action, Atk.Component):
       active-descendant-changed (gpointer)
       announcement (gchararray)
       notification (gchararray, gint)
+      attribute-changed (gchararray, gchararray)
 
     Properties from AtkObject:
       accessible-name -> gchararray: Accessible Name
@@ -58188,17 +58785,22 @@ class SwitchAccessible(WidgetAccessible, Atk.Action, Atk.Component):
         Is used to notify that the table caption has changed
       accessible-hypertext-nlinks -> gint: Number of Accessible Hypertext Links
         The number of links which the current AtkHypertext has
+      accessible-id -> gchararray: Accessible ID
+        ID for the accessible; useful for automated testing
+      accessible-help-text -> gchararray: Help text
+        Help text associated with the accessible
 
     Signals from GObject:
       notify (GParam)
     """
-
     class Props(WidgetAccessible.Props):
         widget: Widget | None
         accessible_component_layer: int
         accessible_component_mdi_zorder: int
         accessible_description: str
+        accessible_help_text: str
         accessible_hypertext_nlinks: int
+        accessible_id: str
         accessible_name: str
         accessible_parent: Atk.Object
         accessible_role: Atk.Role
@@ -58213,13 +58815,17 @@ class SwitchAccessible(WidgetAccessible, Atk.Action, Atk.Component):
 
     @property
     def props(self) -> Props: ...
-    parent: WidgetAccessible
+    @property
+    def parent(self) -> WidgetAccessible: ...
     @property
     def priv(self) -> SwitchAccessiblePrivate: ...
     def __init__(
         self,
+        *,
         widget: Widget | None = ...,
         accessible_description: str = ...,
+        accessible_help_text: str = ...,
+        accessible_id: str = ...,
         accessible_name: str = ...,
         accessible_parent: Atk.Object = ...,
         accessible_role: Atk.Role = ...,
@@ -58231,7 +58837,7 @@ class SwitchAccessible(WidgetAccessible, Atk.Action, Atk.Component):
         accessible_table_row_header: Atk.Object = ...,
         accessible_table_summary: Atk.Object = ...,
         accessible_value: float = ...,
-    ): ...
+    ) -> None: ...
 
 class SwitchAccessibleClass(GObject.GPointer):
     """
@@ -58241,8 +58847,8 @@ class SwitchAccessibleClass(GObject.GPointer):
 
         SwitchAccessibleClass()
     """
-
-    parent_class: WidgetAccessibleClass
+    @property
+    def parent_class(self) -> WidgetAccessibleClass: ...
 
 class SwitchAccessiblePrivate(GObject.GPointer): ...
 
@@ -58254,15 +58860,12 @@ class SwitchClass(GObject.GPointer):
 
         SwitchClass()
     """
-
-    parent_class: WidgetClass
-    activate: Callable[[Switch], None]
-    state_set: Callable[[Switch, bool], bool]
-    _switch_padding_1: None
-    _switch_padding_2: None
-    _switch_padding_3: None
-    _switch_padding_4: None
-    _switch_padding_5: None
+    @property
+    def parent_class(self) -> WidgetClass: ...
+    @property
+    def activate(self) -> Callable[[Switch], None]: ...
+    @property
+    def state_set(self) -> Callable[[Switch, bool], bool]: ...
 
 class SwitchPrivate(GObject.GPointer): ...
 
@@ -58279,7 +58882,6 @@ class SymbolicColor(GObject.GBoxed):
         new_shade(color:Gtk.SymbolicColor, factor:float) -> Gtk.SymbolicColor
         new_win32(theme_class:str, id:int) -> Gtk.SymbolicColor
     """
-
     @classmethod
     def new_alpha(cls, color: SymbolicColor, factor: float) -> SymbolicColor: ...
     @classmethod
@@ -58301,7 +58903,7 @@ class SymbolicColor(GObject.GBoxed):
     def to_string(self) -> str: ...
     def unref(self) -> None: ...
 
-class Table(Container, Atk.ImplementorIface, Buildable):
+class Table(Container, Atk.ImplementorIface, Buildable, Container):
     """
     :Constructors:
 
@@ -58492,7 +59094,6 @@ class Table(Container, Atk.ImplementorIface, Buildable):
     Signals from GObject:
       notify (GParam)
     """
-
     class Props(Container.Props):
         column_spacing: int
         homogeneous: bool
@@ -58544,11 +59145,13 @@ class Table(Container, Atk.ImplementorIface, Buildable):
 
     @property
     def props(self) -> Props: ...
-    container: Container
+    @property
+    def container(self) -> Container: ...
     @property
     def priv(self) -> TablePrivate: ...
     def __init__(
         self,
+        *,
         column_spacing: int = ...,
         homogeneous: bool = ...,
         n_columns: int = ...,
@@ -58593,7 +59196,7 @@ class Table(Container, Atk.ImplementorIface, Buildable):
         vexpand_set: bool = ...,
         visible: bool = ...,
         width_request: int = ...,
-    ): ...
+    ) -> None: ...
     # override
     def attach(
         self,
@@ -58661,12 +59264,8 @@ class TableClass(GObject.GPointer):
 
         TableClass()
     """
-
-    parent_class: ContainerClass
-    _gtk_reserved1: None
-    _gtk_reserved2: None
-    _gtk_reserved3: None
-    _gtk_reserved4: None
+    @property
+    def parent_class(self) -> ContainerClass: ...
 
 class TablePrivate(GObject.GPointer): ...
 
@@ -58714,7 +59313,10 @@ class TargetList(GObject.GBoxed):
 
         new(targets:list=None) -> Gtk.TargetList
     """
-
+    @staticmethod
+    def __new__(
+        cls: type[Self], targets: Sequence[TargetEntry] | None = None
+    ) -> Self: ...
     def add(self, target: _Gdk3.Atom, flags: int, info: int) -> None: ...
     def add_image_targets(self, info: int, writable: bool) -> None: ...
     def add_rich_text_targets(
@@ -58944,7 +59546,6 @@ class TearoffMenuItem(
     Signals from GObject:
       notify (GParam)
     """
-
     class Props(MenuItem.Props):
         accel_path: str | None
         label: str
@@ -59006,6 +59607,7 @@ class TearoffMenuItem(
     def priv(self) -> TearoffMenuItemPrivate: ...
     def __init__(
         self,
+        *,
         accel_path: str | None = ...,
         label: str = ...,
         right_justified: bool = ...,
@@ -59054,7 +59656,7 @@ class TearoffMenuItem(
         action_target: GLib.Variant = ...,
         related_action: Action = ...,
         use_action_appearance: bool = ...,
-    ): ...
+    ) -> None: ...
     @classmethod
     def new(cls) -> TearoffMenuItem: ...
 
@@ -59117,8 +59719,8 @@ class TextAttributes(GObject.GBoxed):
         TextAttributes()
         new() -> Gtk.TextAttributes
     """
-
-    refcount: int
+    @property
+    def refcount(self) -> int: ...
     appearance: TextAppearance
     justification: Justification
     direction: TextDirection
@@ -59133,13 +59735,17 @@ class TextAttributes(GObject.GBoxed):
     tabs: Pango.TabArray
     wrap_mode: WrapMode
     language: Pango.Language
-    pg_bg_color: _Gdk3.Color
+    @property
+    def pg_bg_color(self) -> _Gdk3.Color: ...
     invisible: int
     bg_full_height: int
     editable: int
     no_fallback: int
-    pg_bg_rgba: _Gdk3.RGBA
+    @property
+    def pg_bg_rgba(self) -> _Gdk3.RGBA: ...
     letter_spacing: int
+    @staticmethod
+    def __new__(cls: type[Self]) -> Self: ...
     def copy(self) -> TextAttributes: ...
     def copy_values(self, dest: TextAttributes) -> None: ...
     @classmethod
@@ -59192,7 +59798,6 @@ class TextBuffer(GObject.Object):
     Signals from GObject:
       notify (GParam)
     """
-
     class Props(GObject.Object.Props):
         copy_target_list: TargetList
         cursor_position: int
@@ -59207,7 +59812,7 @@ class TextBuffer(GObject.Object):
     def parent_instance(self) -> GObject.Object: ...
     @property
     def priv(self) -> TextBufferPrivate: ...
-    def __init__(self, tag_table: TextTagTable = ..., text: str = ...): ...
+    def __init__(self, *, tag_table: TextTagTable = ..., text: str = ...) -> None: ...
     def add_mark(self, mark: TextMark, where: TextIter) -> None: ...
     def add_selection_clipboard(self, clipboard: Clipboard) -> None: ...
     def apply_tag(self, tag: TextTag, start: TextIter, end: TextIter) -> None: ...
@@ -59309,7 +59914,9 @@ class TextBuffer(GObject.Object):
     def insert_range_interactive(
         self, iter: TextIter, start: TextIter, end: TextIter, default_editable: bool
     ) -> bool: ...
-    def insert_with_tags(self, iter, text, *tags): ...  # FIXME Function
+    def insert_with_tags(
+        self, iter, text, *tags
+    ): ...  # FIXME: Override is missing typing annotation
     # override
     def insert_with_tags_by_name(
         self, iter: TextIter, text: str, *tags: Any
@@ -59363,25 +59970,42 @@ class TextBufferClass(GObject.GPointer):
 
         TextBufferClass()
     """
-
-    parent_class: GObject.ObjectClass
-    insert_text: Callable[[TextBuffer, TextIter, str, int], None]
-    insert_pixbuf: Callable[[TextBuffer, TextIter, GdkPixbuf.Pixbuf], None]
-    insert_child_anchor: Callable[[TextBuffer, TextIter, TextChildAnchor], None]
-    delete_range: Callable[[TextBuffer, TextIter, TextIter], None]
-    changed: Callable[[TextBuffer], None]
-    modified_changed: Callable[[TextBuffer], None]
-    mark_set: Callable[[TextBuffer, TextIter, TextMark], None]
-    mark_deleted: Callable[[TextBuffer, TextMark], None]
-    apply_tag: Callable[[TextBuffer, TextTag, TextIter, TextIter], None]
-    remove_tag: Callable[[TextBuffer, TextTag, TextIter, TextIter], None]
-    begin_user_action: Callable[[TextBuffer], None]
-    end_user_action: Callable[[TextBuffer], None]
-    paste_done: Callable[[TextBuffer, Clipboard], None]
-    _gtk_reserved1: None
-    _gtk_reserved2: None
-    _gtk_reserved3: None
-    _gtk_reserved4: None
+    @property
+    def parent_class(self) -> GObject.ObjectClass: ...
+    @property
+    def insert_text(self) -> Callable[[TextBuffer, TextIter, str, int], None]: ...
+    @property
+    def insert_pixbuf(
+        self,
+    ) -> Callable[[TextBuffer, TextIter, GdkPixbuf.Pixbuf], None]: ...
+    @property
+    def insert_child_anchor(
+        self,
+    ) -> Callable[[TextBuffer, TextIter, TextChildAnchor], None]: ...
+    @property
+    def delete_range(self) -> Callable[[TextBuffer, TextIter, TextIter], None]: ...
+    @property
+    def changed(self) -> Callable[[TextBuffer], None]: ...
+    @property
+    def modified_changed(self) -> Callable[[TextBuffer], None]: ...
+    @property
+    def mark_set(self) -> Callable[[TextBuffer, TextIter, TextMark], None]: ...
+    @property
+    def mark_deleted(self) -> Callable[[TextBuffer, TextMark], None]: ...
+    @property
+    def apply_tag(
+        self,
+    ) -> Callable[[TextBuffer, TextTag, TextIter, TextIter], None]: ...
+    @property
+    def remove_tag(
+        self,
+    ) -> Callable[[TextBuffer, TextTag, TextIter, TextIter], None]: ...
+    @property
+    def begin_user_action(self) -> Callable[[TextBuffer], None]: ...
+    @property
+    def end_user_action(self) -> Callable[[TextBuffer], None]: ...
+    @property
+    def paste_done(self) -> Callable[[TextBuffer, Clipboard], None]: ...
 
 class TextBufferPrivate(GObject.GPointer): ...
 
@@ -59431,6 +60055,7 @@ class TextCellAccessible(
       active-descendant-changed (gpointer)
       announcement (gchararray)
       notification (gchararray, gint)
+      attribute-changed (gchararray, gchararray)
 
     Properties from AtkObject:
       accessible-name -> gchararray: Accessible Name
@@ -59463,18 +60088,23 @@ class TextCellAccessible(
         Is used to notify that the table caption has changed
       accessible-hypertext-nlinks -> gint: Number of Accessible Hypertext Links
         The number of links which the current AtkHypertext has
+      accessible-id -> gchararray: Accessible ID
+        ID for the accessible; useful for automated testing
+      accessible-help-text -> gchararray: Help text
+        Help text associated with the accessible
 
     Signals from GObject:
       notify (GParam)
     """
-
     class Props(RendererCellAccessible.Props):
         renderer: CellRenderer
         widget: Widget | None
         accessible_component_layer: int
         accessible_component_mdi_zorder: int
         accessible_description: str
+        accessible_help_text: str
         accessible_hypertext_nlinks: int
+        accessible_id: str
         accessible_name: str
         accessible_parent: Atk.Object
         accessible_role: Atk.Role
@@ -59495,9 +60125,12 @@ class TextCellAccessible(
     def priv(self) -> TextCellAccessiblePrivate: ...
     def __init__(
         self,
+        *,
         renderer: CellRenderer = ...,
         widget: Widget | None = ...,
         accessible_description: str = ...,
+        accessible_help_text: str = ...,
+        accessible_id: str = ...,
         accessible_name: str = ...,
         accessible_parent: Atk.Object = ...,
         accessible_role: Atk.Role = ...,
@@ -59509,7 +60142,7 @@ class TextCellAccessible(
         accessible_table_row_header: Atk.Object = ...,
         accessible_table_summary: Atk.Object = ...,
         accessible_value: float = ...,
-    ): ...
+    ) -> None: ...
 
 class TextCellAccessibleClass(GObject.GPointer):
     """
@@ -59519,8 +60152,8 @@ class TextCellAccessibleClass(GObject.GPointer):
 
         TextCellAccessibleClass()
     """
-
-    parent_class: RendererCellAccessibleClass
+    @property
+    def parent_class(self) -> RendererCellAccessibleClass: ...
 
 class TextCellAccessiblePrivate(GObject.GPointer): ...
 
@@ -59538,10 +60171,10 @@ class TextChildAnchor(GObject.Object):
     Signals from GObject:
       notify (GParam)
     """
-
     @property
     def parent_instance(self) -> GObject.Object: ...
-    segment: None
+    @property
+    def segment(self) -> None: ...
     def get_deleted(self) -> bool: ...
     def get_widgets(self) -> list[Widget]: ...
     @classmethod
@@ -59555,12 +60188,8 @@ class TextChildAnchorClass(GObject.GPointer):
 
         TextChildAnchorClass()
     """
-
-    parent_class: GObject.ObjectClass
-    _gtk_reserved1: None
-    _gtk_reserved2: None
-    _gtk_reserved3: None
-    _gtk_reserved4: None
+    @property
+    def parent_class(self) -> GObject.ObjectClass: ...
 
 class TextIter(GObject.GBoxed):
     """
@@ -59570,31 +60199,41 @@ class TextIter(GObject.GBoxed):
 
         TextIter()
     """
-
-    dummy1: None
-    dummy2: None
-    dummy3: int
-    dummy4: int
-    dummy5: int
-    dummy6: int
-    dummy7: int
-    dummy8: int
-    dummy9: None
-    dummy10: None
-    dummy11: int
-    dummy12: int
-    dummy13: int
-    dummy14: None
+    @property
+    def dummy1(self) -> None: ...
+    @property
+    def dummy2(self) -> None: ...
+    @property
+    def dummy3(self) -> int: ...
+    @property
+    def dummy4(self) -> int: ...
+    @property
+    def dummy5(self) -> int: ...
+    @property
+    def dummy6(self) -> int: ...
+    @property
+    def dummy7(self) -> int: ...
+    @property
+    def dummy8(self) -> int: ...
+    @property
+    def dummy9(self) -> None: ...
+    @property
+    def dummy10(self) -> None: ...
+    @property
+    def dummy11(self) -> int: ...
+    @property
+    def dummy12(self) -> int: ...
+    @property
+    def dummy13(self) -> int: ...
+    @property
+    def dummy14(self) -> None: ...
     def assign(self, other: TextIter) -> None: ...
     def backward_char(self) -> bool: ...
     def backward_chars(self, count: int) -> bool: ...
     def backward_cursor_position(self) -> bool: ...
     def backward_cursor_positions(self, count: int) -> bool: ...
     def backward_find_char(
-        self,
-        pred: Callable[..., bool],
-        limit: TextIter | None = None,
-        *user_data: Any,
+        self, pred: Callable[..., bool], limit: TextIter | None = None, *user_data: Any
     ) -> bool: ...
     def backward_line(self) -> bool: ...
     def backward_lines(self, count: int) -> bool: ...
@@ -59627,10 +60266,7 @@ class TextIter(GObject.GBoxed):
     def forward_cursor_position(self) -> bool: ...
     def forward_cursor_positions(self, count: int) -> bool: ...
     def forward_find_char(
-        self,
-        pred: Callable[..., bool],
-        limit: TextIter | None = None,
-        *user_data: Any,
+        self, pred: Callable[..., bool], limit: TextIter | None = None, *user_data: Any
     ) -> bool: ...
     def forward_line(self) -> bool: ...
     def forward_lines(self, count: int) -> bool: ...
@@ -59712,7 +60348,6 @@ class TextMark(GObject.Object):
     Signals from GObject:
       notify (GParam)
     """
-
     class Props(GObject.Object.Props):
         left_gravity: bool
         name: str | None
@@ -59721,8 +60356,9 @@ class TextMark(GObject.Object):
     def props(self) -> Props: ...
     @property
     def parent_instance(self) -> GObject.Object: ...
-    segment: None
-    def __init__(self, left_gravity: bool = ..., name: str = ...): ...
+    @property
+    def segment(self) -> None: ...
+    def __init__(self, *, left_gravity: bool = ..., name: str = ...) -> None: ...
     def get_buffer(self) -> TextBuffer: ...
     def get_deleted(self) -> bool: ...
     def get_left_gravity(self) -> bool: ...
@@ -59740,12 +60376,8 @@ class TextMarkClass(GObject.GPointer):
 
         TextMarkClass()
     """
-
-    parent_class: GObject.ObjectClass
-    _gtk_reserved1: None
-    _gtk_reserved2: None
-    _gtk_reserved3: None
-    _gtk_reserved4: None
+    @property
+    def parent_class(self) -> GObject.ObjectClass: ...
 
 class TextTag(GObject.Object):
     """
@@ -59914,7 +60546,6 @@ class TextTag(GObject.Object):
     Signals from GObject:
       notify (GParam)
     """
-
     class Props(GObject.Object.Props):
         accumulative_margin: bool
         background_full_height: bool
@@ -59999,6 +60630,7 @@ class TextTag(GObject.Object):
     def priv(self) -> TextTagPrivate: ...
     def __init__(
         self,
+        *,
         accumulative_margin: bool = ...,
         background: str = ...,
         background_full_height: bool = ...,
@@ -60073,7 +60705,7 @@ class TextTag(GObject.Object):
         weight_set: bool = ...,
         wrap_mode: WrapMode = ...,
         wrap_mode_set: bool = ...,
-    ): ...
+    ) -> None: ...
     def changed(self, size_changed: bool) -> None: ...
     def do_event(
         self, event_object: GObject.Object, event: _Gdk3.Event, iter: TextIter
@@ -60094,13 +60726,12 @@ class TextTagClass(GObject.GPointer):
 
         TextTagClass()
     """
-
-    parent_class: GObject.ObjectClass
-    event: Callable[[TextTag, GObject.Object, _Gdk3.Event, TextIter], bool]
-    _gtk_reserved1: None
-    _gtk_reserved2: None
-    _gtk_reserved3: None
-    _gtk_reserved4: None
+    @property
+    def parent_class(self) -> GObject.ObjectClass: ...
+    @property
+    def event(
+        self,
+    ) -> Callable[[TextTag, GObject.Object, _Gdk3.Event, TextIter], bool]: ...
 
 class TextTagPrivate(GObject.GPointer): ...
 
@@ -60123,7 +60754,6 @@ class TextTagTable(GObject.Object, Buildable):
     Signals from GObject:
       notify (GParam)
     """
-
     @property
     def parent_instance(self) -> GObject.Object: ...
     @property
@@ -60147,15 +60777,14 @@ class TextTagTableClass(GObject.GPointer):
 
         TextTagTableClass()
     """
-
-    parent_class: GObject.ObjectClass
-    tag_changed: Callable[[TextTagTable, TextTag, bool], None]
-    tag_added: Callable[[TextTagTable, TextTag], None]
-    tag_removed: Callable[[TextTagTable, TextTag], None]
-    _gtk_reserved1: None
-    _gtk_reserved2: None
-    _gtk_reserved3: None
-    _gtk_reserved4: None
+    @property
+    def parent_class(self) -> GObject.ObjectClass: ...
+    @property
+    def tag_changed(self) -> Callable[[TextTagTable, TextTag, bool], None]: ...
+    @property
+    def tag_added(self) -> Callable[[TextTagTable, TextTag], None]: ...
+    @property
+    def tag_removed(self) -> Callable[[TextTagTable, TextTag], None]: ...
 
 class TextTagTablePrivate(GObject.GPointer): ...
 
@@ -60401,7 +61030,6 @@ class TextView(Container, Atk.ImplementorIface, Buildable, Scrollable):
     Signals from GObject:
       notify (GParam)
     """
-
     class Props(Container.Props):
         accepts_tab: bool
         bottom_margin: int
@@ -60479,6 +61107,7 @@ class TextView(Container, Atk.ImplementorIface, Buildable, Scrollable):
     def priv(self) -> TextViewPrivate: ...
     def __init__(
         self,
+        *,
         accepts_tab: bool = ...,
         bottom_margin: int = ...,
         buffer: TextBuffer | None = ...,
@@ -60543,7 +61172,7 @@ class TextView(Container, Atk.ImplementorIface, Buildable, Scrollable):
         hscroll_policy: ScrollablePolicy = ...,
         vadjustment: Adjustment | None = ...,
         vscroll_policy: ScrollablePolicy = ...,
-    ): ...
+    ) -> None: ...
     def add_child_at_anchor(self, child: Widget, anchor: TextChildAnchor) -> None: ...
     def add_child_in_window(
         self, child: Widget, which_window: TextWindowType, xpos: int, ypos: int
@@ -60711,6 +61340,7 @@ class TextViewAccessible(
       active-descendant-changed (gpointer)
       announcement (gchararray)
       notification (gchararray, gint)
+      attribute-changed (gchararray, gchararray)
 
     Properties from AtkObject:
       accessible-name -> gchararray: Accessible Name
@@ -60743,17 +61373,22 @@ class TextViewAccessible(
         Is used to notify that the table caption has changed
       accessible-hypertext-nlinks -> gint: Number of Accessible Hypertext Links
         The number of links which the current AtkHypertext has
+      accessible-id -> gchararray: Accessible ID
+        ID for the accessible; useful for automated testing
+      accessible-help-text -> gchararray: Help text
+        Help text associated with the accessible
 
     Signals from GObject:
       notify (GParam)
     """
-
     class Props(ContainerAccessible.Props):
         widget: Widget | None
         accessible_component_layer: int
         accessible_component_mdi_zorder: int
         accessible_description: str
+        accessible_help_text: str
         accessible_hypertext_nlinks: int
+        accessible_id: str
         accessible_name: str
         accessible_parent: Atk.Object
         accessible_role: Atk.Role
@@ -60774,8 +61409,11 @@ class TextViewAccessible(
     def priv(self) -> TextViewAccessiblePrivate: ...
     def __init__(
         self,
+        *,
         widget: Widget | None = ...,
         accessible_description: str = ...,
+        accessible_help_text: str = ...,
+        accessible_id: str = ...,
         accessible_name: str = ...,
         accessible_parent: Atk.Object = ...,
         accessible_role: Atk.Role = ...,
@@ -60787,7 +61425,7 @@ class TextViewAccessible(
         accessible_table_row_header: Atk.Object = ...,
         accessible_table_summary: Atk.Object = ...,
         accessible_value: float = ...,
-    ): ...
+    ) -> None: ...
 
 class TextViewAccessibleClass(GObject.GPointer):
     """
@@ -60797,8 +61435,8 @@ class TextViewAccessibleClass(GObject.GPointer):
 
         TextViewAccessibleClass()
     """
-
-    parent_class: ContainerAccessibleClass
+    @property
+    def parent_class(self) -> ContainerAccessibleClass: ...
 
 class TextViewAccessiblePrivate(GObject.GPointer): ...
 
@@ -60810,28 +61448,42 @@ class TextViewClass(GObject.GPointer):
 
         TextViewClass()
     """
-
-    parent_class: ContainerClass
-    populate_popup: Callable[[TextView, Widget], None]
-    move_cursor: Callable[[TextView, MovementStep, int, bool], None]
-    set_anchor: Callable[[TextView], None]
-    insert_at_cursor: Callable[[TextView, str], None]
-    delete_from_cursor: Callable[[TextView, DeleteType, int], None]
-    backspace: Callable[[TextView], None]
-    cut_clipboard: Callable[[TextView], None]
-    copy_clipboard: Callable[[TextView], None]
-    paste_clipboard: Callable[[TextView], None]
-    toggle_overwrite: Callable[[TextView], None]
-    create_buffer: None
-    draw_layer: Callable[[TextView, TextViewLayer, cairo.Context[_SomeSurface]], None]
-    extend_selection: Callable[
+    @property
+    def parent_class(self) -> ContainerClass: ...
+    @property
+    def populate_popup(self) -> Callable[[TextView, Widget], None]: ...
+    @property
+    def move_cursor(self) -> Callable[[TextView, MovementStep, int, bool], None]: ...
+    @property
+    def set_anchor(self) -> Callable[[TextView], None]: ...
+    @property
+    def insert_at_cursor(self) -> Callable[[TextView, str], None]: ...
+    @property
+    def delete_from_cursor(self) -> Callable[[TextView, DeleteType, int], None]: ...
+    @property
+    def backspace(self) -> Callable[[TextView], None]: ...
+    @property
+    def cut_clipboard(self) -> Callable[[TextView], None]: ...
+    @property
+    def copy_clipboard(self) -> Callable[[TextView], None]: ...
+    @property
+    def paste_clipboard(self) -> Callable[[TextView], None]: ...
+    @property
+    def toggle_overwrite(self) -> Callable[[TextView], None]: ...
+    @property
+    def create_buffer(self) -> None: ...
+    @property
+    def draw_layer(
+        self,
+    ) -> Callable[[TextView, TextViewLayer, cairo.Context[_SomeSurface]], None]: ...
+    @property
+    def extend_selection(
+        self,
+    ) -> Callable[
         [TextView, TextExtendSelection, TextIter, TextIter, TextIter], bool
-    ]
-    insert_emoji: Callable[[TextView], None]
-    _gtk_reserved1: None
-    _gtk_reserved2: None
-    _gtk_reserved3: None
-    _gtk_reserved4: None
+    ]: ...
+    @property
+    def insert_emoji(self) -> Callable[[TextView], None]: ...
 
 class TextViewPrivate(GObject.GPointer): ...
 class ThemeEngine(GObject.GPointer): ...
@@ -60853,16 +61505,16 @@ class ThemingEngine(GObject.Object):
     Signals from GObject:
       notify (GParam)
     """
-
     class Props(GObject.Object.Props):
         name: str
 
     @property
     def props(self) -> Props: ...
-    parent_object: GObject.Object
+    @property
+    def parent_object(self) -> GObject.Object: ...
     @property
     def priv(self) -> ThemingEnginePrivate: ...
-    def __init__(self, name: str = ...): ...
+    def __init__(self, *, name: str = ...) -> None: ...
     def do_render_activity(
         self,
         cr: cairo.Context[_SomeSurface],
@@ -61018,18 +61670,30 @@ class ThemingEngineClass(GObject.GPointer):
 
         ThemingEngineClass()
     """
-
-    parent_class: GObject.ObjectClass
-    render_line: Callable[
+    @property
+    def parent_class(self) -> GObject.ObjectClass: ...
+    @property
+    def render_line(
+        self,
+    ) -> Callable[
         [ThemingEngine, cairo.Context[_SomeSurface], float, float, float, float], None
-    ]
-    render_background: Callable[
+    ]: ...
+    @property
+    def render_background(
+        self,
+    ) -> Callable[
         [ThemingEngine, cairo.Context[_SomeSurface], float, float, float, float], None
-    ]
-    render_frame: Callable[
+    ]: ...
+    @property
+    def render_frame(
+        self,
+    ) -> Callable[
         [ThemingEngine, cairo.Context[_SomeSurface], float, float, float, float], None
-    ]
-    render_frame_gap: Callable[
+    ]: ...
+    @property
+    def render_frame_gap(
+        self,
+    ) -> Callable[
         [
             ThemingEngine,
             cairo.Context[_SomeSurface],
@@ -61042,8 +61706,11 @@ class ThemingEngineClass(GObject.GPointer):
             float,
         ],
         None,
-    ]
-    render_extension: Callable[
+    ]: ...
+    @property
+    def render_extension(
+        self,
+    ) -> Callable[
         [
             ThemingEngine,
             cairo.Context[_SomeSurface],
@@ -61054,26 +61721,47 @@ class ThemingEngineClass(GObject.GPointer):
             PositionType,
         ],
         None,
-    ]
-    render_check: Callable[
+    ]: ...
+    @property
+    def render_check(
+        self,
+    ) -> Callable[
         [ThemingEngine, cairo.Context[_SomeSurface], float, float, float, float], None
-    ]
-    render_option: Callable[
+    ]: ...
+    @property
+    def render_option(
+        self,
+    ) -> Callable[
         [ThemingEngine, cairo.Context[_SomeSurface], float, float, float, float], None
-    ]
-    render_arrow: Callable[
+    ]: ...
+    @property
+    def render_arrow(
+        self,
+    ) -> Callable[
         [ThemingEngine, cairo.Context[_SomeSurface], float, float, float, float], None
-    ]
-    render_expander: Callable[
+    ]: ...
+    @property
+    def render_expander(
+        self,
+    ) -> Callable[
         [ThemingEngine, cairo.Context[_SomeSurface], float, float, float, float], None
-    ]
-    render_focus: Callable[
+    ]: ...
+    @property
+    def render_focus(
+        self,
+    ) -> Callable[
         [ThemingEngine, cairo.Context[_SomeSurface], float, float, float, float], None
-    ]
-    render_layout: Callable[
+    ]: ...
+    @property
+    def render_layout(
+        self,
+    ) -> Callable[
         [ThemingEngine, cairo.Context[_SomeSurface], float, float, Pango.Layout], None
-    ]
-    render_slider: Callable[
+    ]: ...
+    @property
+    def render_slider(
+        self,
+    ) -> Callable[
         [
             ThemingEngine,
             cairo.Context[_SomeSurface],
@@ -61084,22 +61772,36 @@ class ThemingEngineClass(GObject.GPointer):
             Orientation,
         ],
         None,
-    ]
-    render_handle: Callable[
+    ]: ...
+    @property
+    def render_handle(
+        self,
+    ) -> Callable[
         [ThemingEngine, cairo.Context[_SomeSurface], float, float, float, float], None
-    ]
-    render_activity: Callable[
+    ]: ...
+    @property
+    def render_activity(
+        self,
+    ) -> Callable[
         [ThemingEngine, cairo.Context[_SomeSurface], float, float, float, float], None
-    ]
-    render_icon_pixbuf: None
-    render_icon: Callable[
+    ]: ...
+    @property
+    def render_icon_pixbuf(self) -> None: ...
+    @property
+    def render_icon(
+        self,
+    ) -> Callable[
         [ThemingEngine, cairo.Context[_SomeSurface], GdkPixbuf.Pixbuf, float, float],
         None,
-    ]
-    render_icon_surface: Callable[
+    ]: ...
+    @property
+    def render_icon_surface(
+        self,
+    ) -> Callable[
         [ThemingEngine, cairo.Context[_SomeSurface], cairo.Surface, float, float], None
-    ]
-    padding: list[None]
+    ]: ...
+    @property
+    def padding(self) -> list[None]: ...
 
 class ThemingEnginePrivate(GObject.GPointer): ...
 
@@ -61163,7 +61865,6 @@ class ToggleAction(Action, Buildable):
     Signals from GObject:
       notify (GParam)
     """
-
     class Props(Action.Props):
         active: bool
         draw_as_radio: bool
@@ -61186,10 +61887,13 @@ class ToggleAction(Action, Buildable):
 
     @property
     def props(self) -> Props: ...
-    parent: Action
-    private_data: ToggleActionPrivate
+    @property
+    def parent(self) -> Action: ...
+    @property
+    def private_data(self) -> ToggleActionPrivate: ...
     def __init__(
         self,
+        *,
         active: bool = ...,
         draw_as_radio: bool = ...,
         action_group: ActionGroup = ...,
@@ -61208,7 +61912,7 @@ class ToggleAction(Action, Buildable):
         visible_horizontal: bool = ...,
         visible_overflown: bool = ...,
         visible_vertical: bool = ...,
-    ): ...
+    ) -> None: ...
     def do_toggled(self) -> None: ...
     def get_active(self) -> bool: ...
     def get_draw_as_radio(self) -> bool: ...
@@ -61232,13 +61936,10 @@ class ToggleActionClass(GObject.GPointer):
 
         ToggleActionClass()
     """
-
-    parent_class: ActionClass
-    toggled: Callable[[ToggleAction], None]
-    _gtk_reserved1: None
-    _gtk_reserved2: None
-    _gtk_reserved3: None
-    _gtk_reserved4: None
+    @property
+    def parent_class(self) -> ActionClass: ...
+    @property
+    def toggled(self) -> Callable[[ToggleAction], None]: ...
 
 class ToggleActionEntry(GObject.GPointer):
     """
@@ -61479,7 +62180,6 @@ class ToggleButton(Button, Atk.ImplementorIface, Actionable, Activatable, Builda
     Signals from GObject:
       notify (GParam)
     """
-
     class Props(Button.Props):
         active: bool
         draw_indicator: bool
@@ -61542,11 +62242,13 @@ class ToggleButton(Button, Atk.ImplementorIface, Actionable, Activatable, Builda
 
     @property
     def props(self) -> Props: ...
-    button: Button
+    @property
+    def button(self) -> Button: ...
     @property
     def priv(self) -> ToggleButtonPrivate: ...
     def __init__(
         self,
+        *,
         active: bool = ...,
         draw_indicator: bool = ...,
         inconsistent: bool = ...,
@@ -61602,7 +62304,7 @@ class ToggleButton(Button, Atk.ImplementorIface, Actionable, Activatable, Builda
         action_target: GLib.Variant = ...,
         related_action: Action = ...,
         use_action_appearance: bool = ...,
-    ): ...
+    ) -> None: ...
     def do_toggled(self) -> None: ...
     def get_active(self) -> bool: ...
     def get_inconsistent(self) -> bool: ...
@@ -61653,6 +62355,7 @@ class ToggleButtonAccessible(ButtonAccessible, Atk.Action, Atk.Component, Atk.Im
       active-descendant-changed (gpointer)
       announcement (gchararray)
       notification (gchararray, gint)
+      attribute-changed (gchararray, gchararray)
 
     Properties from AtkObject:
       accessible-name -> gchararray: Accessible Name
@@ -61685,17 +62388,22 @@ class ToggleButtonAccessible(ButtonAccessible, Atk.Action, Atk.Component, Atk.Im
         Is used to notify that the table caption has changed
       accessible-hypertext-nlinks -> gint: Number of Accessible Hypertext Links
         The number of links which the current AtkHypertext has
+      accessible-id -> gchararray: Accessible ID
+        ID for the accessible; useful for automated testing
+      accessible-help-text -> gchararray: Help text
+        Help text associated with the accessible
 
     Signals from GObject:
       notify (GParam)
     """
-
     class Props(ButtonAccessible.Props):
         widget: Widget | None
         accessible_component_layer: int
         accessible_component_mdi_zorder: int
         accessible_description: str
+        accessible_help_text: str
         accessible_hypertext_nlinks: int
+        accessible_id: str
         accessible_name: str
         accessible_parent: Atk.Object
         accessible_role: Atk.Role
@@ -61710,13 +62418,17 @@ class ToggleButtonAccessible(ButtonAccessible, Atk.Action, Atk.Component, Atk.Im
 
     @property
     def props(self) -> Props: ...
-    parent: ButtonAccessible
+    @property
+    def parent(self) -> ButtonAccessible: ...
     @property
     def priv(self) -> ToggleButtonAccessiblePrivate: ...
     def __init__(
         self,
+        *,
         widget: Widget | None = ...,
         accessible_description: str = ...,
+        accessible_help_text: str = ...,
+        accessible_id: str = ...,
         accessible_name: str = ...,
         accessible_parent: Atk.Object = ...,
         accessible_role: Atk.Role = ...,
@@ -61728,7 +62440,7 @@ class ToggleButtonAccessible(ButtonAccessible, Atk.Action, Atk.Component, Atk.Im
         accessible_table_row_header: Atk.Object = ...,
         accessible_table_summary: Atk.Object = ...,
         accessible_value: float = ...,
-    ): ...
+    ) -> None: ...
 
 class ToggleButtonAccessibleClass(GObject.GPointer):
     """
@@ -61738,8 +62450,8 @@ class ToggleButtonAccessibleClass(GObject.GPointer):
 
         ToggleButtonAccessibleClass()
     """
-
-    parent_class: ButtonAccessibleClass
+    @property
+    def parent_class(self) -> ButtonAccessibleClass: ...
 
 class ToggleButtonAccessiblePrivate(GObject.GPointer): ...
 
@@ -61751,13 +62463,10 @@ class ToggleButtonClass(GObject.GPointer):
 
         ToggleButtonClass()
     """
-
-    parent_class: ButtonClass
-    toggled: Callable[[ToggleButton], None]
-    _gtk_reserved1: None
-    _gtk_reserved2: None
-    _gtk_reserved3: None
-    _gtk_reserved4: None
+    @property
+    def parent_class(self) -> ButtonClass: ...
+    @property
+    def toggled(self) -> Callable[[ToggleButton], None]: ...
 
 class ToggleButtonPrivate(GObject.GPointer): ...
 
@@ -61979,7 +62688,6 @@ class ToggleToolButton(
     Signals from GObject:
       notify (GParam)
     """
-
     class Props(ToolButton.Props):
         active: bool
         icon_name: str | None
@@ -62046,6 +62754,7 @@ class ToggleToolButton(
     def priv(self) -> ToggleToolButtonPrivate: ...
     def __init__(
         self,
+        *,
         active: bool = ...,
         icon_name: str | None = ...,
         icon_widget: Widget | None = ...,
@@ -62099,7 +62808,7 @@ class ToggleToolButton(
         action_target: GLib.Variant = ...,
         related_action: Action = ...,
         use_action_appearance: bool = ...,
-    ): ...
+    ) -> None: ...
     def do_toggled(self) -> None: ...
     def get_active(self) -> bool: ...
     @classmethod
@@ -62116,13 +62825,10 @@ class ToggleToolButtonClass(GObject.GPointer):
 
         ToggleToolButtonClass()
     """
-
-    parent_class: ToolButtonClass
-    toggled: Callable[[ToggleToolButton], None]
-    _gtk_reserved1: None
-    _gtk_reserved2: None
-    _gtk_reserved3: None
-    _gtk_reserved4: None
+    @property
+    def parent_class(self) -> ToolButtonClass: ...
+    @property
+    def toggled(self) -> Callable[[ToggleToolButton], None]: ...
 
 class ToggleToolButtonPrivate(GObject.GPointer): ...
 
@@ -62335,7 +63041,6 @@ class ToolButton(ToolItem, Atk.ImplementorIface, Actionable, Activatable, Builda
     Signals from GObject:
       notify (GParam)
     """
-
     class Props(ToolItem.Props):
         icon_name: str | None
         icon_widget: Widget | None
@@ -62395,11 +63100,13 @@ class ToolButton(ToolItem, Atk.ImplementorIface, Actionable, Activatable, Builda
 
     @property
     def props(self) -> Props: ...
-    parent: ToolItem
+    @property
+    def parent(self) -> ToolItem: ...
     @property
     def priv(self) -> ToolButtonPrivate: ...
     def __init__(
         self,
+        *,
         icon_name: str | None = ...,
         icon_widget: Widget | None = ...,
         label: str | None = ...,
@@ -62452,7 +63159,7 @@ class ToolButton(ToolItem, Atk.ImplementorIface, Actionable, Activatable, Builda
         action_target: GLib.Variant = ...,
         related_action: Action = ...,
         use_action_appearance: bool = ...,
-    ): ...
+    ) -> None: ...
     def do_clicked(self) -> None: ...
     def get_icon_name(self) -> str | None: ...
     def get_icon_widget(self) -> Widget | None: ...
@@ -62481,14 +63188,12 @@ class ToolButtonClass(GObject.GPointer):
 
         ToolButtonClass()
     """
-
-    parent_class: ToolItemClass
-    button_type: type
-    clicked: Callable[[ToolButton], None]
-    _gtk_reserved1: None
-    _gtk_reserved2: None
-    _gtk_reserved3: None
-    _gtk_reserved4: None
+    @property
+    def parent_class(self) -> ToolItemClass: ...
+    @property
+    def button_type(self) -> type[Any]: ...
+    @property
+    def clicked(self) -> Callable[[ToolButton], None]: ...
 
 class ToolButtonPrivate(GObject.GPointer): ...
 
@@ -62683,7 +63388,6 @@ class ToolItem(Bin, Atk.ImplementorIface, Activatable, Buildable):
     Signals from GObject:
       notify (GParam)
     """
-
     class Props(Bin.Props):
         is_important: bool
         visible_horizontal: bool
@@ -62735,11 +63439,13 @@ class ToolItem(Bin, Atk.ImplementorIface, Activatable, Buildable):
 
     @property
     def props(self) -> Props: ...
-    parent: Bin
+    @property
+    def parent(self) -> Bin: ...
     @property
     def priv(self) -> ToolItemPrivate: ...
     def __init__(
         self,
+        *,
         is_important: bool = ...,
         visible_horizontal: bool = ...,
         visible_vertical: bool = ...,
@@ -62784,7 +63490,7 @@ class ToolItem(Bin, Atk.ImplementorIface, Activatable, Buildable):
         width_request: int = ...,
         related_action: Action = ...,
         use_action_appearance: bool = ...,
-    ): ...
+    ) -> None: ...
     def do_create_menu_proxy(self) -> bool: ...
     def do_toolbar_reconfigured(self) -> None: ...
     def get_ellipsize_mode(self) -> Pango.EllipsizeMode: ...
@@ -62827,14 +63533,12 @@ class ToolItemClass(GObject.GPointer):
 
         ToolItemClass()
     """
-
-    parent_class: BinClass
-    create_menu_proxy: Callable[[ToolItem], bool]
-    toolbar_reconfigured: Callable[[ToolItem], None]
-    _gtk_reserved1: None
-    _gtk_reserved2: None
-    _gtk_reserved3: None
-    _gtk_reserved4: None
+    @property
+    def parent_class(self) -> BinClass: ...
+    @property
+    def create_menu_proxy(self) -> Callable[[ToolItem], bool]: ...
+    @property
+    def toolbar_reconfigured(self) -> Callable[[ToolItem], None]: ...
 
 class ToolItemGroup(Container, Atk.ImplementorIface, Buildable, ToolShell):
     """
@@ -63027,7 +63731,6 @@ class ToolItemGroup(Container, Atk.ImplementorIface, Buildable, ToolShell):
     Signals from GObject:
       notify (GParam)
     """
-
     class Props(Container.Props):
         collapsed: bool
         ellipsize: Pango.EllipsizeMode
@@ -63085,6 +63788,7 @@ class ToolItemGroup(Container, Atk.ImplementorIface, Buildable, ToolShell):
     def priv(self) -> ToolItemGroupPrivate: ...
     def __init__(
         self,
+        *,
         collapsed: bool = ...,
         ellipsize: Pango.EllipsizeMode = ...,
         header_relief: ReliefStyle = ...,
@@ -63129,7 +63833,7 @@ class ToolItemGroup(Container, Atk.ImplementorIface, Buildable, ToolShell):
         vexpand_set: bool = ...,
         visible: bool = ...,
         width_request: int = ...,
-    ): ...
+    ) -> None: ...
     def get_collapsed(self) -> bool: ...
     def get_drop_item(self, x: int, y: int) -> ToolItem: ...
     def get_ellipsize(self) -> Pango.EllipsizeMode: ...
@@ -63157,12 +63861,8 @@ class ToolItemGroupClass(GObject.GPointer):
 
         ToolItemGroupClass()
     """
-
-    parent_class: ContainerClass
-    _gtk_reserved1: None
-    _gtk_reserved2: None
-    _gtk_reserved3: None
-    _gtk_reserved4: None
+    @property
+    def parent_class(self) -> ContainerClass: ...
 
 class ToolItemGroupPrivate(GObject.GPointer): ...
 class ToolItemPrivate(GObject.GPointer): ...
@@ -63354,7 +64054,6 @@ class ToolPalette(Container, Atk.ImplementorIface, Buildable, Orientable, Scroll
     Signals from GObject:
       notify (GParam)
     """
-
     class Props(Container.Props):
         icon_size: IconSize
         icon_size_set: bool
@@ -63415,6 +64114,7 @@ class ToolPalette(Container, Atk.ImplementorIface, Buildable, Orientable, Scroll
     def priv(self) -> ToolPalettePrivate: ...
     def __init__(
         self,
+        *,
         icon_size: IconSize = ...,
         icon_size_set: bool = ...,
         toolbar_style: ToolbarStyle = ...,
@@ -63462,7 +64162,7 @@ class ToolPalette(Container, Atk.ImplementorIface, Buildable, Orientable, Scroll
         hscroll_policy: ScrollablePolicy = ...,
         vadjustment: Adjustment | None = ...,
         vscroll_policy: ScrollablePolicy = ...,
-    ): ...
+    ) -> None: ...
     def add_drag_dest(
         self,
         widget: Widget,
@@ -63503,12 +64203,8 @@ class ToolPaletteClass(GObject.GPointer):
 
         ToolPaletteClass()
     """
-
-    parent_class: ContainerClass
-    _gtk_reserved1: None
-    _gtk_reserved2: None
-    _gtk_reserved3: None
-    _gtk_reserved4: None
+    @property
+    def parent_class(self) -> ContainerClass: ...
 
 class ToolPalettePrivate(GObject.GPointer): ...
 
@@ -63519,7 +64215,6 @@ class ToolShell(GObject.GInterface, Protocol):
     Signals from GObject:
       notify (GParam)
     """
-
     def get_ellipsize_mode(self) -> Pango.EllipsizeMode: ...
     def get_icon_size(self) -> int: ...
     def get_orientation(self) -> Orientation: ...
@@ -63538,17 +64233,26 @@ class ToolShellIface(GObject.GPointer):
 
         ToolShellIface()
     """
-
-    g_iface: GObject.TypeInterface
-    get_icon_size: Callable[[ToolShell], IconSize]
-    get_orientation: Callable[[ToolShell], Orientation]
-    get_style: Callable[[ToolShell], ToolbarStyle]
-    get_relief_style: Callable[[ToolShell], ReliefStyle]
-    rebuild_menu: Callable[[ToolShell], None]
-    get_text_orientation: Callable[[ToolShell], Orientation]
-    get_text_alignment: Callable[[ToolShell], float]
-    get_ellipsize_mode: Callable[[ToolShell], Pango.EllipsizeMode]
-    get_text_size_group: Callable[[ToolShell], SizeGroup]
+    @property
+    def g_iface(self) -> GObject.TypeInterface: ...
+    @property
+    def get_icon_size(self) -> Callable[[ToolShell], IconSize]: ...
+    @property
+    def get_orientation(self) -> Callable[[ToolShell], Orientation]: ...
+    @property
+    def get_style(self) -> Callable[[ToolShell], ToolbarStyle]: ...
+    @property
+    def get_relief_style(self) -> Callable[[ToolShell], ReliefStyle]: ...
+    @property
+    def rebuild_menu(self) -> Callable[[ToolShell], None]: ...
+    @property
+    def get_text_orientation(self) -> Callable[[ToolShell], Orientation]: ...
+    @property
+    def get_text_alignment(self) -> Callable[[ToolShell], float]: ...
+    @property
+    def get_ellipsize_mode(self) -> Callable[[ToolShell], Pango.EllipsizeMode]: ...
+    @property
+    def get_text_size_group(self) -> Callable[[ToolShell], SizeGroup]: ...
 
 class Toolbar(Container, Atk.ImplementorIface, Buildable, Orientable, ToolShell):
     """
@@ -63745,7 +64449,6 @@ class Toolbar(Container, Atk.ImplementorIface, Buildable, Orientable, ToolShell)
     Signals from GObject:
       notify (GParam)
     """
-
     class Props(Container.Props):
         icon_size: IconSize
         icon_size_set: bool
@@ -63797,11 +64500,13 @@ class Toolbar(Container, Atk.ImplementorIface, Buildable, Orientable, ToolShell)
 
     @property
     def props(self) -> Props: ...
-    container: Container
+    @property
+    def container(self) -> Container: ...
     @property
     def priv(self) -> ToolbarPrivate: ...
     def __init__(
         self,
+        *,
         icon_size: IconSize = ...,
         icon_size_set: bool = ...,
         show_arrow: bool = ...,
@@ -63846,7 +64551,7 @@ class Toolbar(Container, Atk.ImplementorIface, Buildable, Orientable, ToolShell)
         visible: bool = ...,
         width_request: int = ...,
         orientation: Orientation = ...,
-    ): ...
+    ) -> None: ...
     def do_orientation_changed(self, orientation: Orientation) -> None: ...
     def do_popup_context_menu(self, x: int, y: int, button_number: int) -> bool: ...
     def do_style_changed(self, style: ToolbarStyle) -> None: ...
@@ -63878,15 +64583,14 @@ class ToolbarClass(GObject.GPointer):
 
         ToolbarClass()
     """
-
-    parent_class: ContainerClass
-    orientation_changed: Callable[[Toolbar, Orientation], None]
-    style_changed: Callable[[Toolbar, ToolbarStyle], None]
-    popup_context_menu: Callable[[Toolbar, int, int, int], bool]
-    _gtk_reserved1: None
-    _gtk_reserved2: None
-    _gtk_reserved3: None
-    _gtk_reserved4: None
+    @property
+    def parent_class(self) -> ContainerClass: ...
+    @property
+    def orientation_changed(self) -> Callable[[Toolbar, Orientation], None]: ...
+    @property
+    def style_changed(self) -> Callable[[Toolbar, ToolbarStyle], None]: ...
+    @property
+    def popup_context_menu(self) -> Callable[[Toolbar, int, int, int], bool]: ...
 
 class ToolbarPrivate(GObject.GPointer): ...
 
@@ -63903,7 +64607,6 @@ class Tooltip(GObject.Object):
     Signals from GObject:
       notify (GParam)
     """
-
     def set_custom(self, custom_widget: Widget | None = None) -> None: ...
     def set_icon(self, pixbuf: GdkPixbuf.Pixbuf | None = None) -> None: ...
     def set_icon_from_gicon(self, gicon: Gio.Icon | None, size: int) -> None: ...
@@ -63934,6 +64637,7 @@ class ToplevelAccessible(Atk.Object):
       active-descendant-changed (gpointer)
       announcement (gchararray)
       notification (gchararray, gint)
+      attribute-changed (gchararray, gchararray)
 
     Properties from AtkObject:
       accessible-name -> gchararray: Accessible Name
@@ -63966,16 +64670,21 @@ class ToplevelAccessible(Atk.Object):
         Is used to notify that the table caption has changed
       accessible-hypertext-nlinks -> gint: Number of Accessible Hypertext Links
         The number of links which the current AtkHypertext has
+      accessible-id -> gchararray: Accessible ID
+        ID for the accessible; useful for automated testing
+      accessible-help-text -> gchararray: Help text
+        Help text associated with the accessible
 
     Signals from GObject:
       notify (GParam)
     """
-
     class Props(Atk.Object.Props):
         accessible_component_layer: int
         accessible_component_mdi_zorder: int
         accessible_description: str
+        accessible_help_text: str
         accessible_hypertext_nlinks: int
+        accessible_id: str
         accessible_name: str
         accessible_parent: Atk.Object
         accessible_role: Atk.Role
@@ -63990,12 +64699,16 @@ class ToplevelAccessible(Atk.Object):
 
     @property
     def props(self) -> Props: ...
-    parent: Atk.Object
+    @property
+    def parent(self) -> Atk.Object: ...
     @property
     def priv(self) -> ToplevelAccessiblePrivate: ...
     def __init__(
         self,
+        *,
         accessible_description: str = ...,
+        accessible_help_text: str = ...,
+        accessible_id: str = ...,
         accessible_name: str = ...,
         accessible_parent: Atk.Object = ...,
         accessible_role: Atk.Role = ...,
@@ -64007,7 +64720,7 @@ class ToplevelAccessible(Atk.Object):
         accessible_table_row_header: Atk.Object = ...,
         accessible_table_summary: Atk.Object = ...,
         accessible_value: float = ...,
-    ): ...
+    ) -> None: ...
     def get_children(self) -> list[Window]: ...
 
 class ToplevelAccessibleClass(GObject.GPointer):
@@ -64018,8 +64731,8 @@ class ToplevelAccessibleClass(GObject.GPointer):
 
         ToplevelAccessibleClass()
     """
-
-    parent_class: Atk.ObjectClass
+    @property
+    def parent_class(self) -> Atk.ObjectClass: ...
 
 class ToplevelAccessiblePrivate(GObject.GPointer): ...
 
@@ -64027,7 +64740,6 @@ class TreeDragDest(GObject.GInterface, Protocol):
     """
     Interface GtkTreeDragDest
     """
-
     def drag_data_received(
         self, dest: TreePath, selection_data: SelectionData
     ) -> bool: ...
@@ -64043,16 +64755,21 @@ class TreeDragDestIface(GObject.GPointer):
 
         TreeDragDestIface()
     """
-
-    g_iface: GObject.TypeInterface
-    drag_data_received: Callable[[TreeDragDest, TreePath, SelectionData], bool]
-    row_drop_possible: Callable[[TreeDragDest, TreePath, SelectionData], bool]
+    @property
+    def g_iface(self) -> GObject.TypeInterface: ...
+    @property
+    def drag_data_received(
+        self,
+    ) -> Callable[[TreeDragDest, TreePath, SelectionData], bool]: ...
+    @property
+    def row_drop_possible(
+        self,
+    ) -> Callable[[TreeDragDest, TreePath, SelectionData], bool]: ...
 
 class TreeDragSource(GObject.GInterface, Protocol):
     """
     Interface GtkTreeDragSource
     """
-
     def drag_data_delete(self, path: TreePath) -> bool: ...
     def drag_data_get(self, path: TreePath, selection_data: SelectionData) -> bool: ...
     def row_draggable(self, path: TreePath) -> bool: ...
@@ -64065,11 +64782,16 @@ class TreeDragSourceIface(GObject.GPointer):
 
         TreeDragSourceIface()
     """
-
-    g_iface: GObject.TypeInterface
-    row_draggable: Callable[[TreeDragSource, TreePath], bool]
-    drag_data_get: Callable[[TreeDragSource, TreePath, SelectionData], bool]
-    drag_data_delete: Callable[[TreeDragSource, TreePath], bool]
+    @property
+    def g_iface(self) -> GObject.TypeInterface: ...
+    @property
+    def row_draggable(self) -> Callable[[TreeDragSource, TreePath], bool]: ...
+    @property
+    def drag_data_get(
+        self,
+    ) -> Callable[[TreeDragSource, TreePath, SelectionData], bool]: ...
+    @property
+    def drag_data_delete(self) -> Callable[[TreeDragSource, TreePath], bool]: ...
 
 class TreeIter(GObject.GBoxed):
     """
@@ -64157,17 +64879,19 @@ class TreeModelFilter(GObject.Object, TreeDragSource, TreeModel):
     Signals from GObject:
       notify (GParam)
     """
-
     class Props(GObject.Object.Props):
         child_model: TreeModel
         virtual_root: TreePath
 
     @property
     def props(self) -> Props: ...
-    parent: GObject.Object
+    @property
+    def parent(self) -> GObject.Object: ...
     @property
     def priv(self) -> TreeModelFilterPrivate: ...
-    def __init__(self, child_model: TreeModel = ..., virtual_root: TreePath = ...): ...
+    def __init__(
+        self, *, child_model: TreeModel = ..., virtual_root: TreePath = ...
+    ) -> None: ...
     def clear_cache(self) -> None: ...
     def convert_child_iter_to_iter(
         self, child_iter: TreeIter
@@ -64182,9 +64906,11 @@ class TreeModelFilter(GObject.Object, TreeDragSource, TreeModel):
     def get_model(self) -> TreeModel: ...
     def refilter(self) -> None: ...
     def set_modify_func(
-        self, types: Sequence[type], func: Callable[..., Any], *data: Any
+        self, types: Sequence[type[Any]], func: Callable[..., Any], *data: Any
     ) -> None: ...
-    def set_value(self, iter, column, value): ...  # FIXME Function
+    def set_value(
+        self, iter, column, value
+    ): ...  # FIXME: Override is missing typing annotation
     def set_visible_column(self, column: int) -> None: ...
     # override
     def set_visible_func(
@@ -64201,14 +64927,14 @@ class TreeModelFilterClass(GObject.GPointer):
 
         TreeModelFilterClass()
     """
-
-    parent_class: GObject.ObjectClass
-    visible: Callable[[TreeModelFilter, TreeModel, TreeIter], bool]
-    modify: Callable[[TreeModelFilter, TreeModel, TreeIter, Any, int], None]
-    _gtk_reserved1: None
-    _gtk_reserved2: None
-    _gtk_reserved3: None
-    _gtk_reserved4: None
+    @property
+    def parent_class(self) -> GObject.ObjectClass: ...
+    @property
+    def visible(self) -> Callable[[TreeModelFilter, TreeModel, TreeIter], bool]: ...
+    @property
+    def modify(
+        self,
+    ) -> Callable[[TreeModelFilter, TreeModel, TreeIter, Any, int], None]: ...
 
 class TreeModelFilterPrivate(GObject.GPointer): ...
 
@@ -64220,28 +64946,56 @@ class TreeModelIface(GObject.GPointer):
 
         TreeModelIface()
     """
-
-    g_iface: GObject.TypeInterface
-    row_changed: Callable[[TreeModel, TreePath, TreeIter], None]
-    row_inserted: Callable[[TreeModel, TreePath, TreeIter], None]
-    row_has_child_toggled: Callable[[TreeModel, TreePath, TreeIter], None]
-    row_deleted: Callable[[TreeModel, TreePath], None]
-    rows_reordered: Callable[[TreeModel, TreePath, TreeIter, int], None]
-    get_flags: Callable[[TreeModel], TreeModelFlags]
-    get_n_columns: Callable[[TreeModel], int]
-    get_column_type: Callable[[TreeModel, int], type]
-    get_iter: Callable[[TreeModel, TreePath], tuple[bool, TreeIter]]
-    get_path: Callable[[TreeModel, TreeIter], TreePath]
-    get_value: Callable[[TreeModel, TreeIter, int], Any]
-    iter_next: Callable[[TreeModel, TreeIter], bool]
-    iter_previous: Callable[[TreeModel, TreeIter], bool]
-    iter_children: Callable[[TreeModel, TreeIter | None], tuple[bool, TreeIter]]
-    iter_has_child: Callable[[TreeModel, TreeIter], bool]
-    iter_n_children: Callable[[TreeModel, TreeIter | None], int]
-    iter_nth_child: Callable[[TreeModel, TreeIter | None, int], tuple[bool, TreeIter]]
-    iter_parent: Callable[[TreeModel, TreeIter], tuple[bool, TreeIter]]
-    ref_node: Callable[[TreeModel, TreeIter], None]
-    unref_node: Callable[[TreeModel, TreeIter], None]
+    @property
+    def g_iface(self) -> GObject.TypeInterface: ...
+    @property
+    def row_changed(self) -> Callable[[TreeModel, TreePath, TreeIter], None]: ...
+    @property
+    def row_inserted(self) -> Callable[[TreeModel, TreePath, TreeIter], None]: ...
+    @property
+    def row_has_child_toggled(
+        self,
+    ) -> Callable[[TreeModel, TreePath, TreeIter], None]: ...
+    @property
+    def row_deleted(self) -> Callable[[TreeModel, TreePath], None]: ...
+    @property
+    def rows_reordered(
+        self,
+    ) -> Callable[[TreeModel, TreePath, TreeIter, int], None]: ...
+    @property
+    def get_flags(self) -> Callable[[TreeModel], TreeModelFlags]: ...
+    @property
+    def get_n_columns(self) -> Callable[[TreeModel], int]: ...
+    @property
+    def get_column_type(self) -> Callable[[TreeModel, int], type[Any]]: ...
+    @property
+    def get_iter(self) -> Callable[[TreeModel, TreePath], tuple[bool, TreeIter]]: ...
+    @property
+    def get_path(self) -> Callable[[TreeModel, TreeIter], TreePath]: ...
+    @property
+    def get_value(self) -> Callable[[TreeModel, TreeIter, int], Any]: ...
+    @property
+    def iter_next(self) -> Callable[[TreeModel, TreeIter], bool]: ...
+    @property
+    def iter_previous(self) -> Callable[[TreeModel, TreeIter], bool]: ...
+    @property
+    def iter_children(
+        self,
+    ) -> Callable[[TreeModel, TreeIter | None], tuple[bool, TreeIter]]: ...
+    @property
+    def iter_has_child(self) -> Callable[[TreeModel, TreeIter], bool]: ...
+    @property
+    def iter_n_children(self) -> Callable[[TreeModel, TreeIter | None], int]: ...
+    @property
+    def iter_nth_child(
+        self,
+    ) -> Callable[[TreeModel, TreeIter | None, int], tuple[bool, TreeIter]]: ...
+    @property
+    def iter_parent(self) -> Callable[[TreeModel, TreeIter], tuple[bool, TreeIter]]: ...
+    @property
+    def ref_node(self) -> Callable[[TreeModel, TreeIter], None]: ...
+    @property
+    def unref_node(self) -> Callable[[TreeModel, TreeIter], None]: ...
 
 # override
 class TreeModelRow:
@@ -64292,16 +65046,16 @@ class TreeModelSort(GObject.Object, TreeDragSource, TreeModel, TreeSortable):
     Signals from GObject:
       notify (GParam)
     """
-
     class Props(GObject.Object.Props):
         model: TreeModel
 
     @property
     def props(self) -> Props: ...
-    parent: GObject.Object
+    @property
+    def parent(self) -> GObject.Object: ...
     @property
     def priv(self) -> TreeModelSortPrivate: ...
-    def __init__(self, model: TreeModel = ...): ...
+    def __init__(self, *, model: TreeModel = ...) -> None: ...
     def clear_cache(self) -> None: ...
     def convert_child_iter_to_iter(
         self, child_iter: TreeIter
@@ -64323,12 +65077,8 @@ class TreeModelSortClass(GObject.GPointer):
 
         TreeModelSortClass()
     """
-
-    parent_class: GObject.ObjectClass
-    _gtk_reserved1: None
-    _gtk_reserved2: None
-    _gtk_reserved3: None
-    _gtk_reserved4: None
+    @property
+    def parent_class(self) -> GObject.ObjectClass: ...
 
 class TreeModelSortPrivate(GObject.GPointer): ...
 
@@ -64343,7 +65093,11 @@ class TreePath(GObject.GBoxed):
         new_from_indices(indices:list) -> Gtk.TreePath
         new_from_string(path:str) -> Gtk.TreePath
     """
-
+    def __getitem__(self, index): ...  # FIXME: Override is missing typing annotation
+    def __iter__(self): ...  # FIXME: Override is missing typing annotation
+    def __len__(self): ...  # FIXME: Override is missing typing annotation
+    @staticmethod
+    def __new__(cls, path=0): ...  # FIXME: Override is missing typing annotation
     def append_index(self, index_: int) -> None: ...
     def compare(self, b: TreePath) -> int: ...
     def copy(self) -> TreePath: ...
@@ -64376,9 +65130,10 @@ class TreeRowReference(GObject.GBoxed):
         new(model:Gtk.TreeModel, path:Gtk.TreePath) -> Gtk.TreeRowReference
         new_proxy(proxy:GObject.Object, model:Gtk.TreeModel, path:Gtk.TreePath) -> Gtk.TreeRowReference
     """
-
     # override
     def __init__(self, model: TreeModel, path: TreePath) -> None: ...
+    @staticmethod
+    def __new__(cls: type[Self], model: TreeModel, path: TreePath) -> Self: ...
     def copy(self) -> TreeRowReference: ...
     @staticmethod
     def deleted(proxy: GObject.Object, path: TreePath) -> None: ...
@@ -64415,16 +65170,16 @@ class TreeSelection(GObject.Object):
     Signals from GObject:
       notify (GParam)
     """
-
     class Props(GObject.Object.Props):
         mode: SelectionMode
 
     @property
     def props(self) -> Props: ...
-    parent: GObject.Object
+    @property
+    def parent(self) -> GObject.Object: ...
     @property
     def priv(self) -> TreeSelectionPrivate: ...
-    def __init__(self, mode: SelectionMode = ...): ...
+    def __init__(self, *, mode: SelectionMode = ...) -> None: ...
     def count_selected_rows(self) -> int: ...
     def do_changed(self) -> None: ...
     def get_mode(self) -> SelectionMode: ...
@@ -64458,13 +65213,10 @@ class TreeSelectionClass(GObject.GPointer):
 
         TreeSelectionClass()
     """
-
-    parent_class: GObject.ObjectClass
-    changed: Callable[[TreeSelection], None]
-    _gtk_reserved1: None
-    _gtk_reserved2: None
-    _gtk_reserved3: None
-    _gtk_reserved4: None
+    @property
+    def parent_class(self) -> GObject.ObjectClass: ...
+    @property
+    def changed(self) -> Callable[[TreeSelection], None]: ...
 
 class TreeSelectionPrivate(GObject.GPointer): ...
 
@@ -64475,12 +65227,13 @@ class TreeSortable(GObject.GInterface, Protocol):
     Signals from GObject:
       notify (GParam)
     """
-
     def get_sort_column_id(
         self,
     ) -> tuple[int, SortType] | tuple[None, None]: ...  # CHECK Wrapped function
     def has_default_sort_func(self) -> bool: ...
-    def set_default_sort_func(self, sort_func, user_data=None): ...  # FIXME Function
+    def set_default_sort_func(
+        self, sort_func, user_data=None
+    ): ...  # FIXME: Override is missing typing annotation
     def set_sort_column_id(self, sort_column_id: int, order: SortType) -> None: ...
     # override
     def set_sort_func(
@@ -64499,17 +65252,32 @@ class TreeSortableIface(GObject.GPointer):
 
         TreeSortableIface()
     """
-
-    g_iface: GObject.TypeInterface
-    sort_column_changed: Callable[[TreeSortable], None]
-    get_sort_column_id: Callable[[TreeSortable], tuple[bool, int, SortType]]
-    set_sort_column_id: Callable[[TreeSortable, int, SortType], None]
-    set_sort_func: Callable[..., None]
-    set_default_sort_func: Callable[..., None]
-    has_default_sort_func: Callable[[TreeSortable], bool]
+    @property
+    def g_iface(self) -> GObject.TypeInterface: ...
+    @property
+    def sort_column_changed(self) -> Callable[[TreeSortable], None]: ...
+    @property
+    def get_sort_column_id(
+        self,
+    ) -> Callable[[TreeSortable], tuple[bool, int, SortType]]: ...
+    @property
+    def set_sort_column_id(self) -> Callable[[TreeSortable, int, SortType], None]: ...
+    @property
+    def set_sort_func(self) -> Callable[..., None]: ...
+    @property
+    def set_default_sort_func(self) -> Callable[..., None]: ...
+    @property
+    def has_default_sort_func(self) -> Callable[[TreeSortable], bool]: ...
 
 class TreeStore(
-    GObject.Object, Buildable, TreeDragDest, TreeDragSource, TreeModel, TreeSortable
+    GObject.Object,
+    Buildable,
+    TreeDragDest,
+    TreeDragSource,
+    TreeModel,
+    TreeSortable,
+    TreeModel,
+    TreeSortable,
 ):
     """
     :Constructors:
@@ -64545,9 +65313,15 @@ class TreeStore(
         self, parent: TreeIter | None, row: list[Any] | None = None
     ) -> TreeIter: ...
     def clear(self) -> None: ...
-    def insert(self, parent, position, row=None): ...  # FIXME Function
-    def insert_after(self, parent, sibling, row=None): ...  # FIXME Function
-    def insert_before(self, parent, sibling, row=None): ...  # FIXME Function
+    def insert(
+        self, parent, position, row=None
+    ): ...  # FIXME: Override is missing typing annotation
+    def insert_after(
+        self, parent, sibling, row=None
+    ): ...  # FIXME: Override is missing typing annotation
+    def insert_before(
+        self, parent, sibling, row=None
+    ): ...  # FIXME: Override is missing typing annotation
     def insert_with_values(
         self,
         parent: TreeIter | None,
@@ -64561,12 +65335,16 @@ class TreeStore(
     def move_after(self, iter: TreeIter, position: TreeIter | None = None) -> None: ...
     def move_before(self, iter: TreeIter, position: TreeIter | None = None) -> None: ...
     @classmethod
-    def new(cls, types: Sequence[type]) -> TreeStore: ...
-    def prepend(self, parent, row=None): ...  # FIXME Function
+    def new(cls, types: Sequence[type[Any]]) -> TreeStore: ...
+    def prepend(
+        self, parent, row=None
+    ): ...  # FIXME: Override is missing typing annotation
     def remove(self, iter: TreeIter) -> bool: ...
-    def set(self, treeiter, *args): ...  # FIXME Function
-    def set_column_types(self, types: Sequence[type]) -> None: ...
-    def set_value(self, treeiter, column, value): ...  # FIXME Function
+    def set(self, treeiter, *args): ...  # FIXME: Override is missing typing annotation
+    def set_column_types(self, types: Sequence[type[Any]]) -> None: ...
+    def set_value(
+        self, treeiter, column, value
+    ): ...  # FIXME: Override is missing typing annotation
     def swap(self, a: TreeIter, b: TreeIter) -> None: ...
 
 class TreeStoreClass(GObject.GPointer):
@@ -64577,12 +65355,8 @@ class TreeStoreClass(GObject.GPointer):
 
         TreeStoreClass()
     """
-
-    parent_class: GObject.ObjectClass
-    _gtk_reserved1: None
-    _gtk_reserved2: None
-    _gtk_reserved3: None
-    _gtk_reserved4: None
+    @property
+    def parent_class(self) -> GObject.ObjectClass: ...
 
 class TreeStorePrivate(GObject.GPointer): ...
 
@@ -64594,8 +65368,8 @@ class TreeView(Container, Atk.ImplementorIface, Buildable, Scrollable):
     ::
 
         TreeView(**properties)
-        new() -> Gtk.Widget
-        new_with_model(model:Gtk.TreeModel) -> Gtk.Widget
+        new() -> Widget
+        new_with_model(model:TreeModel) -> Widget
 
     Object GtkTreeView
 
@@ -64892,6 +65666,7 @@ class TreeView(Container, Atk.ImplementorIface, Buildable, Scrollable):
     @property
     def props(self) -> Props: ...
     parent: Container
+
     @property
     def priv(self) -> TreeViewPrivate: ...
     def __init__(
@@ -65196,6 +65971,7 @@ class TreeViewAccessible(
       active-descendant-changed (gpointer)
       announcement (gchararray)
       notification (gchararray, gint)
+      attribute-changed (gchararray, gchararray)
 
     Properties from AtkObject:
       accessible-name -> gchararray: Accessible Name
@@ -65228,17 +66004,22 @@ class TreeViewAccessible(
         Is used to notify that the table caption has changed
       accessible-hypertext-nlinks -> gint: Number of Accessible Hypertext Links
         The number of links which the current AtkHypertext has
+      accessible-id -> gchararray: Accessible ID
+        ID for the accessible; useful for automated testing
+      accessible-help-text -> gchararray: Help text
+        Help text associated with the accessible
 
     Signals from GObject:
       notify (GParam)
     """
-
     class Props(ContainerAccessible.Props):
         widget: Widget | None
         accessible_component_layer: int
         accessible_component_mdi_zorder: int
         accessible_description: str
+        accessible_help_text: str
         accessible_hypertext_nlinks: int
+        accessible_id: str
         accessible_name: str
         accessible_parent: Atk.Object
         accessible_role: Atk.Role
@@ -65259,8 +66040,11 @@ class TreeViewAccessible(
     def priv(self) -> TreeViewAccessiblePrivate: ...
     def __init__(
         self,
+        *,
         widget: Widget | None = ...,
         accessible_description: str = ...,
+        accessible_help_text: str = ...,
+        accessible_id: str = ...,
         accessible_name: str = ...,
         accessible_parent: Atk.Object = ...,
         accessible_role: Atk.Role = ...,
@@ -65272,7 +66056,7 @@ class TreeViewAccessible(
         accessible_table_row_header: Atk.Object = ...,
         accessible_table_summary: Atk.Object = ...,
         accessible_value: float = ...,
-    ): ...
+    ) -> None: ...
 
 class TreeViewAccessibleClass(GObject.GPointer):
     """
@@ -65282,8 +66066,8 @@ class TreeViewAccessibleClass(GObject.GPointer):
 
         TreeViewAccessibleClass()
     """
-
-    parent_class: ContainerAccessibleClass
+    @property
+    def parent_class(self) -> ContainerAccessibleClass: ...
 
 class TreeViewAccessiblePrivate(GObject.GPointer): ...
 
@@ -65295,31 +66079,40 @@ class TreeViewClass(GObject.GPointer):
 
         TreeViewClass()
     """
-
-    parent_class: ContainerClass
-    row_activated: Callable[[TreeView, TreePath, TreeViewColumn], None]
-    test_expand_row: Callable[[TreeView, TreeIter, TreePath], bool]
-    test_collapse_row: Callable[[TreeView, TreeIter, TreePath], bool]
-    row_expanded: Callable[[TreeView, TreeIter, TreePath], None]
-    row_collapsed: Callable[[TreeView, TreeIter, TreePath], None]
-    columns_changed: Callable[[TreeView], None]
-    cursor_changed: Callable[[TreeView], None]
-    move_cursor: Callable[[TreeView, MovementStep, int], bool]
-    select_all: Callable[[TreeView], bool]
-    unselect_all: Callable[[TreeView], bool]
-    select_cursor_row: Callable[[TreeView, bool], bool]
-    toggle_cursor_row: Callable[[TreeView], bool]
-    expand_collapse_cursor_row: Callable[[TreeView, bool, bool, bool], bool]
-    select_cursor_parent: Callable[[TreeView], bool]
-    start_interactive_search: Callable[[TreeView], bool]
-    _gtk_reserved1: None
-    _gtk_reserved2: None
-    _gtk_reserved3: None
-    _gtk_reserved4: None
-    _gtk_reserved5: None
-    _gtk_reserved6: None
-    _gtk_reserved7: None
-    _gtk_reserved8: None
+    @property
+    def parent_class(self) -> ContainerClass: ...
+    @property
+    def row_activated(self) -> Callable[[TreeView, TreePath, TreeViewColumn], None]: ...
+    @property
+    def test_expand_row(self) -> Callable[[TreeView, TreeIter, TreePath], bool]: ...
+    @property
+    def test_collapse_row(self) -> Callable[[TreeView, TreeIter, TreePath], bool]: ...
+    @property
+    def row_expanded(self) -> Callable[[TreeView, TreeIter, TreePath], None]: ...
+    @property
+    def row_collapsed(self) -> Callable[[TreeView, TreeIter, TreePath], None]: ...
+    @property
+    def columns_changed(self) -> Callable[[TreeView], None]: ...
+    @property
+    def cursor_changed(self) -> Callable[[TreeView], None]: ...
+    @property
+    def move_cursor(self) -> Callable[[TreeView, MovementStep, int], bool]: ...
+    @property
+    def select_all(self) -> Callable[[TreeView], bool]: ...
+    @property
+    def unselect_all(self) -> Callable[[TreeView], bool]: ...
+    @property
+    def select_cursor_row(self) -> Callable[[TreeView, bool], bool]: ...
+    @property
+    def toggle_cursor_row(self) -> Callable[[TreeView], bool]: ...
+    @property
+    def expand_collapse_cursor_row(
+        self,
+    ) -> Callable[[TreeView, bool, bool, bool], bool]: ...
+    @property
+    def select_cursor_parent(self) -> Callable[[TreeView], bool]: ...
+    @property
+    def start_interactive_search(self) -> Callable[[TreeView], bool]: ...
 
 class TreeViewColumn(GObject.InitiallyUnowned, Buildable, CellLayout):
     """
@@ -65379,7 +66172,6 @@ class TreeViewColumn(GObject.InitiallyUnowned, Buildable, CellLayout):
     Signals from GObject:
       notify (GParam)
     """
-
     class Props(GObject.InitiallyUnowned.Props):
         alignment: float
         cell_area: CellArea
@@ -65464,7 +66256,9 @@ class TreeViewColumn(GObject.InitiallyUnowned, Buildable, CellLayout):
     def pack_start(self, cell: CellRenderer, expand: bool) -> None: ...
     def queue_resize(self) -> None: ...
     def set_alignment(self, xalign: float) -> None: ...
-    def set_attributes(self, cell_renderer, **attributes): ...  # FIXME Function
+    def set_attributes(
+        self, cell_renderer, **attributes
+    ): ...  # FIXME: Override is missing typing annotation
     # override
     def set_cell_data_func(
         self,
@@ -65496,13 +66290,10 @@ class TreeViewColumnClass(GObject.GPointer):
 
         TreeViewColumnClass()
     """
-
-    parent_class: GObject.InitiallyUnownedClass
-    clicked: Callable[[TreeViewColumn], None]
-    _gtk_reserved1: None
-    _gtk_reserved2: None
-    _gtk_reserved3: None
-    _gtk_reserved4: None
+    @property
+    def parent_class(self) -> GObject.InitiallyUnownedClass: ...
+    @property
+    def clicked(self) -> Callable[[TreeViewColumn], None]: ...
 
 class TreeViewColumnPrivate(GObject.GPointer): ...
 class TreeViewPrivate(GObject.GPointer): ...
@@ -65535,16 +66326,17 @@ class UIManager(GObject.Object, Buildable):
     Signals from GObject:
       notify (GParam)
     """
-
     class Props(GObject.Object.Props):
         add_tearoffs: bool
         ui: str
 
     @property
     def props(self) -> Props: ...
-    parent: GObject.Object
-    private_data: UIManagerPrivate
-    def __init__(self, add_tearoffs: bool = ...): ...
+    @property
+    def parent(self) -> GObject.Object: ...
+    @property
+    def private_data(self) -> UIManagerPrivate: ...
+    def __init__(self, *, add_tearoffs: bool = ...) -> None: ...
     def add_ui(
         self,
         merge_id: int,
@@ -65556,7 +66348,9 @@ class UIManager(GObject.Object, Buildable):
     ) -> None: ...
     def add_ui_from_file(self, filename: str) -> int: ...
     def add_ui_from_resource(self, resource_path: str) -> int: ...
-    def add_ui_from_string(self, buffer): ...  # FIXME Function
+    def add_ui_from_string(
+        self, buffer
+    ): ...  # FIXME: Override is missing typing annotation
     def do_actions_changed(self) -> None: ...
     def do_add_widget(self, widget: Widget) -> None: ...
     def do_connect_proxy(self, action: Action, proxy: Widget) -> None: ...
@@ -65573,7 +66367,9 @@ class UIManager(GObject.Object, Buildable):
     def get_toplevels(self, types: UIManagerItemType) -> list[Widget]: ...
     def get_ui(self) -> str: ...
     def get_widget(self, path: str) -> Widget: ...
-    def insert_action_group(self, buffer, length=-1): ...  # FIXME Function
+    def insert_action_group(
+        self, buffer, length=-1
+    ): ...  # FIXME: Override is missing typing annotation
     @classmethod
     def new(cls) -> UIManager: ...
     def new_merge_id(self) -> int: ...
@@ -65589,20 +66385,24 @@ class UIManagerClass(GObject.GPointer):
 
         UIManagerClass()
     """
-
-    parent_class: GObject.ObjectClass
-    add_widget: Callable[[UIManager, Widget], None]
-    actions_changed: Callable[[UIManager], None]
-    connect_proxy: Callable[[UIManager, Action, Widget], None]
-    disconnect_proxy: Callable[[UIManager, Action, Widget], None]
-    pre_activate: Callable[[UIManager, Action], None]
-    post_activate: Callable[[UIManager, Action], None]
-    get_widget: Callable[[UIManager, str], Widget]
-    get_action: Callable[[UIManager, str], Action]
-    _gtk_reserved1: None
-    _gtk_reserved2: None
-    _gtk_reserved3: None
-    _gtk_reserved4: None
+    @property
+    def parent_class(self) -> GObject.ObjectClass: ...
+    @property
+    def add_widget(self) -> Callable[[UIManager, Widget], None]: ...
+    @property
+    def actions_changed(self) -> Callable[[UIManager], None]: ...
+    @property
+    def connect_proxy(self) -> Callable[[UIManager, Action, Widget], None]: ...
+    @property
+    def disconnect_proxy(self) -> Callable[[UIManager, Action, Widget], None]: ...
+    @property
+    def pre_activate(self) -> Callable[[UIManager, Action], None]: ...
+    @property
+    def post_activate(self) -> Callable[[UIManager, Action], None]: ...
+    @property
+    def get_widget(self) -> Callable[[UIManager, str], Widget]: ...
+    @property
+    def get_action(self) -> Callable[[UIManager, str], Action]: ...
 
 class UIManagerPrivate(GObject.GPointer): ...
 
@@ -65793,7 +66593,6 @@ class VBox(Box, Atk.ImplementorIface, Buildable, Orientable):
     Signals from GObject:
       notify (GParam)
     """
-
     class Props(Box.Props):
         baseline_position: BaselinePosition
         homogeneous: bool
@@ -65844,9 +66643,11 @@ class VBox(Box, Atk.ImplementorIface, Buildable, Orientable):
 
     @property
     def props(self) -> Props: ...
-    box: Box
+    @property
+    def box(self) -> Box: ...
     def __init__(
         self,
+        *,
         baseline_position: BaselinePosition = ...,
         homogeneous: bool = ...,
         spacing: int = ...,
@@ -65890,7 +66691,7 @@ class VBox(Box, Atk.ImplementorIface, Buildable, Orientable):
         visible: bool = ...,
         width_request: int = ...,
         orientation: Orientation = ...,
-    ): ...
+    ) -> None: ...
     @classmethod
     def new(cls, homogeneous: bool, spacing: int) -> VBox: ...
 
@@ -65902,8 +66703,8 @@ class VBoxClass(GObject.GPointer):
 
         VBoxClass()
     """
-
-    parent_class: BoxClass
+    @property
+    def parent_class(self) -> BoxClass: ...
 
 class VButtonBox(ButtonBox, Atk.ImplementorIface, Buildable, Orientable):
     """
@@ -66096,7 +66897,6 @@ class VButtonBox(ButtonBox, Atk.ImplementorIface, Buildable, Orientable):
     Signals from GObject:
       notify (GParam)
     """
-
     class Props(ButtonBox.Props):
         layout_style: ButtonBoxStyle
         baseline_position: BaselinePosition
@@ -66148,9 +66948,11 @@ class VButtonBox(ButtonBox, Atk.ImplementorIface, Buildable, Orientable):
 
     @property
     def props(self) -> Props: ...
-    button_box: ButtonBox
+    @property
+    def button_box(self) -> ButtonBox: ...
     def __init__(
         self,
+        *,
         layout_style: ButtonBoxStyle = ...,
         baseline_position: BaselinePosition = ...,
         homogeneous: bool = ...,
@@ -66195,7 +66997,7 @@ class VButtonBox(ButtonBox, Atk.ImplementorIface, Buildable, Orientable):
         visible: bool = ...,
         width_request: int = ...,
         orientation: Orientation = ...,
-    ): ...
+    ) -> None: ...
     @classmethod
     def new(cls) -> VButtonBox: ...
 
@@ -66207,8 +67009,8 @@ class VButtonBoxClass(GObject.GPointer):
 
         VButtonBoxClass()
     """
-
-    parent_class: ButtonBoxClass
+    @property
+    def parent_class(self) -> ButtonBoxClass: ...
 
 class VPaned(Paned, Atk.ImplementorIface, Buildable, Orientable):
     """
@@ -66409,7 +67211,6 @@ class VPaned(Paned, Atk.ImplementorIface, Buildable, Orientable):
     Signals from GObject:
       notify (GParam)
     """
-
     class Props(Paned.Props):
         max_position: int
         min_position: int
@@ -66462,9 +67263,11 @@ class VPaned(Paned, Atk.ImplementorIface, Buildable, Orientable):
 
     @property
     def props(self) -> Props: ...
-    paned: Paned
+    @property
+    def paned(self) -> Paned: ...
     def __init__(
         self,
+        *,
         position: int = ...,
         position_set: bool = ...,
         wide_handle: bool = ...,
@@ -66508,7 +67311,7 @@ class VPaned(Paned, Atk.ImplementorIface, Buildable, Orientable):
         visible: bool = ...,
         width_request: int = ...,
         orientation: Orientation = ...,
-    ): ...
+    ) -> None: ...
     @classmethod
     def new(cls) -> VPaned: ...
 
@@ -66520,8 +67323,8 @@ class VPanedClass(GObject.GPointer):
 
         VPanedClass()
     """
-
-    parent_class: PanedClass
+    @property
+    def parent_class(self) -> PanedClass: ...
 
 class VScale(Scale, Atk.ImplementorIface, Buildable, Orientable):
     """
@@ -66726,7 +67529,6 @@ class VScale(Scale, Atk.ImplementorIface, Buildable, Orientable):
     Signals from GObject:
       notify (GParam)
     """
-
     class Props(Scale.Props):
         digits: int
         draw_value: bool
@@ -66783,9 +67585,11 @@ class VScale(Scale, Atk.ImplementorIface, Buildable, Orientable):
 
     @property
     def props(self) -> Props: ...
-    scale: Scale
+    @property
+    def scale(self) -> Scale: ...
     def __init__(
         self,
+        *,
         digits: int = ...,
         draw_value: bool = ...,
         has_origin: bool = ...,
@@ -66835,7 +67639,7 @@ class VScale(Scale, Atk.ImplementorIface, Buildable, Orientable):
         visible: bool = ...,
         width_request: int = ...,
         orientation: Orientation = ...,
-    ): ...
+    ) -> None: ...
     @classmethod
     def new(cls, adjustment: Adjustment) -> VScale: ...
     @classmethod
@@ -66849,8 +67653,8 @@ class VScaleClass(GObject.GPointer):
 
         VScaleClass()
     """
-
-    parent_class: ScaleClass
+    @property
+    def parent_class(self) -> ScaleClass: ...
 
 class VScrollbar(Scrollbar, Atk.ImplementorIface, Buildable, Orientable):
     """
@@ -67041,7 +67845,6 @@ class VScrollbar(Scrollbar, Atk.ImplementorIface, Buildable, Orientable):
     Signals from GObject:
       notify (GParam)
     """
-
     class Props(Scrollbar.Props):
         adjustment: Adjustment
         fill_level: float
@@ -67094,9 +67897,11 @@ class VScrollbar(Scrollbar, Atk.ImplementorIface, Buildable, Orientable):
 
     @property
     def props(self) -> Props: ...
-    scrollbar: Scrollbar
+    @property
+    def scrollbar(self) -> Scrollbar: ...
     def __init__(
         self,
+        *,
         adjustment: Adjustment = ...,
         fill_level: float = ...,
         inverted: bool = ...,
@@ -67142,7 +67947,7 @@ class VScrollbar(Scrollbar, Atk.ImplementorIface, Buildable, Orientable):
         visible: bool = ...,
         width_request: int = ...,
         orientation: Orientation = ...,
-    ): ...
+    ) -> None: ...
     @classmethod
     def new(cls, adjustment: Adjustment | None = None) -> VScrollbar: ...
 
@@ -67154,8 +67959,8 @@ class VScrollbarClass(GObject.GPointer):
 
         VScrollbarClass()
     """
-
-    parent_class: ScrollbarClass
+    @property
+    def parent_class(self) -> ScrollbarClass: ...
 
 class VSeparator(Separator, Atk.ImplementorIface, Buildable, Orientable):
     """
@@ -67322,7 +68127,6 @@ class VSeparator(Separator, Atk.ImplementorIface, Buildable, Orientable):
     Signals from GObject:
       notify (GParam)
     """
-
     class Props(Separator.Props):
         app_paintable: bool
         can_default: bool
@@ -67367,9 +68171,11 @@ class VSeparator(Separator, Atk.ImplementorIface, Buildable, Orientable):
 
     @property
     def props(self) -> Props: ...
-    separator: Separator
+    @property
+    def separator(self) -> Separator: ...
     def __init__(
         self,
+        *,
         app_paintable: bool = ...,
         can_default: bool = ...,
         can_focus: bool = ...,
@@ -67407,7 +68213,7 @@ class VSeparator(Separator, Atk.ImplementorIface, Buildable, Orientable):
         visible: bool = ...,
         width_request: int = ...,
         orientation: Orientation = ...,
-    ): ...
+    ) -> None: ...
     @classmethod
     def new(cls) -> VSeparator: ...
 
@@ -67419,8 +68225,8 @@ class VSeparatorClass(GObject.GPointer):
 
         VSeparatorClass()
     """
-
-    parent_class: SeparatorClass
+    @property
+    def parent_class(self) -> SeparatorClass: ...
 
 class Viewport(Bin, Atk.ImplementorIface, Buildable, Scrollable):
     """
@@ -67605,7 +68411,6 @@ class Viewport(Bin, Atk.ImplementorIface, Buildable, Scrollable):
     Signals from GObject:
       notify (GParam)
     """
-
     class Props(Bin.Props):
         shadow_type: ShadowType
         border_width: int
@@ -67657,11 +68462,13 @@ class Viewport(Bin, Atk.ImplementorIface, Buildable, Scrollable):
 
     @property
     def props(self) -> Props: ...
-    bin: Bin
+    @property
+    def bin(self) -> Bin: ...
     @property
     def priv(self) -> ViewportPrivate: ...
     def __init__(
         self,
+        *,
         shadow_type: ShadowType = ...,
         border_width: int = ...,
         child: Widget = ...,
@@ -67706,7 +68513,7 @@ class Viewport(Bin, Atk.ImplementorIface, Buildable, Scrollable):
         hscroll_policy: ScrollablePolicy = ...,
         vadjustment: Adjustment | None = ...,
         vscroll_policy: ScrollablePolicy = ...,
-    ): ...
+    ) -> None: ...
     def get_bin_window(self) -> _Gdk3.Window: ...
     def get_hadjustment(self) -> Adjustment: ...
     def get_shadow_type(self) -> ShadowType: ...
@@ -67730,12 +68537,8 @@ class ViewportClass(GObject.GPointer):
 
         ViewportClass()
     """
-
-    parent_class: BinClass
-    _gtk_reserved1: None
-    _gtk_reserved2: None
-    _gtk_reserved3: None
-    _gtk_reserved4: None
+    @property
+    def parent_class(self) -> BinClass: ...
 
 class ViewportPrivate(GObject.GPointer): ...
 
@@ -67967,7 +68770,6 @@ class VolumeButton(
     Signals from GObject:
       notify (GParam)
     """
-
     class Props(ScaleButton.Props):
         use_symbolic: bool
         adjustment: Adjustment
@@ -68037,6 +68839,7 @@ class VolumeButton(
     def parent(self) -> ScaleButton: ...
     def __init__(
         self,
+        *,
         use_symbolic: bool = ...,
         adjustment: Adjustment = ...,
         icons: Sequence[str] = ...,
@@ -68095,7 +68898,7 @@ class VolumeButton(
         related_action: Action = ...,
         use_action_appearance: bool = ...,
         orientation: Orientation = ...,
-    ): ...
+    ) -> None: ...
     @classmethod
     def new(cls) -> VolumeButton: ...
 
@@ -68107,12 +68910,8 @@ class VolumeButtonClass(GObject.GPointer):
 
         VolumeButtonClass()
     """
-
-    parent_class: ScaleButtonClass
-    _gtk_reserved1: None
-    _gtk_reserved2: None
-    _gtk_reserved3: None
-    _gtk_reserved4: None
+    @property
+    def parent_class(self) -> ScaleButtonClass: ...
 
 class Widget(GObject.InitiallyUnowned, Atk.ImplementorIface, Buildable):
     """
@@ -68278,7 +69077,6 @@ class Widget(GObject.InitiallyUnowned, Atk.ImplementorIface, Buildable):
     Signals from GObject:
       notify (GParam)
     """
-
     class Props(GObject.InitiallyUnowned.Props):
         app_paintable: bool
         can_default: bool
@@ -68328,6 +69126,7 @@ class Widget(GObject.InitiallyUnowned, Atk.ImplementorIface, Buildable):
     def priv(self) -> WidgetPrivate: ...
     def __init__(
         self,
+        *,
         app_paintable: bool = ...,
         can_default: bool = ...,
         can_focus: bool = ...,
@@ -68364,7 +69163,7 @@ class Widget(GObject.InitiallyUnowned, Atk.ImplementorIface, Buildable):
         vexpand_set: bool = ...,
         visible: bool = ...,
         width_request: int = ...,
-    ): ...
+    ) -> None: ...
     def activate(self) -> bool: ...
     def add_accelerator(
         self,
@@ -68582,7 +69381,9 @@ class Widget(GObject.InitiallyUnowned, Atk.ImplementorIface, Buildable):
     def drag_source_set_icon_name(self, icon_name: str) -> None: ...
     def drag_source_set_icon_pixbuf(self, pixbuf: GdkPixbuf.Pixbuf) -> None: ...
     def drag_source_set_icon_stock(self, stock_id: str) -> None: ...
-    def drag_source_set_target_list(self, target_list): ...  # FIXME Function
+    def drag_source_set_target_list(
+        self, target_list
+    ): ...  # FIXME: Override is missing typing annotation
     def drag_source_unset(self) -> None: ...
     def drag_unhighlight(self) -> None: ...
     def draw(self, cr: cairo.Context[_SomeSurface]) -> None: ...
@@ -68590,7 +69391,7 @@ class Widget(GObject.InitiallyUnowned, Atk.ImplementorIface, Buildable):
     def error_bell(self) -> None: ...
     def event(self, event: _Gdk3.Event) -> bool: ...
     def find_style_property(self, property_name: str) -> GObject.ParamSpec: ...
-    def freeze_child_notify(self): ...  # FIXME Function
+    def freeze_child_notify(self): ...  # FIXME: Override is missing typing annotation
     def get_accessible(self) -> Atk.Object: ...
     def get_action_group(self, prefix: str) -> Gio.ActionGroup | None: ...
     def get_allocated_baseline(self) -> int: ...
@@ -68598,7 +69399,7 @@ class Widget(GObject.InitiallyUnowned, Atk.ImplementorIface, Buildable):
     def get_allocated_size(self) -> tuple[_Gdk3.Rectangle, int]: ...
     def get_allocated_width(self) -> int: ...
     def get_allocation(self) -> _Gdk3.Rectangle: ...
-    def get_ancestor(self, widget_type: type) -> Widget | None: ...
+    def get_ancestor(self, widget_type: type[Any]) -> Widget | None: ...
     def get_app_paintable(self) -> bool: ...
     def get_can_default(self) -> bool: ...
     def get_can_focus(self) -> bool: ...
@@ -68667,7 +69468,9 @@ class Widget(GObject.InitiallyUnowned, Atk.ImplementorIface, Buildable):
     def get_style(self) -> Style: ...
     def get_style_context(self) -> StyleContext: ...
     def get_support_multidevice(self) -> bool: ...
-    def get_template_child(self, widget_type: type, name: str) -> GObject.Object: ...
+    def get_template_child(
+        self, widget_type: type[Any], name: str
+    ) -> GObject.Object: ...
     def get_tooltip_markup(self) -> str | None: ...
     def get_tooltip_text(self) -> str | None: ...
     def get_tooltip_window(self) -> Window: ...
@@ -68778,7 +69581,7 @@ class Widget(GObject.InitiallyUnowned, Atk.ImplementorIface, Buildable):
         self, accel_path: str | None = None, accel_group: AccelGroup | None = None
     ) -> None: ...
     def set_accessible_role(self, role: Atk.Role) -> None: ...
-    def set_accessible_type(self, type: type) -> None: ...
+    def set_accessible_type(self, type: type[Any]) -> None: ...
     def set_allocation(self, allocation: _Gdk3.Rectangle) -> None: ...
     def set_app_paintable(self, app_paintable: bool) -> None: ...
     def set_can_default(self, can_default: bool) -> None: ...
@@ -68849,7 +69652,9 @@ class Widget(GObject.InitiallyUnowned, Atk.ImplementorIface, Buildable):
     ) -> None: ...
     def size_request(self) -> Requisition: ...
     def style_attach(self) -> None: ...
-    def style_get_property(self, property_name, value=None): ...  # FIXME Function
+    def style_get_property(
+        self, property_name, value=None
+    ): ...  # FIXME: Override is missing typing annotation
     def thaw_child_notify(self) -> None: ...
     def translate_coordinates(
         self, dest_widget: Widget, src_x: int, src_y: int
@@ -68887,6 +69692,7 @@ class WidgetAccessible(Accessible, Atk.Component):
       active-descendant-changed (gpointer)
       announcement (gchararray)
       notification (gchararray, gint)
+      attribute-changed (gchararray, gchararray)
 
     Properties from AtkObject:
       accessible-name -> gchararray: Accessible Name
@@ -68919,17 +69725,22 @@ class WidgetAccessible(Accessible, Atk.Component):
         Is used to notify that the table caption has changed
       accessible-hypertext-nlinks -> gint: Number of Accessible Hypertext Links
         The number of links which the current AtkHypertext has
+      accessible-id -> gchararray: Accessible ID
+        ID for the accessible; useful for automated testing
+      accessible-help-text -> gchararray: Help text
+        Help text associated with the accessible
 
     Signals from GObject:
       notify (GParam)
     """
-
     class Props(Accessible.Props):
         widget: Widget | None
         accessible_component_layer: int
         accessible_component_mdi_zorder: int
         accessible_description: str
+        accessible_help_text: str
         accessible_hypertext_nlinks: int
+        accessible_id: str
         accessible_name: str
         accessible_parent: Atk.Object
         accessible_role: Atk.Role
@@ -68944,13 +69755,17 @@ class WidgetAccessible(Accessible, Atk.Component):
 
     @property
     def props(self) -> Props: ...
-    parent: Accessible
+    @property
+    def parent(self) -> Accessible: ...
     @property
     def priv(self) -> WidgetAccessiblePrivate: ...
     def __init__(
         self,
+        *,
         widget: Widget | None = ...,
         accessible_description: str = ...,
+        accessible_help_text: str = ...,
+        accessible_id: str = ...,
         accessible_name: str = ...,
         accessible_parent: Atk.Object = ...,
         accessible_role: Atk.Role = ...,
@@ -68962,7 +69777,7 @@ class WidgetAccessible(Accessible, Atk.Component):
         accessible_table_row_header: Atk.Object = ...,
         accessible_table_summary: Atk.Object = ...,
         accessible_value: float = ...,
-    ): ...
+    ) -> None: ...
 
 class WidgetAccessibleClass(GObject.GPointer):
     """
@@ -68972,9 +69787,10 @@ class WidgetAccessibleClass(GObject.GPointer):
 
         WidgetAccessibleClass()
     """
-
-    parent_class: AccessibleClass
-    notify_gtk: Callable[[GObject.Object, GObject.ParamSpec], None]
+    @property
+    def parent_class(self) -> AccessibleClass: ...
+    @property
+    def notify_gtk(self) -> Callable[[GObject.Object, GObject.ParamSpec], None]: ...
 
 class WidgetAccessiblePrivate(GObject.GPointer): ...
 
@@ -68986,99 +69802,212 @@ class WidgetClass(GObject.GPointer):
 
         WidgetClass()
     """
-
-    parent_class: GObject.InitiallyUnownedClass
-    activate_signal: int
-    dispatch_child_properties_changed: Callable[[Widget, int, GObject.ParamSpec], None]
-    destroy: Callable[[Widget], None]
-    show: Callable[[Widget], None]
-    show_all: Callable[[Widget], None]
-    hide: Callable[[Widget], None]
-    map: Callable[[Widget], None]
-    unmap: Callable[[Widget], None]
-    realize: Callable[[Widget], None]
-    unrealize: Callable[[Widget], None]
-    size_allocate: Callable[[Widget, _Gdk3.Rectangle], None]
-    state_changed: Callable[[Widget, StateType], None]
-    state_flags_changed: Callable[[Widget, StateFlags], None]
-    parent_set: Callable[[Widget, Widget], None]
-    hierarchy_changed: Callable[[Widget, Widget], None]
-    style_set: Callable[[Widget, Style], None]
-    direction_changed: Callable[[Widget, TextDirection], None]
-    grab_notify: Callable[[Widget, bool], None]
-    child_notify: Callable[[Widget, GObject.ParamSpec], None]
-    draw: Callable[[Widget, cairo.Context[_SomeSurface]], bool]
-    get_request_mode: Callable[[Widget], SizeRequestMode]
-    get_preferred_height: Callable[[Widget], tuple[int, int]]
-    get_preferred_width_for_height: Callable[[Widget, int], tuple[int, int]]
-    get_preferred_width: Callable[[Widget], tuple[int, int]]
-    get_preferred_height_for_width: Callable[[Widget, int], tuple[int, int]]
-    mnemonic_activate: Callable[[Widget, bool], bool]
-    grab_focus: Callable[[Widget], None]
-    focus: Callable[[Widget, DirectionType], bool]
-    move_focus: Callable[[Widget, DirectionType], None]
-    keynav_failed: Callable[[Widget, DirectionType], bool]
-    event: Callable[[Widget, _Gdk3.Event], bool]
-    button_press_event: Callable[[Widget, _Gdk3.EventButton], bool]
-    button_release_event: Callable[[Widget, _Gdk3.EventButton], bool]
-    scroll_event: Callable[[Widget, _Gdk3.EventScroll], bool]
-    motion_notify_event: Callable[[Widget, _Gdk3.EventMotion], bool]
-    delete_event: Callable[[Widget, _Gdk3.EventAny], bool]
-    destroy_event: Callable[[Widget, _Gdk3.EventAny], bool]
-    key_press_event: Callable[[Widget, _Gdk3.EventKey], bool]
-    key_release_event: Callable[[Widget, _Gdk3.EventKey], bool]
-    enter_notify_event: Callable[[Widget, _Gdk3.EventCrossing], bool]
-    leave_notify_event: Callable[[Widget, _Gdk3.EventCrossing], bool]
-    configure_event: Callable[[Widget, _Gdk3.EventConfigure], bool]
-    focus_in_event: Callable[[Widget, _Gdk3.EventFocus], bool]
-    focus_out_event: Callable[[Widget, _Gdk3.EventFocus], bool]
-    map_event: Callable[[Widget, _Gdk3.EventAny], bool]
-    unmap_event: Callable[[Widget, _Gdk3.EventAny], bool]
-    property_notify_event: Callable[[Widget, _Gdk3.EventProperty], bool]
-    selection_clear_event: Callable[[Widget, _Gdk3.EventSelection], bool]
-    selection_request_event: Callable[[Widget, _Gdk3.EventSelection], bool]
-    selection_notify_event: Callable[[Widget, _Gdk3.EventSelection], bool]
-    proximity_in_event: Callable[[Widget, _Gdk3.EventProximity], bool]
-    proximity_out_event: Callable[[Widget, _Gdk3.EventProximity], bool]
-    visibility_notify_event: Callable[[Widget, _Gdk3.EventVisibility], bool]
-    window_state_event: Callable[[Widget, _Gdk3.EventWindowState], bool]
-    damage_event: Callable[[Widget, _Gdk3.EventExpose], bool]
-    grab_broken_event: Callable[[Widget, _Gdk3.EventGrabBroken], bool]
-    selection_get: Callable[[Widget, SelectionData, int, int], None]
-    selection_received: Callable[[Widget, SelectionData, int], None]
-    drag_begin: Callable[[Widget, _Gdk3.DragContext], None]
-    drag_end: Callable[[Widget, _Gdk3.DragContext], None]
-    drag_data_get: Callable[[Widget, _Gdk3.DragContext, SelectionData, int, int], None]
-    drag_data_delete: Callable[[Widget, _Gdk3.DragContext], None]
-    drag_leave: Callable[[Widget, _Gdk3.DragContext, int], None]
-    drag_motion: Callable[[Widget, _Gdk3.DragContext, int, int, int], bool]
-    drag_drop: Callable[[Widget, _Gdk3.DragContext, int, int, int], bool]
-    drag_data_received: Callable[
+    @property
+    def parent_class(self) -> GObject.InitiallyUnownedClass: ...
+    @property
+    def activate_signal(self) -> int: ...
+    @property
+    def dispatch_child_properties_changed(
+        self,
+    ) -> Callable[[Widget, int, GObject.ParamSpec], None]: ...
+    @property
+    def destroy(self) -> Callable[[Widget], None]: ...
+    @property
+    def show(self) -> Callable[[Widget], None]: ...
+    @property
+    def show_all(self) -> Callable[[Widget], None]: ...
+    @property
+    def hide(self) -> Callable[[Widget], None]: ...
+    @property
+    def map(self) -> Callable[[Widget], None]: ...
+    @property
+    def unmap(self) -> Callable[[Widget], None]: ...
+    @property
+    def realize(self) -> Callable[[Widget], None]: ...
+    @property
+    def unrealize(self) -> Callable[[Widget], None]: ...
+    @property
+    def size_allocate(self) -> Callable[[Widget, _Gdk3.Rectangle], None]: ...
+    @property
+    def state_changed(self) -> Callable[[Widget, StateType], None]: ...
+    @property
+    def state_flags_changed(self) -> Callable[[Widget, StateFlags], None]: ...
+    @property
+    def parent_set(self) -> Callable[[Widget, Widget], None]: ...
+    @property
+    def hierarchy_changed(self) -> Callable[[Widget, Widget], None]: ...
+    @property
+    def style_set(self) -> Callable[[Widget, Style], None]: ...
+    @property
+    def direction_changed(self) -> Callable[[Widget, TextDirection], None]: ...
+    @property
+    def grab_notify(self) -> Callable[[Widget, bool], None]: ...
+    @property
+    def child_notify(self) -> Callable[[Widget, GObject.ParamSpec], None]: ...
+    @property
+    def draw(self) -> Callable[[Widget, cairo.Context[_SomeSurface]], bool]: ...
+    @property
+    def get_request_mode(self) -> Callable[[Widget], SizeRequestMode]: ...
+    @property
+    def get_preferred_height(self) -> Callable[[Widget], tuple[int, int]]: ...
+    @property
+    def get_preferred_width_for_height(
+        self,
+    ) -> Callable[[Widget, int], tuple[int, int]]: ...
+    @property
+    def get_preferred_width(self) -> Callable[[Widget], tuple[int, int]]: ...
+    @property
+    def get_preferred_height_for_width(
+        self,
+    ) -> Callable[[Widget, int], tuple[int, int]]: ...
+    @property
+    def mnemonic_activate(self) -> Callable[[Widget, bool], bool]: ...
+    @property
+    def grab_focus(self) -> Callable[[Widget], None]: ...
+    @property
+    def focus(self) -> Callable[[Widget, DirectionType], bool]: ...
+    @property
+    def move_focus(self) -> Callable[[Widget, DirectionType], None]: ...
+    @property
+    def keynav_failed(self) -> Callable[[Widget, DirectionType], bool]: ...
+    @property
+    def event(self) -> Callable[[Widget, _Gdk3.Event], bool]: ...
+    @property
+    def button_press_event(self) -> Callable[[Widget, _Gdk3.EventButton], bool]: ...
+    @property
+    def button_release_event(self) -> Callable[[Widget, _Gdk3.EventButton], bool]: ...
+    @property
+    def scroll_event(self) -> Callable[[Widget, _Gdk3.EventScroll], bool]: ...
+    @property
+    def motion_notify_event(self) -> Callable[[Widget, _Gdk3.EventMotion], bool]: ...
+    @property
+    def delete_event(self) -> Callable[[Widget, _Gdk3.EventAny], bool]: ...
+    @property
+    def destroy_event(self) -> Callable[[Widget, _Gdk3.EventAny], bool]: ...
+    @property
+    def key_press_event(self) -> Callable[[Widget, _Gdk3.EventKey], bool]: ...
+    @property
+    def key_release_event(self) -> Callable[[Widget, _Gdk3.EventKey], bool]: ...
+    @property
+    def enter_notify_event(self) -> Callable[[Widget, _Gdk3.EventCrossing], bool]: ...
+    @property
+    def leave_notify_event(self) -> Callable[[Widget, _Gdk3.EventCrossing], bool]: ...
+    @property
+    def configure_event(self) -> Callable[[Widget, _Gdk3.EventConfigure], bool]: ...
+    @property
+    def focus_in_event(self) -> Callable[[Widget, _Gdk3.EventFocus], bool]: ...
+    @property
+    def focus_out_event(self) -> Callable[[Widget, _Gdk3.EventFocus], bool]: ...
+    @property
+    def map_event(self) -> Callable[[Widget, _Gdk3.EventAny], bool]: ...
+    @property
+    def unmap_event(self) -> Callable[[Widget, _Gdk3.EventAny], bool]: ...
+    @property
+    def property_notify_event(
+        self,
+    ) -> Callable[[Widget, _Gdk3.EventProperty], bool]: ...
+    @property
+    def selection_clear_event(
+        self,
+    ) -> Callable[[Widget, _Gdk3.EventSelection], bool]: ...
+    @property
+    def selection_request_event(
+        self,
+    ) -> Callable[[Widget, _Gdk3.EventSelection], bool]: ...
+    @property
+    def selection_notify_event(
+        self,
+    ) -> Callable[[Widget, _Gdk3.EventSelection], bool]: ...
+    @property
+    def proximity_in_event(self) -> Callable[[Widget, _Gdk3.EventProximity], bool]: ...
+    @property
+    def proximity_out_event(self) -> Callable[[Widget, _Gdk3.EventProximity], bool]: ...
+    @property
+    def visibility_notify_event(
+        self,
+    ) -> Callable[[Widget, _Gdk3.EventVisibility], bool]: ...
+    @property
+    def window_state_event(
+        self,
+    ) -> Callable[[Widget, _Gdk3.EventWindowState], bool]: ...
+    @property
+    def damage_event(self) -> Callable[[Widget, _Gdk3.EventExpose], bool]: ...
+    @property
+    def grab_broken_event(self) -> Callable[[Widget, _Gdk3.EventGrabBroken], bool]: ...
+    @property
+    def selection_get(self) -> Callable[[Widget, SelectionData, int, int], None]: ...
+    @property
+    def selection_received(self) -> Callable[[Widget, SelectionData, int], None]: ...
+    @property
+    def drag_begin(self) -> Callable[[Widget, _Gdk3.DragContext], None]: ...
+    @property
+    def drag_end(self) -> Callable[[Widget, _Gdk3.DragContext], None]: ...
+    @property
+    def drag_data_get(
+        self,
+    ) -> Callable[[Widget, _Gdk3.DragContext, SelectionData, int, int], None]: ...
+    @property
+    def drag_data_delete(self) -> Callable[[Widget, _Gdk3.DragContext], None]: ...
+    @property
+    def drag_leave(self) -> Callable[[Widget, _Gdk3.DragContext, int], None]: ...
+    @property
+    def drag_motion(
+        self,
+    ) -> Callable[[Widget, _Gdk3.DragContext, int, int, int], bool]: ...
+    @property
+    def drag_drop(
+        self,
+    ) -> Callable[[Widget, _Gdk3.DragContext, int, int, int], bool]: ...
+    @property
+    def drag_data_received(
+        self,
+    ) -> Callable[
         [Widget, _Gdk3.DragContext, int, int, SelectionData, int, int], None
-    ]
-    drag_failed: Callable[[Widget, _Gdk3.DragContext, DragResult], bool]
-    popup_menu: Callable[[Widget], bool]
-    show_help: Callable[[Widget, WidgetHelpType], bool]
-    get_accessible: Callable[[Widget], Atk.Object]
-    screen_changed: Callable[[Widget, _Gdk3.Screen], None]
-    can_activate_accel: Callable[[Widget, int], bool]
-    composited_changed: Callable[[Widget], None]
-    query_tooltip: Callable[[Widget, int, int, bool, Tooltip], bool]
-    compute_expand: Callable[[Widget, bool, bool], None]
-    adjust_size_request: Callable[[Widget, Orientation, int, int], None]
-    adjust_size_allocation: Callable[[Widget, Orientation, int, int, int, int], None]
-    style_updated: Callable[[Widget], None]
-    touch_event: Callable[[Widget, _Gdk3.EventTouch], bool]
-    get_preferred_height_and_baseline_for_width: Callable[
-        [Widget, int], tuple[int, int, int, int]
-    ]
-    adjust_baseline_request: Callable[[Widget, int, int], None]
-    adjust_baseline_allocation: Callable[[Widget, int], None]
-    queue_draw_region: Callable[[Widget, cairo.Region], None]
+    ]: ...
+    @property
+    def drag_failed(
+        self,
+    ) -> Callable[[Widget, _Gdk3.DragContext, DragResult], bool]: ...
+    @property
+    def popup_menu(self) -> Callable[[Widget], bool]: ...
+    @property
+    def show_help(self) -> Callable[[Widget, WidgetHelpType], bool]: ...
+    @property
+    def get_accessible(self) -> Callable[[Widget], Atk.Object]: ...
+    @property
+    def screen_changed(self) -> Callable[[Widget, _Gdk3.Screen], None]: ...
+    @property
+    def can_activate_accel(self) -> Callable[[Widget, int], bool]: ...
+    @property
+    def composited_changed(self) -> Callable[[Widget], None]: ...
+    @property
+    def query_tooltip(self) -> Callable[[Widget, int, int, bool, Tooltip], bool]: ...
+    @property
+    def compute_expand(self) -> Callable[[Widget, bool, bool], None]: ...
+    @property
+    def adjust_size_request(
+        self,
+    ) -> Callable[[Widget, Orientation, int, int], None]: ...
+    @property
+    def adjust_size_allocation(
+        self,
+    ) -> Callable[[Widget, Orientation, int, int, int, int], None]: ...
+    @property
+    def style_updated(self) -> Callable[[Widget], None]: ...
+    @property
+    def touch_event(self) -> Callable[[Widget, _Gdk3.EventTouch], bool]: ...
+    @property
+    def get_preferred_height_and_baseline_for_width(
+        self,
+    ) -> Callable[[Widget, int], tuple[int, int, int, int]]: ...
+    @property
+    def adjust_baseline_request(self) -> Callable[[Widget, int, int], None]: ...
+    @property
+    def adjust_baseline_allocation(self) -> Callable[[Widget, int], None]: ...
+    @property
+    def queue_draw_region(self) -> Callable[[Widget, cairo.Region], None]: ...
     @property
     def priv(self) -> WidgetClassPrivate: ...
-    _gtk_reserved6: None
-    _gtk_reserved7: None
     def bind_template_callback_full(
         self, callback_name: str, callback_symbol: Callable[[], None]
     ) -> None: ...
@@ -69090,7 +70019,7 @@ class WidgetClass(GObject.GPointer):
     def install_style_property(self, pspec: GObject.ParamSpec) -> None: ...
     def list_style_properties(self) -> list[GObject.ParamSpec]: ...
     def set_accessible_role(self, role: Atk.Role) -> None: ...
-    def set_accessible_type(self, type: type) -> None: ...
+    def set_accessible_type(self, type: type[Any]) -> None: ...
     def set_connect_func(
         self, connect_func: Callable[..., None], *connect_data: Any
     ) -> None: ...
@@ -69108,22 +70037,23 @@ class WidgetPath(GObject.GBoxed):
 
         new() -> Gtk.WidgetPath
     """
-
+    @staticmethod
+    def __new__(cls: type[Self]) -> Self: ...
     def append_for_widget(self, widget: Widget) -> int: ...
-    def append_type(self, type: type) -> int: ...
+    def append_type(self, type: type[Any]) -> int: ...
     def append_with_siblings(self, siblings: WidgetPath, sibling_index: int) -> int: ...
     def copy(self) -> WidgetPath: ...
     def free(self) -> None: ...
-    def get_object_type(self) -> type: ...
-    def has_parent(self, type: type) -> bool: ...
-    def is_type(self, type: type) -> bool: ...
+    def get_object_type(self) -> type[Any]: ...
+    def has_parent(self, type: type[Any]) -> bool: ...
+    def is_type(self, type: type[Any]) -> bool: ...
     def iter_add_class(self, pos: int, name: str) -> None: ...
     def iter_add_region(self, pos: int, name: str, flags: RegionFlags) -> None: ...
     def iter_clear_classes(self, pos: int) -> None: ...
     def iter_clear_regions(self, pos: int) -> None: ...
     def iter_get_name(self, pos: int) -> str | None: ...
     def iter_get_object_name(self, pos: int) -> str | None: ...
-    def iter_get_object_type(self, pos: int) -> type: ...
+    def iter_get_object_type(self, pos: int) -> type[Any]: ...
     def iter_get_sibling_index(self, pos: int) -> int: ...
     def iter_get_siblings(self, pos: int) -> WidgetPath: ...
     def iter_get_state(self, pos: int) -> StateFlags: ...
@@ -69139,12 +70069,12 @@ class WidgetPath(GObject.GBoxed):
     def iter_remove_region(self, pos: int, name: str) -> None: ...
     def iter_set_name(self, pos: int, name: str) -> None: ...
     def iter_set_object_name(self, pos: int, name: str | None = None) -> None: ...
-    def iter_set_object_type(self, pos: int, type: type) -> None: ...
+    def iter_set_object_type(self, pos: int, type: type[Any]) -> None: ...
     def iter_set_state(self, pos: int, state: StateFlags) -> None: ...
     def length(self) -> int: ...
     @classmethod
     def new(cls) -> WidgetPath: ...
-    def prepend_type(self, type: type) -> None: ...
+    def prepend_type(self, type: type[Any]) -> None: ...
     def ref(self) -> WidgetPath: ...
     def to_string(self) -> str: ...
     def unref(self) -> None: ...
@@ -69405,7 +70335,6 @@ class Window(Bin, Atk.ImplementorIface, Buildable):
     Signals from GObject:
       notify (GParam)
     """
-
     class Props(Bin.Props):
         accept_focus: bool
         application: Application | None
@@ -69485,11 +70414,13 @@ class Window(Bin, Atk.ImplementorIface, Buildable):
 
     @property
     def props(self) -> Props: ...
-    bin: Bin
+    @property
+    def bin(self) -> Bin: ...
     @property
     def priv(self) -> WindowPrivate: ...
     def __init__(
         self,
+        *,
         accept_focus: bool = ...,
         application: Application | None = ...,
         attached_to: Widget | None = ...,
@@ -69558,7 +70489,7 @@ class Window(Bin, Atk.ImplementorIface, Buildable):
         vexpand_set: bool = ...,
         visible: bool = ...,
         width_request: int = ...,
-    ): ...
+    ) -> None: ...
     def activate_default(self) -> bool: ...
     def activate_focus(self) -> bool: ...
     def activate_key(self, event: _Gdk3.EventKey) -> bool: ...
@@ -69751,6 +70682,7 @@ class WindowAccessible(ContainerAccessible, Atk.Component, Atk.Window):
       active-descendant-changed (gpointer)
       announcement (gchararray)
       notification (gchararray, gint)
+      attribute-changed (gchararray, gchararray)
 
     Properties from AtkObject:
       accessible-name -> gchararray: Accessible Name
@@ -69783,17 +70715,22 @@ class WindowAccessible(ContainerAccessible, Atk.Component, Atk.Window):
         Is used to notify that the table caption has changed
       accessible-hypertext-nlinks -> gint: Number of Accessible Hypertext Links
         The number of links which the current AtkHypertext has
+      accessible-id -> gchararray: Accessible ID
+        ID for the accessible; useful for automated testing
+      accessible-help-text -> gchararray: Help text
+        Help text associated with the accessible
 
     Signals from GObject:
       notify (GParam)
     """
-
     class Props(ContainerAccessible.Props):
         widget: Widget | None
         accessible_component_layer: int
         accessible_component_mdi_zorder: int
         accessible_description: str
+        accessible_help_text: str
         accessible_hypertext_nlinks: int
+        accessible_id: str
         accessible_name: str
         accessible_parent: Atk.Object
         accessible_role: Atk.Role
@@ -69808,13 +70745,17 @@ class WindowAccessible(ContainerAccessible, Atk.Component, Atk.Window):
 
     @property
     def props(self) -> Props: ...
-    parent: ContainerAccessible
+    @property
+    def parent(self) -> ContainerAccessible: ...
     @property
     def priv(self) -> WindowAccessiblePrivate: ...
     def __init__(
         self,
+        *,
         widget: Widget | None = ...,
         accessible_description: str = ...,
+        accessible_help_text: str = ...,
+        accessible_id: str = ...,
         accessible_name: str = ...,
         accessible_parent: Atk.Object = ...,
         accessible_role: Atk.Role = ...,
@@ -69826,7 +70767,7 @@ class WindowAccessible(ContainerAccessible, Atk.Component, Atk.Window):
         accessible_table_row_header: Atk.Object = ...,
         accessible_table_summary: Atk.Object = ...,
         accessible_value: float = ...,
-    ): ...
+    ) -> None: ...
 
 class WindowAccessibleClass(GObject.GPointer):
     """
@@ -69836,8 +70777,8 @@ class WindowAccessibleClass(GObject.GPointer):
 
         WindowAccessibleClass()
     """
-
-    parent_class: ContainerAccessibleClass
+    @property
+    def parent_class(self) -> ContainerAccessibleClass: ...
 
 class WindowAccessiblePrivate(GObject.GPointer): ...
 
@@ -69849,16 +70790,18 @@ class WindowClass(GObject.GPointer):
 
         WindowClass()
     """
-
-    parent_class: BinClass
-    set_focus: Callable[[Window, Widget | None], None]
-    activate_focus: Callable[[Window], None]
-    activate_default: Callable[[Window], None]
-    keys_changed: Callable[[Window], None]
-    enable_debugging: Callable[[Window, bool], bool]
-    _gtk_reserved1: None
-    _gtk_reserved2: None
-    _gtk_reserved3: None
+    @property
+    def parent_class(self) -> BinClass: ...
+    @property
+    def set_focus(self) -> Callable[[Window, Widget | None], None]: ...
+    @property
+    def activate_focus(self) -> Callable[[Window], None]: ...
+    @property
+    def activate_default(self) -> Callable[[Window], None]: ...
+    @property
+    def keys_changed(self) -> Callable[[Window], None]: ...
+    @property
+    def enable_debugging(self) -> Callable[[Window, bool], bool]: ...
 
 class WindowGeometryInfo(GObject.GPointer): ...
 
@@ -69876,7 +70819,6 @@ class WindowGroup(GObject.Object):
     Signals from GObject:
       notify (GParam)
     """
-
     @property
     def parent_instance(self) -> GObject.Object: ...
     @property
@@ -69897,12 +70839,8 @@ class WindowGroupClass(GObject.GPointer):
 
         WindowGroupClass()
     """
-
-    parent_class: GObject.ObjectClass
-    _gtk_reserved1: None
-    _gtk_reserved2: None
-    _gtk_reserved3: None
-    _gtk_reserved4: None
+    @property
+    def parent_class(self) -> GObject.ObjectClass: ...
 
 class WindowGroupPrivate(GObject.GPointer): ...
 class WindowPrivate(GObject.GPointer): ...
@@ -69918,10 +70856,14 @@ class _MountOperationHandlerIface(GObject.GPointer):
     """
 
     parent_iface: GObject.TypeInterface
-    handle_ask_password: None
-    handle_ask_question: None
-    handle_close: None
-    handle_show_processes: None
+    @property
+    def handle_ask_password(self) -> None: ...
+    @property
+    def handle_ask_question(self) -> None: ...
+    @property
+    def handle_close(self) -> None: ...
+    @property
+    def handle_show_processes(self) -> None: ...
 
 class _MountOperationHandlerProxy(GObject.GPointer):
     """
@@ -69931,7 +70873,6 @@ class _MountOperationHandlerProxy(GObject.GPointer):
 
         _MountOperationHandlerProxy()
     """
-
     @property
     def parent_instance(self) -> Gio.DBusProxy: ...
     @property
@@ -69958,7 +70899,6 @@ class _MountOperationHandlerSkeleton(GObject.GPointer):
 
         _MountOperationHandlerSkeleton()
     """
-
     @property
     def parent_instance(self) -> Gio.DBusInterfaceSkeleton: ...
     @property
@@ -70266,7 +71206,6 @@ class ButtonsType(GObject.GEnum):
 
 class CellRendererAccelMode(GObject.GEnum):
     GTK = 0
-    MODIFIER_TAP = 2
     OTHER = 1
 
 class CellRendererMode(GObject.GEnum):

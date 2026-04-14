@@ -1,6 +1,7 @@
 from typing import Any
 from typing import Final
 from typing import Protocol
+from typing import TypeVar
 
 from collections.abc import Callable
 from collections.abc import Sequence
@@ -12,10 +13,12 @@ from gi.repository import Gio
 from gi.repository import GLib
 from gi.repository import GObject
 
+T = TypeVar("T")
+
 MAJOR_VERSION: Final[int]
 MICRO_VERSION: Final[int]
 MINOR_VERSION: Final[int]
-VERSION_S: Final = "1.10.4"
+VERSION_S: Final = "1.10.5"
 WIDGET_KIND_ANY: Final = "*"
 WIDGET_KIND_DOCUMENT: Final = "document"
 WIDGET_KIND_UNKNOWN: Final = "unknown"
@@ -67,7 +70,6 @@ class ActionMuxer(GObject.Object, Gio.ActionGroup):
     Signals from GObject:
       notify (GParam)
     """
-
     def get_action_group(self, prefix: str) -> Gio.ActionGroup | None: ...
     def insert_action_group(
         self, prefix: str, action_group: Gio.ActionGroup
@@ -119,12 +121,17 @@ class Application(Adw.Application, Gio.ActionGroup, Gio.ActionMap):
       window-added (GtkWindow)
       window-removed (GtkWindow)
       query-end ()
+      restore-window (GtkRestoreReason, GVariant)
+      save-state (GVariantDict) -> gboolean
+      restore-state (GtkRestoreReason, GVariant) -> gboolean
 
     Properties from GtkApplication:
       register-session -> gboolean: register-session
       screensaver-active -> gboolean: screensaver-active
       menubar -> GMenuModel: menubar
       active-window -> GtkWindow: active-window
+      support-save -> gboolean: support-save
+      autosave-interval -> guint: autosave-interval
 
     Signals from GActionGroup:
       action-added (gchararray)
@@ -142,22 +149,15 @@ class Application(Adw.Application, Gio.ActionGroup, Gio.ActionMap):
       name-lost () -> gboolean
 
     Properties from GApplication:
-      application-id -> gchararray: Application identifier
-        The unique identifier for the application
-      flags -> GApplicationFlags: Application flags
-        Flags specifying the behaviour of the application
-      resource-base-path -> gchararray: Resource base path
-        The base resource path for the application
-      is-registered -> gboolean: Is registered
-        If g_application_register() has been called
-      is-remote -> gboolean: Is remote
-        If this application instance is remote
-      inactivity-timeout -> guint: Inactivity timeout
-        Time (ms) to stay alive after becoming idle
-      action-group -> GActionGroup: Action group
-        The group of actions that the application exports
-      is-busy -> gboolean: Is busy
-        If this application is currently marked busy
+      application-id -> gchararray: application-id
+      version -> gchararray: version
+      flags -> GApplicationFlags: flags
+      resource-base-path -> gchararray: resource-base-path
+      is-registered -> gboolean: is-registered
+      is-remote -> gboolean: is-remote
+      inactivity-timeout -> guint: inactivity-timeout
+      action-group -> GActionGroup: action-group
+      is-busy -> gboolean: is-busy
 
     Signals from GActionGroup:
       action-added (gchararray)
@@ -168,13 +168,14 @@ class Application(Adw.Application, Gio.ActionGroup, Gio.ActionMap):
     Signals from GObject:
       notify (GParam)
     """
-
     class Props(Adw.Application.Props):
         style_manager: Adw.StyleManager
         active_window: _Gtk4.Window | None
+        autosave_interval: int
         menubar: Gio.MenuModel | None
         register_session: bool
         screensaver_active: bool
+        support_save: bool
         application_id: str | None
         flags: Gio.ApplicationFlags
         inactivity_timeout: int
@@ -182,6 +183,7 @@ class Application(Adw.Application, Gio.ActionGroup, Gio.ActionMap):
         is_registered: bool
         is_remote: bool
         resource_base_path: str | None
+        version: str | None
         action_group: Gio.ActionGroup | None
 
     @property
@@ -190,14 +192,18 @@ class Application(Adw.Application, Gio.ActionGroup, Gio.ActionMap):
     def parent_instance(self) -> Adw.Application: ...
     def __init__(
         self,
+        *,
+        autosave_interval: int = ...,
         menubar: Gio.MenuModel | None = ...,
         register_session: bool = ...,
+        support_save: bool = ...,
         action_group: Gio.ActionGroup | None = ...,
         application_id: str | None = ...,
         flags: Gio.ApplicationFlags = ...,
         inactivity_timeout: int = ...,
         resource_base_path: str | None = ...,
-    ): ...
+        version: str = ...,
+    ) -> None: ...
     @classmethod
     def new(cls, application_id: str, flags: Gio.ApplicationFlags) -> Application: ...
 
@@ -211,7 +217,247 @@ class ApplicationClass(GObject.GPointer):
     """
     @property
     def parent_class(self) -> Adw.ApplicationClass: ...
-    _reserved: list[None] = ...
+
+class ChangesDialog(
+    Adw.AlertDialog,
+    _Gtk4.Accessible,
+    _Gtk4.Buildable,
+    _Gtk4.ConstraintTarget,
+    _Gtk4.ShortcutManager,
+):
+    """
+    :Constructors:
+
+    ::
+
+        ChangesDialog(**properties)
+        new() -> Gtk.Widget
+
+    Object PanelChangesDialog
+
+    Properties from PanelChangesDialog:
+      close-after-save -> gboolean: close-after-save
+
+    Signals from AdwAlertDialog:
+      response (gchararray)
+
+    Properties from AdwAlertDialog:
+      heading -> gchararray: heading
+      heading-use-markup -> gboolean: heading-use-markup
+      body -> gchararray: body
+      body-use-markup -> gboolean: body-use-markup
+      extra-child -> GtkWidget: extra-child
+      prefer-wide-layout -> gboolean: prefer-wide-layout
+      default-response -> gchararray: default-response
+      close-response -> gchararray: close-response
+
+    Signals from AdwDialog:
+      closed ()
+      close-attempt ()
+
+    Properties from AdwDialog:
+      child -> GtkWidget: child
+      title -> gchararray: title
+      can-close -> gboolean: can-close
+      content-width -> gint: content-width
+      content-height -> gint: content-height
+      follows-content-size -> gboolean: follows-content-size
+      presentation-mode -> AdwDialogPresentationMode: presentation-mode
+      focus-widget -> GtkWidget: focus-widget
+      default-widget -> GtkWidget: default-widget
+      current-breakpoint -> AdwBreakpoint: current-breakpoint
+
+    Signals from GtkWidget:
+      direction-changed (GtkTextDirection)
+      destroy ()
+      show ()
+      hide ()
+      map ()
+      unmap ()
+      realize ()
+      unrealize ()
+      state-flags-changed (GtkStateFlags)
+      mnemonic-activate (gboolean) -> gboolean
+      move-focus (GtkDirectionType)
+      keynav-failed (GtkDirectionType) -> gboolean
+      query-tooltip (gint, gint, gboolean, GtkTooltip) -> gboolean
+
+    Properties from GtkWidget:
+      name -> gchararray: name
+      parent -> GtkWidget: parent
+      root -> GtkRoot: root
+      width-request -> gint: width-request
+      height-request -> gint: height-request
+      visible -> gboolean: visible
+      sensitive -> gboolean: sensitive
+      can-focus -> gboolean: can-focus
+      has-focus -> gboolean: has-focus
+      can-target -> gboolean: can-target
+      focus-on-click -> gboolean: focus-on-click
+      focusable -> gboolean: focusable
+      has-default -> gboolean: has-default
+      receives-default -> gboolean: receives-default
+      cursor -> GdkCursor: cursor
+      has-tooltip -> gboolean: has-tooltip
+      tooltip-markup -> gchararray: tooltip-markup
+      tooltip-text -> gchararray: tooltip-text
+      opacity -> gdouble: opacity
+      overflow -> GtkOverflow: overflow
+      halign -> GtkAlign: halign
+      valign -> GtkAlign: valign
+      margin-start -> gint: margin-start
+      margin-end -> gint: margin-end
+      margin-top -> gint: margin-top
+      margin-bottom -> gint: margin-bottom
+      hexpand -> gboolean: hexpand
+      vexpand -> gboolean: vexpand
+      hexpand-set -> gboolean: hexpand-set
+      vexpand-set -> gboolean: vexpand-set
+      scale-factor -> gint: scale-factor
+      css-name -> gchararray: css-name
+      css-classes -> GStrv: css-classes
+      layout-manager -> GtkLayoutManager: layout-manager
+      limit-events -> gboolean: limit-events
+
+    Signals from GObject:
+      notify (GParam)
+    """
+    class Props(Adw.AlertDialog.Props):
+        close_after_save: bool
+        body: str
+        body_use_markup: bool
+        close_response: str
+        default_response: str | None
+        extra_child: _Gtk4.Widget | None
+        heading: str | None
+        heading_use_markup: bool
+        prefer_wide_layout: bool
+        can_close: bool
+        child: _Gtk4.Widget | None
+        content_height: int
+        content_width: int
+        current_breakpoint: Adw.Breakpoint | None
+        default_widget: _Gtk4.Widget | None
+        focus_widget: _Gtk4.Widget | None
+        follows_content_size: bool
+        presentation_mode: Adw.DialogPresentationMode
+        title: str
+        can_focus: bool
+        can_target: bool
+        css_classes: list[str]
+        css_name: str
+        cursor: _Gdk4.Cursor | None
+        focus_on_click: bool
+        focusable: bool
+        halign: _Gtk4.Align
+        has_default: bool
+        has_focus: bool
+        has_tooltip: bool
+        height_request: int
+        hexpand: bool
+        hexpand_set: bool
+        layout_manager: _Gtk4.LayoutManager | None
+        limit_events: bool
+        margin_bottom: int
+        margin_end: int
+        margin_start: int
+        margin_top: int
+        name: str
+        opacity: float
+        overflow: _Gtk4.Overflow
+        parent: _Gtk4.Widget | None
+        receives_default: bool
+        root: _Gtk4.Root | None
+        scale_factor: int
+        sensitive: bool
+        tooltip_markup: str | None
+        tooltip_text: str | None
+        valign: _Gtk4.Align
+        vexpand: bool
+        vexpand_set: bool
+        visible: bool
+        width_request: int
+        accessible_role: _Gtk4.AccessibleRole
+
+    @property
+    def props(self) -> Props: ...
+    def __init__(
+        self,
+        *,
+        close_after_save: bool = ...,
+        body: str = ...,
+        body_use_markup: bool = ...,
+        close_response: str = ...,
+        default_response: str | None = ...,
+        extra_child: _Gtk4.Widget | None = ...,
+        heading: str | None = ...,
+        heading_use_markup: bool = ...,
+        prefer_wide_layout: bool = ...,
+        can_close: bool = ...,
+        child: _Gtk4.Widget | None = ...,
+        content_height: int = ...,
+        content_width: int = ...,
+        default_widget: _Gtk4.Widget | None = ...,
+        focus_widget: _Gtk4.Widget | None = ...,
+        follows_content_size: bool = ...,
+        presentation_mode: Adw.DialogPresentationMode = ...,
+        title: str = ...,
+        can_focus: bool = ...,
+        can_target: bool = ...,
+        css_classes: Sequence[str] = ...,
+        css_name: str = ...,
+        cursor: _Gdk4.Cursor | None = ...,
+        focus_on_click: bool = ...,
+        focusable: bool = ...,
+        halign: _Gtk4.Align = ...,
+        has_tooltip: bool = ...,
+        height_request: int = ...,
+        hexpand: bool = ...,
+        hexpand_set: bool = ...,
+        layout_manager: _Gtk4.LayoutManager | None = ...,
+        limit_events: bool = ...,
+        margin_bottom: int = ...,
+        margin_end: int = ...,
+        margin_start: int = ...,
+        margin_top: int = ...,
+        name: str = ...,
+        opacity: float = ...,
+        overflow: _Gtk4.Overflow = ...,
+        receives_default: bool = ...,
+        sensitive: bool = ...,
+        tooltip_markup: str | None = ...,
+        tooltip_text: str | None = ...,
+        valign: _Gtk4.Align = ...,
+        vexpand: bool = ...,
+        vexpand_set: bool = ...,
+        visible: bool = ...,
+        width_request: int = ...,
+        accessible_role: _Gtk4.AccessibleRole = ...,
+    ) -> None: ...
+    def add_delegate(self, delegate: SaveDelegate) -> None: ...
+    def get_close_after_save(self) -> bool: ...
+    @classmethod
+    def new(cls) -> ChangesDialog: ...
+    def run_async(
+        self,
+        parent: _Gtk4.Widget,
+        cancellable: Gio.Cancellable | None = None,
+        callback: Callable[..., None] | None = None,
+        *user_data: Any,
+    ) -> None: ...
+    def run_finish(self, result: Gio.AsyncResult) -> bool: ...
+    def set_close_after_save(self, close_after_save: bool) -> None: ...
+
+class ChangesDialogClass(GObject.GPointer):
+    """
+    :Constructors:
+
+    ::
+
+        ChangesDialogClass()
+    """
+    @property
+    def parent_class(self) -> Adw.AlertDialogClass: ...
 
 class Dock(_Gtk4.Widget, _Gtk4.Accessible, _Gtk4.Buildable, _Gtk4.ConstraintTarget):
     """
@@ -306,11 +552,11 @@ class Dock(_Gtk4.Widget, _Gtk4.Accessible, _Gtk4.Buildable, _Gtk4.ConstraintTarg
       css-name -> gchararray: css-name
       css-classes -> GStrv: css-classes
       layout-manager -> GtkLayoutManager: layout-manager
+      limit-events -> gboolean: limit-events
 
     Signals from GObject:
       notify (GParam)
     """
-
     class Props(_Gtk4.Widget.Props):
         bottom_height: int
         can_reveal_bottom: bool
@@ -339,6 +585,7 @@ class Dock(_Gtk4.Widget, _Gtk4.Accessible, _Gtk4.Buildable, _Gtk4.ConstraintTarg
         hexpand: bool
         hexpand_set: bool
         layout_manager: _Gtk4.LayoutManager | None
+        limit_events: bool
         margin_bottom: int
         margin_end: int
         margin_start: int
@@ -366,6 +613,7 @@ class Dock(_Gtk4.Widget, _Gtk4.Accessible, _Gtk4.Buildable, _Gtk4.ConstraintTarg
     def parent_instance(self) -> _Gtk4.Widget: ...
     def __init__(
         self,
+        *,
         bottom_height: int = ...,
         end_width: int = ...,
         reveal_bottom: bool = ...,
@@ -387,6 +635,7 @@ class Dock(_Gtk4.Widget, _Gtk4.Accessible, _Gtk4.Buildable, _Gtk4.ConstraintTarg
         hexpand: bool = ...,
         hexpand_set: bool = ...,
         layout_manager: _Gtk4.LayoutManager | None = ...,
+        limit_events: bool = ...,
         margin_bottom: int = ...,
         margin_end: int = ...,
         margin_start: int = ...,
@@ -404,7 +653,7 @@ class Dock(_Gtk4.Widget, _Gtk4.Accessible, _Gtk4.Buildable, _Gtk4.ConstraintTarg
         visible: bool = ...,
         width_request: int = ...,
         accessible_role: _Gtk4.AccessibleRole = ...,
-    ): ...
+    ) -> None: ...
     def do_panel_drag_begin(self, widget: Widget) -> None: ...
     def do_panel_drag_end(self, widget: Widget) -> None: ...
     def foreach_frame(self, callback: Callable[..., None], *user_data: Any) -> None: ...
@@ -494,12 +743,18 @@ class DocumentWorkspace(
     Properties from AdwApplicationWindow:
       content -> GtkWidget: content
       current-breakpoint -> AdwBreakpoint: current-breakpoint
+      dialogs -> GListModel: dialogs
+      visible-dialog -> AdwDialog: visible-dialog
+      adaptive-preview -> gboolean: adaptive-preview
 
     Signals from GActionGroup:
       action-added (gchararray)
       action-removed (gchararray)
       action-enabled-changed (gchararray, gboolean)
       action-state-changed (gchararray, GVariant)
+
+    Signals from GtkApplicationWindow:
+      save-state (GVariantDict) -> gboolean
 
     Properties from GtkApplicationWindow:
       show-menubar -> gboolean: show-menubar
@@ -536,6 +791,7 @@ class DocumentWorkspace(
       child -> GtkWidget: child
       titlebar -> GtkWidget: titlebar
       handle-menubar-accel -> gboolean: handle-menubar-accel
+      gravity -> GtkWindowGravity: gravity
       is-active -> gboolean: is-active
       suspended -> gboolean: suspended
       startup-id -> gchararray: startup-id
@@ -594,18 +850,21 @@ class DocumentWorkspace(
       css-name -> gchararray: css-name
       css-classes -> GStrv: css-classes
       layout-manager -> GtkLayoutManager: layout-manager
+      limit-events -> gboolean: limit-events
 
     Signals from GObject:
       notify (GParam)
     """
-
     class Props(Workspace.Props):
         dock: Dock
         grid: Grid
         statusbar: Statusbar | None
         id: str
+        adaptive_preview: bool
         content: _Gtk4.Widget | None
         current_breakpoint: Adw.Breakpoint | None
+        dialogs: Gio.ListModel
+        visible_dialog: Adw.Dialog | None
         show_menubar: bool
         application: _Gtk4.Application | None
         child: _Gtk4.Widget | None
@@ -617,8 +876,9 @@ class DocumentWorkspace(
         destroy_with_parent: bool
         display: _Gdk4.Display
         focus_visible: bool
-        focus_widget: _Gtk4.Widget
+        focus_widget: _Gtk4.Widget | None
         fullscreened: bool
+        gravity: _Gtk4.WindowGravity
         handle_menubar_accel: bool
         hide_on_close: bool
         icon_name: str | None
@@ -646,6 +906,7 @@ class DocumentWorkspace(
         hexpand: bool
         hexpand_set: bool
         layout_manager: _Gtk4.LayoutManager | None
+        limit_events: bool
         margin_bottom: int
         margin_end: int
         margin_start: int
@@ -674,7 +935,9 @@ class DocumentWorkspace(
     def parent_instance(self) -> Workspace: ...
     def __init__(
         self,
+        *,
         id: str = ...,
+        adaptive_preview: bool = ...,
         content: _Gtk4.Widget | None = ...,
         show_menubar: bool = ...,
         application: _Gtk4.Application | None = ...,
@@ -687,8 +950,9 @@ class DocumentWorkspace(
         destroy_with_parent: bool = ...,
         display: _Gdk4.Display = ...,
         focus_visible: bool = ...,
-        focus_widget: _Gtk4.Widget = ...,
+        focus_widget: _Gtk4.Widget | None = ...,
         fullscreened: bool = ...,
+        gravity: _Gtk4.WindowGravity = ...,
         handle_menubar_accel: bool = ...,
         hide_on_close: bool = ...,
         icon_name: str | None = ...,
@@ -713,6 +977,7 @@ class DocumentWorkspace(
         hexpand: bool = ...,
         hexpand_set: bool = ...,
         layout_manager: _Gtk4.LayoutManager | None = ...,
+        limit_events: bool = ...,
         margin_bottom: int = ...,
         margin_end: int = ...,
         margin_start: int = ...,
@@ -730,7 +995,7 @@ class DocumentWorkspace(
         visible: bool = ...,
         width_request: int = ...,
         accessible_role: _Gtk4.AccessibleRole = ...,
-    ): ...
+    ) -> None: ...
     def add_widget(self, widget: Widget, position: Position | None = None) -> bool: ...
     def do_add_widget(
         self, widget: Widget, position: Position | None = None
@@ -759,7 +1024,6 @@ class DocumentWorkspaceClass(GObject.GPointer):
     def add_widget(
         self,
     ) -> Callable[[DocumentWorkspace, Widget, Position | None], bool]: ...
-    _reserved: list[None] = ...
 
 class Frame(
     _Gtk4.Widget,
@@ -842,11 +1106,11 @@ class Frame(
       css-name -> gchararray: css-name
       css-classes -> GStrv: css-classes
       layout-manager -> GtkLayoutManager: layout-manager
+      limit-events -> gboolean: limit-events
 
     Signals from GObject:
       notify (GParam)
     """
-
     class Props(_Gtk4.Widget.Props):
         closeable: bool
         empty: bool
@@ -867,6 +1131,7 @@ class Frame(
         hexpand: bool
         hexpand_set: bool
         layout_manager: _Gtk4.LayoutManager | None
+        limit_events: bool
         margin_bottom: int
         margin_end: int
         margin_start: int
@@ -895,6 +1160,7 @@ class Frame(
     def parent_instance(self) -> _Gtk4.Widget: ...
     def __init__(
         self,
+        *,
         placeholder: _Gtk4.Widget | None = ...,
         visible_child: Widget = ...,
         can_focus: bool = ...,
@@ -910,6 +1176,7 @@ class Frame(
         hexpand: bool = ...,
         hexpand_set: bool = ...,
         layout_manager: _Gtk4.LayoutManager | None = ...,
+        limit_events: bool = ...,
         margin_bottom: int = ...,
         margin_end: int = ...,
         margin_start: int = ...,
@@ -928,7 +1195,7 @@ class Frame(
         width_request: int = ...,
         accessible_role: _Gtk4.AccessibleRole = ...,
         orientation: _Gtk4.Orientation = ...,
-    ): ...
+    ) -> None: ...
     def add(self, panel: Widget) -> None: ...
     def add_before(self, panel: Widget, sibling: Widget) -> None: ...
     def do_adopt_widget(self, widget: Widget) -> bool: ...
@@ -966,7 +1233,6 @@ class FrameClass(GObject.GPointer):
     def page_closed(self) -> Callable[[Frame, Widget], None]: ...
     @property
     def adopt_widget(self) -> Callable[[Frame, Widget], bool]: ...
-    _reserved: list[None] = ...
 
 class FrameHeader(GObject.GInterface, Protocol):
     """
@@ -975,7 +1241,6 @@ class FrameHeader(GObject.GInterface, Protocol):
     Signals from GObject:
       notify (GParam)
     """
-
     def add_prefix(self, priority: int, child: _Gtk4.Widget) -> None: ...
     def add_suffix(self, priority: int, child: _Gtk4.Widget) -> None: ...
     def can_drop(self, widget: Widget) -> bool: ...
@@ -1050,11 +1315,11 @@ class FrameHeaderBar(
       css-name -> gchararray: css-name
       css-classes -> GStrv: css-classes
       layout-manager -> GtkLayoutManager: layout-manager
+      limit-events -> gboolean: limit-events
 
     Signals from GObject:
       notify (GParam)
     """
-
     class Props(_Gtk4.Widget.Props):
         show_icon: bool
         can_focus: bool
@@ -1072,6 +1337,7 @@ class FrameHeaderBar(
         hexpand: bool
         hexpand_set: bool
         layout_manager: _Gtk4.LayoutManager | None
+        limit_events: bool
         margin_bottom: int
         margin_end: int
         margin_start: int
@@ -1098,6 +1364,7 @@ class FrameHeaderBar(
     def props(self) -> Props: ...
     def __init__(
         self,
+        *,
         show_icon: bool = ...,
         can_focus: bool = ...,
         can_target: bool = ...,
@@ -1112,6 +1379,7 @@ class FrameHeaderBar(
         hexpand: bool = ...,
         hexpand_set: bool = ...,
         layout_manager: _Gtk4.LayoutManager | None = ...,
+        limit_events: bool = ...,
         margin_bottom: int = ...,
         margin_end: int = ...,
         margin_start: int = ...,
@@ -1130,7 +1398,7 @@ class FrameHeaderBar(
         width_request: int = ...,
         accessible_role: _Gtk4.AccessibleRole = ...,
         frame: Frame | None = ...,
-    ): ...
+    ) -> None: ...
     def get_menu_popover(self) -> _Gtk4.PopoverMenu: ...
     def get_show_icon(self) -> bool: ...
     @classmethod
@@ -1235,11 +1503,11 @@ class FrameSwitcher(
       css-name -> gchararray: css-name
       css-classes -> GStrv: css-classes
       layout-manager -> GtkLayoutManager: layout-manager
+      limit-events -> gboolean: limit-events
 
     Signals from GObject:
       notify (GParam)
     """
-
     class Props(_Gtk4.Widget.Props):
         can_focus: bool
         can_target: bool
@@ -1256,6 +1524,7 @@ class FrameSwitcher(
         hexpand: bool
         hexpand_set: bool
         layout_manager: _Gtk4.LayoutManager | None
+        limit_events: bool
         margin_bottom: int
         margin_end: int
         margin_start: int
@@ -1283,6 +1552,7 @@ class FrameSwitcher(
     def props(self) -> Props: ...
     def __init__(
         self,
+        *,
         can_focus: bool = ...,
         can_target: bool = ...,
         css_classes: Sequence[str] = ...,
@@ -1296,6 +1566,7 @@ class FrameSwitcher(
         hexpand: bool = ...,
         hexpand_set: bool = ...,
         layout_manager: _Gtk4.LayoutManager | None = ...,
+        limit_events: bool = ...,
         margin_bottom: int = ...,
         margin_end: int = ...,
         margin_start: int = ...,
@@ -1315,7 +1586,7 @@ class FrameSwitcher(
         accessible_role: _Gtk4.AccessibleRole = ...,
         orientation: _Gtk4.Orientation = ...,
         frame: Frame | None = ...,
-    ): ...
+    ) -> None: ...
     @classmethod
     def new(cls) -> FrameSwitcher: ...
 
@@ -1401,11 +1672,11 @@ class FrameTabBar(
       css-name -> gchararray: css-name
       css-classes -> GStrv: css-classes
       layout-manager -> GtkLayoutManager: layout-manager
+      limit-events -> gboolean: limit-events
 
     Signals from GObject:
       notify (GParam)
     """
-
     class Props(_Gtk4.Widget.Props):
         autohide: bool
         expand_tabs: bool
@@ -1425,6 +1696,7 @@ class FrameTabBar(
         hexpand: bool
         hexpand_set: bool
         layout_manager: _Gtk4.LayoutManager | None
+        limit_events: bool
         margin_bottom: int
         margin_end: int
         margin_start: int
@@ -1451,6 +1723,7 @@ class FrameTabBar(
     def props(self) -> Props: ...
     def __init__(
         self,
+        *,
         autohide: bool = ...,
         expand_tabs: bool = ...,
         inverted: bool = ...,
@@ -1467,6 +1740,7 @@ class FrameTabBar(
         hexpand: bool = ...,
         hexpand_set: bool = ...,
         layout_manager: _Gtk4.LayoutManager | None = ...,
+        limit_events: bool = ...,
         margin_bottom: int = ...,
         margin_end: int = ...,
         margin_start: int = ...,
@@ -1485,7 +1759,7 @@ class FrameTabBar(
         width_request: int = ...,
         accessible_role: _Gtk4.AccessibleRole = ...,
         frame: Frame | None = ...,
-    ): ...
+    ) -> None: ...
     def get_autohide(self) -> bool: ...
     def get_expand_tabs(self) -> bool: ...
     def get_inverted(self) -> bool: ...
@@ -1528,13 +1802,12 @@ class GSettingsActionGroup(GObject.Object, Gio.ActionGroup):
     Signals from GObject:
       notify (GParam)
     """
-
     class Props(GObject.Object.Props):
         settings: Gio.Settings
 
     @property
     def props(self) -> Props: ...
-    def __init__(self, settings: Gio.Settings = ...): ...
+    def __init__(self, *, settings: Gio.Settings = ...) -> None: ...
     @staticmethod
     def new(settings: Gio.Settings) -> Gio.ActionGroup: ...
 
@@ -1613,11 +1886,11 @@ class Grid(_Gtk4.Widget, _Gtk4.Accessible, _Gtk4.Buildable, _Gtk4.ConstraintTarg
       css-name -> gchararray: css-name
       css-classes -> GStrv: css-classes
       layout-manager -> GtkLayoutManager: layout-manager
+      limit-events -> gboolean: limit-events
 
     Signals from GObject:
       notify (GParam)
     """
-
     class Props(_Gtk4.Widget.Props):
         can_focus: bool
         can_target: bool
@@ -1634,6 +1907,7 @@ class Grid(_Gtk4.Widget, _Gtk4.Accessible, _Gtk4.Buildable, _Gtk4.ConstraintTarg
         hexpand: bool
         hexpand_set: bool
         layout_manager: _Gtk4.LayoutManager | None
+        limit_events: bool
         margin_bottom: int
         margin_end: int
         margin_start: int
@@ -1661,6 +1935,7 @@ class Grid(_Gtk4.Widget, _Gtk4.Accessible, _Gtk4.Buildable, _Gtk4.ConstraintTarg
     def parent_instance(self) -> _Gtk4.Widget: ...
     def __init__(
         self,
+        *,
         can_focus: bool = ...,
         can_target: bool = ...,
         css_classes: Sequence[str] = ...,
@@ -1674,6 +1949,7 @@ class Grid(_Gtk4.Widget, _Gtk4.Accessible, _Gtk4.Buildable, _Gtk4.ConstraintTarg
         hexpand: bool = ...,
         hexpand_set: bool = ...,
         layout_manager: _Gtk4.LayoutManager | None = ...,
+        limit_events: bool = ...,
         margin_bottom: int = ...,
         margin_end: int = ...,
         margin_start: int = ...,
@@ -1691,7 +1967,7 @@ class Grid(_Gtk4.Widget, _Gtk4.Accessible, _Gtk4.Buildable, _Gtk4.ConstraintTarg
         visible: bool = ...,
         width_request: int = ...,
         accessible_role: _Gtk4.AccessibleRole = ...,
-    ): ...
+    ) -> None: ...
     def add(self, widget: Widget) -> None: ...
     def agree_to_close_async(
         self,
@@ -1721,7 +1997,6 @@ class GridClass(GObject.GPointer):
     def parent_class(self) -> _Gtk4.WidgetClass: ...
     @property
     def create_frame(self) -> None: ...
-    _reserved: list[None] = ...
 
 class GridColumn(
     _Gtk4.Widget, _Gtk4.Accessible, _Gtk4.Buildable, _Gtk4.ConstraintTarget
@@ -1786,11 +2061,11 @@ class GridColumn(
       css-name -> gchararray: css-name
       css-classes -> GStrv: css-classes
       layout-manager -> GtkLayoutManager: layout-manager
+      limit-events -> gboolean: limit-events
 
     Signals from GObject:
       notify (GParam)
     """
-
     class Props(_Gtk4.Widget.Props):
         can_focus: bool
         can_target: bool
@@ -1807,6 +2082,7 @@ class GridColumn(
         hexpand: bool
         hexpand_set: bool
         layout_manager: _Gtk4.LayoutManager | None
+        limit_events: bool
         margin_bottom: int
         margin_end: int
         margin_start: int
@@ -1832,6 +2108,7 @@ class GridColumn(
     def props(self) -> Props: ...
     def __init__(
         self,
+        *,
         can_focus: bool = ...,
         can_target: bool = ...,
         css_classes: Sequence[str] = ...,
@@ -1845,6 +2122,7 @@ class GridColumn(
         hexpand: bool = ...,
         hexpand_set: bool = ...,
         layout_manager: _Gtk4.LayoutManager | None = ...,
+        limit_events: bool = ...,
         margin_bottom: int = ...,
         margin_end: int = ...,
         margin_start: int = ...,
@@ -1862,7 +2140,7 @@ class GridColumn(
         visible: bool = ...,
         width_request: int = ...,
         accessible_role: _Gtk4.AccessibleRole = ...,
-    ): ...
+    ) -> None: ...
     def foreach_frame(self, callback: Callable[..., None], *user_data: Any) -> None: ...
     def get_empty(self) -> bool: ...
     def get_most_recent_frame(self) -> Frame: ...
@@ -1895,7 +2173,6 @@ class Inhibitor(GObject.Object):
     Signals from GObject:
       notify (GParam)
     """
-
     def uninhibit(self) -> None: ...
 
 class InhibitorClass(GObject.GPointer):
@@ -1932,14 +2209,13 @@ class LayeredSettings(GObject.Object):
     Signals from GObject:
       notify (GParam)
     """
-
     class Props(GObject.Object.Props):
         path: str
         schema_id: str
 
     @property
     def props(self) -> Props: ...
-    def __init__(self, path: str = ..., schema_id: str = ...): ...
+    def __init__(self, *, path: str = ..., schema_id: str = ...) -> None: ...
     def append(self, settings: Gio.Settings) -> None: ...
     def bind(
         self, key: str, object: None, property: str, flags: Gio.SettingsBindFlags
@@ -1951,7 +2227,7 @@ class LayeredSettings(GObject.Object):
         property: str,
         flags: Gio.SettingsBindFlags,
         get_mapping: Callable[..., bool],
-        set_mapping: Callable[..., GLib.Variant],
+        set_mapping: Callable[..., GLib.Variant | None],
         *user_data: Any,
     ) -> None: ...
     def get_boolean(self, key: str) -> bool: ...
@@ -1999,7 +2275,6 @@ class MenuManager(GObject.Object):
     Signals from GObject:
       notify (GParam)
     """
-
     def add_filename(self, filename: str) -> int: ...
     def add_resource(self, resource: str) -> int: ...
     def find_item_by_id(self, id: str) -> tuple[Gio.Menu | None, int]: ...
@@ -2102,11 +2377,11 @@ class OmniBar(
       css-name -> gchararray: css-name
       css-classes -> GStrv: css-classes
       layout-manager -> GtkLayoutManager: layout-manager
+      limit-events -> gboolean: limit-events
 
     Signals from GObject:
       notify (GParam)
     """
-
     class Props(_Gtk4.Widget.Props):
         action_tooltip: str
         icon_name: str
@@ -2128,6 +2403,7 @@ class OmniBar(
         hexpand: bool
         hexpand_set: bool
         layout_manager: _Gtk4.LayoutManager | None
+        limit_events: bool
         margin_bottom: int
         margin_end: int
         margin_start: int
@@ -2157,6 +2433,7 @@ class OmniBar(
     def parent_instance(self) -> _Gtk4.Widget: ...
     def __init__(
         self,
+        *,
         action_tooltip: str = ...,
         icon_name: str = ...,
         menu_model: Gio.MenuModel = ...,
@@ -2175,6 +2452,7 @@ class OmniBar(
         hexpand: bool = ...,
         hexpand_set: bool = ...,
         layout_manager: _Gtk4.LayoutManager | None = ...,
+        limit_events: bool = ...,
         margin_bottom: int = ...,
         margin_end: int = ...,
         margin_start: int = ...,
@@ -2194,7 +2472,7 @@ class OmniBar(
         accessible_role: _Gtk4.AccessibleRole = ...,
         action_name: str | None = ...,
         action_target: GLib.Variant = ...,
-    ): ...
+    ) -> None: ...
     def add_prefix(self, priority: int, widget: _Gtk4.Widget) -> None: ...
     def add_suffix(self, priority: int, widget: _Gtk4.Widget) -> None: ...
     def get_popover(self) -> _Gtk4.Popover | None: ...
@@ -2217,7 +2495,6 @@ class OmniBarClass(GObject.GPointer):
     """
     @property
     def parent_class(self) -> _Gtk4.WidgetClass: ...
-    _reserved: list[None] = ...
 
 class Paned(
     _Gtk4.Widget,
@@ -2286,11 +2563,11 @@ class Paned(
       css-name -> gchararray: css-name
       css-classes -> GStrv: css-classes
       layout-manager -> GtkLayoutManager: layout-manager
+      limit-events -> gboolean: limit-events
 
     Signals from GObject:
       notify (GParam)
     """
-
     class Props(_Gtk4.Widget.Props):
         can_focus: bool
         can_target: bool
@@ -2307,6 +2584,7 @@ class Paned(
         hexpand: bool
         hexpand_set: bool
         layout_manager: _Gtk4.LayoutManager | None
+        limit_events: bool
         margin_bottom: int
         margin_end: int
         margin_start: int
@@ -2333,6 +2611,7 @@ class Paned(
     def props(self) -> Props: ...
     def __init__(
         self,
+        *,
         can_focus: bool = ...,
         can_target: bool = ...,
         css_classes: Sequence[str] = ...,
@@ -2346,6 +2625,7 @@ class Paned(
         hexpand: bool = ...,
         hexpand_set: bool = ...,
         layout_manager: _Gtk4.LayoutManager | None = ...,
+        limit_events: bool = ...,
         margin_bottom: int = ...,
         margin_end: int = ...,
         margin_start: int = ...,
@@ -2364,7 +2644,7 @@ class Paned(
         width_request: int = ...,
         accessible_role: _Gtk4.AccessibleRole = ...,
         orientation: _Gtk4.Orientation = ...,
-    ): ...
+    ) -> None: ...
     def append(self, child: _Gtk4.Widget) -> None: ...
     def get_n_children(self) -> int: ...
     def get_nth_child(self, nth: int) -> _Gtk4.Widget | None: ...
@@ -2411,7 +2691,6 @@ class Position(GObject.Object):
     Signals from GObject:
       notify (GParam)
     """
-
     class Props(GObject.Object.Props):
         area: Area
         area_set: bool
@@ -2426,6 +2705,7 @@ class Position(GObject.Object):
     def props(self) -> Props: ...
     def __init__(
         self,
+        *,
         area: Area = ...,
         area_set: bool = ...,
         column: int = ...,
@@ -2434,7 +2714,7 @@ class Position(GObject.Object):
         depth_set: bool = ...,
         row: int = ...,
         row_set: bool = ...,
-    ): ...
+    ) -> None: ...
     def equal(self, b: Position) -> bool: ...
     def get_area(self) -> Area: ...
     def get_area_set(self) -> bool: ...
@@ -2503,7 +2783,6 @@ class SaveDelegate(GObject.Object):
     Signals from GObject:
       notify (GParam)
     """
-
     class Props(GObject.Object.Props):
         icon: Gio.Icon | None
         icon_name: str | None
@@ -2518,13 +2797,14 @@ class SaveDelegate(GObject.Object):
     def parent_instance(self) -> GObject.Object: ...
     def __init__(
         self,
+        *,
         icon: Gio.Icon | None = ...,
         icon_name: str | None = ...,
         is_draft: bool = ...,
         progress: float = ...,
         subtitle: str | None = ...,
         title: str | None = ...,
-    ): ...
+    ) -> None: ...
     def close(self) -> None: ...
     def discard(self) -> None: ...
     def do_close(self) -> None: ...
@@ -2579,7 +2859,6 @@ class SaveDelegateClass(GObject.GPointer):
     def discard(self) -> Callable[[SaveDelegate], None]: ...
     @property
     def close(self) -> Callable[[SaveDelegate], None]: ...
-    _reserved: list[None] = ...
 
 class SaveDialog(
     Adw.MessageDialog,
@@ -2641,6 +2920,7 @@ class SaveDialog(
       child -> GtkWidget: child
       titlebar -> GtkWidget: titlebar
       handle-menubar-accel -> gboolean: handle-menubar-accel
+      gravity -> GtkWindowGravity: gravity
       is-active -> gboolean: is-active
       suspended -> gboolean: suspended
       startup-id -> gchararray: startup-id
@@ -2699,11 +2979,11 @@ class SaveDialog(
       css-name -> gchararray: css-name
       css-classes -> GStrv: css-classes
       layout-manager -> GtkLayoutManager: layout-manager
+      limit-events -> gboolean: limit-events
 
     Signals from GObject:
       notify (GParam)
     """
-
     class Props(Adw.MessageDialog.Props):
         close_after_save: bool
         body: str
@@ -2723,8 +3003,9 @@ class SaveDialog(
         destroy_with_parent: bool
         display: _Gdk4.Display
         focus_visible: bool
-        focus_widget: _Gtk4.Widget
+        focus_widget: _Gtk4.Widget | None
         fullscreened: bool
+        gravity: _Gtk4.WindowGravity
         handle_menubar_accel: bool
         hide_on_close: bool
         icon_name: str | None
@@ -2752,6 +3033,7 @@ class SaveDialog(
         hexpand: bool
         hexpand_set: bool
         layout_manager: _Gtk4.LayoutManager | None
+        limit_events: bool
         margin_bottom: int
         margin_end: int
         margin_start: int
@@ -2778,6 +3060,7 @@ class SaveDialog(
     def props(self) -> Props: ...
     def __init__(
         self,
+        *,
         close_after_save: bool = ...,
         body: str = ...,
         body_use_markup: bool = ...,
@@ -2796,8 +3079,9 @@ class SaveDialog(
         destroy_with_parent: bool = ...,
         display: _Gdk4.Display = ...,
         focus_visible: bool = ...,
-        focus_widget: _Gtk4.Widget = ...,
+        focus_widget: _Gtk4.Widget | None = ...,
         fullscreened: bool = ...,
+        gravity: _Gtk4.WindowGravity = ...,
         handle_menubar_accel: bool = ...,
         hide_on_close: bool = ...,
         icon_name: str | None = ...,
@@ -2822,6 +3106,7 @@ class SaveDialog(
         hexpand: bool = ...,
         hexpand_set: bool = ...,
         layout_manager: _Gtk4.LayoutManager | None = ...,
+        limit_events: bool = ...,
         margin_bottom: int = ...,
         margin_end: int = ...,
         margin_start: int = ...,
@@ -2839,7 +3124,7 @@ class SaveDialog(
         visible: bool = ...,
         width_request: int = ...,
         accessible_role: _Gtk4.AccessibleRole = ...,
-    ): ...
+    ) -> None: ...
     def add_delegate(self, delegate: SaveDelegate) -> None: ...
     def get_close_after_save(self) -> bool: ...
     @classmethod
@@ -2879,7 +3164,6 @@ class Session(GObject.Object):
     Signals from GObject:
       notify (GParam)
     """
-
     def append(self, item: SessionItem) -> None: ...
     def get_item(self, position: int) -> SessionItem | None: ...
     def get_n_items(self) -> int: ...
@@ -2926,7 +3210,6 @@ class SessionItem(GObject.Object):
     Signals from GObject:
       notify (GParam)
     """
-
     class Props(GObject.Object.Props):
         id: str | None
         module_name: str | None
@@ -2938,12 +3221,13 @@ class SessionItem(GObject.Object):
     def props(self) -> Props: ...
     def __init__(
         self,
+        *,
         id: str | None = ...,
         module_name: str | None = ...,
         position: Position | None = ...,
         type_hint: str | None = ...,
         workspace: str | None = ...,
-    ): ...
+    ) -> None: ...
     def get_id(self) -> str | None: ...
     def get_metadata_value(
         self, key: str, expected_type: GLib.VariantType | None = None
@@ -3017,7 +3301,6 @@ class Settings(GObject.Object, Gio.ActionGroup):
     Signals from GObject:
       notify (GParam)
     """
-
     class Props(GObject.Object.Props):
         identifier: str
         path: str
@@ -3030,13 +3313,14 @@ class Settings(GObject.Object, Gio.ActionGroup):
     def props(self) -> Props: ...
     def __init__(
         self,
+        *,
         identifier: str = ...,
         path: str = ...,
         path_prefix: str = ...,
         path_suffix: str = ...,
         schema_id: str = ...,
         schema_id_prefix: str = ...,
-    ): ...
+    ) -> None: ...
     def bind(
         self, key: str, object: None, property: str, flags: Gio.SettingsBindFlags
     ) -> None: ...
@@ -3047,7 +3331,7 @@ class Settings(GObject.Object, Gio.ActionGroup):
         property: str,
         flags: Gio.SettingsBindFlags,
         get_mapping: Callable[..., bool] | None = None,
-        set_mapping: Callable[..., GLib.Variant] | None = None,
+        set_mapping: Callable[..., GLib.Variant | None] | None = None,
         *user_data: Any,
     ) -> None: ...
     def get_boolean(self, key: str) -> bool: ...
@@ -3162,11 +3446,11 @@ class Statusbar(
       css-name -> gchararray: css-name
       css-classes -> GStrv: css-classes
       layout-manager -> GtkLayoutManager: layout-manager
+      limit-events -> gboolean: limit-events
 
     Signals from GObject:
       notify (GParam)
     """
-
     class Props(_Gtk4.Widget.Props):
         can_focus: bool
         can_target: bool
@@ -3183,6 +3467,7 @@ class Statusbar(
         hexpand: bool
         hexpand_set: bool
         layout_manager: _Gtk4.LayoutManager | None
+        limit_events: bool
         margin_bottom: int
         margin_end: int
         margin_start: int
@@ -3208,6 +3493,7 @@ class Statusbar(
     def props(self) -> Props: ...
     def __init__(
         self,
+        *,
         can_focus: bool = ...,
         can_target: bool = ...,
         css_classes: Sequence[str] = ...,
@@ -3221,6 +3507,7 @@ class Statusbar(
         hexpand: bool = ...,
         hexpand_set: bool = ...,
         layout_manager: _Gtk4.LayoutManager | None = ...,
+        limit_events: bool = ...,
         margin_bottom: int = ...,
         margin_end: int = ...,
         margin_start: int = ...,
@@ -3238,7 +3525,7 @@ class Statusbar(
         visible: bool = ...,
         width_request: int = ...,
         accessible_role: _Gtk4.AccessibleRole = ...,
-    ): ...
+    ) -> None: ...
     def add_prefix(self, priority: int, widget: _Gtk4.Widget) -> None: ...
     def add_suffix(self, priority: int, widget: _Gtk4.Widget) -> None: ...
     @classmethod
@@ -3323,11 +3610,11 @@ class ThemeSelector(
       css-name -> gchararray: css-name
       css-classes -> GStrv: css-classes
       layout-manager -> GtkLayoutManager: layout-manager
+      limit-events -> gboolean: limit-events
 
     Signals from GObject:
       notify (GParam)
     """
-
     class Props(_Gtk4.Widget.Props):
         action_name: str
         can_focus: bool
@@ -3345,6 +3632,7 @@ class ThemeSelector(
         hexpand: bool
         hexpand_set: bool
         layout_manager: _Gtk4.LayoutManager | None
+        limit_events: bool
         margin_bottom: int
         margin_end: int
         margin_start: int
@@ -3370,6 +3658,7 @@ class ThemeSelector(
     def props(self) -> Props: ...
     def __init__(
         self,
+        *,
         action_name: str = ...,
         can_focus: bool = ...,
         can_target: bool = ...,
@@ -3384,6 +3673,7 @@ class ThemeSelector(
         hexpand: bool = ...,
         hexpand_set: bool = ...,
         layout_manager: _Gtk4.LayoutManager | None = ...,
+        limit_events: bool = ...,
         margin_bottom: int = ...,
         margin_end: int = ...,
         margin_start: int = ...,
@@ -3401,7 +3691,7 @@ class ThemeSelector(
         visible: bool = ...,
         width_request: int = ...,
         accessible_role: _Gtk4.AccessibleRole = ...,
-    ): ...
+    ) -> None: ...
     def get_action_name(self) -> str: ...
     @classmethod
     def new(cls) -> ThemeSelector: ...
@@ -3485,11 +3775,11 @@ class ToggleButton(
       css-name -> gchararray: css-name
       css-classes -> GStrv: css-classes
       layout-manager -> GtkLayoutManager: layout-manager
+      limit-events -> gboolean: limit-events
 
     Signals from GObject:
       notify (GParam)
     """
-
     class Props(_Gtk4.Widget.Props):
         area: Area
         dock: Dock
@@ -3508,6 +3798,7 @@ class ToggleButton(
         hexpand: bool
         hexpand_set: bool
         layout_manager: _Gtk4.LayoutManager | None
+        limit_events: bool
         margin_bottom: int
         margin_end: int
         margin_start: int
@@ -3533,6 +3824,7 @@ class ToggleButton(
     def props(self) -> Props: ...
     def __init__(
         self,
+        *,
         area: Area = ...,
         dock: Dock = ...,
         can_focus: bool = ...,
@@ -3548,6 +3840,7 @@ class ToggleButton(
         hexpand: bool = ...,
         hexpand_set: bool = ...,
         layout_manager: _Gtk4.LayoutManager | None = ...,
+        limit_events: bool = ...,
         margin_bottom: int = ...,
         margin_end: int = ...,
         margin_start: int = ...,
@@ -3565,7 +3858,7 @@ class ToggleButton(
         visible: bool = ...,
         width_request: int = ...,
         accessible_role: _Gtk4.AccessibleRole = ...,
-    ): ...
+    ) -> None: ...
     @classmethod
     def new(cls, dock: Dock, area: Area) -> ToggleButton: ...
 
@@ -3674,11 +3967,11 @@ class Widget(_Gtk4.Widget, _Gtk4.Accessible, _Gtk4.Buildable, _Gtk4.ConstraintTa
       css-name -> gchararray: css-name
       css-classes -> GStrv: css-classes
       layout-manager -> GtkLayoutManager: layout-manager
+      limit-events -> gboolean: limit-events
 
     Signals from GObject:
       notify (GParam)
     """
-
     class Props(_Gtk4.Widget.Props):
         busy: bool
         can_maximize: bool
@@ -3709,6 +4002,7 @@ class Widget(_Gtk4.Widget, _Gtk4.Accessible, _Gtk4.Buildable, _Gtk4.ConstraintTa
         hexpand: bool
         hexpand_set: bool
         layout_manager: _Gtk4.LayoutManager | None
+        limit_events: bool
         margin_bottom: int
         margin_end: int
         margin_start: int
@@ -3736,6 +4030,7 @@ class Widget(_Gtk4.Widget, _Gtk4.Accessible, _Gtk4.Buildable, _Gtk4.ConstraintTa
     def parent_instance(self) -> _Gtk4.Widget: ...
     def __init__(
         self,
+        *,
         can_maximize: bool = ...,
         child: _Gtk4.Widget | None = ...,
         icon: Gio.Icon | None = ...,
@@ -3762,6 +4057,7 @@ class Widget(_Gtk4.Widget, _Gtk4.Accessible, _Gtk4.Buildable, _Gtk4.ConstraintTa
         hexpand: bool = ...,
         hexpand_set: bool = ...,
         layout_manager: _Gtk4.LayoutManager | None = ...,
+        limit_events: bool = ...,
         margin_bottom: int = ...,
         margin_end: int = ...,
         margin_start: int = ...,
@@ -3779,7 +4075,7 @@ class Widget(_Gtk4.Widget, _Gtk4.Accessible, _Gtk4.Buildable, _Gtk4.ConstraintTa
         visible: bool = ...,
         width_request: int = ...,
         accessible_role: _Gtk4.AccessibleRole = ...,
-    ): ...
+    ) -> None: ...
     def action_set_enabled(self, action_name: str, enabled: bool) -> None: ...
     def close(self) -> None: ...
     def do_get_default_focus(self) -> _Gtk4.Widget | None: ...
@@ -3832,14 +4128,12 @@ class WidgetClass(GObject.GPointer):
 
         WidgetClass()
     """
-
     @property
     def parent_instance(self) -> _Gtk4.WidgetClass: ...
     @property
     def get_default_focus(self) -> Callable[[Widget], _Gtk4.Widget | None]: ...
     @property
     def presented(self) -> Callable[[Widget], None]: ...
-    _reserved: list[None] = ...
     def install_action(
         self,
         action_name: str,
@@ -3868,7 +4162,6 @@ class Workbench(_Gtk4.WindowGroup):
     Signals from GObject:
       notify (GParam)
     """
-
     class Props(_Gtk4.WindowGroup.Props):
         id: str
 
@@ -3876,7 +4169,7 @@ class Workbench(_Gtk4.WindowGroup):
     def props(self) -> Props: ...
     @property
     def parent_instance(self) -> _Gtk4.WindowGroup: ...
-    def __init__(self, id: str = ...): ...
+    def __init__(self, *, id: str = ...) -> None: ...
     def action_set_enabled(self, action_name: str, enabled: bool) -> None: ...
     def activate(self) -> None: ...
     def add_workspace(self, workspace: Workspace) -> None: ...
@@ -3890,7 +4183,7 @@ class Workbench(_Gtk4.WindowGroup):
     def do_unload_finish(self, result: Gio.AsyncResult) -> bool: ...
     @staticmethod
     def find_from_widget(widget: _Gtk4.Widget) -> Workbench | None: ...
-    def find_workspace_typed(self, workspace_type: type) -> Workspace | None: ...
+    def find_workspace_typed(self, workspace_type: type[Any]) -> Workspace | None: ...
     def focus_workspace(self, workspace: Workspace) -> None: ...
     def foreach_workspace(
         self, foreach_func: Callable[..., None], *foreach_func_data: Any
@@ -3924,7 +4217,6 @@ class WorkbenchClass(GObject.GPointer):
     def unload_async(self) -> Callable[..., None]: ...
     @property
     def unload_finish(self) -> Callable[[Workbench, Gio.AsyncResult], bool]: ...
-    _reserved: list[None] = ...
     def install_action(
         self,
         action_name: str,
@@ -3965,12 +4257,18 @@ class Workspace(
     Properties from AdwApplicationWindow:
       content -> GtkWidget: content
       current-breakpoint -> AdwBreakpoint: current-breakpoint
+      dialogs -> GListModel: dialogs
+      visible-dialog -> AdwDialog: visible-dialog
+      adaptive-preview -> gboolean: adaptive-preview
 
     Signals from GActionGroup:
       action-added (gchararray)
       action-removed (gchararray)
       action-enabled-changed (gchararray, gboolean)
       action-state-changed (gchararray, GVariant)
+
+    Signals from GtkApplicationWindow:
+      save-state (GVariantDict) -> gboolean
 
     Properties from GtkApplicationWindow:
       show-menubar -> gboolean: show-menubar
@@ -4007,6 +4305,7 @@ class Workspace(
       child -> GtkWidget: child
       titlebar -> GtkWidget: titlebar
       handle-menubar-accel -> gboolean: handle-menubar-accel
+      gravity -> GtkWindowGravity: gravity
       is-active -> gboolean: is-active
       suspended -> gboolean: suspended
       startup-id -> gchararray: startup-id
@@ -4065,15 +4364,18 @@ class Workspace(
       css-name -> gchararray: css-name
       css-classes -> GStrv: css-classes
       layout-manager -> GtkLayoutManager: layout-manager
+      limit-events -> gboolean: limit-events
 
     Signals from GObject:
       notify (GParam)
     """
-
     class Props(Adw.ApplicationWindow.Props):
         id: str
+        adaptive_preview: bool
         content: _Gtk4.Widget | None
         current_breakpoint: Adw.Breakpoint | None
+        dialogs: Gio.ListModel
+        visible_dialog: Adw.Dialog | None
         show_menubar: bool
         application: _Gtk4.Application | None
         child: _Gtk4.Widget | None
@@ -4085,8 +4387,9 @@ class Workspace(
         destroy_with_parent: bool
         display: _Gdk4.Display
         focus_visible: bool
-        focus_widget: _Gtk4.Widget
+        focus_widget: _Gtk4.Widget | None
         fullscreened: bool
+        gravity: _Gtk4.WindowGravity
         handle_menubar_accel: bool
         hide_on_close: bool
         icon_name: str | None
@@ -4114,6 +4417,7 @@ class Workspace(
         hexpand: bool
         hexpand_set: bool
         layout_manager: _Gtk4.LayoutManager | None
+        limit_events: bool
         margin_bottom: int
         margin_end: int
         margin_start: int
@@ -4142,7 +4446,9 @@ class Workspace(
     def parent_instance(self) -> Adw.ApplicationWindow: ...
     def __init__(
         self,
+        *,
         id: str = ...,
+        adaptive_preview: bool = ...,
         content: _Gtk4.Widget | None = ...,
         show_menubar: bool = ...,
         application: _Gtk4.Application | None = ...,
@@ -4155,8 +4461,9 @@ class Workspace(
         destroy_with_parent: bool = ...,
         display: _Gdk4.Display = ...,
         focus_visible: bool = ...,
-        focus_widget: _Gtk4.Widget = ...,
+        focus_widget: _Gtk4.Widget | None = ...,
         fullscreened: bool = ...,
+        gravity: _Gtk4.WindowGravity = ...,
         handle_menubar_accel: bool = ...,
         hide_on_close: bool = ...,
         icon_name: str | None = ...,
@@ -4181,6 +4488,7 @@ class Workspace(
         hexpand: bool = ...,
         hexpand_set: bool = ...,
         layout_manager: _Gtk4.LayoutManager | None = ...,
+        limit_events: bool = ...,
         margin_bottom: int = ...,
         margin_end: int = ...,
         margin_start: int = ...,
@@ -4198,7 +4506,7 @@ class Workspace(
         visible: bool = ...,
         width_request: int = ...,
         accessible_role: _Gtk4.AccessibleRole = ...,
-    ): ...
+    ) -> None: ...
     def action_set_enabled(self, action_name: str, enabled: bool) -> None: ...
     @staticmethod
     def find_from_widget(widget: _Gtk4.Widget) -> Workspace | None: ...

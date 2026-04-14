@@ -1,6 +1,7 @@
 from typing import Any
 from typing import Final
 from typing import TypeVar
+from typing_extensions import Self
 
 from collections.abc import Callable
 from collections.abc import Sequence
@@ -10,10 +11,13 @@ from gi.repository import Gio
 from gi.repository import GLib
 from gi.repository import GObject
 
+T = TypeVar("T")
 _SomeSurface = TypeVar("_SomeSurface", bound=cairo.Surface)
 
+ANNOT_TEXT_ICON_CHECK: Final = "Check"
 ANNOT_TEXT_ICON_CIRCLE: Final = "Circle"
 ANNOT_TEXT_ICON_COMMENT: Final = "Comment"
+ANNOT_TEXT_ICON_CROSS: Final = "Cross"
 ANNOT_TEXT_ICON_CROSS_HAIRS: Final = "CrossHairs"
 ANNOT_TEXT_ICON_HELP: Final = "Help"
 ANNOT_TEXT_ICON_INSERT: Final = "Insert"
@@ -21,6 +25,11 @@ ANNOT_TEXT_ICON_KEY: Final = "Key"
 ANNOT_TEXT_ICON_NEW_PARAGRAPH: Final = "NewParagraph"
 ANNOT_TEXT_ICON_NOTE: Final = "Note"
 ANNOT_TEXT_ICON_PARAGRAPH: Final = "Paragraph"
+ANNOT_TEXT_ICON_RIGHT_ARROW: Final = "RightArrow"
+ANNOT_TEXT_ICON_RIGHT_POINTER: Final = "RightPointer"
+ANNOT_TEXT_ICON_STAR: Final = "Star"
+ANNOT_TEXT_ICON_UP_ARROW: Final = "UpArrow"
+ANNOT_TEXT_ICON_UP_LEFT_ARROW: Final = "UpLeftArrow"
 HAS_CAIRO: Final[int]
 MAJOR_VERSION: Final[int]
 MICRO_VERSION: Final[int]
@@ -227,8 +236,8 @@ class Annot(GObject.Object):
     Signals from GObject:
       notify (GParam)
     """
-
     def get_annot_type(self) -> AnnotType: ...
+    def get_border_width(self, width: float) -> bool: ...
     def get_color(self) -> Color: ...
     def get_contents(self) -> str: ...
     def get_flags(self) -> AnnotFlag: ...
@@ -236,6 +245,7 @@ class Annot(GObject.Object):
     def get_name(self) -> str: ...
     def get_page_index(self) -> int: ...
     def get_rectangle(self) -> Rectangle: ...
+    def set_border_width(self, width: float) -> None: ...
     def set_color(self, poppler_color: Color | None = None) -> None: ...
     def set_contents(self, contents: str) -> None: ...
     def set_flags(self, flags: AnnotFlag) -> None: ...
@@ -258,6 +268,8 @@ class AnnotCalloutLine(GObject.GBoxed):
     y2: float
     x3: float
     y3: float
+    @staticmethod
+    def __new__(cls: type[Self]) -> Self: ...
     def copy(self) -> AnnotCalloutLine: ...
     def free(self) -> None: ...
     @classmethod
@@ -277,7 +289,6 @@ class AnnotCircle(AnnotMarkup):
     Signals from GObject:
       notify (GParam)
     """
-
     def get_interior_color(self) -> Color: ...
     @classmethod
     def new(cls, doc: Document, rect: Rectangle) -> AnnotCircle: ...
@@ -296,7 +307,6 @@ class AnnotFileAttachment(AnnotMarkup):
     Signals from GObject:
       notify (GParam)
     """
-
     def get_attachment(self) -> Attachment: ...
     def get_name(self) -> str: ...
 
@@ -307,15 +317,42 @@ class AnnotFreeText(AnnotMarkup):
     ::
 
         AnnotFreeText(**properties)
+        new(doc:Poppler.Document, rect:Poppler.Rectangle) -> Poppler.Annot
 
     Object PopplerAnnotFreeText
 
     Signals from GObject:
       notify (GParam)
     """
-
     def get_callout_line(self) -> AnnotCalloutLine: ...
+    def get_font_color(self) -> Color: ...
+    def get_font_desc(self) -> FontDescription | None: ...
     def get_quadding(self) -> AnnotFreeTextQuadding: ...
+    @classmethod
+    def new(cls, doc: Document, rect: Rectangle) -> AnnotFreeText: ...
+    def set_font_color(self, color: Color) -> None: ...
+    def set_font_desc(self, font_desc: FontDescription) -> None: ...
+
+class AnnotInk(AnnotMarkup):
+    """
+    :Constructors:
+
+    ::
+
+        AnnotInk(**properties)
+        new(doc:Poppler.Document, rect:Poppler.Rectangle) -> Poppler.Annot
+
+    Object PopplerAnnotInk
+
+    Signals from GObject:
+      notify (GParam)
+    """
+    def get_draw_below(self) -> bool: ...
+    def get_ink_list(self) -> list[Path]: ...
+    @classmethod
+    def new(cls, doc: Document, rect: Rectangle) -> AnnotInk: ...
+    def set_draw_below(self, draw_below: bool) -> None: ...
+    def set_ink_list(self, ink_list: Sequence[Path]) -> None: ...
 
 class AnnotLine(AnnotMarkup):
     """
@@ -331,7 +368,6 @@ class AnnotLine(AnnotMarkup):
     Signals from GObject:
       notify (GParam)
     """
-
     @classmethod
     def new(
         cls, doc: Document, rect: Rectangle, start: Point, end: Point
@@ -350,6 +386,8 @@ class AnnotMapping(GObject.GBoxed):
 
     area: Rectangle
     annot: Annot
+    @staticmethod
+    def __new__(cls: type[Self]) -> Self: ...
     def copy(self) -> AnnotMapping: ...
     def free(self) -> None: ...
     @classmethod
@@ -368,7 +406,6 @@ class AnnotMarkup(Annot):
     Signals from GObject:
       notify (GParam)
     """
-
     def get_date(self) -> GLib.Date: ...
     def get_external_data(self) -> AnnotExternalDataType: ...
     def get_label(self) -> str: ...
@@ -397,7 +434,6 @@ class AnnotMovie(Annot):
     Signals from GObject:
       notify (GParam)
     """
-
     def get_movie(self) -> Movie: ...
     def get_title(self) -> str: ...
 
@@ -414,7 +450,6 @@ class AnnotScreen(Annot):
     Signals from GObject:
       notify (GParam)
     """
-
     def get_action(self) -> Action: ...
 
 class AnnotSquare(AnnotMarkup):
@@ -431,13 +466,12 @@ class AnnotSquare(AnnotMarkup):
     Signals from GObject:
       notify (GParam)
     """
-
     def get_interior_color(self) -> Color: ...
     @classmethod
     def new(cls, doc: Document, rect: Rectangle) -> AnnotSquare: ...
     def set_interior_color(self, poppler_color: Color | None = None) -> None: ...
 
-class AnnotStamp(Annot):
+class AnnotStamp(AnnotMarkup):
     """
     :Constructors:
 
@@ -451,7 +485,6 @@ class AnnotStamp(Annot):
     Signals from GObject:
       notify (GParam)
     """
-
     def get_icon(self) -> AnnotStampIcon: ...
     @classmethod
     def new(cls, doc: Document, rect: Rectangle) -> AnnotStamp: ...
@@ -472,7 +505,6 @@ class AnnotText(AnnotMarkup):
     Signals from GObject:
       notify (GParam)
     """
-
     def get_icon(self) -> str: ...
     def get_is_open(self) -> bool: ...
     def get_state(self) -> AnnotTextState: ...
@@ -498,7 +530,6 @@ class AnnotTextMarkup(AnnotMarkup):
     Signals from GObject:
       notify (GParam)
     """
-
     def get_quadrilaterals(self) -> list[Quadrilateral]: ...
     @classmethod
     def new_highlight(
@@ -576,7 +607,8 @@ class CertificateInfo(GObject.GBoxed):
 
         new() -> Poppler.CertificateInfo
     """
-
+    @staticmethod
+    def __new__(cls: type[Self]) -> Self: ...
     def copy(self) -> CertificateInfo: ...
     def free(self) -> None: ...
     def get_expiration_time(self) -> GLib.DateTime: ...
@@ -604,6 +636,8 @@ class Color(GObject.GBoxed):
     red: int
     green: int
     blue: int
+    @staticmethod
+    def __new__(cls: type[Self]) -> Self: ...
     def copy(self) -> Color: ...
     def free(self) -> None: ...
     @classmethod
@@ -705,7 +739,6 @@ class Document(GObject.Object):
     Signals from GObject:
       notify (GParam)
     """
-
     class Props(GObject.Object.Props):
         author: str
         creation_date: int
@@ -738,6 +771,7 @@ class Document(GObject.Object):
     def props(self) -> Props: ...
     def __init__(
         self,
+        *,
         author: str = ...,
         creation_date: int = ...,
         creation_datetime: GLib.DateTime = ...,
@@ -748,7 +782,7 @@ class Document(GObject.Object):
         producer: str = ...,
         subject: str = ...,
         title: str = ...,
-    ): ...
+    ) -> None: ...
     def create_dests_tree(self) -> GLib.Tree | None: ...
     def find_dest(self, link_name: str) -> Dest: ...
     def get_attachments(self) -> list[Attachment]: ...
@@ -841,6 +875,26 @@ class Document(GObject.Object):
     ) -> None: ...
     def sign_finish(self, result: Gio.AsyncResult) -> bool: ...
 
+class FontDescription(GObject.GBoxed):
+    """
+    :Constructors:
+
+    ::
+
+        FontDescription()
+        new(font_name:str) -> Poppler.FontDescription
+    """
+
+    font_name: str
+    size_pt: float
+    stretch: Stretch
+    weight: Weight
+    style: Style
+    def copy(self) -> FontDescription: ...
+    def free(self) -> None: ...
+    @classmethod
+    def new(cls, font_name: str) -> FontDescription: ...
+
 class FontInfo(GObject.Object):
     """
     :Constructors:
@@ -855,7 +909,6 @@ class FontInfo(GObject.Object):
     Signals from GObject:
       notify (GParam)
     """
-
     def free(self) -> None: ...
     @classmethod
     def new(cls, document: Document) -> FontInfo: ...
@@ -887,7 +940,6 @@ class FormField(GObject.Object):
     Signals from GObject:
       notify (GParam)
     """
-
     def button_get_button_type(self) -> FormButtonType: ...
     def button_get_state(self) -> bool: ...
     def button_set_state(self, state: bool) -> None: ...
@@ -948,6 +1000,8 @@ class FormFieldMapping(GObject.GBoxed):
 
     area: Rectangle
     field: FormField
+    @staticmethod
+    def __new__(cls: type[Self]) -> Self: ...
     def copy(self) -> FormFieldMapping: ...
     def free(self) -> None: ...
     @classmethod
@@ -965,6 +1019,8 @@ class ImageMapping(GObject.GBoxed):
 
     area: Rectangle
     image_id: int
+    @staticmethod
+    def __new__(cls: type[Self]) -> Self: ...
     def copy(self) -> ImageMapping: ...
     def free(self) -> None: ...
     @classmethod
@@ -978,7 +1034,8 @@ class IndexIter(GObject.GBoxed):
 
         new(document:Poppler.Document) -> Poppler.IndexIter
     """
-
+    @staticmethod
+    def __new__(cls: type[Self], document: Document) -> Self: ...
     def copy(self) -> IndexIter: ...
     def free(self) -> None: ...
     def get_action(self) -> Action: ...
@@ -1001,7 +1058,6 @@ class Layer(GObject.Object):
     Signals from GObject:
       notify (GParam)
     """
-
     def get_radio_button_group_id(self) -> int: ...
     def get_title(self) -> str: ...
     def hide(self) -> None: ...
@@ -1017,7 +1073,8 @@ class LayersIter(GObject.GBoxed):
 
         new(document:Poppler.Document) -> Poppler.LayersIter
     """
-
+    @staticmethod
+    def __new__(cls: type[Self], document: Document) -> Self: ...
     def copy(self) -> LayersIter: ...
     def free(self) -> None: ...
     def get_child(self) -> LayersIter: ...
@@ -1039,6 +1096,8 @@ class LinkMapping(GObject.GBoxed):
 
     area: Rectangle
     action: Action
+    @staticmethod
+    def __new__(cls: type[Self]) -> Self: ...
     def copy(self) -> LinkMapping: ...
     def free(self) -> None: ...
     @classmethod
@@ -1057,7 +1116,6 @@ class Media(GObject.Object):
     Signals from GObject:
       notify (GParam)
     """
-
     def get_auto_play(self) -> bool: ...
     def get_filename(self) -> str: ...
     def get_mime_type(self) -> str: ...
@@ -1083,7 +1141,6 @@ class Movie(GObject.Object):
     Signals from GObject:
       notify (GParam)
     """
-
     def get_aspect(self, width: int, height: int) -> None: ...
     def get_duration(self) -> int: ...
     def get_filename(self) -> str: ...
@@ -1111,7 +1168,6 @@ class PSFile(GObject.Object):
     Signals from GObject:
       notify (GParam)
     """
-
     def free(self) -> None: ...
     @classmethod
     def new(
@@ -1123,10 +1179,6 @@ class PSFile(GObject.Object):
     ) -> PSFile: ...
     def set_duplex(self, duplex: bool) -> None: ...
     def set_paper_size(self, width: float, height: float) -> None: ...
-
-class Size(tuple[float, float]):
-    width: float
-    height: float
 
 class Page(GObject.Object):
     """
@@ -1145,7 +1197,6 @@ class Page(GObject.Object):
     Signals from GObject:
       notify (GParam)
     """
-
     class Props(GObject.Object.Props):
         label: str
 
@@ -1202,6 +1253,12 @@ class Page(GObject.Object):
     def render_for_printing_with_options(
         self, cairo: cairo.Context[_SomeSurface], options: PrintFlags
     ) -> None: ...
+    def render_full(
+        self,
+        cairo: cairo.Context[_SomeSurface],
+        printing: bool,
+        flags: RenderAnnotsFlags,
+    ) -> None: ...
     def render_selection(
         self,
         cairo: cairo.Context[_SomeSurface],
@@ -1212,6 +1269,15 @@ class Page(GObject.Object):
         background_color: Color,
     ) -> None: ...
     def render_to_ps(self, ps_file: PSFile) -> None: ...
+    def render_transparent_selection(
+        self,
+        cairo: cairo.Context[_SomeSurface],
+        selection: Rectangle,
+        old_selection: Rectangle,
+        style: SelectionStyle,
+        background_color: Color,
+        background_opacity: float,
+    ) -> None: ...
     @staticmethod
     def selection_region_free(region: list[Rectangle]) -> None: ...
 
@@ -1245,10 +1311,26 @@ class PageTransition(GObject.GBoxed):
     scale: float
     rectangular: bool
     duration_real: float
+    @staticmethod
+    def __new__(cls: type[Self]) -> Self: ...
     def copy(self) -> PageTransition: ...
     def free(self) -> None: ...
     @classmethod
     def new(cls) -> PageTransition: ...
+
+class Path(GObject.GBoxed):
+    """
+    :Constructors:
+
+    ::
+
+        new_from_array(points:Poppler.Point, n_points:int) -> Poppler.Path
+    """
+    def copy(self) -> Path: ...
+    def free(self) -> None: ...
+    def get_points(self) -> list[Point]: ...
+    @classmethod
+    def new_from_array(cls, points: Point, n_points: int) -> Path: ...
 
 class Point(GObject.GBoxed):
     """
@@ -1262,6 +1344,8 @@ class Point(GObject.GBoxed):
 
     x: float
     y: float
+    @staticmethod
+    def __new__(cls: type[Self]) -> Self: ...
     def copy(self) -> Point: ...
     def free(self) -> None: ...
     @classmethod
@@ -1281,6 +1365,8 @@ class Quadrilateral(GObject.GBoxed):
     p2: Point
     p3: Point
     p4: Point
+    @staticmethod
+    def __new__(cls: type[Self]) -> Self: ...
     def copy(self) -> Quadrilateral: ...
     def free(self) -> None: ...
     @classmethod
@@ -1300,6 +1386,8 @@ class Rectangle(GObject.GBoxed):
     y1: float
     x2: float
     y2: float
+    @staticmethod
+    def __new__(cls: type[Self]) -> Self: ...
     def copy(self) -> Rectangle: ...
     def find_get_ignored_hyphen(self) -> bool: ...
     def find_get_match_continued(self) -> bool: ...
@@ -1324,7 +1412,8 @@ class SigningData(GObject.GBoxed):
 
         new() -> Poppler.SigningData
     """
-
+    @staticmethod
+    def __new__(cls: type[Self]) -> Self: ...
     def copy(self) -> SigningData: ...
     def free(self) -> None: ...
     def get_background_color(self) -> Color: ...
@@ -1381,7 +1470,6 @@ class StructureElement(GObject.Object):
     Signals from GObject:
       notify (GParam)
     """
-
     def get_abbreviation(self) -> str: ...
     def get_actual_text(self) -> str: ...
     def get_alt_text(self) -> str: ...
@@ -1444,15 +1532,16 @@ class StructureElementIter(GObject.GBoxed):
 
     ::
 
-        new(poppler_document:Poppler.Document) -> Poppler.StructureElementIter
+        new(poppler_document:Poppler.Document) -> Poppler.StructureElementIter or None
     """
-
+    @staticmethod
+    def __new__(cls: type[Self], poppler_document: Document) -> Self: ...
     def copy(self) -> StructureElementIter: ...
     def free(self) -> None: ...
     def get_child(self) -> StructureElementIter: ...
     def get_element(self) -> StructureElement: ...
     @classmethod
-    def new(cls, poppler_document: Document) -> StructureElementIter: ...
+    def new(cls, poppler_document: Document) -> StructureElementIter | None: ...
     def next(self) -> bool: ...
 
 class TextAttributes(GObject.GBoxed):
@@ -1471,6 +1560,8 @@ class TextAttributes(GObject.GBoxed):
     color: Color
     start_index: int
     end_index: int
+    @staticmethod
+    def __new__(cls: type[Self]) -> Self: ...
     def copy(self) -> TextAttributes: ...
     def free(self) -> None: ...
     @classmethod
@@ -1523,6 +1614,39 @@ class PrintFlags(GObject.GFlags):
     DOCUMENT = 0
     MARKUP_ANNOTS = 1
     STAMP_ANNOTS_ONLY = 2
+
+class RenderAnnotsFlags(GObject.GFlags):
+    ALL = 67108863
+    CARET = 8192
+    CIRCLE = 32
+    FILEATTACHMENT = 65536
+    FREETEXT = 4
+    HIGHLIGHT = 256
+    INK = 16384
+    LINE = 8
+    LINK = 2
+    MOVIE = 262144
+    NONE = 0
+    POLYGON = 64
+    POLYLINE = 128
+    POPUP = 32768
+    PRINTERMARK = 2097152
+    PRINT_ALL = 4262166525
+    PRINT_DOCUMENT = 524288
+    PRINT_MARKUP = 4262166525
+    PRINT_STAMP = 528384
+    RICHMEDIA = 33554432
+    SCREEN = 1048576
+    SOUND = 131072
+    SQUARE = 16
+    SQUIGGLY = 1024
+    STAMP = 4096
+    STRIKEOUT = 2048
+    TEXT = 1
+    TRAPNET = 4194304
+    UNDERLINE = 512
+    WATERMARK = 8388608
+    WIDGET = 524288
 
 class SignatureValidationFlags(GObject.GFlags):
     USE_AIA_CERTIFICATE_FETCH = 4
@@ -1805,6 +1929,17 @@ class SignatureStatus(GObject.GEnum):
     NOT_VERIFIED = 6
     VALID = 0
 
+class Stretch(GObject.GEnum):
+    CONDENSED = 2
+    EXPANDED = 6
+    EXTRA_CONDENSED = 1
+    EXTRA_EXPANDED = 7
+    NORMAL = 4
+    SEMI_CONDENSED = 3
+    SEMI_EXPANDED = 5
+    ULTRA_CONDENSED = 0
+    ULTRA_EXPANDED = 8
+
 class StructureBlockAlign(GObject.GEnum):
     AFTER = 2
     BEFORE = 0
@@ -1947,3 +2082,19 @@ class StructureWritingMode(GObject.GEnum):
     LR_TB = 0
     RL_TB = 1
     TB_RL = 2
+
+class Style(GObject.GEnum):
+    ITALIC = 2
+    NORMAL = 0
+    OBLIQUE = 1
+
+class Weight(GObject.GEnum):
+    BOLD = 700
+    HEAVY = 900
+    LIGHT = 300
+    MEDIUM = 500
+    NORMAL = 400
+    SEMIBOLD = 600
+    THIN = 100
+    ULTRABOLD = 800
+    ULTRALIGHT = 200

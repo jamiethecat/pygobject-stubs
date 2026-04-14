@@ -2,6 +2,7 @@ from typing import Any
 from typing import Final
 from typing import Protocol
 from typing import TypeVar
+from typing_extensions import Self
 
 from collections.abc import Callable
 from collections.abc import Sequence
@@ -32,9 +33,7 @@ def cookies_from_response(msg: Message) -> list[Cookie]: ...
 def cookies_to_cookie_header(cookies: list[Cookie]) -> str: ...
 def cookies_to_request(cookies: list[Cookie], msg: Message) -> None: ...
 def cookies_to_response(cookies: list[Cookie], msg: Message) -> None: ...
-def date_time_new_from_http_string(
-    date_string: str,
-) -> GLib.DateTime | None: ...
+def date_time_new_from_http_string(date_string: str) -> GLib.DateTime | None: ...
 def date_time_to_string(date: GLib.DateTime, format: DateFormat) -> str: ...
 def form_decode(encoded_form: str) -> dict[str, str]: ...
 def form_decode_multipart(
@@ -46,6 +45,7 @@ def get_major_version() -> int: ...
 def get_micro_version() -> int: ...
 def get_minor_version() -> int: ...
 def header_contains(header: str, token: str) -> bool: ...
+def header_contains_case_sensitive(header: str, token: str) -> bool: ...
 def header_free_param_list(param_list: dict[str, str]) -> None: ...
 def header_g_string_append_param(
     string: GLib.String, name: str, value: str | None = None
@@ -58,9 +58,7 @@ def header_parse_param_list(header: str) -> dict[str, str]: ...
 def header_parse_param_list_strict(header: str) -> dict[str, str] | None: ...
 def header_parse_quality_list(header: str) -> tuple[list[str], list[str]]: ...
 def header_parse_semi_param_list(header: str) -> dict[str, str]: ...
-def header_parse_semi_param_list_strict(
-    header: str,
-) -> dict[str, str] | None: ...
+def header_parse_semi_param_list_strict(header: str) -> dict[str, str] | None: ...
 def headers_parse(str: str, len: int, dest: MessageHeaders) -> bool: ...
 def headers_parse_request(
     str: str, len: int, req_headers: MessageHeaders
@@ -80,9 +78,7 @@ def tld_error_quark() -> int: ...
 def tld_get_base_domain(hostname: str) -> str: ...
 
 # override
-def uri_decode_data_uri(
-    uri: str,
-) -> tuple[GLib.Bytes | None, str | None]: ...
+def uri_decode_data_uri(uri: str) -> tuple[GLib.Bytes | None, str | None]: ...
 def uri_equal(uri1: GLib.Uri, uri2: GLib.Uri) -> bool: ...
 def websocket_client_prepare_handshake(
     msg: Message,
@@ -91,8 +87,7 @@ def websocket_client_prepare_handshake(
     supported_extensions: Sequence[GObject.TypeClass] | None = None,
 ) -> None: ...
 def websocket_client_verify_handshake(
-    msg: Message,
-    supported_extensions: Sequence[GObject.TypeClass] | None = None,
+    msg: Message, supported_extensions: Sequence[GObject.TypeClass] | None = None
 ) -> tuple[bool, list[WebsocketExtension]]: ...
 def websocket_error_quark() -> int: ...
 def websocket_server_check_handshake(
@@ -136,7 +131,6 @@ class Auth(GObject.Object):
     Signals from GObject:
       notify (GParam)
     """
-
     class Props(GObject.Object.Props):
         authority: str
         is_authenticated: bool
@@ -150,7 +144,7 @@ class Auth(GObject.Object):
     @property
     def parent_instance(self) -> GObject.Object: ...
     def __init__(
-        self, authority: str = ..., is_for_proxy: bool = ..., realm: str = ...
+        self, *, authority: str = ..., is_for_proxy: bool = ..., realm: str = ...
     ) -> None: ...
     def authenticate(self, username: str, password: str) -> None: ...
     def can_authenticate(self) -> bool: ...
@@ -203,7 +197,6 @@ class AuthBasic(Auth):
     Signals from GObject:
       notify (GParam)
     """
-
     class Props(Auth.Props):
         authority: str
         is_authenticated: bool
@@ -215,7 +208,7 @@ class AuthBasic(Auth):
     @property
     def props(self) -> Props: ...
     def __init__(
-        self, authority: str = ..., is_for_proxy: bool = ..., realm: str = ...
+        self, *, authority: str = ..., is_for_proxy: bool = ..., realm: str = ...
     ) -> None: ...
 
 class AuthClass(GObject.GPointer):
@@ -276,7 +269,6 @@ class AuthDigest(Auth):
     Signals from GObject:
       notify (GParam)
     """
-
     class Props(Auth.Props):
         authority: str
         is_authenticated: bool
@@ -288,7 +280,7 @@ class AuthDigest(Auth):
     @property
     def props(self) -> Props: ...
     def __init__(
-        self, authority: str = ..., is_for_proxy: bool = ..., realm: str = ...
+        self, *, authority: str = ..., is_for_proxy: bool = ..., realm: str = ...
     ) -> None: ...
 
 class AuthDomain(GObject.Object):
@@ -318,7 +310,6 @@ class AuthDomain(GObject.Object):
     Signals from GObject:
       notify (GParam)
     """
-
     # override
     class Props(GObject.Object.Props):
         filter: Callable[..., bool]
@@ -395,7 +386,6 @@ class AuthDomainBasic(AuthDomain):
     Signals from GObject:
       notify (GParam)
     """
-
     # override
     class Props(AuthDomain.Props):
         auth_callback: Callable[..., bool]
@@ -491,7 +481,6 @@ class AuthDomainDigest(AuthDomain):
     Signals from GObject:
       notify (GParam)
     """
-
     # override
     class Props(AuthDomain.Props):
         auth_callback: Callable[..., str | None]
@@ -521,9 +510,7 @@ class AuthDomainDigest(AuthDomain):
     @staticmethod
     def encode_password(username: str, realm: str, password: str) -> str: ...
     def set_auth_callback(
-        self,
-        callback: Callable[..., str | None],
-        *user_data: Any,
+        self, callback: Callable[..., str | None], *user_data: Any
     ) -> None: ...
 
 class AuthDomainDigestClass(GObject.GPointer):
@@ -550,7 +537,6 @@ class AuthManager(GObject.Object, SessionFeature):
     Signals from GObject:
       notify (GParam)
     """
-
     def clear_cached_credentials(self) -> None: ...
     def use_auth(self, uri: GLib.Uri, auth: Auth) -> None: ...
 
@@ -603,7 +589,7 @@ class AuthNTLM(Auth):
     @property
     def props(self) -> Props: ...
     def __init__(
-        self, authority: str = ..., is_for_proxy: bool = ..., realm: str = ...
+        self, *, authority: str = ..., is_for_proxy: bool = ..., realm: str = ...
     ) -> None: ...
 
 class AuthNegotiate(Auth):
@@ -644,7 +630,7 @@ class AuthNegotiate(Auth):
     @property
     def props(self) -> Props: ...
     def __init__(
-        self, authority: str = ..., is_for_proxy: bool = ..., realm: str = ...
+        self, *, authority: str = ..., is_for_proxy: bool = ..., realm: str = ...
     ) -> None: ...
     @staticmethod
     def supported() -> bool: ...
@@ -669,7 +655,6 @@ class Cache(GObject.Object, SessionFeature):
     Signals from GObject:
       notify (GParam)
     """
-
     class Props(GObject.Object.Props):
         cache_dir: str
         cache_type: CacheType
@@ -678,7 +663,9 @@ class Cache(GObject.Object, SessionFeature):
     def props(self) -> Props: ...
     @property
     def parent_instance(self) -> GObject.Object: ...
-    def __init__(self, cache_dir: str = ..., cache_type: CacheType = ...) -> None: ...
+    def __init__(
+        self, *, cache_dir: str = ..., cache_type: CacheType = ...
+    ) -> None: ...
     def clear(self) -> None: ...
     def do_get_cacheability(self, msg: Message) -> Cacheability: ...
     def dump(self) -> None: ...
@@ -731,7 +718,6 @@ class ContentSniffer(GObject.Object, SessionFeature):
     Signals from GObject:
       notify (GParam)
     """
-
     @classmethod
     def new(cls) -> ContentSniffer: ...
     def sniff(self, msg: Message, buffer: GLib.Bytes) -> tuple[str, dict[str, str]]: ...
@@ -755,7 +741,10 @@ class Cookie(GObject.GBoxed):
 
         new(name:str, value:str, domain:str, path:str, max_age:int) -> Soup.Cookie
     """
-
+    @staticmethod
+    def __new__(
+        cls: type[Self], name: str, value: str, domain: str, path: str, max_age: int
+    ) -> Self: ...
     def applies_to_uri(self, uri: GLib.Uri) -> bool: ...
     def copy(self) -> Cookie: ...
     def domain_matches(self, host: str) -> bool: ...
@@ -810,7 +799,6 @@ class CookieJar(GObject.Object, SessionFeature):
     Signals from GObject:
       notify (GParam)
     """
-
     class Props(GObject.Object.Props):
         accept_policy: CookieJarAcceptPolicy
         read_only: bool
@@ -820,7 +808,7 @@ class CookieJar(GObject.Object, SessionFeature):
     @property
     def parent_instance(self) -> GObject.Object: ...
     def __init__(
-        self, accept_policy: CookieJarAcceptPolicy = ..., read_only: bool = ...
+        self, *, accept_policy: CookieJarAcceptPolicy = ..., read_only: bool = ...
     ) -> None: ...
     def add_cookie(self, cookie: Cookie) -> None: ...
     def add_cookie_full(
@@ -904,7 +892,6 @@ class CookieJarDB(CookieJar, SessionFeature):
     Signals from GObject:
       notify (GParam)
     """
-
     class Props(CookieJar.Props):
         filename: str
         accept_policy: CookieJarAcceptPolicy
@@ -914,6 +901,7 @@ class CookieJarDB(CookieJar, SessionFeature):
     def props(self) -> Props: ...
     def __init__(
         self,
+        *,
         filename: str = ...,
         accept_policy: CookieJarAcceptPolicy = ...,
         read_only: bool = ...,
@@ -959,7 +947,6 @@ class CookieJarText(CookieJar, SessionFeature):
     Signals from GObject:
       notify (GParam)
     """
-
     class Props(CookieJar.Props):
         filename: str
         accept_policy: CookieJarAcceptPolicy
@@ -969,6 +956,7 @@ class CookieJarText(CookieJar, SessionFeature):
     def props(self) -> Props: ...
     def __init__(
         self,
+        *,
         filename: str = ...,
         accept_policy: CookieJarAcceptPolicy = ...,
         read_only: bool = ...,
@@ -1004,7 +992,6 @@ class HSTSEnforcer(GObject.Object, SessionFeature):
     Signals from GObject:
       notify (GParam)
     """
-
     @property
     def parent_instance(self) -> GObject.Object: ...
     def do_changed(self, old_policy: HSTSPolicy, new_policy: HSTSPolicy) -> None: ...
@@ -1059,13 +1046,12 @@ class HSTSEnforcerDB(HSTSEnforcer, SessionFeature):
     Signals from GObject:
       notify (GParam)
     """
-
     class Props(HSTSEnforcer.Props):
         filename: str
 
     @property
     def props(self) -> Props: ...
-    def __init__(self, filename: str = ...) -> None: ...
+    def __init__(self, *, filename: str = ...) -> None: ...
     @classmethod
     def new(cls, filename: str) -> HSTSEnforcerDB: ...
 
@@ -1091,7 +1077,10 @@ class HSTSPolicy(GObject.GBoxed):
         new_full(domain:str, max_age:int, expires:GLib.DateTime, include_subdomains:bool) -> Soup.HSTSPolicy
         new_session_policy(domain:str, include_subdomains:bool) -> Soup.HSTSPolicy
     """
-
+    @staticmethod
+    def __new__(
+        cls: type[Self], domain: str, max_age: int, include_subdomains: bool
+    ) -> Self: ...
     def copy(self) -> HSTSPolicy: ...
     def equal(self, policy2: HSTSPolicy) -> bool: ...
     def free(self) -> None: ...
@@ -1134,7 +1123,6 @@ class Logger(GObject.Object, SessionFeature):
     Signals from GObject:
       notify (GParam)
     """
-
     class Props(GObject.Object.Props):
         level: LoggerLogLevel
         max_body_size: int
@@ -1142,7 +1130,7 @@ class Logger(GObject.Object, SessionFeature):
     @property
     def props(self) -> Props: ...
     def __init__(
-        self, level: LoggerLogLevel = ..., max_body_size: int = ...
+        self, *, level: LoggerLogLevel = ..., max_body_size: int = ...
     ) -> None: ...
     def get_max_body_size(self) -> int: ...
     @classmethod
@@ -1150,14 +1138,10 @@ class Logger(GObject.Object, SessionFeature):
     def set_max_body_size(self, max_body_size: int) -> None: ...
     def set_printer(self, printer: Callable[..., None], *printer_data: Any) -> None: ...
     def set_request_filter(
-        self,
-        request_filter: Callable[..., LoggerLogLevel],
-        *filter_data: Any,
+        self, request_filter: Callable[..., LoggerLogLevel], *filter_data: Any
     ) -> None: ...
     def set_response_filter(
-        self,
-        response_filter: Callable[..., LoggerLogLevel],
-        *filter_data: Any,
+        self, response_filter: Callable[..., LoggerLogLevel], *filter_data: Any
     ) -> None: ...
 
 class LoggerClass(GObject.GPointer):
@@ -1246,7 +1230,6 @@ class Message(GObject.Object):
     Signals from GObject:
       notify (GParam)
     """
-
     class Props(GObject.Object.Props):
         first_party: GLib.Uri
         flags: MessageFlags
@@ -1271,6 +1254,7 @@ class Message(GObject.Object):
     def props(self) -> Props: ...
     def __init__(
         self,
+        *,
         first_party: GLib.Uri = ...,
         flags: MessageFlags = ...,
         is_options_ping: bool = ...,
@@ -1335,9 +1319,7 @@ class Message(GObject.Object):
         content_length: int,
     ) -> None: ...
     def set_request_body_from_bytes(
-        self,
-        content_type: str | None = None,
-        bytes: GLib.Bytes | None = None,
+        self, content_type: str | None = None, bytes: GLib.Bytes | None = None
     ) -> None: ...
     def set_site_for_cookies(
         self, site_for_cookies: GLib.Uri | None = None
@@ -1360,6 +1342,8 @@ class MessageBody(GObject.GBoxed):
 
     data: bytes
     length: int
+    @staticmethod
+    def __new__(cls: type[Self]) -> Self: ...
     def append(self, data: Sequence[int]) -> None: ...
     def append_bytes(self, buffer: GLib.Bytes) -> None: ...
     def complete(self) -> None: ...
@@ -1394,7 +1378,8 @@ class MessageHeaders(GObject.GBoxed):
 
         new(type:Soup.MessageHeadersType) -> Soup.MessageHeaders
     """
-
+    @staticmethod
+    def __new__(cls: type[Self], type: MessageHeadersType) -> Self: ...
     def append(self, name: str, value: str) -> None: ...
     def clean_connection_headers(self) -> None: ...
     def clear(self) -> None: ...
@@ -1403,9 +1388,7 @@ class MessageHeaders(GObject.GBoxed):
     def get_content_disposition(self) -> tuple[bool, str, dict[str, str]]: ...
     def get_content_length(self) -> int: ...
     def get_content_range(self) -> tuple[bool, int, int, int]: ...
-    def get_content_type(
-        self,
-    ) -> tuple[str | None, dict[str, str]]: ...
+    def get_content_type(self) -> tuple[str | None, dict[str, str]]: ...
     def get_encoding(self) -> Encoding: ...
     def get_expectations(self) -> Expectation: ...
     def get_headers_type(self) -> MessageHeadersType: ...
@@ -1476,7 +1459,8 @@ class Multipart(GObject.GBoxed):
         new(mime_type:str) -> Soup.Multipart
         new_from_message(headers:Soup.MessageHeaders, body:GLib.Bytes) -> Soup.Multipart or None
     """
-
+    @staticmethod
+    def __new__(cls: type[Self], mime_type: str) -> Self: ...
     def append_form_file(
         self,
         control_name: str,
@@ -1519,7 +1503,6 @@ class MultipartInputStream(Gio.FilterInputStream, Gio.PollableInputStream):
     Signals from GObject:
       notify (GParam)
     """
-
     class Props(Gio.FilterInputStream.Props):
         message: Message
         base_stream: Gio.InputStream
@@ -1529,6 +1512,7 @@ class MultipartInputStream(Gio.FilterInputStream, Gio.PollableInputStream):
     def props(self) -> Props: ...
     def __init__(
         self,
+        *,
         message: Message = ...,
         base_stream: Gio.InputStream = ...,
         close_base_stream: bool = ...,
@@ -1604,7 +1588,6 @@ class Server(GObject.Object):
     Signals from GObject:
       notify (GParam)
     """
-
     class Props(GObject.Object.Props):
         raw_paths: bool
         server_header: str
@@ -1618,6 +1601,7 @@ class Server(GObject.Object):
     def parent_instance(self) -> GObject.Object: ...
     def __init__(
         self,
+        *,
         raw_paths: bool = ...,
         server_header: str = ...,
         tls_auth_mode: Gio.TlsAuthenticationMode = ...,
@@ -1632,16 +1616,10 @@ class Server(GObject.Object):
     ) -> bool: ...
     def add_auth_domain(self, auth_domain: AuthDomain) -> None: ...
     def add_early_handler(
-        self,
-        path: str | None,
-        callback: Callable[..., None],
-        *user_data: Any,
+        self, path: str | None, callback: Callable[..., None], *user_data: Any
     ) -> None: ...
     def add_handler(
-        self,
-        path: str | None,
-        callback: Callable[..., None],
-        *user_data: Any,
+        self, path: str | None, callback: Callable[..., None], *user_data: Any
     ) -> None: ...
     def add_websocket_extension(self, extension_type: type[Any]) -> None: ...
     def add_websocket_handler(
@@ -1734,7 +1712,6 @@ class ServerMessage(GObject.Object):
     Signals from GObject:
       notify (GParam)
     """
-
     class Props(GObject.Object.Props):
         tls_peer_certificate: Gio.TlsCertificate | None
         tls_peer_certificate_errors: Gio.TlsCertificateFlags
@@ -1827,7 +1804,6 @@ class Session(GObject.Object):
     Signals from GObject:
       notify (GParam)
     """
-
     class Props(GObject.Object.Props):
         accept_language: str | None
         accept_language_auto: bool
@@ -1848,6 +1824,7 @@ class Session(GObject.Object):
     def parent_instance(self) -> GObject.Object: ...
     def __init__(
         self,
+        *,
         accept_language: str = ...,
         accept_language_auto: bool = ...,
         idle_timeout: int = ...,
@@ -2022,11 +1999,12 @@ class WebsocketConnection(GObject.Object):
         Keepalive pong timeout
       extensions -> gpointer: Active extensions
         The list of active extensions
+      max-total-message-size -> guint64: Max total message size
+        Max total message size
 
     Signals from GObject:
       notify (GParam)
     """
-
     class Props(GObject.Object.Props):
         connection_type: WebsocketConnectionType
         extensions: None
@@ -2034,6 +2012,7 @@ class WebsocketConnection(GObject.Object):
         keepalive_interval: int
         keepalive_pong_timeout: int
         max_incoming_payload_size: int
+        max_total_message_size: int
         origin: str | None
         protocol: str | None
         state: WebsocketState
@@ -2043,12 +2022,14 @@ class WebsocketConnection(GObject.Object):
     def props(self) -> Props: ...
     def __init__(
         self,
+        *,
         connection_type: WebsocketConnectionType = ...,
         extensions: None = ...,
         io_stream: Gio.IOStream = ...,
         keepalive_interval: int = ...,
         keepalive_pong_timeout: int = ...,
         max_incoming_payload_size: int = ...,
+        max_total_message_size: int = ...,
         origin: str = ...,
         protocol: str = ...,
         uri: GLib.Uri = ...,
@@ -2062,6 +2043,7 @@ class WebsocketConnection(GObject.Object):
     def get_keepalive_interval(self) -> int: ...
     def get_keepalive_pong_timeout(self) -> int: ...
     def get_max_incoming_payload_size(self) -> int: ...
+    def get_max_total_message_size(self) -> int: ...
     def get_origin(self) -> str | None: ...
     def get_protocol(self) -> str | None: ...
     def get_state(self) -> WebsocketState: ...
@@ -2082,6 +2064,7 @@ class WebsocketConnection(GObject.Object):
     def set_keepalive_interval(self, interval: int) -> None: ...
     def set_keepalive_pong_timeout(self, pong_timeout: int) -> None: ...
     def set_max_incoming_payload_size(self, max_incoming_payload_size: int) -> None: ...
+    def set_max_total_message_size(self, max_total_message_size: int) -> None: ...
 
 class WebsocketConnectionClass(GObject.GPointer):
     """
@@ -2107,7 +2090,6 @@ class WebsocketExtension(GObject.Object):
     Signals from GObject:
       notify (GParam)
     """
-
     @property
     def parent_instance(self) -> GObject.Object: ...
     def configure(

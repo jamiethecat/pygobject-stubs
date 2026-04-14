@@ -26,9 +26,7 @@ def type_find_helper_for_buffer_with_caps(
     obj: Gst.Object | None, buf: Gst.Buffer, caps: Gst.Caps
 ) -> tuple[Gst.Caps | None, Gst.TypeFindProbability]: ...
 def type_find_helper_for_buffer_with_extension(
-    obj: Gst.Object | None,
-    buf: Gst.Buffer,
-    extension: str | None = None,
+    obj: Gst.Object | None, buf: Gst.Buffer, extension: str | None = None
 ) -> tuple[Gst.Caps | None, Gst.TypeFindProbability]: ...
 def type_find_helper_for_data(
     obj: Gst.Object | None, data: Sequence[int]
@@ -37,9 +35,7 @@ def type_find_helper_for_data_with_caps(
     obj: Gst.Object | None, data: Sequence[int], caps: Gst.Caps
 ) -> tuple[Gst.Caps | None, Gst.TypeFindProbability]: ...
 def type_find_helper_for_data_with_extension(
-    obj: Gst.Object | None,
-    data: Sequence[int],
-    extension: str | None = None,
+    obj: Gst.Object | None, data: Sequence[int], extension: str | None = None
 ) -> tuple[Gst.Caps | None, Gst.TypeFindProbability]: ...
 def type_find_helper_for_extension(
     obj: Gst.Object | None, extension: str
@@ -48,8 +44,7 @@ def type_find_helper_get_range(
     obj: Gst.Object,
     parent: Gst.Object | None,
     func: Callable[
-        [Gst.Object, Gst.Object | None, int, int],
-        tuple[Gst.FlowReturn, Gst.Buffer],
+        [Gst.Object, Gst.Object | None, int, int], tuple[Gst.FlowReturn, Gst.Buffer]
     ],
     size: int,
     extension: str | None = None,
@@ -58,8 +53,7 @@ def type_find_helper_get_range_full(
     obj: Gst.Object,
     parent: Gst.Object | None,
     func: Callable[
-        [Gst.Object, Gst.Object | None, int, int],
-        tuple[Gst.FlowReturn, Gst.Buffer],
+        [Gst.Object, Gst.Object | None, int, int], tuple[Gst.FlowReturn, Gst.Buffer]
     ],
     size: int,
     extension: str | None = None,
@@ -234,11 +228,7 @@ class Aggregator(Gst.Element):
     def peek_next_sample(self, pad: AggregatorPad) -> Gst.Sample | None: ...
     def push_src_event(self, event: Gst.Event) -> bool: ...
     def selected_samples(
-        self,
-        pts: int,
-        dts: int,
-        duration: int,
-        info: Gst.Structure | None = None,
+        self, pts: int, dts: int, duration: int, info: Gst.Structure | None = None
     ) -> None: ...
     def set_force_live(self, force_live: bool) -> None: ...
     def set_ignore_inactive_pads(self, ignore: bool) -> None: ...
@@ -260,9 +250,7 @@ class AggregatorClass(GObject.GPointer):
     @property
     def flush(self) -> Callable[[Aggregator], Gst.FlowReturn]: ...
     @property
-    def clip(
-        self,
-    ) -> Callable[[Aggregator, AggregatorPad, Gst.Buffer], Gst.Buffer | None]: ...
+    def clip(self) -> Callable[[Aggregator, AggregatorPad, Gst.Buffer], Gst.Buffer]: ...
     @property
     def finish_buffer(self) -> Callable[[Aggregator, Gst.Buffer], Gst.FlowReturn]: ...
     @property
@@ -284,11 +272,7 @@ class AggregatorClass(GObject.GPointer):
     @property
     def get_next_time(self) -> Callable[[Aggregator], int]: ...
     @property
-    def create_new_pad(
-        self,
-    ) -> Callable[
-        [Aggregator, Gst.PadTemplate, str | None, Gst.Caps | None], AggregatorPad
-    ]: ...
+    def create_new_pad(self) -> None: ...
     @property
     def update_src_caps(
         self,
@@ -1067,11 +1051,7 @@ class BaseTransform(Gst.Element):
     @property
     def priv(self) -> BaseTransformPrivate: ...
     def __init__(
-        self,
-        *,
-        qos: bool = ...,
-        name: str | None = ...,
-        parent: Gst.Object = ...,
+        self, *, qos: bool = ..., name: str | None = ..., parent: Gst.Object = ...
     ) -> None: ...
     def do_accept_caps(self, direction: Gst.PadDirection, caps: Gst.Caps) -> bool: ...
     def do_before_transform(self, buffer: Gst.Buffer) -> None: ...

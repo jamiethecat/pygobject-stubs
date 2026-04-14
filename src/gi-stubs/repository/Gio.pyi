@@ -21,6 +21,7 @@ ObjectPropsItemType = TypeVar("ObjectPropsItemType", bound=GObject.Object, defau
 DBUS_METHOD_INVOCATION_HANDLED: Final = True
 DBUS_METHOD_INVOCATION_UNHANDLED: Final = False
 DEBUG_CONTROLLER_EXTENSION_POINT_NAME: Final = "gio-debug-controller"
+DESKTOP_APP_INFO_LOOKUP_EXTENSION_POINT_NAME: Final = "gio-desktop-app-info-lookup"
 DRIVE_IDENTIFIER_KIND_UNIX_DEVICE: Final = "unix-device"
 FILE_ATTRIBUTE_ACCESS_CAN_DELETE: Final = "access::can-delete"
 FILE_ATTRIBUTE_ACCESS_CAN_EXECUTE: Final = "access::can-execute"
@@ -3030,10 +3031,10 @@ class DBusProxy(GObject.Object, AsyncInitable, DBusInterface, Initable):
         g_connection: DBusConnection
         g_default_timeout: int
         g_flags: DBusProxyFlags
-        g_interface_info: DBusInterfaceInfo
+        g_interface_info: DBusInterfaceInfo | None
         g_interface_name: str
-        g_name: str
-        g_name_owner: str
+        g_name: str | None
+        g_name_owner: str | None
         g_object_path: str
         g_bus_type: BusType
 
@@ -3050,7 +3051,7 @@ class DBusProxy(GObject.Object, AsyncInitable, DBusInterface, Initable):
         g_connection: DBusConnection = ...,
         g_default_timeout: int = ...,
         g_flags: DBusProxyFlags = ...,
-        g_interface_info: DBusInterfaceInfo = ...,
+        g_interface_info: DBusInterfaceInfo | None = ...,
         g_interface_name: str = ...,
         g_name: str = ...,
         g_object_path: str = ...,
@@ -3610,6 +3611,9 @@ class DebugControllerInterface(GObject.GPointer):
     """
     @property
     def g_iface(self) -> GObject.TypeInterface: ...
+
+DesktopAppInfo = GioUnix.DesktopAppInfo
+DesktopAppInfoLookup = GioUnix.DesktopAppInfoLookup
 
 class Drive(GObject.GInterface, Protocol):
     """
@@ -7314,32 +7318,6 @@ class Notification(GObject.Object):
     def set_priority(self, priority: NotificationPriority) -> None: ...
     def set_title(self, title: str) -> None: ...
     def set_urgent(self, urgent: bool) -> None: ...
-
-class OsxAppInfo(GObject.Object, AppInfo):
-    """
-    :Constructors:
-
-    ::
-
-        OsxAppInfo(**properties)
-
-    Object GOsxAppInfo
-
-    Signals from GObject:
-      notify (GParam)
-    """
-    def get_filename(self) -> str: ...
-
-class OsxAppInfoClass(GObject.GPointer):
-    """
-    :Constructors:
-
-    ::
-
-        OsxAppInfoClass()
-    """
-    @property
-    def parent_class(self) -> GObject.ObjectClass: ...
 
 class OutputMessage(GObject.GPointer):
     """
@@ -11355,6 +11333,9 @@ class UnixCredentialsMessageClass(GObject.GPointer):
 
 class UnixCredentialsMessagePrivate(GObject.GPointer): ...
 
+UnixDesktopAppInfoClass = GioUnix.DesktopAppInfoClass
+UnixDesktopAppInfoLookupIface = GioUnix.DesktopAppInfoLookupIface
+
 class UnixFDList(GObject.Object):
     """
     :Constructors:
@@ -12450,7 +12431,7 @@ class SocketClientEvent(GObject.GEnum):
 class SocketFamily(GObject.GEnum):
     INVALID = 0
     IPV4 = 2
-    IPV6 = 30
+    IPV6 = 10
     UNIX = 1
 
 class SocketListenerEvent(GObject.GEnum):
